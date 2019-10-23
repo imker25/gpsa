@@ -1,8 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"os"
+
+	"tobi.backfrak.de/internal/gpsabl"
+)
 
 func main() {
-	fmt.Println("Lets go :)")
+	gpsabl.ReadGPX("Let's go :)")
 
+	os.Exit(0)
 }
