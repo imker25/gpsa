@@ -1,0 +1,17 @@
+**/.vscode/
+**\.vscode\
+**/.gradle/
+**\.gradle\
+
+debug
+debug.test
+bin/*
+bin\*
+pkg/*
+pkg\*
+logs/*
+logs\*
+
+*.zip
+*.log
+
