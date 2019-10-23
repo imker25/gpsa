@@ -1,0 +1,212 @@
+defaultTasks 'build'
+
+def goPath
+def scriptDirectory
+def scriptFile
+def osName 
+def osVersion 
+String srcDir 
+String binDir
+String pkgDir
+String logDir
+String packagesToBuild = ''
+String packagesToTest = ''
+
+task getEnvironment {
+    description 'Setup the environment for the build'
+    doFirst{
+        println '##################################################################################'
+        println 'Setup the environment'
+        println '##################################################################################'
+        osName = org.gradle.internal.os.OperatingSystem.current().getName()
+        osVersion = org.gradle.internal.os.OperatingSystem.current().getVersion()
+        println "$osName $osVersion was detected."
+
+        // Find the location in the file system
+        scriptFile = buildscript.sourceFile
+        scriptDirectory = scriptFile.getParent()
+        println 'Script directory is: ' + scriptDirectory
+
+        srcDir = "$scriptDirectory" + File.separator + "src" + File.separator
+        binDir = "$scriptDirectory" + File.separator + "bin" + File.separator
+        pkgDir = "$scriptDirectory" + File.separator + "pkg" + File.separator
+        logDir = "$scriptDirectory" + File.separator + "logs" + File.separator
+
+        def logDirBase = new File(logDir)
+        logDirBase.mkdirs()
+
+        // Make sure the gopath is valide for build
+        goPath = "${System.env.GOPATH}"
+
+        if ("$goPath"!="null" ) {
+            if (goPath.contains(scriptDirectory) == false) {
+                println "GOPATH needs to be extended with: $scriptDirectory"
+                if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+                    println "Go Path will be set to: $goPath;$scriptDirectory"
+                    goPath ="$goPath;$scriptDirectory"
+                } else {
+                    println "Go Path will be set to: $goPath:$scriptDirectory"
+                    goPath ="$goPath:$scriptDirectory"
+                }
+            } else {
+                println 'GOPATH already contains all needed'
+            }
+        } else {
+            println "No GOPATH set. Set it to: $scriptDirectory"
+            goPath ="$scriptDirectory"
+        }
+        
+        println "GOPATH=$goPath"
+        
+        // Find all diretories within src/ that contains *.go files
+        new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*.go/, type: groovy.io.FileType.FILES]){
+                String packageDir = it.getParent() 
+                String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
+                if (packagesToBuild.contains(packageName + ' ') == false) {
+                    packagesToBuild = packageName + ' ' + packagesToBuild
+                }
+        }
+
+        // Find all directories within src/ that contains *_test.go files
+        new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*_test.go/, type: groovy.io.FileType.FILES]){
+                String packageDir = it.getParent() 
+                String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
+                if (packagesToTest.contains(packageName + ' ') == false) {
+                    packagesToTest = packageName + ' ' + packagesToTest
+                }
+        }
+        if (File.separator == '\\') {
+            packagesToBuild = packagesToBuild.replaceAll(java.util.regex.Matcher.quoteReplacement(File.separator), '/')
+            packagesToTest = packagesToTest.replaceAll(java.util.regex.Matcher.quoteReplacement(File.separator), '/')
+        }
+
+        println "Go Packages to build: $packagesToBuild"
+        println "Go Packages to test: $packagesToTest"
+
+    }
+}
+
+task clean(dependsOn: 'getEnvironment') {
+    description 'Delete all output from older builds'
+    doFirst {
+        println '##################################################################################'
+        println 'Clean up'
+        println '##################################################################################'
+    }
+    doLast {
+        println "Delete binaries in $binDir"
+        delete fileTree(binDir) {
+            
+        }
+        println "Delete packages in $pkgDir"
+        delete fileTree(pkgDir) {
+            
+        }
+        println "Delete logs in $logDir"
+        delete fileTree(logDir) {
+            
+        }
+
+        println "Delete zips in $scriptDirectory"
+        delete fileTree(scriptDirectory) {
+            include "*.zip"
+        }
+    }
+}
+
+task test(dependsOn: 'getEnvironment') {
+    description 'Run all go tests'
+    doFirst {
+        println '##################################################################################'
+        println 'Run tests'
+        println '##################################################################################'
+    }
+    doLast {
+        println "go test -v $packagesToTest >> " + logDir + "tests.log"
+        def packageArray = packagesToTest.split(' ');
+        def callArgs = new String[packageArray.length + 2]
+        callArgs[0] = 'test'
+        callArgs[1] = '-v'
+        def i = 0
+        packageArray.each {
+            callArgs[i + 2] = it 
+            i = i + 1
+        }
+        def logFileStream = new FileOutputStream(logDir + "tests.log")
+        exec {
+            workingDir "$scriptDirectory"
+            executable "go"
+            args callArgs
+            environment('GOPATH', goPath)
+
+            standardOutput logFileStream
+            errorOutput logFileStream
+        }
+    }
+}
+
+task build(dependsOn: 'clean') {
+    description 'Compile all go packages'
+    doFirst {
+        println '##################################################################################'
+        println 'Build'
+        println '##################################################################################'
+    }
+    doLast {
+        println "go install -v $packagesToBuild"
+        def packageArray = packagesToBuild.split(' ');
+        def callArgs = new String[packageArray.length + 2]
+        callArgs[0] = 'install'
+        callArgs[1] = '-v'
+        def i = 0
+        packageArray.each {
+            callArgs[i + 2] = it 
+            i = i + 1
+        }
+       
+        exec {
+            workingDir "$scriptDirectory"
+            executable "go"
+            args callArgs
+            environment('GOPATH', goPath)
+            
+
+        }
+    }
+}
+
+
+task createBuildZip(type: Zip, dependsOn: 'createBinZip') {
+    from "."
+    include "bin${File.separator}**"
+    include "logs${File.separator}**"
+    archiveName = 'Build.zip'
+    destinationDirectory = file( buildscript.sourceFile.getParent())
+
+    doFirst {
+        println "Create the Build.zip file in $scriptDirectory"
+    }
+}
+
+task createBinZip(type: Zip, dependsOn: 'getEnvironment') {
+    from "."
+    include "bin${File.separator}**"
+    archiveFileName = "bin.zip"
+    destinationDirectory = file( buildscript.sourceFile.getParent())
+
+    doFirst {
+        println "Create the bin.zip file in $scriptDirectory"
+    }
+}
+
+// Do something after each task, no matter the state
+gradle.taskGraph.afterTask { taskWasRunning, TaskState state ->
+
+    // Find out what task was running before
+   if ((taskWasRunning == build) || (taskWasRunning == test))  {
+        println "$taskWasRunning exit"
+
+   } 
+}
+
+
