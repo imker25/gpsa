@@ -20,20 +20,20 @@ type Gpx struct {
 func ReadGPX(filename string) (Gpx, error) {
 
 	if filename == "" {
-		return *(&Gpx{}), nil
+		return Gpx{}, nil
 	}
 
 	fmt.Println("Read file: " + filename)
 	xmlfile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		HandleError(err)
+		return Gpx{}, err
 	}
 	return readGPXBuffer(xmlfile)
 }
 
 func readGPXBuffer(fileBuffer []byte) (Gpx, error) {
-	gpx := &Gpx{}
+	gpx := Gpx{}
 	err := xml.Unmarshal([]byte(fileBuffer), &gpx)
 
-	return *gpx, err
+	return gpx, err
 }

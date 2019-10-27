@@ -5,13 +5,18 @@ package main
 // by a BSD-style license that can be found in the
 // LICENSE file.
 import (
+	"fmt"
 	"os"
 
 	"tobi.backfrak.de/internal/gpsabl"
 )
 
 func main() {
-	gpsabl.ReadGPX("")
-
+	gpx, err := gpsabl.ReadGPX("")
+	if err != nil {
+		gpsabl.HandleError(err)
+	}
+	fmt.Println(gpx.Name)
+	fmt.Println(gpx.Description)
 	os.Exit(0)
 }
