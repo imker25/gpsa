@@ -31,3 +31,10 @@ func GetValideGPX(name string) string {
 
 	return filepath.Join(rootDir, "testdata", "valide-gpx", name)
 }
+
+// GetUnValideGPX - Get the file path to a valide gpx file with the given name
+func GetUnValideGPX(name string) string {
+	rootDir := GetProjectRoot()
+
+	return filepath.Join(rootDir, "testdata", "unvalide-gpx", name)
+}

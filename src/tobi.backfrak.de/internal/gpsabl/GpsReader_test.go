@@ -10,6 +10,32 @@ import (
 	"tobi.backfrak.de/internal/testhelper"
 )
 
+func TestReadNotExistingGPX(t *testing.T) {
+	file := testhelper.GetValideGPX("NotExisting.gpx")
+
+	if file == "" {
+		t.Errorf("Test failed, expected not to get an empty string")
+	}
+
+	_, err := ReadGPX(file)
+	if err == nil {
+		t.Errorf("A os.PathError was expected")
+	}
+}
+
+func TestReadUnValideGPX(t *testing.T) {
+	file := testhelper.GetUnValideGPX("01.gpx")
+
+	if file == "" {
+		t.Errorf("Test failed, expected not to get an empty string")
+	}
+
+	_, err := ReadGPX(file)
+	if err == nil {
+		t.Errorf("A encoding/xml.SyntaxError was expected")
+	}
+}
+
 func TestReadValideGPX(t *testing.T) {
 	file := testhelper.GetValideGPX("01.gpx")
 
