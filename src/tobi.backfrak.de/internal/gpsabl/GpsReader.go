@@ -19,8 +19,21 @@ type Gpx struct {
 
 // Trk - Represents the content of a GPX track
 type Trk struct {
-	Name   string `xml:"name"`
-	Number int    `xml:"number"`
+	Name         string `xml:"name"`
+	Number       int    `xml:"number"`
+	TrackSegment Trkseg `xml:"trkseg"`
+}
+
+// Trkseg - Represents a track segement, basicaly a arry of Trkpt
+type Trkseg struct {
+	TrackPoints []Trkpt `xml:"trkpt"`
+}
+
+// Trkpt - Represents a track point
+type Trkpt struct {
+	Elevation float32 `xml:"ele"`
+	Latitude  float32 `xml:"lat,attr"`
+	Longitude float32 `xml:"lon,attr"`
 }
 
 // ReadGPX - Read a GPX file
