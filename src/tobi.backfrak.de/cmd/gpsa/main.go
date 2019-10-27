@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	gpsabl.ReadGPX("Let's go :)")
+	gpsabl.ReadGPX("")
 
 	os.Exit(0)
 }
