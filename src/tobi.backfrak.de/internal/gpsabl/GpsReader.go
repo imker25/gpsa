@@ -14,6 +14,13 @@ import (
 type Gpx struct {
 	Name        string `xml:"name"`
 	Description string `xml:"desc"`
+	Track       Trk    `xml:"trk"`
+}
+
+// Trk - Represents the content of a GPX track
+type Trk struct {
+	Name   string `xml:"name"`
+	Number int    `xml:"number"`
 }
 
 // ReadGPX - Read a GPX file

@@ -3,10 +3,10 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xmlns="http://www.topografix.com/GPX/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
 
-	<name>Track</name>
-	<desc>A valide Track</desc>
+	<name>GPX name</name>
+	<desc>A valide GPX Track</desc>
 	<trk>
-		<name>Track</name>
+		<name>Track name</name>
 		<number>1</number>
 		<trkseg>
 			<trkpt lat="49.41594200" lon="11.01744700">
