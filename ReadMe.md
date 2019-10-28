@@ -1,6 +1,9 @@
 # gpsa - A GPX Statistic Analysing tool
 This is a simple comandline tool, that may helps to extract statistic data out of *.gpx files
 
+# Development
+To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine. 
+
 ## Build
 Use [Gradle](https://gradle.org/) to build and test the porject
 
@@ -9,6 +12,8 @@ gradle build        # build the project
 gradle build test   # build and run the tests for the project
 gradle test         # test the project
 ```
+
+
 
 # License
 
