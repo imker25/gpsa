@@ -5,6 +5,10 @@ package gpsabl
 // by a BSD-style license that can be found in the
 // LICENSE file.
 import (
+	"encoding/xml"
+	"fmt"
+	"os"
+	"reflect"
 	"testing"
 
 	"tobi.backfrak.de/internal/testhelper"
@@ -18,8 +22,13 @@ func TestReadNotExistingGPX(t *testing.T) {
 	}
 
 	_, err := ReadGPX(file)
-	if err == nil {
-		t.Errorf("A os.PathError was expected")
+	switch v := err.(type) {
+	case nil:
+		t.Errorf("No error, when reading a unvalide gpx file")
+	case *os.PathError:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Expected a *os.PathError, got a %s", reflect.TypeOf(v))
 	}
 }
 
@@ -31,12 +40,18 @@ func TestReadUnValideGPX(t *testing.T) {
 	}
 
 	_, err := ReadGPX(file)
-	if err == nil {
-		t.Errorf("A encoding/xml.SyntaxError was expected")
+	switch v := err.(type) {
+	case nil:
+		t.Errorf("No error, when reading a unvalide gpx file")
+	case *xml.SyntaxError:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Expected a *xml.SyntaxError, got a %s", reflect.TypeOf(v))
 	}
+
 }
 
-func TestReadValideGPX(t *testing.T) {
+func TestReadValideSimpleGPX(t *testing.T) {
 	file := testhelper.GetValideGPX("01.gpx")
 
 	if file == "" {
