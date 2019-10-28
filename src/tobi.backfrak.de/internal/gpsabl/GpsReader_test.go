@@ -24,7 +24,7 @@ func TestReadNotExistingGPX(t *testing.T) {
 	_, err := ReadGPX(file)
 	switch v := err.(type) {
 	case nil:
-		t.Errorf("No error, when reading a unvalide gpx file")
+		t.Errorf("No error, when reading a not existing gpx file")
 	case *os.PathError:
 		fmt.Println("OK")
 	default:
