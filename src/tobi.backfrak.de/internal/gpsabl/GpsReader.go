@@ -14,14 +14,15 @@ import (
 type Gpx struct {
 	Name        string `xml:"name"`
 	Description string `xml:"desc"`
-	Track       Trk    `xml:"trk"`
+	Tracks      []Trk  `xml:"trk"`
 }
 
 // Trk - Represents the content of a GPX track
 type Trk struct {
-	Name         string `xml:"name"`
-	Number       int    `xml:"number"`
-	TrackSegment Trkseg `xml:"trkseg"`
+	Name          string   `xml:"name"`
+	Number        int      `xml:"number"`
+	Description   string   `xml:"desc"`
+	TrackSegments []Trkseg `xml:"trkseg"`
 }
 
 // Trkseg - Represents a track segement, basicaly a arry of Trkpt

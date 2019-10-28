@@ -56,27 +56,27 @@ func TestReadValideGPX(t *testing.T) {
 		t.Errorf("The GPX Description was not expected. Got: %s", gpx.Description)
 	}
 
-	if gpx.Track.Name != "Track name" {
-		t.Errorf("The Track Name was not expected. Got: %s", gpx.Track.Name)
+	if gpx.Tracks[0].Name != "Track name" {
+		t.Errorf("The Track Name was not expected. Got: %s", gpx.Tracks[0].Name)
 	}
 
-	if gpx.Track.Number != 1 {
-		t.Errorf("The Track Number was not expected. Got: %d", gpx.Track.Number)
+	if gpx.Tracks[0].Number != 1 {
+		t.Errorf("The Track Number was not expected. Got: %d", gpx.Tracks[0].Number)
 	}
 
-	if len(gpx.Track.TrackSegment.TrackPoints) != 637 {
-		t.Errorf("The Number of track points was not expected. Got: %d", len(gpx.Track.TrackSegment.TrackPoints))
+	if len(gpx.Tracks[0].TrackSegments[0].TrackPoints) != 637 {
+		t.Errorf("The Number of track points was not expected. Got: %d", len(gpx.Tracks[0].TrackSegments[0].TrackPoints))
 	}
 
-	if gpx.Track.TrackSegment.TrackPoints[0].Elevation != 308.00100 {
-		t.Errorf("The track point 0 Elevation was not expected. Got: %f", gpx.Track.TrackSegment.TrackPoints[0].Elevation)
+	if gpx.Tracks[0].TrackSegments[0].TrackPoints[0].Elevation != 308.00100 {
+		t.Errorf("The track point 0 Elevation was not expected. Got: %f", gpx.Tracks[0].TrackSegments[0].TrackPoints[0].Elevation)
 	}
 
-	if gpx.Track.TrackSegment.TrackPoints[0].Latitude != 49.41594200 {
-		t.Errorf("The track point 0 Latitude was not expected. Got: %f", gpx.Track.TrackSegment.TrackPoints[0].Latitude)
+	if gpx.Tracks[0].TrackSegments[0].TrackPoints[0].Latitude != 49.41594200 {
+		t.Errorf("The track point 0 Latitude was not expected. Got: %f", gpx.Tracks[0].TrackSegments[0].TrackPoints[0].Latitude)
 	}
 
-	if gpx.Track.TrackSegment.TrackPoints[0].Longitude != 11.01744700 {
-		t.Errorf("The track point 0 Longitude was not expected. Got: %f", gpx.Track.TrackSegment.TrackPoints[0].Longitude)
+	if gpx.Tracks[0].TrackSegments[0].TrackPoints[0].Longitude != 11.01744700 {
+		t.Errorf("The track point 0 Longitude was not expected. Got: %f", gpx.Tracks[0].TrackSegments[0].TrackPoints[0].Longitude)
 	}
 }
