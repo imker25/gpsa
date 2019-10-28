@@ -15,13 +15,7 @@ import (
 )
 
 func TestReadNotExistingGPX(t *testing.T) {
-	file := testhelper.GetValideGPX("NotExisting.gpx")
-
-	if file == "" {
-		t.Errorf("Test failed, expected not to get an empty string")
-	}
-
-	_, err := ReadGPX(file)
+	_, err := ReadGPX(testhelper.GetValideGPX("NotExisting.gpx"))
 	switch v := err.(type) {
 	case nil:
 		t.Errorf("No error, when reading a not existing gpx file")
@@ -33,13 +27,7 @@ func TestReadNotExistingGPX(t *testing.T) {
 }
 
 func TestReadUnValideGPX(t *testing.T) {
-	file := testhelper.GetUnValideGPX("01.gpx")
-
-	if file == "" {
-		t.Errorf("Test failed, expected not to get an empty string")
-	}
-
-	_, err := ReadGPX(file)
+	_, err := ReadGPX(testhelper.GetUnValideGPX("01.gpx"))
 	switch v := err.(type) {
 	case nil:
 		t.Errorf("No error, when reading a unvalide gpx file")
@@ -52,13 +40,8 @@ func TestReadUnValideGPX(t *testing.T) {
 }
 
 func TestReadNotGPX(t *testing.T) {
-	file := testhelper.GetUnValideGPX("02.gpx")
 
-	if file == "" {
-		t.Errorf("Test failed, expected not to get an empty string")
-	}
-
-	gpx, err := ReadGPX(file)
+	gpx, err := ReadGPX(testhelper.GetUnValideGPX("02.gpx"))
 	switch v := err.(type) {
 	case nil:
 		t.Errorf("No error, when reading a unvalide gpx file")
@@ -94,13 +77,8 @@ func TestReadValideMultiTrackGPX(t *testing.T) {
 }
 
 func TestReadValideSimpleGPX(t *testing.T) {
-	file := testhelper.GetValideGPX("01.gpx")
 
-	if file == "" {
-		t.Errorf("Test failed, expected not to get an empty string")
-	}
-
-	gpx, err := ReadGPX(file)
+	gpx, err := ReadGPX(testhelper.GetValideGPX("01.gpx"))
 	if err != nil {
 		t.Errorf("Something wrong when reading a valide gpx file: %s", err.Error())
 	}
