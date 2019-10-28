@@ -51,6 +51,48 @@ func TestReadUnValideGPX(t *testing.T) {
 
 }
 
+func TestReadNotGPX(t *testing.T) {
+	file := testhelper.GetUnValideGPX("02.gpx")
+
+	if file == "" {
+		t.Errorf("Test failed, expected not to get an empty string")
+	}
+
+	gpx, err := ReadGPX(file)
+	switch v := err.(type) {
+	case nil:
+		t.Errorf("No error, when reading a unvalide gpx file")
+	case *GpxFileError:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Expected a *gpsabl.GpxFileError, got a %s", reflect.TypeOf(v))
+	}
+
+	fmt.Println(gpx.Name)
+}
+
+func TestReadValideMultiSegmentGPX(t *testing.T) {
+	gpx, err := ReadGPX(testhelper.GetValideGPX("02.gpx"))
+	if err != nil {
+		t.Errorf("Something wrong when reading a valide gpx file: %s", err.Error())
+	}
+
+	if len(gpx.Tracks[0].TrackSegments) != 2 {
+		t.Errorf("Expected 2 TrackSegments, got %d", len(gpx.Tracks[0].TrackSegments))
+	}
+}
+
+func TestReadValideMultiTrackGPX(t *testing.T) {
+	gpx, err := ReadGPX(testhelper.GetValideGPX("03.gpx"))
+	if err != nil {
+		t.Errorf("Something wrong when reading a valide gpx file: %s", err.Error())
+	}
+
+	if len(gpx.Tracks) != 5 {
+		t.Errorf("Expected 5 Tracks, got %d", len(gpx.Tracks))
+	}
+}
+
 func TestReadValideSimpleGPX(t *testing.T) {
 	file := testhelper.GetValideGPX("01.gpx")
 

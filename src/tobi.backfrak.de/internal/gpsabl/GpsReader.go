@@ -37,6 +37,20 @@ type Trkpt struct {
 	Longitude float32 `xml:"lon,attr"`
 }
 
+// GpxFileError - Error when trying to load not a gpx file
+type GpxFileError struct {
+	err string
+}
+
+func (e *GpxFileError) Error() string { // Implement the Error Interface for the GpxFileError struct
+	return fmt.Sprintf("Error: %s", e.err)
+}
+
+// newGpxFileError - Get a new GpxFileError struct
+func newGpxFileError(filename string) *GpxFileError {
+	return &GpxFileError{fmt.Sprintf("The file %s was not a gpx file", filename)}
+}
+
 // ReadGPX - Read a GPX file
 func ReadGPX(filename string) (Gpx, error) {
 
@@ -49,12 +63,16 @@ func ReadGPX(filename string) (Gpx, error) {
 	if err != nil {
 		return Gpx{}, err
 	}
-	return readGPXBuffer(xmlfile)
+	return readGPXBuffer(xmlfile, filename)
 }
 
-func readGPXBuffer(fileBuffer []byte) (Gpx, error) {
+func readGPXBuffer(fileBuffer []byte, filename string) (Gpx, error) {
 	gpx := Gpx{}
 	err := xml.Unmarshal([]byte(fileBuffer), &gpx)
 
-	return gpx, err
+	if len(gpx.Tracks) > 0 || err != nil {
+		return gpx, err
+	} else {
+		return gpx, newGpxFileError(filename)
+	}
 }
