@@ -122,7 +122,7 @@ task test(dependsOn: 'getEnvironment') {
         println '##################################################################################'
     }
     doLast {
-        println "go test -v $packagesToTest >> " + logDir + "tests.log"
+        println "go test -v $packagesToTest"
         def packageArray = packagesToTest.split(' ');
         def callArgs = new String[packageArray.length + 2]
         callArgs[0] = 'test'
@@ -132,15 +132,13 @@ task test(dependsOn: 'getEnvironment') {
             callArgs[i + 2] = it 
             i = i + 1
         }
-        def logFileStream = new FileOutputStream(logDir + "tests.log")
+        
         exec {
             workingDir "$scriptDirectory"
             executable "go"
             args callArgs
             environment('GOPATH', goPath)
 
-            standardOutput logFileStream
-            errorOutput logFileStream
         }
     }
 }
