@@ -7,6 +7,7 @@ package testhelper
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -19,14 +20,27 @@ func GetProjectRoot() string {
 		os.Exit(1)
 	}
 	orgWD := wd
-	for !strings.HasSuffix(wd, "gpsa") && !strings.Contains(wd, "GPSA_") { // the GPSA_ is because of jenkins
+	for !isRootPath(wd) {
 		wd = filepath.Dir(wd)
-		if wd == "/" || strings.HasSuffix(wd, ":\\") {
+		if wd == "/" || strings.HasSuffix(wd, ":\\") { // If we reach the root folder (of a drive on windows), we think try to return the orignial value as a gues
 			return orgWD
 		}
 	}
 
 	return wd
+}
+
+func isRootPath(wd string) bool {
+	if strings.HasSuffix(wd, "gpsa") {
+		return true // This is the name of the project, so it should be the root dir
+	}
+
+	_, dirName := path.Split(wd)
+	if strings.Contains(dirName, "GPSA_") {
+		return true // This is the name of the jenkins project, so it should be the root dir
+	}
+
+	return false
 }
 
 // GetValideGPX - Get the file path to a valide gpx file with the given name
