@@ -1,3 +1,4 @@
+// Build script for this project. May used in IDE or CI environment
 defaultTasks 'build'
 
 def goPath
