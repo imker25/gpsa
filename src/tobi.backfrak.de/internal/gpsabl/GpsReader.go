@@ -72,7 +72,7 @@ func readGPXBuffer(fileBuffer []byte, filename string) (Gpx, error) {
 
 	if len(gpx.Tracks) > 0 || err != nil {
 		return gpx, err
-	} else {
-		return gpx, newGpxFileError(filename)
 	}
+	return gpx, newGpxFileError(filename)
+
 }
