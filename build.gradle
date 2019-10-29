@@ -179,22 +179,22 @@ task createBuildZip(type: Zip, dependsOn: 'createBinZip') {
     from "."
     include "bin${File.separator}**"
     include "logs${File.separator}**"
-    archiveName = 'Build.zip'
+    archiveName = org.gradle.internal.os.OperatingSystem.current().getName() + '_Build.zip'
     destinationDirectory = file( buildscript.sourceFile.getParent())
 
     doFirst {
-        println "Create the Build.zip file in $scriptDirectory"
+        println "Create the \"${org.gradle.internal.os.OperatingSystem.current().getName()}_Build.zip\" file in $scriptDirectory"
     }
 }
 
 task createBinZip(type: Zip, dependsOn: 'getEnvironment') {
     from "."
     include "bin${File.separator}**"
-    archiveFileName = "bin.zip"
+    archiveFileName = org.gradle.internal.os.OperatingSystem.current().getName() + "_bin.zip"
     destinationDirectory = file( buildscript.sourceFile.getParent())
 
     doFirst {
-        println "Create the bin.zip file in $scriptDirectory"
+        println "Create the \"${org.gradle.internal.os.OperatingSystem.current().getName()}_bin.zip\" file in $scriptDirectory"
     }
 }
 
