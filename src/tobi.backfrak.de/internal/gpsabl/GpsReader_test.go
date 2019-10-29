@@ -7,8 +7,11 @@ package gpsabl
 import (
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"tobi.backfrak.de/internal/testhelper"
@@ -73,6 +76,25 @@ func TestReadValideMultiTrackGPX(t *testing.T) {
 
 	if len(gpx.Tracks) != 5 {
 		t.Errorf("Expected 5 Tracks, got %d", len(gpx.Tracks))
+	}
+}
+
+func TestReadAllValideGPX(t *testing.T) {
+	files, _ := ioutil.ReadDir(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx"))
+
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".gpx") {
+			if file.IsDir() == false {
+				gpx, err := ReadGPX(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()))
+				if err != nil {
+					t.Errorf("Got the following error while reading file %s: %s", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()), err.Error())
+					return
+				}
+				if len(gpx.Tracks) < 1 {
+					t.Errorf("The can not find tracks in %s.", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()))
+				}
+			}
+		}
 	}
 }
 
