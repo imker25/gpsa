@@ -7,7 +7,6 @@ package testhelper
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -35,8 +34,8 @@ func isRootPath(wd string) bool {
 		return true // This is the name of the project, so it should be the root dir
 	}
 
-	_, dirName := path.Split(wd)
-	if strings.Contains(dirName, "GPSA_") {
+	_, dirName := filepath.Split(wd)
+	if strings.HasPrefix(dirName, "GPSA_") {
 		return true // This is the name of the jenkins project, so it should be the root dir
 	}
 
