@@ -18,8 +18,12 @@ func GetProjectRoot() string {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
 	}
-	for !strings.HasSuffix(wd, "gpsa") {
+	orgWD := wd
+	for !strings.HasSuffix(wd, "gpsa") && !strings.Contains(wd, "GPSA_") { // the GPSA_ is because of jenkins
 		wd = filepath.Dir(wd)
+		if wd == "/" || strings.HasSuffix(wd, ":\\") {
+			return orgWD
+		}
 	}
 
 	return wd
