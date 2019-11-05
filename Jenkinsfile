@@ -39,6 +39,7 @@ pipeline {
 							junit "logs\\*.xml"
 							bat 'gradle createBuildZip'
 							archiveArtifacts "*.zip"
+							archiveArtifacts "bin\\gpsa.exe"	
 						}
 					}	
 					
@@ -72,7 +73,8 @@ pipeline {
 							sh 'gradle convertTestResults' 
 							junit "logs/*.xml"					
 							sh 'gradle createBuildZip'	
-							archiveArtifacts "*.zip"													
+							archiveArtifacts "*.zip"	
+							archiveArtifacts "bin/gpsa"												
 						}						
 					}
                 }
