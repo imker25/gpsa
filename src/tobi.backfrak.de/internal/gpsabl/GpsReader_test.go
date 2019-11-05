@@ -60,7 +60,7 @@ func TestReadNotGPX(t *testing.T) {
 func TestGpxFileErrorStruct(t *testing.T) {
 
 	path := "/some/sample/path"
-	err := newGpxFileError(path)
+	err := newGpxFileError(path + "--")
 	checkGpxFileError(err, path, t)
 }
 
