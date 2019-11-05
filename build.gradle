@@ -163,7 +163,7 @@ task test(dependsOn: 'getEnvironment') {
             executable "go"
             args callArgsTestRun
             environment('GOPATH', goPath)
-            ignoreExitValue true
+     
             standardOutput logFileStream
             errorOutput logFileStream
         }
