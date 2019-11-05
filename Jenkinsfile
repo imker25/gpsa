@@ -35,7 +35,7 @@ pipeline {
 					}
 					post('Deploy windows results') {
         				always {
-							junit "logs\*.xml"
+							junit "logs\\*.xml"
 							bat 'gradle createBuildZip'
 							archiveArtifacts "*.zip"
 						}
