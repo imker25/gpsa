@@ -28,13 +28,14 @@ pipeline {
 						}
 						stage('Test windows binaries') {
 							steps('Run') {
-								bat 'gradle test convertTestResults' 
+								bat 'gradle test' 
 							}
 							
 						}
 					}
 					post('Deploy windows results') {
         				always {
+							bat 'gradle convertTestResults' 
 							junit "logs\\*.xml"
 							bat 'gradle createBuildZip'
 							archiveArtifacts "*.zip"
@@ -61,13 +62,14 @@ pipeline {
 						}
 						stage('Test linux binaries') {
 							steps('Run') {
-								sh 'gradle test convertTestResults' 
+								sh 'gradle test' 
 							}
 							
 						}
 					}
 					post('Deploy linux results') {
         				always {	
+							sh 'gradle convertTestResults' 
 							junit "logs/*.xml"					
 							sh 'gradle createBuildZip'	
 							archiveArtifacts "*.zip"													

@@ -87,7 +87,7 @@ task getEnvironment {
     }
 }
 
-task installTestConvert(dependsOn: 'test') {
+task installTestConvert(dependsOn: 'getEnvironment') {
     description 'Install all dependecies needed for test result convertion'
     doFirst {
         println '##################################################################################'
@@ -181,13 +181,12 @@ task convertTestResults(dependsOn: 'installTestConvert') {
         def logTextFile = logDir + 'TestsRun.log'
         def logXMLFile = logDir + 'TestsResult.xml'
         def convertExe = binDir + 'go2xunit'
-        println "${convertExe} -fail -input ${logTextFile} -output ${logXMLFile}"
-        def callArgsTestConvert = new String[5]
-        callArgsTestConvert[0] = '-fail'
-        callArgsTestConvert[1] = '-input'
-        callArgsTestConvert[2] = logTextFile
-        callArgsTestConvert[3] = '-output'
-        callArgsTestConvert[4] = logXMLFile
+        println "${convertExe} -input ${logTextFile} -output ${logXMLFile}"
+        def callArgsTestConvert = new String[4]
+        callArgsTestConvert[0] = '-input'
+        callArgsTestConvert[1] = logTextFile
+        callArgsTestConvert[2] = '-output'
+        callArgsTestConvert[3] = logXMLFile
         exec {
             workingDir "$scriptDirectory"
             executable convertExe
