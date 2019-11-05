@@ -60,10 +60,10 @@ task getEnvironment {
         println "GOPATH=$goPath"
         
         // Find all diretories within src/ that contains *.go files
-        new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*.go/, type: groovy.io.FileType.FILES]){
+        new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*.go/ , type: groovy.io.FileType.FILES]){
                 String packageDir = it.getParent() 
                 String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
-                if (packagesToBuild.contains(packageName + ' ') == false) {
+                if ((packagesToBuild.contains(packageName + ' ') == false) && (packageName.contains('github.com') == false)) {
                     packagesToBuild = packageName + ' ' + packagesToBuild
                 }
         }
@@ -72,7 +72,7 @@ task getEnvironment {
         new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*_test.go/, type: groovy.io.FileType.FILES]){
                 String packageDir = it.getParent() 
                 String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
-                if (packagesToTest.contains(packageName + ' ') == false) {
+                if ((packagesToTest.contains(packageName + ' ') == false) && (packageName.contains('github.com') == false)) {
                     packagesToTest = packageName + ' ' + packagesToTest
                 }
         }
@@ -84,6 +84,29 @@ task getEnvironment {
         println "Go Packages to build: $packagesToBuild"
         println "Go Packages to test: $packagesToTest"
 
+    }
+}
+
+task installTestConvert(dependsOn: 'test') {
+    description 'Install all dependecies needed for test result convertion'
+    doFirst {
+        println '##################################################################################'
+        println 'Install Test Result convertion tools '
+        println '##################################################################################'
+    }
+    doLast {
+        // Install go get github.com/tebeka/go2xunit so it can be used after test execution
+        println "go get github.com/tebeka/go2xunit"
+        def callArgsGo2xunit = new String[2]
+        callArgsGo2xunit[0] = 'get'
+        callArgsGo2xunit[1] = 'github.com/tebeka/go2xunit'
+        exec {
+            workingDir "$scriptDirectory"
+            executable "go"
+            args callArgsGo2xunit
+            environment('GOPATH', goPath)
+
+        }
     }
 }
 
@@ -125,24 +148,55 @@ task test(dependsOn: 'getEnvironment') {
     doLast {
         println "go test -v $packagesToTest"
         def packageArray = packagesToTest.split(' ');
-        def callArgs = new String[packageArray.length + 2]
-        callArgs[0] = 'test'
-        callArgs[1] = '-v'
+        def callArgsTestRun = new String[packageArray.length + 2]
+        callArgsTestRun[0] = 'test'
+        callArgsTestRun[1] = '-v'
         def i = 0
         packageArray.each {
-            callArgs[i + 2] = it 
+            callArgsTestRun[i + 2] = it 
             i = i + 1
         }
         
+        def logFileStream = new FileOutputStream(logDir + "TestsRun.log")
         exec {
             workingDir "$scriptDirectory"
             executable "go"
-            args callArgs
+            args callArgsTestRun
+            environment('GOPATH', goPath)
+            ignoreExitValue true
+            standardOutput logFileStream
+            errorOutput logFileStream
+        }
+    }
+}
+
+task convertTestResults(dependsOn: 'installTestConvert') {
+     description 'Convert the test results'
+    doFirst {
+        println '##################################################################################'
+        println 'Convert the test results'
+        println '##################################################################################'
+    }
+    doLast {
+        def logTextFile = logDir + 'TestsRun.log'
+        def logXMLFile = logDir + 'TestsResult.xml'
+        def convertExe = binDir + 'go2xunit'
+        println "${convertExe} -fail -input ${logTextFile} -output ${logXMLFile}"
+        def callArgsTestConvert = new String[5]
+        callArgsTestConvert[0] = '-fail'
+        callArgsTestConvert[1] = '-input'
+        callArgsTestConvert[2] = logTextFile
+        callArgsTestConvert[3] = '-output'
+        callArgsTestConvert[4] = logXMLFile
+        exec {
+            workingDir "$scriptDirectory"
+            executable convertExe
+            args callArgsTestConvert
             environment('GOPATH', goPath)
 
         }
     }
-}
+} 
 
 task build(dependsOn: 'clean') {
     description 'Compile all go packages'
@@ -168,8 +222,6 @@ task build(dependsOn: 'clean') {
             executable "go"
             args callArgs
             environment('GOPATH', goPath)
-            
-
         }
     }
 }

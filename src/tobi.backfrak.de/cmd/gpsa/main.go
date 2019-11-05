@@ -6,7 +6,6 @@ package main
 // LICENSE file.
 import (
 	"fmt"
-	"os"
 
 	"tobi.backfrak.de/internal/gpsabl"
 )
@@ -18,5 +17,5 @@ func main() {
 	}
 	fmt.Println(gpx.Name)
 	fmt.Println(gpx.Description)
-	os.Exit(0)
+	// os.Exit(0)
 }

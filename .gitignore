@@ -11,6 +11,8 @@ pkg/*
 pkg\*
 logs/*
 logs\*
+src/github.com/*
+src\github.com\*
 
 *.zip
 *.log

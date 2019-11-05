@@ -28,7 +28,7 @@ pipeline {
 						}
 						stage('Test windows binaries') {
 							steps('Run') {
-								bat 'gradle test'
+								bat 'gradle test convertTestResults' 
 							}
 							
 						}
@@ -60,7 +60,7 @@ pipeline {
 						}
 						stage('Test linux binaries') {
 							steps('Run') {
-								sh 'gradle test'
+								sh 'gradle test convertTestResults' 
 							}
 							
 						}
