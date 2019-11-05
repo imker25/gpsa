@@ -40,6 +40,8 @@ type Trkpt struct {
 // GpxFileError - Error when trying to load not a gpx file
 type GpxFileError struct {
 	err string
+	// File - The path to the file that caused this error
+	File string
 }
 
 func (e *GpxFileError) Error() string { // Implement the Error Interface for the GpxFileError struct
@@ -48,7 +50,7 @@ func (e *GpxFileError) Error() string { // Implement the Error Interface for the
 
 // newGpxFileError - Get a new GpxFileError struct
 func newGpxFileError(filename string) *GpxFileError {
-	return &GpxFileError{fmt.Sprintf("The file %s was not a gpx file", filename)}
+	return &GpxFileError{fmt.Sprintf("The file %s was not a gpx file", filename), filename}
 }
 
 // ReadGPX - Read a GPX file

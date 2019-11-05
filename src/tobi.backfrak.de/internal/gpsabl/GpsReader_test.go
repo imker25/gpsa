@@ -49,12 +49,29 @@ func TestReadNotGPX(t *testing.T) {
 	case nil:
 		t.Errorf("No error, when reading a unvalide gpx file")
 	case *GpxFileError:
-		fmt.Println("OK")
+		checkGpxFileError(v, testhelper.GetUnValideGPX("02.gpx"), t)
 	default:
 		t.Errorf("Expected a *gpsabl.GpxFileError, got a %s", reflect.TypeOf(v))
 	}
 
 	fmt.Println(gpx.Name)
+}
+
+func TestGpxFileErrorStruct(t *testing.T) {
+
+	path := "/some/sample/path"
+	err := newGpxFileError(path)
+	checkGpxFileError(err, path, t)
+}
+
+func checkGpxFileError(err *GpxFileError, path string, t *testing.T) {
+	if strings.Contains(err.Error(), path) == false {
+		t.Errorf("The error messaage of GpxFileError does not contain the expected Path")
+	}
+
+	if err.File != path {
+		t.Errorf("The GpxFileError.File does not match the expected value")
+	}
 }
 
 func TestReadValideMultiSegmentGPX(t *testing.T) {
