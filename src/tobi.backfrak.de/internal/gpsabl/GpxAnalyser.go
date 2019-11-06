@@ -12,12 +12,22 @@ type TrackInfo struct {
 }
 
 // GetTrackInfo - Creats a TrackInfo struct out of a Trk struct
-func GetTrackInfo(track Trk) (TrackInfo, error) {
+func GetTrackInfo(track Trk) TrackInfo {
 	info := TrackInfo{}
 	info.Track = track
 	info.Name = track.Name
 	info.Description = track.Description
 	info.NumberOfSegments = len(track.TrackSegments)
+	info.NumberOfTrackPoints = getNumberOfTrackPoints(track)
 
-	return info, nil
+	return info
+}
+
+func getNumberOfTrackPoints(track Trk) int {
+	count := 0
+	for _, seg := range track.TrackSegments {
+		count = count + len(seg.TrackPoints)
+	}
+
+	return count
 }

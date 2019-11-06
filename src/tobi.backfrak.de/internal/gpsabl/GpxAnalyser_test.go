@@ -9,13 +9,10 @@ import (
 func TestAnalyseSimpeTrack(t *testing.T) {
 	gpx, err := ReadGPX(testhelper.GetValideGPX("01.gpx"))
 	if err != nil {
-		t.Errorf("Something wrong when reading a valide gpx file: %s", err.Error())
+		t.Errorf("Something wrong when reading a valide gpx file %s: %s", testhelper.GetValideGPX("01.gpx"), err.Error())
 	}
 
-	info, err := GetTrackInfo(gpx.Tracks[0])
-	if err != nil {
-		t.Errorf("Something wrong when GetTrackInfo a simpe track: %s", err.Error())
-	}
+	info := GetTrackInfo(gpx.Tracks[0])
 
 	if info.Track.Name != gpx.Tracks[0].Name {
 		t.Errorf("TrackInfo.Track is not the expected one")
@@ -31,6 +28,10 @@ func TestAnalyseSimpeTrack(t *testing.T) {
 
 	if info.Description != gpx.Tracks[0].Description {
 		t.Errorf("The TrackInfo.Description was not %s as expected, it was %s", gpx.Tracks[0].Description, info.Description)
+	}
+
+	if info.NumberOfTrackPoints != 637 {
+		t.Errorf("The TrackInfo.NumberOfTrackPoints was not not %d as expected, it was %d", 637, info.NumberOfTrackPoints)
 	}
 
 }
