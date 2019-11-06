@@ -34,4 +34,19 @@ func TestAnalyseSimpeTrack(t *testing.T) {
 		t.Errorf("The TrackInfo.NumberOfTrackPoints was not not %d as expected, it was %d", 637, info.NumberOfTrackPoints)
 	}
 
+	if len(info.GetAllTrackPoints()) != info.NumberOfTrackPoints {
+		t.Errorf("The number of elements in info.GetAllTrackPoints() is not the same as the info.NumberOfTrackPoints")
+	}
+
+	if info.MinimumAtitute != 298.00 {
+		t.Errorf("The TrackInfo.MinimumAtitute was not not %f as expected, it was %f", 298.00, info.MinimumAtitute)
+	}
+
+	if info.MaximumAtitute != 402.00 {
+		t.Errorf("The TrackInfo.MaximumAtitute was not not %f as expected, it was %f", 402.00, info.MaximumAtitute)
+	}
+
+	if info.AtituteRange != 104.00 {
+		t.Errorf("The TrackInfo.AtituteRange was not not %f as expected, it was %f", 104.00, info.AtituteRange)
+	}
 }
