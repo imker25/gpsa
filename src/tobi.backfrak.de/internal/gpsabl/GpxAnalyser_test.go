@@ -6,6 +6,48 @@ import (
 	"tobi.backfrak.de/internal/testhelper"
 )
 
+func TestGetTrackAtituteInfoJustOnePointGPX11(t *testing.T) {
+	gpx, err := ReadGPX(testhelper.GetValideGPX("09.gpx"))
+	if err != nil {
+		t.Errorf("Something wrong when reading a valide gpx file %s: %s", testhelper.GetValideGPX("01.gpx"), err.Error())
+	}
+
+	info := GetTrackInfo(gpx.Tracks[0])
+
+	if info.MinimumAtitute != 11.1 {
+		t.Errorf("The TrackInfo.MinimumAtitute was not not %f as expected, it was %f", 11.1, info.MinimumAtitute)
+	}
+
+	if info.MaximumAtitute != 11.1 {
+		t.Errorf("The TrackInfo.MaximumAtitute was not not %f as expected, it was %f", 11.1, info.MaximumAtitute)
+	}
+
+	if info.AtituteRange != 0.0 {
+		t.Errorf("The TrackInfo.AtituteRange was not not %f as expected, it was %f", 0.0, info.AtituteRange)
+	}
+}
+
+func TestGetTrackAtituteInfoJustOnePointGPX10(t *testing.T) {
+	gpx, err := ReadGPX(testhelper.GetValideGPX("08.gpx"))
+	if err != nil {
+		t.Errorf("Something wrong when reading a valide gpx file %s: %s", testhelper.GetValideGPX("01.gpx"), err.Error())
+	}
+
+	info := GetTrackInfo(gpx.Tracks[0])
+
+	if info.MinimumAtitute != 11.1 {
+		t.Errorf("The TrackInfo.MinimumAtitute was not not %f as expected, it was %f", 11.1, info.MinimumAtitute)
+	}
+
+	if info.MaximumAtitute != 11.1 {
+		t.Errorf("The TrackInfo.MaximumAtitute was not not %f as expected, it was %f", 11.1, info.MaximumAtitute)
+	}
+
+	if info.AtituteRange != 0.0 {
+		t.Errorf("The TrackInfo.AtituteRange was not not %f as expected, it was %f", 0.0, info.AtituteRange)
+	}
+}
+
 func TestGetTrackAtituteInfo(t *testing.T) {
 	gpx, err := ReadGPX(testhelper.GetValideGPX("01.gpx"))
 	if err != nil {
