@@ -6,7 +6,46 @@ import (
 	"tobi.backfrak.de/internal/testhelper"
 )
 
-func TestAnalyseSimpeTrack(t *testing.T) {
+func TestGetTrackAtituteInfo(t *testing.T) {
+	gpx, err := ReadGPX(testhelper.GetValideGPX("01.gpx"))
+	if err != nil {
+		t.Errorf("Something wrong when reading a valide gpx file %s: %s", testhelper.GetValideGPX("01.gpx"), err.Error())
+	}
+
+	info := GetTrackInfo(gpx.Tracks[0])
+
+	if info.MinimumAtitute != 298.00 {
+		t.Errorf("The TrackInfo.MinimumAtitute was not not %f as expected, it was %f", 298.00, info.MinimumAtitute)
+	}
+
+	if info.MaximumAtitute != 402.00 {
+		t.Errorf("The TrackInfo.MaximumAtitute was not not %f as expected, it was %f", 402.00, info.MaximumAtitute)
+	}
+
+	if info.AtituteRange != 104.00 {
+		t.Errorf("The TrackInfo.AtituteRange was not not %f as expected, it was %f", 104.00, info.AtituteRange)
+	}
+
+}
+
+func TestGetTrackPointInfo(t *testing.T) {
+	gpx, err := ReadGPX(testhelper.GetValideGPX("01.gpx"))
+	if err != nil {
+		t.Errorf("Something wrong when reading a valide gpx file %s: %s", testhelper.GetValideGPX("01.gpx"), err.Error())
+	}
+
+	info := GetTrackInfo(gpx.Tracks[0])
+
+	if info.NumberOfTrackPoints != 637 {
+		t.Errorf("The TrackInfo.NumberOfTrackPoints was not not %d as expected, it was %d", 637, info.NumberOfTrackPoints)
+	}
+
+	if len(info.GetAllTrackPoints()) != info.NumberOfTrackPoints {
+		t.Errorf("The number of elements in info.GetAllTrackPoints() is not the same as the info.NumberOfTrackPoints")
+	}
+}
+
+func TestGetBasicTrackInfo(t *testing.T) {
 	gpx, err := ReadGPX(testhelper.GetValideGPX("01.gpx"))
 	if err != nil {
 		t.Errorf("Something wrong when reading a valide gpx file %s: %s", testhelper.GetValideGPX("01.gpx"), err.Error())
@@ -28,25 +67,5 @@ func TestAnalyseSimpeTrack(t *testing.T) {
 
 	if info.Description != gpx.Tracks[0].Description {
 		t.Errorf("The TrackInfo.Description was not %s as expected, it was %s", gpx.Tracks[0].Description, info.Description)
-	}
-
-	if info.NumberOfTrackPoints != 637 {
-		t.Errorf("The TrackInfo.NumberOfTrackPoints was not not %d as expected, it was %d", 637, info.NumberOfTrackPoints)
-	}
-
-	if len(info.GetAllTrackPoints()) != info.NumberOfTrackPoints {
-		t.Errorf("The number of elements in info.GetAllTrackPoints() is not the same as the info.NumberOfTrackPoints")
-	}
-
-	if info.MinimumAtitute != 298.00 {
-		t.Errorf("The TrackInfo.MinimumAtitute was not not %f as expected, it was %f", 298.00, info.MinimumAtitute)
-	}
-
-	if info.MaximumAtitute != 402.00 {
-		t.Errorf("The TrackInfo.MaximumAtitute was not not %f as expected, it was %f", 402.00, info.MaximumAtitute)
-	}
-
-	if info.AtituteRange != 104.00 {
-		t.Errorf("The TrackInfo.AtituteRange was not not %f as expected, it was %f", 104.00, info.AtituteRange)
 	}
 }
