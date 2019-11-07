@@ -13,7 +13,11 @@ gradle build test   # build and run the tests for the project
 gradle test         # test the project
 ```
 
+## Internals
+The Geografic calculations are done with the  ```haversine formula```  as descripted [here](http://www.movable-type.co.uk/scripts/latlong.html)
+A Go implementaion of this can also be found [here](https://github.com/tkrajina/gpxgo/blob/master/gpx/geo.go). In this example the distance function igorens the atitute difference for distance bigger then 22 km, by checking the agular distance to be bigger then 0.2°.
 
+My Impelemtaion will ignore atitute difference for distance bigger then 44 km, by checking the agular distance to be bigger then 0.3°.
 
 # License
 
