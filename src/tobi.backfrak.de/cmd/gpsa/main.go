@@ -8,10 +8,11 @@ import (
 	"fmt"
 
 	"tobi.backfrak.de/internal/gpsabl"
+	"tobi.backfrak.de/internal/gpxbl"
 )
 
 func main() {
-	gpx, err := gpsabl.ReadGPX("")
+	gpx, err := gpxbl.ReadGPX("")
 	if err != nil {
 		gpsabl.HandleError(err)
 	}

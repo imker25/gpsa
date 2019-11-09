@@ -1,4 +1,4 @@
-package gpsabl
+package gpxbl
 
 import (
 	"testing"

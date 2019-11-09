@@ -1,4 +1,4 @@
-package gpsabl
+package gpxbl
 
 // TrackInfo - Struct that contains information about a track
 type TrackInfo struct {

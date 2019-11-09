@@ -1,4 +1,4 @@
-package gpsabl
+package gpxbl
 
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
