@@ -12,9 +12,9 @@ import (
 // ConvertTrk - Convert a gpxbl.Trk to a gpsabl.Track
 func ConvertTrk(track Trk) gpsabl.Track {
 
-	res := GetTrackInfo(track)
+	info := GetTrackInfo(track)
 
-	return ConvertTrackInfo(res)
+	return ConvertTrackInfo(info)
 }
 
 // ConvertTrackInfo - Convert a gpxbl.TrackInfo to a gpsabl.Track
