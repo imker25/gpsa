@@ -7,7 +7,6 @@ type TrackInfo struct {
 	Description         string
 	NumberOfSegments    int
 	NumberOfTrackPoints int
-	Distance            float32
 	AtituteRange        float32
 	MinimumAtitute      float32
 	MaximumAtitute      float32
