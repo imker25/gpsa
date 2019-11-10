@@ -15,7 +15,11 @@ type Track struct {
 
 // TrackSegment - the struct to handle track segment info in gpsa
 type TrackSegment struct {
-	TrackPoints []TrackPoint
+	TrackPoints    []TrackPoint
+	Distance       float32
+	AtituteRange   float32
+	MinimumAtitute float32
+	MaximumAtitute float32
 }
 
 // TrackPoint - the struct to handle track point info in gpsa
