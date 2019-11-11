@@ -101,7 +101,7 @@ func TestShortDistance1(t *testing.T) {
 	dist2 := Distance(pnt1, pnt2)
 	// Since the distance is smaller then 33km, Elevation gain will not be ignored
 	if dist2 == dist1 {
-		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
+		t.Errorf("The distance was calculated with %f but %f was not expected", dist2, dist1)
 	}
 }
 
@@ -113,6 +113,18 @@ func TestShortDistance2(t *testing.T) {
 	dist2 := Distance(pnt1, pnt2)
 	// Since the distance is smaller then 33km, Elevation gain will not be ignored
 	if dist2 == dist1 {
+		t.Errorf("The distance was calculated with %f but %f was not expected", dist2, dist1)
+	}
+}
+
+func TestShortDistance3(t *testing.T) {
+	pnt2 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+	pnt1 := getTrackPoint(50.11495750, 8.684874770, 108.0)
+
+	dist1 := Distance(pnt2, pnt1)
+	dist2 := Distance(pnt1, pnt2)
+	// Since the distance is smaller then 33km, Elevation gain will not be ignored
+	if dist2 != dist1 {
 		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
 	}
 }
