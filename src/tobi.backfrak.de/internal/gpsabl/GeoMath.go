@@ -10,7 +10,7 @@ func ToRad(x float64) float64 {
 	return x / 180. * math.Pi
 }
 
-// HaversineDistance - Calcs the distance between two TrackPoints in meter.
+// HaversineDistance - Calcs the distance between two TrackPoints in Meter.
 // Assuming a spherical earth.
 // Don't use this function for distance because it will ignore elevation gain
 func HaversineDistance(pnt1, pnt2 TrackPoint) float64 {
@@ -21,7 +21,20 @@ func HaversineDistance(pnt1, pnt2 TrackPoint) float64 {
 
 	a := math.Sin(dLat/2)*math.Sin(dLat/2) + math.Sin(dLon/2)*math.Sin(dLon/2)*math.Cos(thisLat1)*math.Cos(thisLat2)
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	d := float64(EarthRadius+((pnt1.Elevation+pnt2.Elevation)/2)) * c
+	return float64(EarthRadius+((pnt1.Elevation+pnt2.Elevation)/2)) * c
+}
 
-	return d
+// Distance -  Calcs the distance between two TrackPoints in Meter.
+// Assuming a spherical earth.
+func Distance(pnt1, pnt2 TrackPoint) float64 {
+	dist := HaversineDistance(pnt1, pnt2)
+
+	// When the distance is bigger then 33km, elevation gain will be ignored
+	if dist >= 33000.0 {
+		return dist
+	}
+
+	dEve := math.Abs(float64(pnt1.Elevation - pnt2.Elevation))
+
+	return math.Sqrt(math.Pow(dist, 2) + math.Pow(dEve, 2))
 }

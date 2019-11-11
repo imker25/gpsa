@@ -81,6 +81,42 @@ func TestHaversineDistanceQuaterMeridian(t *testing.T) {
 	}
 }
 
+func TestDistanceMunichColone(t *testing.T) {
+	pnt1 := getTrackPoint(48.13992070, 11.56654350, 529.0)
+	pnt2 := getTrackPoint(50.94169280, 6.959409710, 56.0)
+
+	dist1 := HaversineDistance(pnt1, pnt2)
+	dist2 := Distance(pnt1, pnt2)
+	// Since the distance is bigger then 33km, Elevation gain will be ignored
+	if dist2 != dist1 {
+		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
+	}
+}
+
+func TestShortDistance1(t *testing.T) {
+	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
+
+	dist1 := HaversineDistance(pnt1, pnt2)
+	dist2 := Distance(pnt1, pnt2)
+	// Since the distance is smaller then 33km, Elevation gain will not be ignored
+	if dist2 == dist1 {
+		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
+	}
+}
+
+func TestShortDistance2(t *testing.T) {
+	pnt2 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+	pnt1 := getTrackPoint(50.11495750, 8.684874770, 108.0)
+
+	dist1 := HaversineDistance(pnt1, pnt2)
+	dist2 := Distance(pnt1, pnt2)
+	// Since the distance is smaller then 33km, Elevation gain will not be ignored
+	if dist2 == dist1 {
+		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
+	}
+}
+
 func getTrackPoint(lat, lon, ele float32) TrackPoint {
 	pnt := TrackPoint{}
 	pnt.Latitude = lat
