@@ -10,7 +10,7 @@ type Track struct {
 	Name             string
 	Description      string
 	NumberOfSegments int
-	Distance         float32
+	Distance         float64
 	AtituteRange     float32
 	MinimumAtitute   float32
 	MaximumAtitute   float32
@@ -21,7 +21,7 @@ type Track struct {
 // TrackSegment - the struct to handle track segment info in gpsa
 type TrackSegment struct {
 	TrackPoints    []TrackPoint
-	Distance       float32
+	Distance       float64
 	AtituteRange   float32
 	MinimumAtitute float32
 	MaximumAtitute float32
