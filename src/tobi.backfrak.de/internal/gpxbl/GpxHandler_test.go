@@ -31,6 +31,22 @@ func TestTrackReaderImpl(t *testing.T) {
 	if len(tracks) != 1 {
 		t.Errorf("The number of tracks was not %d, but was %d", 1, len(tracks))
 	}
+
+	if tracks[0].Distance != 18478.293509238614 {
+		t.Errorf("The Distance is %f, but %f was expected", tracks[0].Distance, 18478.293509238614)
+	}
+
+	if tracks[0].AtituteRange != 104.0 {
+		t.Errorf("The AtituteRange is %f, but %f was expected", tracks[0].AtituteRange, 104.00)
+	}
+
+	if tracks[0].MinimumAtitute != 298.0 {
+		t.Errorf("The MinimumAtitute is %f, but %f was expected", tracks[0].MinimumAtitute, 298.00)
+	}
+
+	if tracks[0].MaximumAtitute != 402.0 {
+		t.Errorf("The MaximumAtitute is %f, but %f was expected", tracks[0].MaximumAtitute, 402.00)
+	}
 }
 
 func TestReadGpxFile(t *testing.T) {

@@ -74,4 +74,8 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 	if track.MaximumAtitute != 101.1 {
 		t.Errorf("track.MaximumAtitute  has not the expected value %f but is %f", 101.1, track.MaximumAtitute)
 	}
+
+	if track.Distance != 49.32007928467905 {
+		t.Errorf("track.Distance  has not the expected value %f but is %f", 49.32007928467905, track.Distance)
+	}
 }
