@@ -1,5 +1,10 @@
 package gpsabl
 
+// Copyright 2019 by tobi@backfrak.de. All
+// rights reserved. Use of this source code is governed
+// by a BSD-style license that can be found in the
+// LICENSE file.
+
 // FillDistancesTrackPoint - Adds the distance values to the basePoint
 func FillDistancesTrackPoint(basePoint, beforePoint, nextPoint TrackPoint) TrackPoint {
 	retPoint := TrackPoint{}
@@ -45,6 +50,38 @@ func FillTrackSegmentValues(segment TrackSegment) TrackSegment {
 	ret.MinimumAtitute = minimumAtitute
 	ret.Distance = dist
 	ret.TrackPoints = segment.TrackPoints
+
+	return ret
+}
+
+// FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+func FillTrackValues(track Track) Track {
+	var dist float64
+	var minimumAtitute float32
+	var maximumAtitute float32
+
+	for i, seg := range track.TrackSegments {
+		dist = dist + seg.Distance
+
+		if i == 0 || seg.MaximumAtitute > maximumAtitute {
+			maximumAtitute = seg.MaximumAtitute
+		}
+
+		if i == 0 || seg.MinimumAtitute < minimumAtitute {
+			minimumAtitute = seg.MinimumAtitute
+		}
+	}
+
+	ret := Track{}
+	ret.AtituteRange = maximumAtitute - minimumAtitute
+	ret.MaximumAtitute = maximumAtitute
+	ret.MinimumAtitute = minimumAtitute
+	ret.Distance = dist
+
+	ret.Name = track.Name
+	ret.NumberOfSegments = track.NumberOfSegments
+	ret.Description = track.Description
+	ret.TrackSegments = track.TrackSegments
 
 	return ret
 }
