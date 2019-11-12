@@ -32,8 +32,8 @@ type TrackPoint struct {
 	Elevation                float32
 	Latitude                 float32
 	Longitude                float32
-	HorizontalDistanceBefore float32
-	HorizontalDistanceNext   float32
+	HorizontalDistanceBefore float64
+	HorizontalDistanceNext   float64
 	VerticalDistanceBefore   float32
 	VerticalDistanceNext     float32
 }
