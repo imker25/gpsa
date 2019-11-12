@@ -1,7 +1,7 @@
 package gpsabl
 
-// FillDistances - Adds the distance values to the basePoint
-func FillDistances(basePoint, beforePoint, nextPoint TrackPoint) TrackPoint {
+// FillDistancesTrackPoint - Adds the distance values to the basePoint
+func FillDistancesTrackPoint(basePoint, beforePoint, nextPoint TrackPoint) TrackPoint {
 	retPoint := TrackPoint{}
 	retPoint.Elevation = basePoint.Elevation
 	retPoint.Latitude = basePoint.Latitude
