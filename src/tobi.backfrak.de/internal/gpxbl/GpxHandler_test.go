@@ -6,10 +6,57 @@ package gpxbl
 // LICENSE file.
 
 import (
+	"io/ioutil"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"tobi.backfrak.de/internal/testhelper"
 )
+
+func TestTrackReaderAllValideGPX(t *testing.T) {
+	files, _ := ioutil.ReadDir(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx"))
+
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".gpx") {
+			if file.IsDir() == false {
+				gpxFile := GpxFile{filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name())}
+				tracks, err := gpxFile.ReadTracks()
+				if err != nil {
+					t.Errorf("Got the following error while reading file %s: %s", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()), err.Error())
+					return
+				}
+				if len(tracks) < 1 {
+					t.Errorf("The can not find tracks in %s.", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()))
+				}
+			}
+		}
+	}
+}
+
+func TestTrackReaderOnePointTrack(t *testing.T) {
+	gpx := GpxFile{testhelper.GetValideGPX("06.gpx")}
+
+	tracks, _ := gpx.ReadTracks()
+
+	if tracks[0].Distance != 0.0 {
+		t.Errorf("The Distance is %f, but %f was expected", tracks[0].Distance, 0.0)
+	}
+
+	if tracks[0].AtituteRange != 0.0 {
+		t.Errorf("The AtituteRange is %f, but %f was expected", tracks[0].AtituteRange, 0.0)
+	}
+}
+
+func TestTrackReader02(t *testing.T) {
+	gpx := GpxFile{testhelper.GetValideGPX("02.gpx")}
+
+	tracks, _ := gpx.ReadTracks()
+
+	if tracks[0].Distance != 37823.344979382266 {
+		t.Errorf("The Distance is %f, but %f was expected", tracks[0].Distance, 18478.293509238614)
+	}
+}
 
 func TestTrackReaderImpl(t *testing.T) {
 	gpx := GpxFile{testhelper.GetValideGPX("01.gpx")}

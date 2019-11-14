@@ -67,7 +67,7 @@ func convertPoint(point Trkpt, i int, points []Trkpt, pointCount int) gpsabl.Tra
 	pnt.Longitude = point.Longitude
 	pnt.Elevation = point.Elevation
 
-	if i == 0 {
+	if i == 0 && pointCount > 1 {
 		pntNext := gpsabl.TrackPoint{}
 		pntNext.Latitude = points[i+1].Latitude
 		pntNext.Longitude = points[i+1].Longitude
@@ -89,7 +89,7 @@ func convertPoint(point Trkpt, i int, points []Trkpt, pointCount int) gpsabl.Tra
 		pnt = gpsabl.FillDistancesTrackPoint(pnt, pntBefore, pntNext)
 	}
 
-	if i == pointCount-1 {
+	if i == pointCount-1 && pointCount > 1 {
 		pntBefore := gpsabl.TrackPoint{}
 		pntBefore.Latitude = points[i-1].Latitude
 		pntBefore.Longitude = points[i-1].Longitude
