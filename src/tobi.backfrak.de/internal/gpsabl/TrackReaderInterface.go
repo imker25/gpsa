@@ -9,11 +9,3 @@ package gpsabl
 type TrackReader interface {
 	ReadTracks() ([]Track, error)
 }
-
-// TrackInfo - Get basic info about a track
-type TrackInfo interface {
-	GetDinstance() float64
-	GetAtituteRange() float32
-	GetMinimumAtitute() float32
-	GetMaximumAtitute() float32
-}
