@@ -53,43 +53,49 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 
 	pointCount := len(points)
 	for i, point := range points {
-		pnt := gpsabl.TrackPoint{}
-		pnt.Latitude = point.Latitude
-		pnt.Longitude = point.Longitude
-		pnt.Elevation = point.Elevation
-
-		if i == 0 {
-			pntNext := gpsabl.TrackPoint{}
-			pntNext.Latitude = points[i+1].Latitude
-			pntNext.Longitude = points[i+1].Longitude
-			pntNext.Elevation = points[i+1].Elevation
-			pnt = gpsabl.FillDistancesTrackPoint(pnt, gpsabl.TrackPoint{}, pntNext)
-		}
-
-		if i > 0 && i < pointCount-1 {
-			pntNext := gpsabl.TrackPoint{}
-			pntNext.Latitude = points[i+1].Latitude
-			pntNext.Longitude = points[i+1].Longitude
-			pntNext.Elevation = points[i+1].Elevation
-
-			pntBefore := gpsabl.TrackPoint{}
-			pntBefore.Latitude = points[i-1].Latitude
-			pntBefore.Longitude = points[i-1].Longitude
-			pntBefore.Elevation = points[i-1].Elevation
-
-			pnt = gpsabl.FillDistancesTrackPoint(pnt, pntBefore, pntNext)
-		}
-
-		if i == pointCount-1 {
-			pntBefore := gpsabl.TrackPoint{}
-			pntBefore.Latitude = points[i-1].Latitude
-			pntBefore.Longitude = points[i-1].Longitude
-			pntBefore.Elevation = points[i-1].Elevation
-			pnt = gpsabl.FillDistancesTrackPoint(pnt, pntBefore, gpsabl.TrackPoint{})
-		}
+		pnt := convertPoint(point, i, points, pointCount)
 
 		ret = append(ret, pnt)
 	}
 
 	return ret
+}
+
+func convertPoint(point Trkpt, i int, points []Trkpt, pointCount int) gpsabl.TrackPoint {
+	pnt := gpsabl.TrackPoint{}
+	pnt.Latitude = point.Latitude
+	pnt.Longitude = point.Longitude
+	pnt.Elevation = point.Elevation
+
+	if i == 0 {
+		pntNext := gpsabl.TrackPoint{}
+		pntNext.Latitude = points[i+1].Latitude
+		pntNext.Longitude = points[i+1].Longitude
+		pntNext.Elevation = points[i+1].Elevation
+		pnt = gpsabl.FillDistancesTrackPoint(pnt, gpsabl.TrackPoint{}, pntNext)
+	}
+
+	if i > 0 && i < pointCount-1 {
+		pntNext := gpsabl.TrackPoint{}
+		pntNext.Latitude = points[i+1].Latitude
+		pntNext.Longitude = points[i+1].Longitude
+		pntNext.Elevation = points[i+1].Elevation
+
+		pntBefore := gpsabl.TrackPoint{}
+		pntBefore.Latitude = points[i-1].Latitude
+		pntBefore.Longitude = points[i-1].Longitude
+		pntBefore.Elevation = points[i-1].Elevation
+
+		pnt = gpsabl.FillDistancesTrackPoint(pnt, pntBefore, pntNext)
+	}
+
+	if i == pointCount-1 {
+		pntBefore := gpsabl.TrackPoint{}
+		pntBefore.Latitude = points[i-1].Latitude
+		pntBefore.Longitude = points[i-1].Longitude
+		pntBefore.Elevation = points[i-1].Elevation
+		pnt = gpsabl.FillDistancesTrackPoint(pnt, pntBefore, gpsabl.TrackPoint{})
+	}
+
+	return pnt
 }
