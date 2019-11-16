@@ -8,10 +8,27 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
 )
+
+// UnKnownFileTypeError - Error when trying to load not known file type
+type UnKnownFileTypeError struct {
+	err string
+	// File - The path to the file that caused this error
+	File string
+}
+
+func (e *UnKnownFileTypeError) Error() string { // Implement the Error Interface for the UnKnownFileTypeError struct
+	return fmt.Sprintf("Error: %s", e.err)
+}
+
+// newUnKnownFileTypeError - Get a new UnKnownFileTypeError struct
+func newUnKnownFileTypeError(fileName string) *UnKnownFileTypeError {
+	return &UnKnownFileTypeError{fmt.Sprintf("The type of the file \"%s\" is not known.", fileName), fileName}
+}
 
 // HelpFlag - Tell if the programm was called with -help
 var HelpFlag bool
@@ -34,18 +51,16 @@ func main() {
 }
 
 func processFiles(files []string) {
-	for _, arg := range files {
-		fmt.Println("Read file: " + arg)
-		// Get the GpxFile type
-		gpx := gpxbl.NewGpxFile(arg)
+	for _, filePath := range files {
+		fmt.Println("Read file: " + filePath)
 
-		// Convert the GpxFile to the TrackReader interface
-		reader := gpsabl.TrackReader(&gpx)
+		// Find out if we can read the file
+		reader, readerErr := getReader(filePath)
+		HandleError(readerErr, filePath)
 
 		// Read the *.gpx into a TrackFile type, using the interface
-		file, err := reader.ReadTracks()
-
-		HandleError(err, arg)
+		file, readErr := reader.ReadTracks()
+		HandleError(readErr, filePath)
 
 		// Convert the TrackFile into the TrackInfoProvider interface
 		info := gpsabl.TrackInfoProvider(file)
@@ -55,7 +70,7 @@ func processFiles(files []string) {
 		fmt.Println("Description:", file.Description)
 
 		// Read Properties from the GpxFile
-		fmt.Println("NumberOfTracks:", gpx.NumberOfTracks)
+		fmt.Println("NumberOfTracks:", file.NumberOfTracks)
 
 		// Read properties troutgh the interface
 		fmt.Println("Distance:", info.GetDistance(), "m")
@@ -63,6 +78,24 @@ func processFiles(files []string) {
 		fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
 		fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
 	}
+}
+
+func getReader(file string) (gpsabl.TrackReader, error) {
+
+	if strings.HasSuffix(file, "gpx") == true { // If the file is a *.gpx, we can read it
+		return getGpxReader(file), nil
+	}
+
+	// We dont know the file type
+	return nil, newUnKnownFileTypeError(file)
+}
+
+func getGpxReader(file string) gpsabl.TrackReader {
+	// Get the GpxFile type
+	gpx := gpxbl.NewGpxFile(file)
+
+	// Convert the GpxFile to the TrackReader interface
+	return gpsabl.TrackReader(&gpx)
 }
 
 // handleComandlineOptions - Setup and parse the comandline options.

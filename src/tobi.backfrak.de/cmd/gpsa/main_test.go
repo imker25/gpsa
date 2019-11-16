@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -20,4 +21,17 @@ func TestHandleComandlineOptions(t *testing.T) {
 func TestHandleError(t *testing.T) {
 	HandleError(nil, "my/path")
 
+}
+
+func TestUnKnownFileTypeErrorStruct(t *testing.T) {
+	path := "/some/sample/path"
+	err := newUnKnownFileTypeError(path)
+
+	if err.File != path {
+		t.Errorf("The File was %s, but %s was expected", err.File, path)
+	}
+
+	if strings.Contains(err.Error(), path) == false {
+		t.Errorf("The error messaage of GpxFileError does not contain the expected Path")
+	}
 }
