@@ -13,6 +13,7 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
+// HelpFlag - Tell if the programm was called with -help
 var HelpFlag bool
 
 func main() {
@@ -26,42 +27,46 @@ func main() {
 			os.Exit(0)
 		}
 
-		for _, arg := range flag.Args() {
-			fmt.Println("Read file: " + arg)
-			// Get the GpxFile type
-			gpx := gpxbl.NewGpxFile(arg)
+		processFiles(flag.Args())
 
-			// Convert the GpxFile to the TrackReader interface
-			reader := gpsabl.TrackReader(&gpx)
-
-			// Read the *.gpx into a TrackFile type, using the interface
-			file, err := reader.ReadTracks()
-
-			HandleError(err, arg)
-
-			// Convert the TrackFile into the TrackInfoProvider interface
-			info := gpsabl.TrackInfoProvider(file)
-
-			// Read Properties from the TrackFile
-			fmt.Println("Name:", file.Name)
-			fmt.Println("Description:", file.Description)
-
-			// Read Properties from the GpxFile
-			fmt.Println("NumberOfTracks:", gpx.NumberOfTracks)
-
-			// Read properties troutgh the interface
-			fmt.Println("Distance:", info.GetDistance(), "m")
-			fmt.Println("AtituteRange:", info.GetAtituteRange(), "m")
-			fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
-			fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
-		}
-
-		os.Exit(0)
 	}
-
+	os.Exit(0)
 }
 
-// handleComandlineOptions - Setup and parse the Comandline Options
+func processFiles(files []string) {
+	for _, arg := range files {
+		fmt.Println("Read file: " + arg)
+		// Get the GpxFile type
+		gpx := gpxbl.NewGpxFile(arg)
+
+		// Convert the GpxFile to the TrackReader interface
+		reader := gpsabl.TrackReader(&gpx)
+
+		// Read the *.gpx into a TrackFile type, using the interface
+		file, err := reader.ReadTracks()
+
+		HandleError(err, arg)
+
+		// Convert the TrackFile into the TrackInfoProvider interface
+		info := gpsabl.TrackInfoProvider(file)
+
+		// Read Properties from the TrackFile
+		fmt.Println("Name:", file.Name)
+		fmt.Println("Description:", file.Description)
+
+		// Read Properties from the GpxFile
+		fmt.Println("NumberOfTracks:", gpx.NumberOfTracks)
+
+		// Read properties troutgh the interface
+		fmt.Println("Distance:", info.GetDistance(), "m")
+		fmt.Println("AtituteRange:", info.GetAtituteRange(), "m")
+		fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
+		fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
+	}
+}
+
+// handleComandlineOptions - Setup and parse the comandline options.
+// Defines the usage function as well
 func handleComandlineOptions() {
 	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
 

@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
