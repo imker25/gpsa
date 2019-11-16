@@ -6,8 +6,12 @@ package gpxbl
 // LICENSE file.
 
 import (
+	"encoding/xml"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -217,4 +221,46 @@ func TestReadGpxFile(t *testing.T) {
 	if file.MaximumAtitute != file.Tracks[0].MaximumAtitute {
 		t.Errorf("The MaximumAtitute is %f, but %f was expected", file.MaximumAtitute, file.Tracks[0].MaximumAtitute)
 	}
+}
+
+func TestReadTracksNotExistingGPX(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValideGPX("NotExisting.gpx"))
+	_, err := gpx.ReadTracks()
+	switch v := err.(type) {
+	case nil:
+		t.Errorf("No error, when reading a not existing gpx file")
+	case *os.PathError:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Expected a *os.PathError, got a %s", reflect.TypeOf(v))
+	}
+}
+
+func TestReadTracksUnValideGPX(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetUnValideGPX("01.gpx"))
+	_, err := gpx.ReadTracks()
+	switch v := err.(type) {
+	case nil:
+		t.Errorf("No error, when reading a unvalide gpx file")
+	case *xml.SyntaxError:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Expected a *xml.SyntaxError, got a %s", reflect.TypeOf(v))
+	}
+
+}
+
+func TestReadTracksNotGPX(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetUnValideGPX("02.gpx"))
+	file, err := gpx.ReadTracks()
+	switch v := err.(type) {
+	case nil:
+		t.Errorf("No error, when reading a unvalide gpx file")
+	case *GpxFileError:
+		checkGpxFileError(v, testhelper.GetUnValideGPX("02.gpx"), t)
+	default:
+		t.Errorf("Expected a *gpsabl.GpxFileError, got a %s", reflect.TypeOf(v))
+	}
+
+	fmt.Println(file.Name)
 }
