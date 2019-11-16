@@ -20,7 +20,7 @@ func TestTrackReaderAllValideGPX(t *testing.T) {
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".gpx") {
 			if file.IsDir() == false {
-				gpxFile := GpxFile{filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name())}
+				gpxFile := NewGpxFile(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()))
 				tracks, err := gpxFile.ReadTracks()
 				if err != nil {
 					t.Errorf("Got the following error while reading file %s: %s", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()), err.Error())
@@ -35,7 +35,7 @@ func TestTrackReaderAllValideGPX(t *testing.T) {
 }
 
 func TestTrackReaderOnePointTrack(t *testing.T) {
-	gpx := GpxFile{testhelper.GetValideGPX("06.gpx")}
+	gpx := NewGpxFile(testhelper.GetValideGPX("06.gpx"))
 
 	tracks, _ := gpx.ReadTracks()
 
@@ -49,7 +49,7 @@ func TestTrackReaderOnePointTrack(t *testing.T) {
 }
 
 func TestTrackReader02(t *testing.T) {
-	gpx := GpxFile{testhelper.GetValideGPX("02.gpx")}
+	gpx := NewGpxFile(testhelper.GetValideGPX("02.gpx"))
 
 	tracks, _ := gpx.ReadTracks()
 
@@ -59,7 +59,7 @@ func TestTrackReader02(t *testing.T) {
 }
 
 func TestTrackReaderImpl(t *testing.T) {
-	gpx := GpxFile{testhelper.GetValideGPX("01.gpx")}
+	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
 
 	if gpx.FilePath != testhelper.GetValideGPX("01.gpx") {
 		t.Errorf("GpxFile.FilePath was not %s but %s", testhelper.GetValideGPX("01.gpx"), gpx.FilePath)

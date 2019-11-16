@@ -157,6 +157,35 @@ func TestFillTrackValuesBeforeAfter(t *testing.T) {
 	}
 }
 
+func TestFillTrackFileValuesBeforeAfter(t *testing.T) {
+	name := "Track"
+	description := "My test track"
+	file := TrackFile{}
+
+	file.Name = name
+	file.Description = description
+	file.Tracks = []Track{getSimpleTrack()}
+	file.NumberOfTracks = 1
+
+	file = FillTrackFileValues(file)
+
+	if file.Name != name {
+		t.Errorf("The Name changed during FillTrackFileValues")
+	}
+
+	if file.Description != description {
+		t.Errorf("The Description changed during FillTrackFileValues")
+	}
+
+	if file.NumberOfTracks != 1 {
+		t.Errorf("The NumberOfTracks changed during FillTrackFileValues")
+	}
+
+	if len(file.Tracks) != 1 {
+		t.Errorf("The Tracks changed during FillTrackFileValues")
+	}
+}
+
 func TestFillTrackValuesSimple(t *testing.T) {
 	track := Track{}
 	track.TrackSegments = []TrackSegment{FillTrackSegmentValues(getSimpleTrackSegment())}
@@ -177,6 +206,36 @@ func TestFillTrackValuesSimple(t *testing.T) {
 	if track.MinimumAtitute != 108.0 {
 		t.Errorf("The MinimumAtitute is %f, but %f expected.", track.MinimumAtitute, 108.0)
 	}
+}
+
+func TestFillTrackFileValuesSimple(t *testing.T) {
+	file := TrackFile{}
+	file.Tracks = []Track{getSimpleTrack()}
+	file = FillTrackFileValues(file)
+
+	if file.AtituteRange != 1.0 {
+		t.Errorf("The AtituteRange is %f, but %f expected.", file.AtituteRange, 1.0)
+	}
+
+	if file.Distance != 23.885148437468256 {
+		t.Errorf("The Distance is %f, but %f expected.", file.Distance, 23.885148437468256)
+	}
+
+	if file.MaximumAtitute != 109.0 {
+		t.Errorf("The MaximumAtitute is %f, but %f expected.", file.MaximumAtitute, 109.0)
+	}
+
+	if file.MinimumAtitute != 108.0 {
+		t.Errorf("The MinimumAtitute is %f, but %f expected.", file.MinimumAtitute, 108.0)
+	}
+}
+
+func getSimpleTrack() Track {
+	ret := Track{}
+	ret.TrackSegments = []TrackSegment{FillTrackSegmentValues(getSimpleTrackSegment())}
+	ret = FillTrackValues(ret)
+
+	return ret
 }
 
 func getSimpleTrackSegment() TrackSegment {

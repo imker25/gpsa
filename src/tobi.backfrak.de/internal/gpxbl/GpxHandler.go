@@ -9,7 +9,15 @@ import "tobi.backfrak.de/internal/gpsabl"
 
 // GpxFile - The struct to handle *.gpx data files
 type GpxFile struct {
-	FilePath string
+	gpsabl.TrackFile
+}
+
+// NewGpxFile - Constructor for the GpxFile struct
+func NewGpxFile(filePath string) GpxFile {
+	gpx := GpxFile{}
+	gpx.FilePath = filePath
+
+	return gpx
 }
 
 // ReadTracks - implement the gpsabl.TrackReader interface for *.gpx files

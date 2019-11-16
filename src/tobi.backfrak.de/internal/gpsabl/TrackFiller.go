@@ -85,3 +85,36 @@ func FillTrackValues(track Track) Track {
 
 	return ret
 }
+
+// FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+func FillTrackFileValues(file TrackFile) TrackFile {
+	var dist float64
+	var minimumAtitute float32
+	var maximumAtitute float32
+
+	for i, trk := range file.Tracks {
+		dist = dist + trk.Distance
+
+		if i == 0 || trk.MaximumAtitute > maximumAtitute {
+			maximumAtitute = trk.MaximumAtitute
+		}
+
+		if i == 0 || trk.MinimumAtitute < minimumAtitute {
+			minimumAtitute = trk.MinimumAtitute
+		}
+	}
+
+	ret := TrackFile{}
+	ret.AtituteRange = maximumAtitute - minimumAtitute
+	ret.MaximumAtitute = maximumAtitute
+	ret.MinimumAtitute = minimumAtitute
+	ret.Distance = dist
+
+	ret.Name = file.Name
+	ret.NumberOfTracks = len(file.Tracks)
+	ret.Description = file.Description
+	ret.Tracks = file.Tracks
+	ret.FilePath = file.FilePath
+
+	return ret
+}
