@@ -9,3 +9,11 @@ package gpsabl
 type TrackReader interface {
 	ReadTracks() ([]Track, error)
 }
+
+// TrackInfoProvider - Interface for classes that provide track info data
+type TrackInfoProvider interface {
+	GetDistance() float64
+	GetAtituteRange() float32
+	GetMinimumAtitute() float32
+	GetMaximumAtitute() float32
+}
