@@ -126,10 +126,10 @@ func TestTrackReaderImpl(t *testing.T) {
 	}
 }
 
-func TestGpxFileInterfaceImplentaion(t *testing.T) {
+func TestGpxFileInterfaceImplentaion1(t *testing.T) {
 	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
 
-	reader := gpsabl.TrackReader(gpx)
+	reader := gpsabl.TrackReader(&gpx)
 
 	file, err := reader.ReadTracks()
 
@@ -157,6 +157,52 @@ func TestGpxFileInterfaceImplentaion(t *testing.T) {
 
 	if info.GetMaximumAtitute() != file.Tracks[0].MaximumAtitute {
 		t.Errorf("The MaximumAtitute is %f, but %f was expected", info.GetMaximumAtitute(), file.Tracks[0].MaximumAtitute)
+	}
+}
+
+func TestGpxFileInterfaceImplentaion2(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
+
+	reader := gpsabl.TrackReader(&gpx)
+
+	file, err := reader.ReadTracks()
+
+	if err != nil {
+		t.Errorf("Got not expected error:  %s", err.Error())
+	}
+
+	info := gpsabl.TrackInfoProvider(gpx)
+
+	if info.GetDistance() != file.Tracks[0].Distance {
+		t.Errorf("The Distance is %f, but %f was expected", info.GetDistance(), file.Tracks[0].Distance)
+	}
+
+	if info.GetAtituteRange() != file.Tracks[0].AtituteRange {
+		t.Errorf("The AtituteRange is %f, but %f was expected", info.GetAtituteRange(), file.Tracks[0].AtituteRange)
+	}
+
+	if info.GetMinimumAtitute() != file.Tracks[0].MinimumAtitute {
+		t.Errorf("The MinimumAtitute is %f, but %f was expected", info.GetMinimumAtitute(), file.Tracks[0].MinimumAtitute)
+	}
+
+	if info.GetMaximumAtitute() != file.Tracks[0].MaximumAtitute {
+		t.Errorf("The MaximumAtitute is %f, but %f was expected", info.GetMaximumAtitute(), file.Tracks[0].MaximumAtitute)
+	}
+
+	if gpx.Distance != file.Tracks[0].Distance {
+		t.Errorf("The Distance is %f, but %f was expected", gpx.Distance, file.Tracks[0].Distance)
+	}
+
+	if gpx.AtituteRange != file.Tracks[0].AtituteRange {
+		t.Errorf("The AtituteRange is %f, but %f was expected", gpx.AtituteRange, file.Tracks[0].AtituteRange)
+	}
+
+	if gpx.MinimumAtitute != file.Tracks[0].MinimumAtitute {
+		t.Errorf("The MinimumAtitute is %f, but %f was expected", gpx.MinimumAtitute, file.Tracks[0].MinimumAtitute)
+	}
+
+	if gpx.MaximumAtitute != file.Tracks[0].MaximumAtitute {
+		t.Errorf("The MaximumAtitute is %f, but %f was expected", gpx.MaximumAtitute, file.Tracks[0].MaximumAtitute)
 	}
 }
 
