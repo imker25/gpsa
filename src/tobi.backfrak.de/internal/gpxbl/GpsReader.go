@@ -55,8 +55,6 @@ func newGpxFileError(filename string) *GpxFileError {
 
 // ReadGPX - Read a GPX file
 func ReadGPX(filename string) (Gpx, error) {
-
-	fmt.Println("Read file: " + filename)
 	xmlfile, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return Gpx{}, err

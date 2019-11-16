@@ -13,15 +13,15 @@ import (
 )
 
 // HandleError - Handles an error
-func HandleError(err error) {
+func HandleError(err error, filePath string) {
 	if err != nil {
 		switch err.(type) {
 		case *os.PathError:
-			fmt.Println("Error: The given track file was not found: ", err.Error())
+			fmt.Println("Error: The given track file (", filePath, ") was not found: ", err.Error())
 		case *xml.SyntaxError:
-			fmt.Println("Error: The given track file is not well formated: ", err.Error())
+			fmt.Println("Error: The given track file (", filePath, ") is not well formated: ", err.Error())
 		case *gpxbl.GpxFileError:
-			fmt.Println("Error: The given track file is not a GPX file: ", err.Error())
+			fmt.Println("Error: The given track file (", filePath, ") is not a GPX file: ", err.Error())
 		default:
 			fmt.Println("Error: ", err.Error())
 		}

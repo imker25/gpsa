@@ -17,11 +17,11 @@ func main() {
 
 		fmt.Println("Argument given:")
 		for _, arg := range os.Args[1:] { // Skip the 0s argument, becaus this will always be the program itselfe
-			// fmt.Println(arg)
+			fmt.Println("Read file: " + arg)
 			gpx := gpxbl.NewGpxFile(arg)
 			file, err := gpx.ReadTracks()
 			if err != nil {
-				HandleError(err)
+				HandleError(err, arg)
 			}
 			fmt.Println("Name: ", file.Name)
 			fmt.Println("Description: ", file.Description)
