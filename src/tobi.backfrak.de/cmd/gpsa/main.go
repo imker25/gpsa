@@ -37,24 +37,23 @@ func main() {
 			// Read the *.gpx into a TrackFile type, using the interface
 			file, err := reader.ReadTracks()
 
-			if err != nil {
-				HandleError(err, arg)
-			}
+			HandleError(err, arg)
+
 			// Convert the TrackFile into the TrackInfoProvider interface
 			info := gpsabl.TrackInfoProvider(file)
 
 			// Read Properties from the TrackFile
-			fmt.Println("Name: ", file.Name)
-			fmt.Println("Description: ", file.Description)
+			fmt.Println("Name:", file.Name)
+			fmt.Println("Description:", file.Description)
 
 			// Read Properties from the GpxFile
-			fmt.Println("NumberOfTracks: ", gpx.NumberOfTracks)
+			fmt.Println("NumberOfTracks:", gpx.NumberOfTracks)
 
 			// Read properties troutgh the interface
-			fmt.Println("Distance: ", info.GetDistance(), "m")
-			fmt.Println("AtituteRange: ", info.GetAtituteRange(), "m")
-			fmt.Println("MinimumAtitute: ", info.GetMinimumAtitute(), "m")
-			fmt.Println("MaximumAtitute: ", info.GetMaximumAtitute(), "m")
+			fmt.Println("Distance:", info.GetDistance(), "m")
+			fmt.Println("AtituteRange:", info.GetAtituteRange(), "m")
+			fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
+			fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
 		}
 
 		os.Exit(0)

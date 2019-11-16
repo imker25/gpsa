@@ -12,7 +12,7 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
-// HandleError - Handles an error
+// HandleError - Handles an error. Will do nothing if the given error is nil
 func HandleError(err error, filePath string) {
 	if err != nil {
 		switch err.(type) {
