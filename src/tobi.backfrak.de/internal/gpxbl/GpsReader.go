@@ -50,7 +50,7 @@ func (e *GpxFileError) Error() string { // Implement the Error Interface for the
 
 // newGpxFileError - Get a new GpxFileError struct
 func newGpxFileError(fileName string) *GpxFileError {
-	return &GpxFileError{fmt.Sprintf("The file %s was not a gpx file", fileName), fileName}
+	return &GpxFileError{fmt.Sprintf("The file \"%s\" was not a gpx file", fileName), fileName}
 }
 
 // ReadGPX - Read a GPX file

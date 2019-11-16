@@ -17,15 +17,15 @@ func HandleError(err error, filePath string) {
 	if err != nil {
 		switch err.(type) {
 		case *os.PathError:
-			fmt.Println("Error: The given track file (", filePath, ") was not found: ", err.Error())
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: The given track file \"%s\" was not found.", filePath))
 		case *xml.SyntaxError:
-			fmt.Println("Error: The given track file (", filePath, ") is not well formated: ", err.Error())
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: The given track file \"%s\" is not well formated: %s", filePath, err.Error()))
 		case *gpxbl.GpxFileError:
-			fmt.Println("Error: The given track file (", filePath, ") is not a GPX file: ", err.Error())
+			fmt.Fprintln(os.Stderr, err.Error())
 		default:
-			fmt.Println("Error: ", err.Error())
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: %s", err.Error()))
 		}
-	}
 
-	os.Exit(-1)
+		os.Exit(-1)
+	}
 }

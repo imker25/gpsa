@@ -5,6 +5,7 @@ package main
 // by a BSD-style license that can be found in the
 // LICENSE file.
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -12,12 +13,20 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
+var HelpFlag bool
+
 func main() {
 
 	if cap(os.Args) > 1 {
 
-		fmt.Println("Argument given:")
-		for _, arg := range os.Args[1:] { // Skip the 0s argument, becaus this will always be the program itselfe
+		handleComandlineOptions()
+
+		if HelpFlag == true {
+			flag.Usage()
+			os.Exit(0)
+		}
+
+		for _, arg := range flag.Args() {
 			fmt.Println("Read file: " + arg)
 			// Get the GpxFile type
 			gpx := gpxbl.NewGpxFile(arg)
@@ -42,11 +51,32 @@ func main() {
 			fmt.Println("NumberOfTracks: ", gpx.NumberOfTracks)
 
 			// Read properties troutgh the interface
-			fmt.Println("Distance: ", info.GetDistance())
-			fmt.Println("AtituteRange: ", info.GetAtituteRange())
-			fmt.Println("MinimumAtitute: ", info.GetMinimumAtitute())
-			fmt.Println("MaximumAtitute: ", info.GetMaximumAtitute())
+			fmt.Println("Distance: ", info.GetDistance(), "m")
+			fmt.Println("AtituteRange: ", info.GetAtituteRange(), "m")
+			fmt.Println("MinimumAtitute: ", info.GetMinimumAtitute(), "m")
+			fmt.Println("MaximumAtitute: ", info.GetMaximumAtitute(), "m")
 		}
+
+		os.Exit(0)
 	}
+
+}
+
+// handleComandlineOptions - Setup and parse the Comandline Options
+func handleComandlineOptions() {
+	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
+
+	// Overwrite the std Usage function with some costum stuff
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in track files, and writes out basic statistic data found in the track", os.Args[0]))
+		fmt.Fprintln(os.Stdout)
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
+		fmt.Fprintln(os.Stdout, "  files")
+		fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx) supported at the moment")
+		fmt.Fprintln(os.Stdout, "Options:")
+		flag.PrintDefaults()
+	}
+
+	flag.Parse()
 
 }
