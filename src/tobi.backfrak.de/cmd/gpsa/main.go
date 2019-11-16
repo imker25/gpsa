@@ -6,17 +6,31 @@ package main
 // LICENSE file.
 import (
 	"fmt"
+	"os"
 
-	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
 func main() {
-	gpx, err := gpxbl.ReadGPX("")
-	if err != nil {
-		gpsabl.HandleError(err)
+
+	if cap(os.Args) > 1 {
+
+		fmt.Println("Argument given:")
+		for _, arg := range os.Args[1:] { // Skip the 0s argument, becaus this will always be the program itselfe
+			// fmt.Println(arg)
+			gpx := gpxbl.NewGpxFile(arg)
+			file, err := gpx.ReadTracks()
+			if err != nil {
+				HandleError(err)
+			}
+			fmt.Println("Name: ", file.Name)
+			fmt.Println("Description: ", file.Description)
+			fmt.Println("NumberOfTracks: ", file.NumberOfTracks)
+			fmt.Println("Distance: ", file.Distance)
+			fmt.Println("AtituteRange: ", file.AtituteRange)
+			fmt.Println("MinimumAtitute: ", file.MinimumAtitute)
+			fmt.Println("MaximumAtitute: ", file.MaximumAtitute)
+		}
 	}
-	fmt.Println(gpx.Name)
-	fmt.Println(gpx.Description)
-	// os.Exit(0)
+
 }

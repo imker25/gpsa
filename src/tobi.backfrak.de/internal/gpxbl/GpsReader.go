@@ -1,4 +1,5 @@
 package gpxbl
+
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -54,10 +55,6 @@ func newGpxFileError(filename string) *GpxFileError {
 
 // ReadGPX - Read a GPX file
 func ReadGPX(filename string) (Gpx, error) {
-
-	if filename == "" {
-		return Gpx{}, nil
-	}
 
 	fmt.Println("Read file: " + filename)
 	xmlfile, err := ioutil.ReadFile(filename)
