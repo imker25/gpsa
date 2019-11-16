@@ -23,6 +23,30 @@ func TestHandleError(t *testing.T) {
 
 }
 
+func TestGetReaderGpxFile(t *testing.T) {
+	reader, err := getReader("/some/track.gpx")
+
+	if err != nil {
+		t.Errorf("Got an error when try to get a reader for a gpx file: %s", err.Error())
+	}
+
+	if reader == nil {
+		t.Errorf("The reader we got was nil")
+	}
+}
+
+func TestGetReaderUnkonwnFile(t *testing.T) {
+	reader, err := getReader("/some/track.txt")
+
+	if err == nil {
+		t.Errorf("Got no error when try to get a reader for a txt file.")
+	}
+
+	if reader != nil {
+		t.Errorf("The reader we got was not nil")
+	}
+}
+
 func TestUnKnownFileTypeErrorStruct(t *testing.T) {
 	path := "/some/sample/path"
 	err := newUnKnownFileTypeError(path)
