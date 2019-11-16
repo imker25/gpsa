@@ -49,26 +49,26 @@ func (e *GpxFileError) Error() string { // Implement the Error Interface for the
 }
 
 // newGpxFileError - Get a new GpxFileError struct
-func newGpxFileError(filename string) *GpxFileError {
-	return &GpxFileError{fmt.Sprintf("The file %s was not a gpx file", filename), filename}
+func newGpxFileError(fileName string) *GpxFileError {
+	return &GpxFileError{fmt.Sprintf("The file %s was not a gpx file", fileName), fileName}
 }
 
 // ReadGPX - Read a GPX file
-func ReadGPX(filename string) (Gpx, error) {
-	xmlfile, err := ioutil.ReadFile(filename)
+func ReadGPX(fileName string) (Gpx, error) {
+	xmlfile, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return Gpx{}, err
 	}
-	return readGPXBuffer(xmlfile, filename)
+	return readGPXBuffer(xmlfile, fileName)
 }
 
-func readGPXBuffer(fileBuffer []byte, filename string) (Gpx, error) {
+func readGPXBuffer(fileBuffer []byte, fileName string) (Gpx, error) {
 	gpx := Gpx{}
 	err := xml.Unmarshal([]byte(fileBuffer), &gpx)
 
 	if len(gpx.Tracks) > 0 || err != nil {
 		return gpx, err
 	}
-	return gpx, newGpxFileError(filename)
+	return gpx, newGpxFileError(fileName)
 
 }
