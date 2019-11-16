@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"tobi.backfrak.de/internal/gpsabl"
+
 	"tobi.backfrak.de/internal/testhelper"
 )
 
@@ -117,6 +119,40 @@ func TestTrackReaderImpl(t *testing.T) {
 
 	if file.MaximumAtitute != file.Tracks[0].MaximumAtitute {
 		t.Errorf("The MaximumAtitute is %f, but %f was expected", file.MaximumAtitute, file.Tracks[0].MaximumAtitute)
+	}
+}
+
+func TestGpxFileInterfaceImplentaion(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
+
+	reader := gpsabl.TrackReader(gpx)
+
+	file, err := reader.ReadTracks()
+
+	if err != nil {
+		t.Errorf("Got not expected error:  %s", err.Error())
+	}
+
+	if file.Name != "GPX name" {
+		t.Errorf("The GPX name was not expected. Got: %s", file.Name)
+	}
+
+	info := gpsabl.TrackInfoProvider(file)
+
+	if info.GetDistance() != file.Tracks[0].Distance {
+		t.Errorf("The Distance is %f, but %f was expected", info.GetDistance(), file.Tracks[0].Distance)
+	}
+
+	if info.GetAtituteRange() != file.Tracks[0].AtituteRange {
+		t.Errorf("The AtituteRange is %f, but %f was expected", info.GetAtituteRange(), file.Tracks[0].AtituteRange)
+	}
+
+	if info.GetMinimumAtitute() != file.Tracks[0].MinimumAtitute {
+		t.Errorf("The MinimumAtitute is %f, but %f was expected", info.GetMinimumAtitute(), file.Tracks[0].MinimumAtitute)
+	}
+
+	if info.GetMaximumAtitute() != file.Tracks[0].MaximumAtitute {
+		t.Errorf("The MaximumAtitute is %f, but %f was expected", info.GetMaximumAtitute(), file.Tracks[0].MaximumAtitute)
 	}
 }
 
