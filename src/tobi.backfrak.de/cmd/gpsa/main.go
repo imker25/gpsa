@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"tobi.backfrak.de/internal/gpsabl"
@@ -50,7 +51,10 @@ func main() {
 			os.Exit(0)
 		}
 
-		successCount := processFiles(flag.Args())
+		successCount, report := processFiles(flag.Args())
+		for _, ret := range report {
+			fmt.Fprintln(os.Stdout, ret)
+		}
 		if VerboseFlag == true {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
 		}
@@ -87,64 +91,68 @@ func handleComandlineOptions() {
 
 }
 
-func processFiles(files []string) int {
+func processFiles(files []string) (int, []string) {
 	allFiles := len(files)
 	successCount := 0
-	c := make(chan int, allFiles)
+	c := make(chan string, allFiles)
 	countFiles := 0
+	retVals := []string{}
 
 	for _, filePath := range files {
 		go goProcessFile(filePath, c)
 	}
 
-	for success := range c {
-		successCount += success
+	for ret := range c {
+		if ret != "" {
+			successCount++
+			retVals = append(retVals, ret)
+		}
 		countFiles++
 		if countFiles == allFiles {
 			close(c)
 		}
 	}
-	return successCount
+	return successCount, retVals
 }
 
-func goProcessFile(filePath string, c chan int) {
+func goProcessFile(filePath string, c chan string) {
 	ret := processFile(filePath)
 	c <- ret
 }
 
-func processFile(filePath string) int {
+func processFile(filePath string) string {
+	retVal := ""
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
 	}
 	// Find out if we can read the file
 	reader, readerErr := getReader(filePath)
 	if HandleError(readerErr, filePath) == true {
-		return 0
+		return ""
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
 	file, readErr := reader.ReadTracks()
 	if HandleError(readErr, filePath) == true {
-		return 0
+		return ""
 	}
 
 	// Convert the TrackFile into the TrackInfoProvider interface
 	info := gpsabl.TrackInfoProvider(file)
 
 	// Read Properties from the TrackFile
-	fmt.Println("Name:", file.Name)
-	fmt.Println("Description:", file.Description)
-
-	// Read Properties from the GpxFile
-	fmt.Println("NumberOfTracks:", file.NumberOfTracks)
+	retVal = retVal + "File name: " + file.FilePath + getNewLine()
+	retVal = retVal + "Name: " + file.Name + getNewLine()
+	retVal = retVal + "Description: " + file.Description + getNewLine()
+	retVal = retVal + "NumberOfTracks: " + fmt.Sprintf(" %d ", file.NumberOfTracks) + getNewLine()
 
 	// Read properties troutgh the interface
-	fmt.Println("Distance:", info.GetDistance(), "m")
-	fmt.Println("AtituteRange:", info.GetAtituteRange(), "m")
-	fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
-	fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
+	retVal = retVal + "Distance:" + fmt.Sprintf(" %f ", info.GetDistance()) + "m" + getNewLine()
+	retVal = retVal + "AtituteRange:" + fmt.Sprintf(" %f ", info.GetAtituteRange()) + "m" + getNewLine()
+	retVal = retVal + "MinimumAtitute:" + fmt.Sprintf(" %f ", info.GetMinimumAtitute()) + "m" + getNewLine()
+	retVal = retVal + "MaximumAtitute:" + fmt.Sprintf(" %f ", info.GetMaximumAtitute()) + "m" + getNewLine()
 
-	return 1
+	return retVal
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
@@ -163,4 +171,13 @@ func getGpxReader(file string) gpsabl.TrackReader {
 
 	// Convert the GpxFile to the TrackReader interface
 	return gpsabl.TrackReader(&gpx)
+}
+
+func getNewLine() string {
+	if runtime.GOOS == "windows" {
+		return "\r\n"
+	} else {
+		return "\n"
+	}
+
 }

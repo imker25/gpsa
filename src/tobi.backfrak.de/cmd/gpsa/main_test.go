@@ -84,7 +84,8 @@ func TestProcessValideFiles(t *testing.T) {
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
 	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
-	if processFiles(files) != 2 {
+	successCount, _ := processFiles(files)
+	if successCount != 2 {
 		t.Errorf("Not all files was proccess successfull as expected")
 	}
 
@@ -100,7 +101,8 @@ func TestProcessMixedFiles(t *testing.T) {
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
-	if processFiles(files) != 1 {
+	successCount, _ := processFiles(files)
+	if successCount != 1 {
 		t.Errorf("Not two files was proccess with error as expected")
 	}
 
@@ -116,7 +118,8 @@ func TestProcessUnValideFiles(t *testing.T) {
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
-	if processFiles(files) != 0 {
+	successCount, _ := processFiles(files)
+	if successCount != 0 {
 		t.Errorf("Not all files was proccess with error as expected")
 	}
 
