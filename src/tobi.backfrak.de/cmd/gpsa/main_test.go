@@ -81,15 +81,18 @@ func TestUnKnownFileTypeErrorStruct(t *testing.T) {
 
 func TestProcessValideFiles(t *testing.T) {
 	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
 	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
 	if processFiles(files) != 2 {
 		t.Errorf("Not all files was proccess successfull as expected")
 	}
 
 	if ErrorsHandled == true {
-		ErrorsHandled = false
 		t.Errorf("Errors occured, but should not")
 	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
 }
 
 func TestProcessMixedFiles(t *testing.T) {
