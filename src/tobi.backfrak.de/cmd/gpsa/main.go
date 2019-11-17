@@ -91,41 +91,48 @@ func processFiles(files []string) int {
 
 	successCount := 0
 	for _, filePath := range files {
-		if VerboseFlag == true {
-			fmt.Println("Read file: " + filePath)
+
+		if processFile(filePath) == true {
+			successCount++
 		}
-		// Find out if we can read the file
-		reader, readerErr := getReader(filePath)
-		if HandleError(readerErr, filePath) == true {
-			continue
-		}
-
-		// Read the *.gpx into a TrackFile type, using the interface
-		file, readErr := reader.ReadTracks()
-		if HandleError(readErr, filePath) == true {
-			continue
-		}
-
-		// Convert the TrackFile into the TrackInfoProvider interface
-		info := gpsabl.TrackInfoProvider(file)
-
-		// Read Properties from the TrackFile
-		fmt.Println("Name:", file.Name)
-		fmt.Println("Description:", file.Description)
-
-		// Read Properties from the GpxFile
-		fmt.Println("NumberOfTracks:", file.NumberOfTracks)
-
-		// Read properties troutgh the interface
-		fmt.Println("Distance:", info.GetDistance(), "m")
-		fmt.Println("AtituteRange:", info.GetAtituteRange(), "m")
-		fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
-		fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
-
-		successCount++
 	}
 
 	return successCount
+}
+
+func processFile(filePath string) bool {
+	if VerboseFlag == true {
+		fmt.Println("Read file: " + filePath)
+	}
+	// Find out if we can read the file
+	reader, readerErr := getReader(filePath)
+	if HandleError(readerErr, filePath) == true {
+		return false
+	}
+
+	// Read the *.gpx into a TrackFile type, using the interface
+	file, readErr := reader.ReadTracks()
+	if HandleError(readErr, filePath) == true {
+		return false
+	}
+
+	// Convert the TrackFile into the TrackInfoProvider interface
+	info := gpsabl.TrackInfoProvider(file)
+
+	// Read Properties from the TrackFile
+	fmt.Println("Name:", file.Name)
+	fmt.Println("Description:", file.Description)
+
+	// Read Properties from the GpxFile
+	fmt.Println("NumberOfTracks:", file.NumberOfTracks)
+
+	// Read properties troutgh the interface
+	fmt.Println("Distance:", info.GetDistance(), "m")
+	fmt.Println("AtituteRange:", info.GetAtituteRange(), "m")
+	fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
+	fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
+
+	return true
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
