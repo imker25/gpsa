@@ -65,6 +65,28 @@ func main() {
 	}
 }
 
+// handleComandlineOptions - Setup and parse the comandline options.
+// Defines the usage function as well
+func handleComandlineOptions() {
+	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
+	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
+	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
+
+	// Overwrite the std Usage function with some costum stuff
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in track files, and writes out basic statistic data found in the track", os.Args[0]))
+		fmt.Fprintln(os.Stdout)
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
+		fmt.Fprintln(os.Stdout, "  files")
+		fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx) supported at the moment")
+		fmt.Fprintln(os.Stdout, "Options:")
+		flag.PrintDefaults()
+	}
+
+	flag.Parse()
+
+}
+
 func processFiles(files []string) int {
 
 	successCount := 0
@@ -122,26 +144,4 @@ func getGpxReader(file string) gpsabl.TrackReader {
 
 	// Convert the GpxFile to the TrackReader interface
 	return gpsabl.TrackReader(&gpx)
-}
-
-// handleComandlineOptions - Setup and parse the comandline options.
-// Defines the usage function as well
-func handleComandlineOptions() {
-	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
-	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
-	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
-
-	// Overwrite the std Usage function with some costum stuff
-	flag.Usage = func() {
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in track files, and writes out basic statistic data found in the track", os.Args[0]))
-		fmt.Fprintln(os.Stdout)
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
-		fmt.Fprintln(os.Stdout, "  files")
-		fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx) supported at the moment")
-		fmt.Fprintln(os.Stdout, "Options:")
-		flag.PrintDefaults()
-	}
-
-	flag.Parse()
-
 }
