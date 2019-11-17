@@ -50,7 +50,10 @@ func main() {
 			os.Exit(0)
 		}
 
-		processFiles(flag.Args())
+		successCount := processFiles(flag.Args())
+		if VerboseFlag == true {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successefull", successCount, len(flag.Args())))
+		}
 
 	}
 
@@ -62,7 +65,9 @@ func main() {
 	}
 }
 
-func processFiles(files []string) {
+func processFiles(files []string) int {
+
+	successCount := 0
 	for _, filePath := range files {
 		if VerboseFlag == true {
 			fmt.Println("Read file: " + filePath)
@@ -94,7 +99,11 @@ func processFiles(files []string) {
 		fmt.Println("AtituteRange:", info.GetAtituteRange(), "m")
 		fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
 		fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
+
+		successCount++
 	}
+
+	return successCount
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {

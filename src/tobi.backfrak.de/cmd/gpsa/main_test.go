@@ -3,6 +3,8 @@ package main
 import (
 	"strings"
 	"testing"
+
+	"tobi.backfrak.de/internal/testhelper"
 )
 
 // Copyright 2019 by tobi@backfrak.de. All
@@ -26,13 +28,18 @@ func TestHandleErrorNil(t *testing.T) {
 }
 
 func TestHandleErrorNotNil(t *testing.T) {
+	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
 	if HandleError(newUnKnownFileTypeError("my/path"), "my/path") == false {
 		t.Errorf("HandleError reutrns false, when error was given")
 	}
 
+	if ErrorsHandled == false {
+		t.Errorf("ErrorsHandled should be true, after a error was handeled")
+	}
 	SkipErrorExitFlag = oldFlagValue
+	ErrorsHandled = false
 }
 
 func TestGetReaderGpxFile(t *testing.T) {
@@ -70,4 +77,49 @@ func TestUnKnownFileTypeErrorStruct(t *testing.T) {
 	if strings.Contains(err.Error(), path) == false {
 		t.Errorf("The error messaage of GpxFileError does not contain the expected Path")
 	}
+}
+
+func TestProcessValideFiles(t *testing.T) {
+	ErrorsHandled = false
+	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
+	if processFiles(files) != 2 {
+		t.Errorf("Not all files was proccess successfull as expected")
+	}
+
+	if ErrorsHandled == true {
+		ErrorsHandled = false
+		t.Errorf("Errors occured, but should not")
+	}
+}
+
+func TestProcessMixedFiles(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
+	if processFiles(files) != 1 {
+		t.Errorf("Not two files was proccess with error as expected")
+	}
+
+	if ErrorsHandled == false {
+		t.Errorf("No errors occured, but should")
+	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+}
+
+func TestProcessUnValideFiles(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
+	if processFiles(files) != 0 {
+		t.Errorf("Not all files was proccess with error as expected")
+	}
+
+	if ErrorsHandled == false {
+		t.Errorf("No errors occured, but should")
+	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
 }
