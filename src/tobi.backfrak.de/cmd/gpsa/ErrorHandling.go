@@ -22,6 +22,8 @@ func HandleError(err error, filePath string) {
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: The given track file \"%s\" is not well formated: %s", filePath, err.Error()))
 		case *gpxbl.GpxFileError:
 			fmt.Fprintln(os.Stderr, err.Error())
+		case *UnKnownFileTypeError:
+			fmt.Fprintln(os.Stderr, err.Error())
 		default:
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: %s", err.Error()))
 		}
