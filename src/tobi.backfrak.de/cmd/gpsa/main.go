@@ -88,32 +88,44 @@ func handleComandlineOptions() {
 }
 
 func processFiles(files []string) int {
-
+	allFiles := len(files)
 	successCount := 0
-	for _, filePath := range files {
+	c := make(chan int, allFiles)
+	countFiles := 0
 
-		if processFile(filePath) == true {
-			successCount++
-		}
+	for _, filePath := range files {
+		go goProcessFile(filePath, c)
 	}
 
+	for success := range c {
+		successCount += success
+		countFiles++
+		if countFiles == allFiles {
+			close(c)
+		}
+	}
 	return successCount
 }
 
-func processFile(filePath string) bool {
+func goProcessFile(filePath string, c chan int) {
+	ret := processFile(filePath)
+	c <- ret
+}
+
+func processFile(filePath string) int {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
 	}
 	// Find out if we can read the file
 	reader, readerErr := getReader(filePath)
 	if HandleError(readerErr, filePath) == true {
-		return false
+		return 0
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
 	file, readErr := reader.ReadTracks()
 	if HandleError(readErr, filePath) == true {
-		return false
+		return 0
 	}
 
 	// Convert the TrackFile into the TrackInfoProvider interface
@@ -132,7 +144,7 @@ func processFile(filePath string) bool {
 	fmt.Println("MinimumAtitute:", info.GetMinimumAtitute(), "m")
 	fmt.Println("MaximumAtitute:", info.GetMaximumAtitute(), "m")
 
-	return true
+	return 1
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
