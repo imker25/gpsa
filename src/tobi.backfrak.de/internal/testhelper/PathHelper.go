@@ -35,7 +35,7 @@ func GetProjectRoot() string {
 }
 
 func isRootPath(wd string) bool {
-	if strings.HasSuffix(wd, "gpsa") && strings.Count(wd, "gpsa") == 1 {
+	if strings.HasSuffix(wd, "gpsa") && strings.Count(wd, "gpsa") == 1 && strings.Count(wd, "GPSA_") == 0 {
 		return true // This is the name of the project, so it should be the root dir
 	}
 
