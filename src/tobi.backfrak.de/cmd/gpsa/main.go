@@ -52,7 +52,7 @@ func main() {
 
 		successCount := processFiles(flag.Args())
 		if VerboseFlag == true {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successefull", successCount, len(flag.Args())))
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
 		}
 
 	}
