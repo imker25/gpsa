@@ -12,9 +12,15 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
-// HandleError - Handles an error. Will do nothing if the given error is nil
-func HandleError(err error, filePath string) {
+// ErrorsHandled - Tell if the programm had to handle at least one error
+var ErrorsHandled bool
+
+// HandleError - Handles an error. Will do nothing and return false if the given error is nil.
+// Will exit the program with -1, or return true when the error is not nil
+func HandleError(err error, filePath string) bool {
 	if err != nil {
+		ErrorsHandled = true
+
 		switch err.(type) {
 		case *os.PathError:
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: The given track file \"%s\" was not found.", filePath))
@@ -28,6 +34,12 @@ func HandleError(err error, filePath string) {
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: %s", err.Error()))
 		}
 
-		os.Exit(-1)
+		if SkipErrorExitFlag == false {
+			os.Exit(-1)
+		}
+
+		return true
 	}
+
+	return false
 }

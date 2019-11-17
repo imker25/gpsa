@@ -18,9 +18,21 @@ func TestHandleComandlineOptions(t *testing.T) {
 	}
 }
 
-func TestHandleError(t *testing.T) {
-	HandleError(nil, "my/path")
+func TestHandleErrorNil(t *testing.T) {
+	if HandleError(nil, "my/path") == true {
+		t.Errorf("HandleError reutrns true, when nil error was given")
+	}
 
+}
+
+func TestHandleErrorNotNil(t *testing.T) {
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	if HandleError(newUnKnownFileTypeError("my/path"), "my/path") == false {
+		t.Errorf("HandleError reutrns false, when error was given")
+	}
+
+	SkipErrorExitFlag = oldFlagValue
 }
 
 func TestGetReaderGpxFile(t *testing.T) {

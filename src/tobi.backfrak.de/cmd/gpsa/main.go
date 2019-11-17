@@ -33,6 +33,12 @@ func newUnKnownFileTypeError(fileName string) *UnKnownFileTypeError {
 // HelpFlag - Tell if the programm was called with -help
 var HelpFlag bool
 
+// VerboseFlag - Tell if the programm was called with -verbose
+var VerboseFlag bool
+
+// SkipErrorExitFlag - Tell if the programm was called with -skip-error-exit
+var SkipErrorExitFlag bool
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -47,20 +53,31 @@ func main() {
 		processFiles(flag.Args())
 
 	}
-	os.Exit(0)
+
+	if ErrorsHandled == false {
+		os.Exit(0)
+	} else {
+		fmt.Fprintln(os.Stderr, "At least one error occured")
+		os.Exit(-1)
+	}
 }
 
 func processFiles(files []string) {
 	for _, filePath := range files {
-		fmt.Println("Read file: " + filePath)
-
+		if VerboseFlag == true {
+			fmt.Println("Read file: " + filePath)
+		}
 		// Find out if we can read the file
 		reader, readerErr := getReader(filePath)
-		HandleError(readerErr, filePath)
+		if HandleError(readerErr, filePath) == true {
+			continue
+		}
 
 		// Read the *.gpx into a TrackFile type, using the interface
 		file, readErr := reader.ReadTracks()
-		HandleError(readErr, filePath)
+		if HandleError(readErr, filePath) == true {
+			continue
+		}
 
 		// Convert the TrackFile into the TrackInfoProvider interface
 		info := gpsabl.TrackInfoProvider(file)
@@ -102,6 +119,8 @@ func getGpxReader(file string) gpsabl.TrackReader {
 // Defines the usage function as well
 func handleComandlineOptions() {
 	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
+	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
+	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
