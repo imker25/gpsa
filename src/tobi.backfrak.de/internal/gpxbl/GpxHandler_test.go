@@ -60,7 +60,7 @@ func TestTrackReader02(t *testing.T) {
 	file, _ := gpx.ReadTracks()
 
 	if file.Tracks[0].Distance != 37823.344979382266 {
-		t.Errorf("The Distance is %f, but %f was expected", file.Tracks[0].Distance, 18478.293509238614)
+		t.Errorf("The Distance is %f, but %f was expected", file.Tracks[0].Distance, 37823.344979382266)
 	}
 }
 
