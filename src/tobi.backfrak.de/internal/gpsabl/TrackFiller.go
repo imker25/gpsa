@@ -73,10 +73,7 @@ func FillTrackValues(track Track) Track {
 	}
 
 	ret := Track{}
-	ret.AtituteRange = maximumAtitute - minimumAtitute
-	ret.MaximumAtitute = maximumAtitute
-	ret.MinimumAtitute = minimumAtitute
-	ret.Distance = dist
+	(TrackSummaryProvider(&ret)).SetValues(dist, maximumAtitute-minimumAtitute, minimumAtitute, maximumAtitute)
 
 	ret.Name = track.Name
 	ret.NumberOfSegments = track.NumberOfSegments

@@ -16,4 +16,5 @@ type TrackSummaryProvider interface {
 	GetAtituteRange() float32
 	GetMinimumAtitute() float32
 	GetMaximumAtitute() float32
+	SetValues(distance float64, atituteRange float32, minimumAtitute float32, maximumAtitute float32)
 }

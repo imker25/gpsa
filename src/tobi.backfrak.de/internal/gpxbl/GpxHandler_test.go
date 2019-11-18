@@ -141,7 +141,7 @@ func TestGpxFileInterfaceImplentaion1(t *testing.T) {
 		t.Errorf("The GPX name was not expected. Got: %s", file.Name)
 	}
 
-	info := gpsabl.TrackSummaryProvider(file)
+	info := gpsabl.TrackSummaryProvider(&file)
 
 	if info.GetDistance() != file.Tracks[0].Distance {
 		t.Errorf("The Distance is %f, but %f was expected", info.GetDistance(), file.Tracks[0].Distance)
@@ -171,7 +171,7 @@ func TestGpxFileInterfaceImplentaion2(t *testing.T) {
 		t.Errorf("Got not expected error:  %s", err.Error())
 	}
 
-	info := gpsabl.TrackSummaryProvider(gpx)
+	info := gpsabl.TrackSummaryProvider(&gpx)
 
 	if info.GetDistance() != file.Tracks[0].Distance {
 		t.Errorf("The Distance is %f, but %f was expected", info.GetDistance(), file.Tracks[0].Distance)

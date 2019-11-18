@@ -16,7 +16,7 @@ func TestNewTrackFile(t *testing.T) {
 
 func TestTrackFileIsTrackSummary(t *testing.T) {
 	file := TrackFile{}
-	sum := TrackSummaryProvider(file)
+	sum := TrackSummaryProvider(&file)
 
 	if sum == nil {
 		t.Errorf("The Track struct does not implement the TrackSummaryProvider interface as expected")
@@ -41,7 +41,7 @@ func TestTrackFileIsTrackSummary(t *testing.T) {
 
 func TestTrackIsTrackSummary(t *testing.T) {
 	trk := Track{}
-	sum := TrackSummaryProvider(trk)
+	sum := TrackSummaryProvider(&trk)
 
 	if sum == nil {
 		t.Errorf("The Track struct does not implement the TrackSummaryProvider interface as expected")
@@ -66,7 +66,7 @@ func TestTrackIsTrackSummary(t *testing.T) {
 
 func TestTrackSegmentIsTrackSummary(t *testing.T) {
 	seg := TrackSegment{}
-	sum := TrackSummaryProvider(seg)
+	sum := TrackSummaryProvider(&seg)
 
 	if sum == nil {
 		t.Errorf("The Track struct does not implement the TrackSummaryProvider interface as expected")

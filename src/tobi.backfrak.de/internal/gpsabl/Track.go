@@ -33,6 +33,14 @@ func (sum TrackSummary) GetMinimumAtitute() float32 {
 	return sum.MinimumAtitute
 }
 
+// SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
+func (sum *TrackSummary) SetValues(distance float64, atituteRange float32, minimumAtitute float32, maximumAtitute float32) {
+	sum.MinimumAtitute = minimumAtitute
+	sum.MaximumAtitute = maximumAtitute
+	sum.AtituteRange = atituteRange
+	sum.Distance = distance
+}
+
 // TrackFile - A struct to handle track files
 type TrackFile struct {
 	TrackSummary
