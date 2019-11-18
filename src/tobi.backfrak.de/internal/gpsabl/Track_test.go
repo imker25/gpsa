@@ -16,10 +16,10 @@ func TestNewTrackFile(t *testing.T) {
 
 func TestTrackFileIsTrackSummary(t *testing.T) {
 	file := TrackFile{}
-	sum := TrackInfoProvider(file)
+	sum := TrackSummaryProvider(file)
 
 	if sum == nil {
-		t.Errorf("The Track struct does not implement the TrackInfoProvider interface as expected")
+		t.Errorf("The Track struct does not implement the TrackSummaryProvider interface as expected")
 	}
 
 	if sum.GetDistance() != 0.0 {
@@ -41,10 +41,10 @@ func TestTrackFileIsTrackSummary(t *testing.T) {
 
 func TestTrackIsTrackSummary(t *testing.T) {
 	trk := Track{}
-	sum := TrackInfoProvider(trk)
+	sum := TrackSummaryProvider(trk)
 
 	if sum == nil {
-		t.Errorf("The Track struct does not implement the TrackInfoProvider interface as expected")
+		t.Errorf("The Track struct does not implement the TrackSummaryProvider interface as expected")
 	}
 
 	if sum.GetDistance() != 0.0 {
@@ -66,10 +66,10 @@ func TestTrackIsTrackSummary(t *testing.T) {
 
 func TestTrackSegmentIsTrackSummary(t *testing.T) {
 	seg := TrackSegment{}
-	sum := TrackInfoProvider(seg)
+	sum := TrackSummaryProvider(seg)
 
 	if sum == nil {
-		t.Errorf("The Track struct does not implement the TrackInfoProvider interface as expected")
+		t.Errorf("The Track struct does not implement the TrackSummaryProvider interface as expected")
 	}
 
 	if sum.GetDistance() != 0.0 {

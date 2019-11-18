@@ -137,8 +137,8 @@ func processFile(filePath string) string {
 		return ""
 	}
 
-	// Convert the TrackFile into the TrackInfoProvider interface
-	info := gpsabl.TrackInfoProvider(file)
+	// Convert the TrackFile into the TrackSummaryProvider interface
+	info := gpsabl.TrackSummaryProvider(file)
 
 	// Read Properties from the TrackFile
 	retVal = retVal + "File name: " + file.FilePath + getNewLine()

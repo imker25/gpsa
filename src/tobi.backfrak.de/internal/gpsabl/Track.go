@@ -13,22 +13,22 @@ type TrackSummary struct {
 	MaximumAtitute float32
 }
 
-// GetDistance - Implement the TrackInfoProvider interface for TrackSummary
+// GetDistance - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetDistance() float64 {
 	return sum.Distance
 }
 
-// GetAtituteRange - Implement the TrackInfoProvider interface for TrackSummary
+// GetAtituteRange - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetAtituteRange() float32 {
 	return sum.AtituteRange
 }
 
-// GetMaximumAtitute Implement the TrackInfoProvider interface for TrackSummary
+// GetMaximumAtitute Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetMaximumAtitute() float32 {
 	return sum.MaximumAtitute
 }
 
-// GetMinimumAtitute - Implement the TrackInfoProvider interface for TrackSummary
+// GetMinimumAtitute - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetMinimumAtitute() float32 {
 	return sum.MinimumAtitute
 }
