@@ -14,6 +14,28 @@ func TestNewTrackFile(t *testing.T) {
 	}
 }
 
+func TestTrackSummary(t *testing.T) {
+	sum := TrackSummary{}
+	iSum := TrackSummaryProvider(&sum)
+	iSum.SetValues(100.1, 20.2, 10.4, 40.6)
+
+	if iSum.GetDistance() != 100.1 {
+		t.Errorf("The GetDistance() rutrns %f, but %f was expected", iSum.GetDistance(), 100.1)
+	}
+
+	if iSum.GetAtituteRange() != 20.2 {
+		t.Errorf("The GetAtituteRange() rutrns %f, but %f was expected", iSum.GetAtituteRange(), 20.2)
+	}
+
+	if iSum.GetMaximumAtitute() != 40.6 {
+		t.Errorf("The GetMaximumAtitute() rutrns %f, but %f was expected", iSum.GetMaximumAtitute(), 40.6)
+	}
+
+	if iSum.GetMinimumAtitute() != 10.4 {
+		t.Errorf("The GetMinimumAtitute() rutrns %f, but %f was expected", iSum.GetMinimumAtitute(), 10.4)
+	}
+}
+
 func TestTrackFileIsTrackSummary(t *testing.T) {
 	file := TrackFile{}
 	sum := TrackSummaryProvider(&file)

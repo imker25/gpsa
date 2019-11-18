@@ -83,6 +83,26 @@ func FillTrackValues(track Track) Track {
 	return ret
 }
 
+func fillTrackSummaryValues(target TrackSummaryProvider, input []TrackSummaryProvider) {
+	var dist float64
+	var minimumAtitute float32
+	var maximumAtitute float32
+
+	for i, sum := range input {
+		dist = dist + sum.GetDistance()
+
+		if i == 0 || sum.GetMaximumAtitute() > maximumAtitute {
+			maximumAtitute = sum.GetMaximumAtitute()
+		}
+
+		if i == 0 || sum.GetMinimumAtitute() < minimumAtitute {
+			minimumAtitute = sum.GetMinimumAtitute()
+		}
+	}
+
+	target.SetValues(dist, maximumAtitute-minimumAtitute, minimumAtitute, maximumAtitute)
+}
+
 // FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
 func FillTrackFileValues(file TrackFile) TrackFile {
 	var dist float64
