@@ -45,40 +45,8 @@ func FillTrackSegmentValues(segment TrackSegment) TrackSegment {
 	}
 
 	ret := TrackSegment{}
-	ret.AtituteRange = maximumAtitute - minimumAtitute
-	ret.MaximumAtitute = maximumAtitute
-	ret.MinimumAtitute = minimumAtitute
-	ret.Distance = dist
-	ret.TrackPoints = segment.TrackPoints
-
-	return ret
-}
-
-// FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
-func FillTrackValues(track Track) Track {
-	var dist float64
-	var minimumAtitute float32
-	var maximumAtitute float32
-
-	for i, seg := range track.TrackSegments {
-		dist = dist + seg.Distance
-
-		if i == 0 || seg.MaximumAtitute > maximumAtitute {
-			maximumAtitute = seg.MaximumAtitute
-		}
-
-		if i == 0 || seg.MinimumAtitute < minimumAtitute {
-			minimumAtitute = seg.MinimumAtitute
-		}
-	}
-
-	ret := Track{}
 	(TrackSummaryProvider(&ret)).SetValues(dist, maximumAtitute-minimumAtitute, minimumAtitute, maximumAtitute)
-
-	ret.Name = track.Name
-	ret.NumberOfSegments = track.NumberOfSegments
-	ret.Description = track.Description
-	ret.TrackSegments = track.TrackSegments
+	ret.TrackPoints = segment.TrackPoints
 
 	return ret
 }
@@ -103,29 +71,35 @@ func fillTrackSummaryValues(target TrackSummaryProvider, input []TrackSummaryPro
 	target.SetValues(dist, maximumAtitute-minimumAtitute, minimumAtitute, maximumAtitute)
 }
 
+// FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+func FillTrackValues(track Track) Track {
+	iSegs := []TrackSummaryProvider{}
+	for i := range track.TrackSegments {
+		iSeg := TrackSummaryProvider(&track.TrackSegments[i])
+		iSegs = append(iSegs, iSeg)
+	}
+
+	ret := Track{}
+	fillTrackSummaryValues(&ret, iSegs)
+
+	ret.Name = track.Name
+	ret.NumberOfSegments = track.NumberOfSegments
+	ret.Description = track.Description
+	ret.TrackSegments = track.TrackSegments
+
+	return ret
+}
+
 // FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
 func FillTrackFileValues(file TrackFile) TrackFile {
-	var dist float64
-	var minimumAtitute float32
-	var maximumAtitute float32
-
-	for i, trk := range file.Tracks {
-		dist = dist + trk.Distance
-
-		if i == 0 || trk.MaximumAtitute > maximumAtitute {
-			maximumAtitute = trk.MaximumAtitute
-		}
-
-		if i == 0 || trk.MinimumAtitute < minimumAtitute {
-			minimumAtitute = trk.MinimumAtitute
-		}
+	iSegs := []TrackSummaryProvider{}
+	for i := range file.Tracks {
+		iSeg := TrackSummaryProvider(&file.Tracks[i])
+		iSegs = append(iSegs, iSeg)
 	}
 
 	ret := TrackFile{}
-	ret.AtituteRange = maximumAtitute - minimumAtitute
-	ret.MaximumAtitute = maximumAtitute
-	ret.MinimumAtitute = minimumAtitute
-	ret.Distance = dist
+	fillTrackSummaryValues(&ret, iSegs)
 
 	ret.Name = file.Name
 	ret.NumberOfTracks = len(file.Tracks)
