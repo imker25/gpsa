@@ -77,6 +77,7 @@ type TrackSegment struct {
 
 // TrackPoint - the struct to handle track point info in gpsa
 type TrackPoint struct {
+	Number                   int
 	Elevation                float32
 	Latitude                 float32
 	Longitude                float32

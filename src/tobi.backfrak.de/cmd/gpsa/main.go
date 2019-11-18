@@ -94,7 +94,7 @@ func handleComandlineOptions() {
 func processFiles(files []string) (int, []string) {
 	allFiles := len(files)
 	successCount := 0
-	c := make(chan string, allFiles)
+	c := make(chan string)
 	countFiles := 0
 	retVals := []string{}
 

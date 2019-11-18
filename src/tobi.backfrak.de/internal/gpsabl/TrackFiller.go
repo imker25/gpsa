@@ -11,6 +11,7 @@ func FillDistancesTrackPoint(basePoint, beforePoint, nextPoint TrackPoint) Track
 	retPoint.Elevation = basePoint.Elevation
 	retPoint.Latitude = basePoint.Latitude
 	retPoint.Longitude = basePoint.Longitude
+	retPoint.Number = basePoint.Number
 
 	if (beforePoint != TrackPoint{}) {
 		retPoint.HorizontalDistanceBefore = Distance(basePoint, beforePoint)

@@ -6,8 +6,13 @@ package gpxbl
 // LICENSE file.
 
 import (
+	"sort"
+	"sync"
+
 	"tobi.backfrak.de/internal/gpsabl"
 )
+
+var wg sync.WaitGroup
 
 // ConvertTrk - Convert a gpxbl.Trk to a gpsabl.Track
 func ConvertTrk(track Trk) gpsabl.Track {
@@ -55,6 +60,7 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 	c := make(chan gpsabl.TrackPoint)
 	pointCounter := 0
 	for i, point := range points {
+		wg.Add(1)
 		go goConvertPoint(point, i, &points, pointCount, c)
 
 	}
@@ -65,7 +71,10 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 			close(c)
 		}
 	}
-
+	wg.Wait()
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].Number < ret[j].Number
+	})
 	return ret
 }
 
@@ -74,6 +83,7 @@ func convertPoint(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.Trac
 	pnt.Latitude = point.Latitude
 	pnt.Longitude = point.Longitude
 	pnt.Elevation = point.Elevation
+	pnt.Number = i
 	points := *pnts
 
 	if i == 0 && pointCount > 1 {
@@ -105,7 +115,7 @@ func convertPoint(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.Trac
 		pntBefore.Elevation = points[i-1].Elevation
 		pnt = gpsabl.FillDistancesTrackPoint(pnt, pntBefore, gpsabl.TrackPoint{})
 	}
-
+	defer wg.Done()
 	return pnt
 }
 
