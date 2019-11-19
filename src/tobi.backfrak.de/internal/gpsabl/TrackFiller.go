@@ -45,13 +45,13 @@ func FillTrackSegmentValues(segment TrackSegment) TrackSegment {
 	}
 
 	ret := TrackSegment{}
-	(TrackSummaryProvider(&ret)).SetValues(dist, minimumAtitute, maximumAtitute)
+	(TrackSummarySetter(&ret)).SetValues(dist, minimumAtitute, maximumAtitute)
 	ret.TrackPoints = segment.TrackPoints
 
 	return ret
 }
 
-func fillTrackSummaryValues(target TrackSummaryProvider, input []TrackSummaryProvider) {
+func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider) {
 	var dist float64
 	var minimumAtitute float32
 	var maximumAtitute float32

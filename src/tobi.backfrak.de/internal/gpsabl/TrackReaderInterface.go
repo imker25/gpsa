@@ -10,11 +10,15 @@ type TrackReader interface {
 	ReadTracks() (TrackFile, error)
 }
 
-// TrackSummaryProvider - Interface for classes that provide track info data
+// TrackSummaryProvider - Interface for classes that provide track summary data
 type TrackSummaryProvider interface {
 	GetDistance() float64
 	GetAtituteRange() float32
 	GetMinimumAtitute() float32
 	GetMaximumAtitute() float32
+}
+
+// TrackSummarySetter - Interface for classes that can set track summary data
+type TrackSummarySetter interface {
 	SetValues(distance float64, minimumAtitute float32, maximumAtitute float32)
 }

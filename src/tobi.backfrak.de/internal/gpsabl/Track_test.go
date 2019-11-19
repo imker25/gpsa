@@ -16,8 +16,9 @@ func TestNewTrackFile(t *testing.T) {
 
 func TestTrackSummary(t *testing.T) {
 	sum := TrackSummary{}
-	iSum := TrackSummaryProvider(&sum)
-	iSum.SetValues(100.1, 10.4, 40.6)
+	iSumSet := TrackSummarySetter(&sum)
+	iSumSet.SetValues(100.1, 10.4, 40.6)
+	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {
 		t.Errorf("The GetDistance() rutrns %f, but %f was expected", iSum.GetDistance(), 100.1)
