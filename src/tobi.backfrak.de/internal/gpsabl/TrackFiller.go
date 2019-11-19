@@ -27,25 +27,14 @@ func FillDistancesTrackPoint(basePoint, beforePoint, nextPoint TrackPoint) Track
 
 // FillTrackSegmentValues - Fills the distance and atitute fields of a tack segment by adding up all TrackPoint distances
 func FillTrackSegmentValues(segment TrackSegment) TrackSegment {
-
-	var dist float64
-	var minimumAtitute float32
-	var maximumAtitute float32
-
-	for i, track := range segment.TrackPoints {
-		dist = dist + track.HorizontalDistanceNext
-
-		if i == 0 || track.Elevation > maximumAtitute {
-			maximumAtitute = track.Elevation
-		}
-
-		if i == 0 || track.Elevation < minimumAtitute {
-			minimumAtitute = track.Elevation
-		}
+	iPnts := []TrackSummaryProvider{}
+	for i := range segment.TrackPoints {
+		iPnt := TrackSummaryProvider(&segment.TrackPoints[i])
+		iPnts = append(iPnts, iPnt)
 	}
 
 	ret := TrackSegment{}
-	(TrackSummarySetter(&ret)).SetValues(dist, minimumAtitute, maximumAtitute)
+	fillTrackSummaryValues(&ret, iPnts)
 	ret.TrackPoints = segment.TrackPoints
 
 	return ret
