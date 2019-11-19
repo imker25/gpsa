@@ -24,8 +24,8 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
-	if strings.Contains(ret[1], "23.885148") == false {
-		t.Errorf("The output does not contian the distance as expected")
+	if strings.Contains(ret[1], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", ret[1])
 	}
 }
 
@@ -43,7 +43,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
-	if strings.Contains(ret[0], "23.885148") == false {
-		t.Errorf("The output does not contian the distance as expected")
+	if strings.Contains(ret[0], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", ret[1])
 	}
 }

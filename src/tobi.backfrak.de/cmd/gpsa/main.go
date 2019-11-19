@@ -40,6 +40,9 @@ var VerboseFlag bool
 // SkipErrorExitFlag - Tell if the programm was called with -skip-error-exit
 var SkipErrorExitFlag bool
 
+// PrintCsvHeaderFlag - Tell if the programm was called with  -print-csv-header
+var PrintCsvHeaderFlag bool
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -75,6 +78,7 @@ func handleComandlineOptions() {
 	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
+	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line (default is true)")
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
@@ -97,9 +101,13 @@ func processFiles(files []string) (int, []string) {
 	c := make(chan string, allFiles)
 	countFiles := 0
 	retVals := []string{}
+	formater := gpsabl.NewCsvOutputFormater(";")
+	if PrintCsvHeaderFlag {
+		retVals = append(retVals, formater.GetHeader())
+	}
 
 	for _, filePath := range files {
-		go goProcessFile(filePath, c)
+		go goProcessFile(filePath, formater, c)
 	}
 
 	for ret := range c {
@@ -115,13 +123,12 @@ func processFiles(files []string) (int, []string) {
 	return successCount, retVals
 }
 
-func goProcessFile(filePath string, c chan string) {
-	ret := processFile(filePath)
+func goProcessFile(filePath string, formater gpsabl.CsvOutputFormater, c chan string) {
+	ret := processFile(filePath, formater)
 	c <- ret
 }
 
-func processFile(filePath string) string {
-	retVal := ""
+func processFile(filePath string, formater gpsabl.CsvOutputFormater) string {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
 	}
@@ -140,19 +147,7 @@ func processFile(filePath string) string {
 	// Convert the TrackFile into the TrackSummaryProvider interface
 	info := gpsabl.TrackSummaryProvider(file)
 
-	// Read Properties from the TrackFile
-	retVal = retVal + "File name: " + file.FilePath + getNewLine()
-	retVal = retVal + "Name: " + file.Name + getNewLine()
-	retVal = retVal + "Description: " + file.Description + getNewLine()
-	retVal = retVal + "NumberOfTracks: " + fmt.Sprintf(" %d ", file.NumberOfTracks) + getNewLine()
-
-	// Read properties troutgh the interface
-	retVal = retVal + "Distance:" + fmt.Sprintf(" %f ", info.GetDistance()) + "m" + getNewLine()
-	retVal = retVal + "AtituteRange:" + fmt.Sprintf(" %f ", info.GetAtituteRange()) + "m" + getNewLine()
-	retVal = retVal + "MinimumAtitute:" + fmt.Sprintf(" %f ", info.GetMinimumAtitute()) + "m" + getNewLine()
-	retVal = retVal + "MaximumAtitute:" + fmt.Sprintf(" %f ", info.GetMaximumAtitute()) + "m" + getNewLine()
-
-	return retVal
+	return formater.FormatTrackSummary(info, file.FilePath)
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
