@@ -34,10 +34,10 @@ func (sum TrackSummary) GetMinimumAtitute() float32 {
 }
 
 // SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
-func (sum *TrackSummary) SetValues(distance float64, atituteRange float32, minimumAtitute float32, maximumAtitute float32) {
+func (sum *TrackSummary) SetValues(distance float64, minimumAtitute float32, maximumAtitute float32) {
 	sum.MinimumAtitute = minimumAtitute
 	sum.MaximumAtitute = maximumAtitute
-	sum.AtituteRange = atituteRange
+	sum.AtituteRange = maximumAtitute - minimumAtitute
 	sum.Distance = distance
 }
 
