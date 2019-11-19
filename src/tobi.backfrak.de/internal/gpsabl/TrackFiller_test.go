@@ -230,6 +230,14 @@ func TestFillTrackFileValuesSimple(t *testing.T) {
 	}
 }
 
+func getSimpleTrackFile() TrackFile {
+	ret := NewTrackFile("/mys/track/file")
+	ret.Tracks = []Track{FillTrackValues(getSimpleTrack())}
+	ret = FillTrackFileValues(ret)
+
+	return ret
+}
+
 func getSimpleTrack() Track {
 	ret := Track{}
 	ret.TrackSegments = []TrackSegment{FillTrackSegmentValues(getSimpleTrackSegment())}

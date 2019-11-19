@@ -72,7 +72,7 @@ func FillTrackValues(track Track) Track {
 	fillTrackSummaryValues(&ret, iSegs)
 
 	ret.Name = track.Name
-	ret.NumberOfSegments = track.NumberOfSegments
+	ret.NumberOfSegments = len(track.TrackSegments)
 	ret.Description = track.Description
 	ret.TrackSegments = track.TrackSegments
 
