@@ -8,12 +8,27 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
 )
+
+// OutFileIsDirError - Error when trying to write the output to a directory and not a file
+type OutFileIsDirError struct {
+	err string
+	// File - The path to the dir that caused this error
+	Dir string
+}
+
+func (e *OutFileIsDirError) Error() string { // Implement the Error Interface for the OutFileIsDirError struct
+	return fmt.Sprintf("Error: %s", e.err)
+}
+
+// newOutFileIsDirError- Get a new OutFileIsDirError struct
+func newOutFileIsDirError(dirName string) *OutFileIsDirError {
+	return &OutFileIsDirError{fmt.Sprintf("The given -out-file \"%s\" is a directory.", dirName), dirName}
+}
 
 // UnKnownFileTypeError - Error when trying to load not known file type
 type UnKnownFileTypeError struct {
@@ -43,6 +58,9 @@ var SkipErrorExitFlag bool
 // PrintCsvHeaderFlag - Tell if the programm was called with  -print-csv-header
 var PrintCsvHeaderFlag bool
 
+// OutFileParameter - Tell if and where we should write the output to ( -out-file )
+var OutFileParameter string
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -54,9 +72,16 @@ func main() {
 			os.Exit(0)
 		}
 
+		out := getOutPutStream()
+		defer out.Close()
+
 		successCount, report := processFiles(flag.Args())
 		for _, ret := range report {
-			fmt.Fprintln(os.Stdout, ret)
+			_, errWrite := out.WriteString(ret)
+			if errWrite != nil {
+				HandleError(errWrite, OutFileParameter)
+				panic(errWrite)
+			}
 		}
 		if VerboseFlag == true {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
@@ -72,6 +97,35 @@ func main() {
 	}
 }
 
+func getOutPutStream() *os.File {
+	var out *os.File
+	var errOpen error
+	var errCreate error
+	if OutFileParameter == "" {
+		out = os.Stdout
+	} else {
+		if fileExists(OutFileParameter) {
+			errDel := os.Remove(OutFileParameter)
+			if errDel != nil {
+				HandleError(errDel, OutFileParameter)
+				panic(errDel)
+			}
+		}
+		out, errCreate = os.Create(OutFileParameter)
+		if errCreate != nil {
+			HandleError(errCreate, OutFileParameter)
+			panic(errCreate)
+		}
+
+		out, errOpen = os.OpenFile(OutFileParameter, os.O_APPEND|os.O_WRONLY, 0600)
+		if errOpen != nil {
+			HandleError(errOpen, OutFileParameter)
+			panic(errOpen)
+		}
+	}
+	return out
+}
+
 // handleComandlineOptions - Setup and parse the comandline options.
 // Defines the usage function as well
 func handleComandlineOptions() {
@@ -79,6 +133,7 @@ func handleComandlineOptions() {
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line (default is true)")
+	flag.StringVar(&OutFileParameter, "out-file", "", "Tell where to write the output. StdOut is used when not set")
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
@@ -168,11 +223,18 @@ func getGpxReader(file string) gpsabl.TrackReader {
 	return gpsabl.TrackReader(&gpx)
 }
 
-func getNewLine() string {
-	if runtime.GOOS == "windows" {
-		return "\r\n"
-	} else {
-		return "\n"
+// fileExists checks if a file exists and is not a directory before we
+// try using it to prevent further errors.
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
 	}
 
+	if info.IsDir() {
+		err := newOutFileIsDirError(filename)
+		HandleError(err, filename)
+		panic(err)
+	}
+	return true
 }
