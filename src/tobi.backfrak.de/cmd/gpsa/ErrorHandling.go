@@ -32,7 +32,7 @@ func HandleError(err error, filePath string, skipExit bool, dontPanic bool) bool
 			fmt.Fprintln(os.Stderr, err.Error())
 		case *OutFileIsDirError:
 			fmt.Fprintln(os.Stderr, err.Error())
-		case *DepthParamterNotKnown:
+		case *DepthParametrNotKnown:
 			fmt.Fprintln(os.Stderr, err.Error())
 		default:
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: %s", err.Error()))
