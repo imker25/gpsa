@@ -13,22 +13,36 @@ import (
 type CsvOutputFormater struct {
 	// Seperator - The seperator used to seperate values in csv
 	Seperator string
+
+	// ValideDepthArgs - The valide args values for the -depth paramter
+	ValideDepthArgs []string
 }
 
 // NewCsvOutputFormater - Get a new CsvOutputFormater
 func NewCsvOutputFormater(seperator string) CsvOutputFormater {
-	return CsvOutputFormater{seperator}
+	ret := CsvOutputFormater{}
+	ret.Seperator = seperator
+	ret.ValideDepthArgs = []string{"track", "file"}
+
+	return ret
 }
 
 // FormatOutPut - Create the output for a TrackFile
-func (formater CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader bool) []string {
+func (formater CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader bool, depth string) []string {
 	ret := []string{}
 	if printHeader {
 		header := formater.GetHeader()
 		ret = append(ret, header)
 	}
 
-	ret = append(ret, formater.FormatTrackSummary(TrackSummaryProvider(trackFile), trackFile.FilePath))
+	switch depth {
+	case formater.ValideDepthArgs[1]:
+		ret = append(ret, formater.FormatTrackSummary(TrackSummaryProvider(trackFile), getLineNameFromTrackFile(trackFile)))
+	case formater.ValideDepthArgs[0]:
+		addLinesFromTracks(formater, trackFile, &ret)
+	default:
+		ret = append(ret, fmt.Sprintf("Error: Can not handle the given depth value \"%s\"%s", depth, GetNewLine()))
+	}
 
 	return ret
 }
@@ -42,6 +56,15 @@ func (formater CsvOutputFormater) GetHeader() string {
 		"MinimumAtitute (m)", formater.Seperator,
 		"MaximumAtitut (m)", formater.Seperator, GetNewLine())
 
+	return ret
+}
+
+// GetVlaideDepthArgsString - Get the VlaideDepthArgs in one string
+func (formater CsvOutputFormater) GetVlaideDepthArgsString() string {
+	ret := ""
+	for _, arg := range formater.ValideDepthArgs {
+		ret = fmt.Sprintf("%s %s", arg, ret)
+	}
 	return ret
 }
 
@@ -64,4 +87,32 @@ func GetNewLine() string {
 	}
 	return "\n"
 
+}
+
+func addLinesFromTracks(formater CsvOutputFormater, trackFile TrackFile, lines *[]string) {
+
+	for i, track := range trackFile.Tracks {
+		info := TrackSummaryProvider(track)
+		name := getLineNameFromTrack(track, trackFile, i)
+		ret := formater.FormatTrackSummary(info, name)
+		*lines = append(*lines, ret)
+	}
+
+}
+
+func getLineNameFromTrack(track Track, parent TrackFile, index int) string {
+	if track.Name != "" {
+		return fmt.Sprintf("%s: %s", getLineNameFromTrackFile(parent), track.Name)
+	}
+
+	return fmt.Sprintf("%s: Track #%d", getLineNameFromTrackFile(parent), index+1)
+
+}
+
+func getLineNameFromTrackFile(trackFile TrackFile) string {
+	if trackFile.Name != "" {
+		return trackFile.Name
+	}
+
+	return trackFile.FilePath
 }

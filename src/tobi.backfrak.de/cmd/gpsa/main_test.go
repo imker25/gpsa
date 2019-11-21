@@ -83,6 +83,9 @@ func TestProcessValideFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
+	oldDepthValue := DepthParamter
+	DepthParamter = "file"
+
 	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
 	successCount, _ := processFiles(files)
 	if successCount != 2 {
@@ -94,12 +97,16 @@ func TestProcessValideFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
+	DepthParamter = oldDepthValue
 }
 
 func TestProcessMixedFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
+	oldDepthValue := DepthParamter
+	DepthParamter = "file"
+
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
 	successCount, _ := processFiles(files)
 	if successCount != 1 {
@@ -111,12 +118,18 @@ func TestProcessMixedFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
+
+	SkipErrorExitFlag = oldFlagValue
+	DepthParamter = oldDepthValue
 }
 
 func TestProcessUnValideFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
+	oldDepthValue := DepthParamter
+	DepthParamter = "file"
+
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
 	successCount, _ := processFiles(files)
 	if successCount != 0 {
@@ -128,4 +141,5 @@ func TestProcessUnValideFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
+	DepthParamter = oldDepthValue
 }

@@ -14,6 +14,22 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
+// DepthParamterNotKnown - Error when the given depth paramter is not known
+type DepthParamterNotKnown struct {
+	err string
+	// File - The path to the dir that caused this error
+	GivenValue string
+}
+
+func (e *DepthParamterNotKnown) Error() string { // Implement the Error Interface for the DepthParamterNotKnown struct
+	return fmt.Sprintf("Error: %s", e.err)
+}
+
+// newDepthParamterNotKnown- Get a new DepthParamterNotKnown struct
+func newDepthParamterNotKnown(givenValue string) *DepthParamterNotKnown {
+	return &DepthParamterNotKnown{fmt.Sprintf("The given -depth \"%s\" is not known.", givenValue), givenValue}
+}
+
 // OutFileIsDirError - Error when trying to write the output to a directory and not a file
 type OutFileIsDirError struct {
 	err string
@@ -63,6 +79,9 @@ var OutFileParameter string
 
 // DontPanicFlag - Tell if the prgramm was called with -dont-panic
 var DontPanicFlag bool
+
+// DepthParamter - Tell in what depth we should mak the analyses -depth
+var DepthParamter string
 
 func main() {
 
@@ -128,12 +147,17 @@ func getOutPutStream() *os.File {
 // handleComandlineOptions - Setup and parse the comandline options.
 // Defines the usage function as well
 func handleComandlineOptions() {
+
+	outFormater := gpsabl.NewCsvOutputFormater(";")
+
 	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
 	flag.StringVar(&OutFileParameter, "out-file", "", "Tell where to write the output. StdOut is used when not set")
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases")
+	flag.StringVar(&DepthParamter, "depth", outFormater.ValideDepthArgs[0],
+		fmt.Sprintf("Tell how depth the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
@@ -148,6 +172,9 @@ func handleComandlineOptions() {
 	// fmt.Println("Call: ", os.Args)
 	flag.Parse()
 
+	if !strings.Contains(outFormater.GetVlaideDepthArgsString(), DepthParamter) {
+		HandleError(newDepthParamterNotKnown(DepthParamter), "", false, DontPanicFlag)
+	}
 }
 
 func processFiles(files []string) (int, []string) {
@@ -205,7 +232,7 @@ func processFile(filePath string, formater gpsabl.CsvOutputFormater) []string {
 	// Convert the TrackFile into the TrackSummaryProvider interface
 	// info := gpsabl.TrackSummaryProvider(file)
 
-	return formater.FormatOutPut(file, false)
+	return formater.FormatOutPut(file, false, DepthParamter)
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
