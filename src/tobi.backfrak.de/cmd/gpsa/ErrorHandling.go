@@ -17,7 +17,7 @@ var ErrorsHandled bool
 
 // HandleError - Handles an error. Will do nothing and return false if the given error is nil.
 // Will exit the program with -1, or return true when the error is not nil
-func HandleError(err error, filePath string) bool {
+func HandleError(err error, filePath string, skipExit bool, dontPanic bool) bool {
 	if err != nil {
 		ErrorsHandled = true
 
@@ -36,8 +36,12 @@ func HandleError(err error, filePath string) bool {
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("Error: %s", err.Error()))
 		}
 
-		if SkipErrorExitFlag == false {
-			panic(err)
+		if skipExit == false {
+			if dontPanic {
+				os.Exit(-1)
+			} else {
+				panic(err)
+			}
 		}
 
 		return true

@@ -61,6 +61,9 @@ var PrintCsvHeaderFlag bool
 // OutFileParameter - Tell if and where we should write the output to ( -out-file )
 var OutFileParameter string
 
+// DontPanicFlag - Tell if the prgramm was called with -dont-panic
+var DontPanicFlag bool
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -79,8 +82,7 @@ func main() {
 		for _, ret := range report {
 			_, errWrite := out.WriteString(ret)
 			if errWrite != nil {
-				HandleError(errWrite, OutFileParameter)
-				panic(errWrite)
+				HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
 			}
 		}
 		if VerboseFlag == true {
@@ -107,20 +109,17 @@ func getOutPutStream() *os.File {
 		if fileExists(OutFileParameter) {
 			errDel := os.Remove(OutFileParameter)
 			if errDel != nil {
-				HandleError(errDel, OutFileParameter)
-				panic(errDel)
+				HandleError(errDel, OutFileParameter, false, DontPanicFlag)
 			}
 		}
 		out, errCreate = os.Create(OutFileParameter)
 		if errCreate != nil {
-			HandleError(errCreate, OutFileParameter)
-			panic(errCreate)
+			HandleError(errCreate, OutFileParameter, false, DontPanicFlag)
 		}
 
 		out, errOpen = os.OpenFile(OutFileParameter, os.O_APPEND|os.O_WRONLY, 0600)
 		if errOpen != nil {
-			HandleError(errOpen, OutFileParameter)
-			panic(errOpen)
+			HandleError(errOpen, OutFileParameter, false, DontPanicFlag)
 		}
 	}
 	return out
@@ -134,6 +133,7 @@ func handleComandlineOptions() {
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line (default is true)")
 	flag.StringVar(&OutFileParameter, "out-file", "", "Tell where to write the output. StdOut is used when not set")
+	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases (default is true)")
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
@@ -145,7 +145,7 @@ func handleComandlineOptions() {
 		fmt.Fprintln(os.Stdout, "Options:")
 		flag.PrintDefaults()
 	}
-
+	// fmt.Println("Call: ", os.Args)
 	flag.Parse()
 
 }
@@ -179,30 +179,33 @@ func processFiles(files []string) (int, []string) {
 }
 
 func goProcessFile(filePath string, formater gpsabl.CsvOutputFormater, c chan string) {
-	ret := processFile(filePath, formater)
-	c <- ret
+	rets := processFile(filePath, formater)
+
+	for _, ret := range rets {
+		c <- ret
+	}
 }
 
-func processFile(filePath string, formater gpsabl.CsvOutputFormater) string {
+func processFile(filePath string, formater gpsabl.CsvOutputFormater) []string {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
 	}
 	// Find out if we can read the file
 	reader, readerErr := getReader(filePath)
-	if HandleError(readerErr, filePath) == true {
-		return ""
+	if HandleError(readerErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+		return []string{""}
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
 	file, readErr := reader.ReadTracks()
-	if HandleError(readErr, filePath) == true {
-		return ""
+	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+		return []string{""}
 	}
 
 	// Convert the TrackFile into the TrackSummaryProvider interface
-	info := gpsabl.TrackSummaryProvider(file)
+	// info := gpsabl.TrackSummaryProvider(file)
 
-	return formater.FormatTrackSummary(info, file.FilePath)
+	return formater.FormatOutPut(file, false)
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
@@ -233,8 +236,7 @@ func fileExists(filename string) bool {
 
 	if info.IsDir() {
 		err := newOutFileIsDirError(filename)
-		HandleError(err, filename)
-		panic(err)
+		HandleError(err, filename, false, DontPanicFlag)
 	}
 	return true
 }

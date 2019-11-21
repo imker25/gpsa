@@ -21,7 +21,7 @@ func TestHandleComandlineOptions(t *testing.T) {
 }
 
 func TestHandleErrorNil(t *testing.T) {
-	if HandleError(nil, "my/path") == true {
+	if HandleError(nil, "my/path", true, true) == true {
 		t.Errorf("HandleError reutrns true, when nil error was given")
 	}
 
@@ -31,7 +31,7 @@ func TestHandleErrorNotNil(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
-	if HandleError(newUnKnownFileTypeError("my/path"), "my/path") == false {
+	if HandleError(newUnKnownFileTypeError("my/path"), "my/path", true, true) == false {
 		t.Errorf("HandleError reutrns false, when error was given")
 	}
 
