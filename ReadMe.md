@@ -1,6 +1,33 @@
 # gpsa - A GPX Statistic Analysing tool
 This is a simple comandline tool, that may helps to extract statistic data out of *.gpx files
 
+# Usage
+You might want to call ```-help```, to find out how to use the program.
+
+```sh
+./gpsa -help                                                     
+./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track
+
+Usage: ./gpsa [options] [files]
+  files
+        One or more track files (only *.gpx) supported at the moment
+Options:
+  -depth string
+        Tell how depth the program should analyse the files. Possible values are [segment file track ] (default "track")
+  -dont-panic
+        Tell if the prgramm will exit with panic, or with negiatv exit code in error cases (default true)
+  -help
+        Prints this message
+  -out-file string
+        Tell where to write the output. StdOut is used when not set
+  -print-csv-header
+        Print out a csv header line (default true)
+  -skip-error-exit
+        Don't exit the programm on track file processing errors
+  -verbose
+        Run the programm with verbose output
+```
+
 # Development
 To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine. 
 
@@ -14,10 +41,7 @@ gradle test         # test the project
 ```
 
 ## Internals
-The Geografic calculations are done with the  ```haversine formula```  as descripted [here](http://www.movable-type.co.uk/scripts/latlong.html)
-A Go implementaion of this can also be found [here](https://github.com/tkrajina/gpxgo/blob/master/gpx/geo.go). In this example the distance function igorens the atitute difference for distance bigger then 22 km, by checking the agular distance to be bigger then 0.2°.
-
-My Impelemtaion will ignore atitute difference for distance bigger then 33 km, by checking the agular distance to be bigger then 0.3°.
+The Geografic calculations are done with the  ```haversine formula```  as descripted [here](http://www.movable-type.co.uk/scripts/latlong.html. My Impelemtaion will ignore atitute difference for distance bigger then 33 km, by checking the agular distance to be bigger then 0.3°. For smaller distances the program will add the atitute difference using the ```pythagoras theorem```.
 
 # License
 

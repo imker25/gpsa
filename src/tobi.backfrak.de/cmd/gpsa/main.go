@@ -161,7 +161,7 @@ func handleComandlineOptions() {
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in track files, and writes out basic statistic data found in the track", os.Args[0]))
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track", os.Args[0]))
 		fmt.Fprintln(os.Stdout)
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 		fmt.Fprintln(os.Stdout, "  files")
