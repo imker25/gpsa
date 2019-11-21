@@ -17,7 +17,7 @@ func TestNewCsvOutputFormater(t *testing.T) {
 		t.Errorf("The Seperator was \"%s\", but \";\" was expected", sut.Seperator)
 	}
 
-	if len(sut.ValideDepthArgs) != 2 {
+	if len(sut.ValideDepthArgs) != 3 {
 		t.Errorf("The ValideDepthArgs array does not contain the expeced number of values")
 	}
 }
@@ -160,6 +160,35 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackFileNameSetTrackName(t *test
 	}
 
 	if strings.Contains(ret[0], "#1;") == true {
+		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+	}
+}
+
+func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(t *testing.T) {
+	formater := NewCsvOutputFormater(";")
+	trackFile := getSimpleTrackFile()
+	trackFile.Tracks[0].Name = "My Track"
+	trackFile.Name = "My track file"
+
+	ret := formater.FormatOutPut(trackFile, false, "segment")
+
+	if len(ret) != 1 {
+		t.Errorf("The output has not the expected number of files")
+	}
+
+	if strings.Contains(ret[0], trackFile.FilePath) == true {
+		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+	}
+
+	if strings.Contains(ret[0], trackFile.Name) == false {
+		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+	}
+
+	if strings.Contains(ret[0], trackFile.Tracks[0].Name) == false {
+		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+	}
+
+	if strings.Contains(ret[0], "Segment #1;") == false {
 		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
 	}
 }

@@ -22,7 +22,7 @@ type CsvOutputFormater struct {
 func NewCsvOutputFormater(seperator string) CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Seperator = seperator
-	ret.ValideDepthArgs = []string{"track", "file"}
+	ret.ValideDepthArgs = []string{"track", "file", "segment"}
 
 	return ret
 }
@@ -40,6 +40,8 @@ func (formater CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader 
 		ret = append(ret, formater.FormatTrackSummary(TrackSummaryProvider(trackFile), getLineNameFromTrackFile(trackFile)))
 	case formater.ValideDepthArgs[0]:
 		addLinesFromTracks(formater, trackFile, &ret)
+	case formater.ValideDepthArgs[2]:
+		addLinesFromTrackSegments(formater, trackFile, &ret)
 	default:
 		ret = append(ret, fmt.Sprintf("Error: Can not handle the given depth value \"%s\"%s", depth, GetNewLine()))
 	}
@@ -87,6 +89,17 @@ func GetNewLine() string {
 	}
 	return "\n"
 
+}
+
+func addLinesFromTrackSegments(formater CsvOutputFormater, trackFile TrackFile, lines *[]string) {
+	for iTrack, track := range trackFile.Tracks {
+		for iSeg, seg := range track.TrackSegments {
+			info := TrackSummaryProvider(seg)
+			name := fmt.Sprintf("%s: Segment #%d", getLineNameFromTrack(track, trackFile, iTrack), iSeg+1)
+			ret := formater.FormatTrackSummary(info, name)
+			*lines = append(*lines, ret)
+		}
+	}
 }
 
 func addLinesFromTracks(formater CsvOutputFormater, trackFile TrackFile, lines *[]string) {
