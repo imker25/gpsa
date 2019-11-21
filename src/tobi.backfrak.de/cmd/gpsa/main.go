@@ -130,10 +130,10 @@ func getOutPutStream() *os.File {
 func handleComandlineOptions() {
 	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
-	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
-	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line (default is true)")
+	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm on track file processing errors")
+	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
 	flag.StringVar(&OutFileParameter, "out-file", "", "Tell where to write the output. StdOut is used when not set")
-	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases (default is true)")
+	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases")
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
