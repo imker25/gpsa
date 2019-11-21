@@ -6,7 +6,7 @@ You might want to call ```-help```, to find out how to use the program.
 
 ```sh
 ./gpsa -help                                                     
-./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track
+./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as *.csv
 
 Usage: ./gpsa [options] [files]
   files
@@ -38,6 +38,65 @@ Use [Gradle](https://gradle.org/) to build and test the porject
 gradle build        # build the project
 gradle build test   # build and run the tests for the project
 gradle test         # test the project
+```
+
+## Hints for VSCode Users
+If you use [VS Code](https://code.visualstudio.com/) for GO development, you might find the following example settings usefull.
+
+The ```tasks.json```:
+```json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "gradle build test",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "gradle test",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
+} 
+```
+
+The ```launch.json```:
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceRoot}/src/tobi.backfrak.de/cmd/gpsa/main.go",
+            "cwd": "${workspaceRoot}",
+            "args": [
+          //      "-dont-panic=false",
+                "-out-file=/dev/shm/test.csv",
+                "${workspaceRoot}/testdata/valide-gpx/02.gpx"
+            ]
+        }
+    ]
+}
+```
+
+The ```settings.json```:
+```json
+{
+      "go.gopath": "${env:GOPATH}:${workspaceFolder}",
+}
 ```
 
 ## Internals
