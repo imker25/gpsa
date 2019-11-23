@@ -31,15 +31,15 @@ func TestOutFileIsDirErrorStruct(t *testing.T) {
 	}
 }
 
-func TestDepthParametrNotKnownStruct(t *testing.T) {
+func TestDepthParametrNotKnownErrorStruct(t *testing.T) {
 	val := "asdgfg"
-	err := newDepthParametrNotKnown(val)
+	err := newDepthParametrNotKnownError(val)
 
 	if err.GivenValue != val {
 		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
 	}
 
 	if strings.Contains(err.Error(), val) == false {
-		t.Errorf("The error messaage of DepthParametrNotKnown does not contain the expected GivenValue")
+		t.Errorf("The error messaage of DepthParametrNotKnownError does not contain the expected GivenValue")
 	}
 }

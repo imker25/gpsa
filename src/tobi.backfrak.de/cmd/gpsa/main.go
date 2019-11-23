@@ -151,7 +151,7 @@ func handleComandlineOptions() {
 	flag.Parse()
 
 	if !strings.Contains(outFormater.GetVlaideDepthArgsString(), DepthParametr) {
-		HandleError(newDepthParametrNotKnown(DepthParametr), "", false, DontPanicFlag)
+		HandleError(newDepthParametrNotKnownError(DepthParametr), "", false, DontPanicFlag)
 	}
 }
 
