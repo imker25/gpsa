@@ -109,7 +109,7 @@ func handleComandlineOptions() {
 
 	outFormater := gpsabl.NewCsvOutputFormater(";")
 
-	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
+	flag.BoolVar(&HelpFlag, "help", false, "Prints this help message")
 	flag.BoolVar(&PrintVersionFlag, "version", false, "Print the version of the program")
 	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print the license information of the program")
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
@@ -122,7 +122,7 @@ func handleComandlineOptions() {
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track", os.Args[0]))
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report", os.Args[0]))
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("Program Version: %s", version))
 		fmt.Fprintln(os.Stdout)
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))

@@ -23,11 +23,12 @@ On Windows download [gpsa.exe](https://homer.tobi.backfrak.de/jenkins/job/GPSA/j
 ## Usage
 You might want to call ```-help```, to find out how to use the program.
 
-```sh
-./gpsa -help                                                     
-./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as *.csv
+```
+~$ ./gpsa -help                                                     
+./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
+Program Version: 0.2.1+afb46fa
 
-Usage: ./gpsa [options] [files]
+Usage: ./bin/gpsa [options] [files]
   files
         One or more track files (only *.gpx) supported at the moment
 Options:
@@ -36,7 +37,9 @@ Options:
   -dont-panic
         Tell if the prgramm will exit with panic, or with negiatv exit code in error cases (default true)
   -help
-        Prints this message
+        Prints this help message
+  -license
+        Print the license information of the program
   -out-file string
         Tell where to write the output. StdOut is used when not set
   -print-csv-header
@@ -45,6 +48,8 @@ Options:
         Don't exit the program on track file processing errors
   -verbose
         Run the program with verbose output
+  -version
+        Print the version of the program
 ```
 
 # Development
