@@ -7,12 +7,9 @@ package gpxbl
 
 import (
 	"sort"
-	"sync"
 
 	"tobi.backfrak.de/internal/gpsabl"
 )
-
-var wg sync.WaitGroup
 
 // ConvertTrk - Convert a gpxbl.Trk to a gpsabl.Track
 func ConvertTrk(track Trk) gpsabl.Track {
@@ -57,21 +54,27 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 	var ret []gpsabl.TrackPoint
 
 	pointCount := len(points)
-	c := make(chan gpsabl.TrackPoint)
-	pointCounter := 0
-	for i, point := range points {
-		wg.Add(1)
-		go goConvertPoint(point, i, &points, pointCount, c)
+	if pointCount > 10 { // I think it makes only sense to use go routines for tracks with more then 10 points
+		c := make(chan gpsabl.TrackPoint, pointCount)
+		pointCounter := 0
+		for i, point := range points {
+			go goConvertPoint(point, i, &points, pointCount, c)
 
-	}
-	for pnt := range c {
-		ret = append(ret, pnt)
-		pointCounter++
-		if pointCounter == pointCount {
-			close(c)
+		}
+		for pnt := range c {
+			ret = append(ret, pnt)
+			pointCounter++
+			if pointCounter == pointCount {
+				close(c)
+			}
+		}
+	} else {
+		for i, point := range points {
+			pnt := convertPoint(point, i, &points, pointCount)
+			ret = append(ret, pnt)
 		}
 	}
-	wg.Wait()
+
 	sort.Slice(ret, func(i, j int) bool {
 		return ret[i].Number < ret[j].Number
 	})
@@ -115,7 +118,7 @@ func convertPoint(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.Trac
 		pntBefore.Elevation = points[i-1].Elevation
 		pnt = gpsabl.FillDistancesTrackPoint(pnt, pntBefore, gpsabl.TrackPoint{})
 	}
-	defer wg.Done()
+
 	return pnt
 }
 
