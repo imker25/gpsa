@@ -14,6 +14,9 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
+// Authors - Information about the authors of the program. You might want to add your name here when contribute to this software
+const Authors = "tobi@backfrak.de"
+
 // DepthParametrNotKnown - Error when the given depth paramter is not known
 type DepthParametrNotKnown struct {
 	err string
@@ -89,6 +92,9 @@ var DepthParametr string
 // PrintVersionFlag - tell if the program was called with the -version flag
 var PrintVersionFlag bool
 
+// PrintLicenseFlag - tell if the program was called with the -license flag
+var PrintLicenseFlag bool
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -102,6 +108,11 @@ func main() {
 
 		if PrintVersionFlag {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("Version: %s", version))
+			os.Exit(0)
+		}
+
+		if PrintLicenseFlag {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("(c) %s - Apache License, Version 2.0( http://www.apache.org/licenses/LICENSE-2.0 )", Authors))
 			os.Exit(0)
 		}
 
@@ -163,6 +174,7 @@ func handleComandlineOptions() {
 
 	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
 	flag.BoolVar(&PrintVersionFlag, "version", false, "Print the version of the program")
+	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print the license information of the program")
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
