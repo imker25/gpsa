@@ -70,15 +70,16 @@ func main() {
 		}
 
 		out := getOutPutStream()
+		iFormater := getOutPutFormater()
 		defer out.Close()
 
-		successCount, report := processFiles(flag.Args())
-		for _, ret := range report {
-			_, errWrite := out.WriteString(ret)
-			if errWrite != nil {
-				HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
-			}
+		successCount := processFiles(flag.Args(), iFormater)
+
+		errWrite := iFormater.WriteOutput(out)
+		if errWrite != nil {
+			HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
 		}
+
 		if VerboseFlag == true {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
 		}
@@ -129,62 +130,66 @@ func handleComandlineOptions() {
 	}
 }
 
-func processFiles(files []string) (int, []string) {
+func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 	allFiles := len(files)
 	successCount := 0
-	c := make(chan string, allFiles)
+	c := make(chan bool, allFiles)
 	countFiles := 0
-	retVals := []string{}
-	formater := gpsabl.NewCsvOutputFormater(";")
+
 	if PrintCsvHeaderFlag {
-		retVals = append(retVals, formater.GetHeader())
+		iFormater.AddHeader()
 	}
 
 	for _, filePath := range files {
-		go goProcessFile(filePath, formater, c)
+		go goProcessFile(filePath, iFormater, c)
 	}
 
 	for ret := range c {
-		if ret != "" {
+		if ret != false {
 			successCount++
-			retVals = append(retVals, ret)
 		}
 		countFiles++
 		if countFiles == allFiles {
 			close(c)
 		}
 	}
-	return successCount, retVals
+	return successCount
 }
 
-func goProcessFile(filePath string, formater *gpsabl.CsvOutputFormater, c chan string) {
-	rets := processFile(filePath, formater)
+func getOutPutFormater() gpsabl.OutputFormater {
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
 
-	for _, ret := range rets {
-		c <- ret
-	}
+	return iFormater
 }
 
-func processFile(filePath string, formater *gpsabl.CsvOutputFormater) []string {
+func goProcessFile(filePath string, formater gpsabl.OutputFormater, c chan bool) {
+	ret := processFile(filePath, formater)
+
+	c <- ret
+}
+
+func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
 	}
 	// Find out if we can read the file
 	reader, readerErr := getReader(filePath)
 	if HandleError(readerErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
-		return []string{""}
+		return false
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
 	file, readErr := reader.ReadTracks()
 	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
-		return []string{""}
+		return false
 	}
 
 	// Convert the TrackFile into the TrackSummaryProvider interface
 	// info := gpsabl.TrackSummaryProvider(file)
 
-	return formater.FormatOutPut(file, false, DepthParametr)
+	formater.AddOutPut(file, DepthParametr)
+	return true
 }
 
 func getOutPutStream() *os.File {

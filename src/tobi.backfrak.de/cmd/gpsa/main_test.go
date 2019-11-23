@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/testhelper"
 )
 
@@ -71,9 +72,11 @@ func TestProcessValideFiles(t *testing.T) {
 	SkipErrorExitFlag = true
 	oldDepthValue := DepthParametr
 	DepthParametr = "file"
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
 
 	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
-	successCount, _ := processFiles(files)
+	successCount := processFiles(files, iFormater)
 	if successCount != 2 {
 		t.Errorf("Not all files was proccess successfull as expected")
 	}
@@ -93,8 +96,11 @@ func TestProcessMixedFiles(t *testing.T) {
 	oldDepthValue := DepthParametr
 	DepthParametr = "file"
 
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
-	successCount, _ := processFiles(files)
+	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
 		t.Errorf("Not two files was proccess with error as expected")
 	}
@@ -116,8 +122,11 @@ func TestProcessUnValideFiles(t *testing.T) {
 	oldDepthValue := DepthParametr
 	DepthParametr = "file"
 
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
-	successCount, _ := processFiles(files)
+	successCount := processFiles(files, iFormater)
 	if successCount != 0 {
 		t.Errorf("Not all files was proccess with error as expected")
 	}
