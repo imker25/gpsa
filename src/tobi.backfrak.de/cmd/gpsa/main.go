@@ -18,7 +18,7 @@ import (
 // Authors - Information about the authors of the program. You might want to add your name here when contribute to this software
 const Authors = "tobi@backfrak.de"
 
-// The Version of this program
+// The Version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
 
 // HelpFlag - Tell if the program was called with -help
