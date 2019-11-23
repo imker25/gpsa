@@ -35,13 +35,10 @@ func GetProjectRoot() string {
 }
 
 func isRootPath(wd string) bool {
-	if strings.HasSuffix(wd, "gpsa") && strings.Count(wd, "gpsa") == 1 && strings.Count(wd, "GPSA_") == 0 {
-		return true // This is the name of the project, so it should be the root dir
-	}
 
-	_, dirName := filepath.Split(wd)
-	if strings.HasPrefix(dirName, "GPSA_") {
-		return true // This is the name of the jenkins project, so it should be the root dir
+	file := filepath.Join(wd, "testdata", "valide-gpx", "01.gpx")
+	if fileExists(file) {
+		return true
 	}
 
 	return false
@@ -59,4 +56,16 @@ func GetUnValideGPX(name string) string {
 	rootDir := GetProjectRoot()
 
 	return filepath.Join(rootDir, "testdata", "unvalide-gpx", name)
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	if info.IsDir() {
+		return false
+	}
+	return true
 }
