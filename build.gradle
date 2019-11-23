@@ -155,14 +155,15 @@ task test(dependsOn: 'getEnvironment') {
         println '##################################################################################'
     }
     doLast {
-        println "go test -v $packagesToTest"
+        println "go test -v -race $packagesToTest"
         def packageArray = packagesToTest.split(' ');
-        def callArgsTestRun = new String[packageArray.length + 2]
+        def callArgsTestRun = new String[packageArray.length + 3]
         callArgsTestRun[0] = 'test'
         callArgsTestRun[1] = '-v'
+        callArgsTestRun[2] = '-race'
         def i = 0
         packageArray.each {
-            callArgsTestRun[i + 2] = it 
+            callArgsTestRun[i + 3] = it 
             i = i + 1
         }
         

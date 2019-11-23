@@ -8,9 +8,12 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"sync"
 
 	"tobi.backfrak.de/internal/gpxbl"
 )
+
+var errorMux sync.Mutex
 
 // ErrorsHandled - Tell if the program had to handle at least one error
 var ErrorsHandled bool
@@ -19,7 +22,9 @@ var ErrorsHandled bool
 // Will exit the program with -1, or return true when the error is not nil
 func HandleError(err error, filePath string, skipExit bool, dontPanic bool) bool {
 	if err != nil {
+		errorMux.Lock()
 		ErrorsHandled = true
+		errorMux.Unlock()
 
 		switch err.(type) {
 		case *os.PathError:
