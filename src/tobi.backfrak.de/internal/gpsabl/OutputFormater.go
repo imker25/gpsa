@@ -6,7 +6,9 @@ package gpsabl
 // LICENSE file.
 import (
 	"fmt"
+	"os"
 	"runtime"
+	"sync"
 )
 
 // CsvOutputFormater - type that formats TrackSummary into csv style
@@ -16,19 +18,56 @@ type CsvOutputFormater struct {
 
 	// ValideDepthArgs - The valide args values for the -depth paramter
 	ValideDepthArgs []string
+
+	lineBuffer []string
+	mux        sync.Mutex
 }
 
 // NewCsvOutputFormater - Get a new CsvOutputFormater
-func NewCsvOutputFormater(seperator string) CsvOutputFormater {
+func NewCsvOutputFormater(seperator string) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Seperator = seperator
 	ret.ValideDepthArgs = []string{"track", "file", "segment"}
+	ret.lineBuffer = []string{}
 
-	return ret
+	return &ret
+}
+
+// AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
+func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string) {
+	formater.mux.Lock()
+	defer formater.mux.Unlock()
+	formater.lineBuffer = append(formater.lineBuffer, formater.FormatOutPut(trackFile, false, depth)...)
+}
+
+// AddHeader - Add the formated header line to the internal buffer, so it can be written out later
+func (formater *CsvOutputFormater) AddHeader() {
+	formater.mux.Lock()
+	defer formater.mux.Unlock()
+	formater.lineBuffer = append(formater.lineBuffer, formater.GetHeader())
+}
+
+// GetLines - Get the lines stored in the internal buffer
+func (formater *CsvOutputFormater) GetLines() []string {
+	return formater.lineBuffer
+}
+
+// WriteOutput - Write the output to a given file handle object. Make sure the file exists before you call this method!
+func (formater *CsvOutputFormater) WriteOutput(outFile *os.File) error {
+	formater.mux.Lock()
+	defer formater.mux.Unlock()
+	for _, line := range formater.lineBuffer {
+		_, errWrite := outFile.WriteString(line)
+		if errWrite != nil {
+			return errWrite
+		}
+	}
+
+	return nil
 }
 
 // FormatOutPut - Create the output for a TrackFile
-func (formater CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader bool, depth string) []string {
+func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader bool, depth string) []string {
 	ret := []string{}
 	if printHeader {
 		header := formater.GetHeader()
@@ -50,7 +89,7 @@ func (formater CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader 
 }
 
 // GetHeader - Get the header line of a csv output
-func (formater CsvOutputFormater) GetHeader() string {
+func (formater *CsvOutputFormater) GetHeader() string {
 	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s",
 		"Name", formater.Seperator,
 		"Distance (km)", formater.Seperator,
@@ -62,7 +101,7 @@ func (formater CsvOutputFormater) GetHeader() string {
 }
 
 // GetVlaideDepthArgsString - Get the VlaideDepthArgs in one string
-func (formater CsvOutputFormater) GetVlaideDepthArgsString() string {
+func (formater *CsvOutputFormater) GetVlaideDepthArgsString() string {
 	ret := ""
 	for _, arg := range formater.ValideDepthArgs {
 		ret = fmt.Sprintf("%s %s", arg, ret)
@@ -71,7 +110,7 @@ func (formater CsvOutputFormater) GetVlaideDepthArgsString() string {
 }
 
 // FormatTrackSummary - Create the outputline for a  TrackSummaryProvider
-func (formater CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
+func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
 	ret := fmt.Sprintf("%s%s%f%s%f%s%f%s%f%s%s",
 		name, formater.Seperator,
 		RoundFloat64To2Digits(info.GetDistance()/1000), formater.Seperator,
@@ -91,7 +130,7 @@ func GetNewLine() string {
 
 }
 
-func addLinesFromTrackSegments(formater CsvOutputFormater, trackFile TrackFile, lines *[]string) {
+func addLinesFromTrackSegments(formater *CsvOutputFormater, trackFile TrackFile, lines *[]string) {
 	for iTrack, track := range trackFile.Tracks {
 		for iSeg, seg := range track.TrackSegments {
 			info := TrackSummaryProvider(seg)
@@ -102,7 +141,7 @@ func addLinesFromTrackSegments(formater CsvOutputFormater, trackFile TrackFile, 
 	}
 }
 
-func addLinesFromTracks(formater CsvOutputFormater, trackFile TrackFile, lines *[]string) {
+func addLinesFromTracks(formater *CsvOutputFormater, trackFile TrackFile, lines *[]string) {
 
 	for i, track := range trackFile.Tracks {
 		info := TrackSummaryProvider(track)

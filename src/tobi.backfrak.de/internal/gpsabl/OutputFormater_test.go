@@ -1,6 +1,7 @@
 package gpsabl
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -88,7 +89,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 	}
 
 	if strings.Contains(ret[0], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", ret[1])
+		t.Errorf("The output does not contian the distance as expected. It is: %s", ret[0])
 	}
 }
 
@@ -205,4 +206,182 @@ func TestFormatOutPutWithOutHeaderUnValideDepth(t *testing.T) {
 	if strings.HasPrefix(ret[0], "Error:") == false {
 		t.Errorf("The line does not start with \"Error\" as expected")
 	}
+}
+
+func TestAddHeader(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+
+	frt.AddHeader()
+
+	lines := frt.GetLines()
+
+	if len(lines) != 1 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
+	}
+
+	if strings.Count(lines[0], ";") != 5 {
+		t.Errorf("The Number of semicolons is not the same in each line")
+	}
+}
+
+func TestAddOutPut(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getSimpleTrackFile()
+
+	frt.AddOutPut(trackFile, "file")
+
+	lines := frt.GetLines()
+
+	if len(lines) != 1 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
+	}
+
+	if strings.Count(lines[0], ";") != 5 {
+		t.Errorf("The Number of semicolons is not the same in each line")
+	}
+
+	if strings.Contains(lines[0], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[0])
+	}
+}
+
+func TestAddHeaderAndOutPut(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getSimpleTrackFile()
+
+	frt.AddHeader()
+	frt.AddOutPut(trackFile, "file")
+
+	lines := frt.GetLines()
+
+	if len(lines) != 2 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 2)
+	}
+
+	if strings.Count(lines[0], ";") != strings.Count(lines[1], ";") {
+		t.Errorf("The Number of semicolons is not the same in each line")
+	}
+
+	if strings.Contains(lines[1], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[0])
+	}
+}
+
+func TestAddHeaderAndOutPutFileTwoTracksFileDepth(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracks()
+
+	frt.AddHeader()
+	frt.AddOutPut(trackFile, "file")
+
+	lines := frt.GetLines()
+
+	if len(lines) != 2 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 2)
+	}
+
+	if strings.Count(lines[0], ";") != strings.Count(lines[1], ";") {
+		t.Errorf("The Number of semicolons is not the same in each line")
+	}
+
+	if strings.Contains(lines[1], "0.0500") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[1])
+	}
+}
+
+func TestAddHeaderAndOutPutFileTwoTracksTrackDepth(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracks()
+
+	frt.AddHeader()
+	frt.AddOutPut(trackFile, "track")
+
+	lines := frt.GetLines()
+
+	if len(lines) != 3 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 3)
+	}
+
+	if strings.Count(lines[0], ";") != strings.Count(lines[1], ";") {
+		t.Errorf("The Number of semicolons is not the same in each line")
+	}
+
+	if strings.Contains(lines[1], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[1])
+	}
+
+	if strings.Contains(lines[2], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[2])
+	}
+}
+
+func TestAddHeaderAndOutPutFileTwoTracksSegmentDepth(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	frt.AddHeader()
+	frt.AddOutPut(trackFile, "segment")
+
+	lines := frt.GetLines()
+
+	if len(lines) != 4 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 4)
+	}
+
+	if strings.Count(lines[0], ";") != strings.Count(lines[3], ";") {
+		t.Errorf("The Number of semicolons is not the same in each line")
+	}
+
+	if strings.Contains(lines[1], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[1])
+	}
+
+	if strings.Contains(lines[3], "0.0200") == false {
+		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[2])
+	}
+}
+
+func TestWriteOutputSegmentDepth(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	frt.AddHeader()
+	frt.AddOutPut(trackFile, "segment")
+
+	err := frt.WriteOutput(os.Stdout)
+
+	if err != nil {
+		t.Errorf("Error while writing the output: %s", err.Error())
+	}
+}
+
+func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	iFrt := OutputFormater(frt)
+	iFrt.AddHeader()
+	iFrt.AddOutPut(trackFile, "track")
+
+	err := iFrt.WriteOutput(os.Stdout)
+
+	if err != nil {
+		t.Errorf("Error while writing the output: %s", err.Error())
+	}
+}
+
+func getTrackFileTwoTracksWithThreeSegments() TrackFile {
+	trackFile := getTrackFileTwoTracks()
+	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFile().Tracks[0].TrackSegments[0])
+	trackFile.Tracks[0] = FillTrackValues(trackFile.Tracks[0])
+
+	return trackFile
+}
+
+func getTrackFileTwoTracks() TrackFile {
+	trackFile := getSimpleTrackFile()
+	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFile().Tracks...)
+	trackFile = FillTrackFileValues(trackFile)
+
+	return trackFile
 }

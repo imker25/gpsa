@@ -93,32 +93,6 @@ func main() {
 	}
 }
 
-func getOutPutStream() *os.File {
-	var out *os.File
-	var errOpen error
-	var errCreate error
-	if OutFileParameter == "" {
-		out = os.Stdout
-	} else {
-		if fileExists(OutFileParameter) {
-			errDel := os.Remove(OutFileParameter)
-			if errDel != nil {
-				HandleError(errDel, OutFileParameter, false, DontPanicFlag)
-			}
-		}
-		out, errCreate = os.Create(OutFileParameter)
-		if errCreate != nil {
-			HandleError(errCreate, OutFileParameter, false, DontPanicFlag)
-		}
-
-		out, errOpen = os.OpenFile(OutFileParameter, os.O_APPEND|os.O_WRONLY, 0600)
-		if errOpen != nil {
-			HandleError(errOpen, OutFileParameter, false, DontPanicFlag)
-		}
-	}
-	return out
-}
-
 // handleComandlineOptions - Setup and parse the comandline options.
 // Defines the usage function as well
 func handleComandlineOptions() {
@@ -183,7 +157,7 @@ func processFiles(files []string) (int, []string) {
 	return successCount, retVals
 }
 
-func goProcessFile(filePath string, formater gpsabl.CsvOutputFormater, c chan string) {
+func goProcessFile(filePath string, formater *gpsabl.CsvOutputFormater, c chan string) {
 	rets := processFile(filePath, formater)
 
 	for _, ret := range rets {
@@ -191,7 +165,7 @@ func goProcessFile(filePath string, formater gpsabl.CsvOutputFormater, c chan st
 	}
 }
 
-func processFile(filePath string, formater gpsabl.CsvOutputFormater) []string {
+func processFile(filePath string, formater *gpsabl.CsvOutputFormater) []string {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
 	}
@@ -211,6 +185,32 @@ func processFile(filePath string, formater gpsabl.CsvOutputFormater) []string {
 	// info := gpsabl.TrackSummaryProvider(file)
 
 	return formater.FormatOutPut(file, false, DepthParametr)
+}
+
+func getOutPutStream() *os.File {
+	var out *os.File
+	var errOpen error
+	var errCreate error
+	if OutFileParameter == "" {
+		out = os.Stdout
+	} else {
+		if fileExists(OutFileParameter) {
+			errDel := os.Remove(OutFileParameter)
+			if errDel != nil {
+				HandleError(errDel, OutFileParameter, false, DontPanicFlag)
+			}
+		}
+		out, errCreate = os.Create(OutFileParameter)
+		if errCreate != nil {
+			HandleError(errCreate, OutFileParameter, false, DontPanicFlag)
+		}
+
+		out, errOpen = os.OpenFile(OutFileParameter, os.O_APPEND|os.O_WRONLY, 0600)
+		if errOpen != nil {
+			HandleError(errOpen, OutFileParameter, false, DontPanicFlag)
+		}
+	}
+	return out
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
