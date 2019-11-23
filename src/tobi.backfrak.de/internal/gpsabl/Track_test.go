@@ -16,15 +16,16 @@ func TestNewTrackFile(t *testing.T) {
 
 func TestTrackSummary(t *testing.T) {
 	sum := TrackSummary{}
-	iSum := TrackSummaryProvider(&sum)
-	iSum.SetValues(100.1, 20.2, 10.4, 40.6)
+	iSumSet := TrackSummarySetter(&sum)
+	iSumSet.SetValues(100.1, 10.4, 40.6)
+	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {
 		t.Errorf("The GetDistance() rutrns %f, but %f was expected", iSum.GetDistance(), 100.1)
 	}
 
-	if iSum.GetAtituteRange() != 20.2 {
-		t.Errorf("The GetAtituteRange() rutrns %f, but %f was expected", iSum.GetAtituteRange(), 20.2)
+	if !CompareFloat64With4Digits(float64(iSum.GetAtituteRange()), 30.2) {
+		t.Errorf("The GetAtituteRange() rutrns %f, but %f was expected", iSum.GetAtituteRange(), 30.2)
 	}
 
 	if iSum.GetMaximumAtitute() != 40.6 {

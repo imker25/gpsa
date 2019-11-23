@@ -13,6 +13,14 @@ type TrackSummary struct {
 	MaximumAtitute float32
 }
 
+// SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
+func (sum *TrackSummary) SetValues(distance float64, minimumAtitute float32, maximumAtitute float32) {
+	sum.MinimumAtitute = minimumAtitute
+	sum.MaximumAtitute = maximumAtitute
+	sum.AtituteRange = maximumAtitute - minimumAtitute
+	sum.Distance = distance
+}
+
 // GetDistance - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetDistance() float64 {
 	return sum.Distance
@@ -31,14 +39,6 @@ func (sum TrackSummary) GetMaximumAtitute() float32 {
 // GetMinimumAtitute - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetMinimumAtitute() float32 {
 	return sum.MinimumAtitute
-}
-
-// SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
-func (sum *TrackSummary) SetValues(distance float64, atituteRange float32, minimumAtitute float32, maximumAtitute float32) {
-	sum.MinimumAtitute = minimumAtitute
-	sum.MaximumAtitute = maximumAtitute
-	sum.AtituteRange = atituteRange
-	sum.Distance = distance
 }
 
 // TrackFile - A struct to handle track files
@@ -85,4 +85,24 @@ type TrackPoint struct {
 	HorizontalDistanceNext   float64
 	VerticalDistanceBefore   float32
 	VerticalDistanceNext     float32
+}
+
+// GetDistance - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetDistance() float64 {
+	return pnt.HorizontalDistanceNext
+}
+
+// GetAtituteRange - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetAtituteRange() float32 {
+	return 0.0
+}
+
+// GetMaximumAtitute Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetMaximumAtitute() float32 {
+	return pnt.Elevation
+}
+
+// GetMinimumAtitute - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetMinimumAtitute() float32 {
+	return pnt.Elevation
 }

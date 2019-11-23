@@ -1,9 +1,9 @@
 package main
 
 import (
-	"strings"
 	"testing"
 
+	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/testhelper"
 )
 
@@ -21,7 +21,7 @@ func TestHandleComandlineOptions(t *testing.T) {
 }
 
 func TestHandleErrorNil(t *testing.T) {
-	if HandleError(nil, "my/path") == true {
+	if HandleError(nil, "my/path", true, true) == true {
 		t.Errorf("HandleError reutrns true, when nil error was given")
 	}
 
@@ -31,7 +31,7 @@ func TestHandleErrorNotNil(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
-	if HandleError(newUnKnownFileTypeError("my/path"), "my/path") == false {
+	if HandleError(newUnKnownFileTypeError("my/path"), "my/path", true, true) == false {
 		t.Errorf("HandleError reutrns false, when error was given")
 	}
 
@@ -66,25 +66,17 @@ func TestGetReaderUnkonwnFile(t *testing.T) {
 	}
 }
 
-func TestUnKnownFileTypeErrorStruct(t *testing.T) {
-	path := "/some/sample/path"
-	err := newUnKnownFileTypeError(path)
-
-	if err.File != path {
-		t.Errorf("The File was %s, but %s was expected", err.File, path)
-	}
-
-	if strings.Contains(err.Error(), path) == false {
-		t.Errorf("The error messaage of GpxFileError does not contain the expected Path")
-	}
-}
-
 func TestProcessValideFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
+	oldDepthValue := DepthParametr
+	DepthParametr = "file"
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
 	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
-	successCount, _ := processFiles(files)
+	successCount := processFiles(files, iFormater)
 	if successCount != 2 {
 		t.Errorf("Not all files was proccess successfull as expected")
 	}
@@ -94,14 +86,21 @@ func TestProcessValideFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
+	DepthParametr = oldDepthValue
 }
 
 func TestProcessMixedFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
+	oldDepthValue := DepthParametr
+	DepthParametr = "file"
+
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
-	successCount, _ := processFiles(files)
+	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
 		t.Errorf("Not two files was proccess with error as expected")
 	}
@@ -111,14 +110,23 @@ func TestProcessMixedFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
+
+	SkipErrorExitFlag = oldFlagValue
+	DepthParametr = oldDepthValue
 }
 
 func TestProcessUnValideFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
+	oldDepthValue := DepthParametr
+	DepthParametr = "file"
+
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
-	successCount, _ := processFiles(files)
+	successCount := processFiles(files, iFormater)
 	if successCount != 0 {
 		t.Errorf("Not all files was proccess with error as expected")
 	}
@@ -128,4 +136,5 @@ func TestProcessUnValideFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
+	DepthParametr = oldDepthValue
 }

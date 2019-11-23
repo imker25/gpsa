@@ -4,41 +4,49 @@ package main
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
+
 import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
-// UnKnownFileTypeError - Error when trying to load not known file type
-type UnKnownFileTypeError struct {
-	err string
-	// File - The path to the file that caused this error
-	File string
-}
+// Authors - Information about the authors of the program. You might want to add your name here when contribute to this software
+const Authors = "tobi@backfrak.de"
 
-func (e *UnKnownFileTypeError) Error() string { // Implement the Error Interface for the UnKnownFileTypeError struct
-	return fmt.Sprintf("Error: %s", e.err)
-}
+// The Version of this program, will be set at compile time by the gradle build script
+var version = "undefined"
 
-// newUnKnownFileTypeError - Get a new UnKnownFileTypeError struct
-func newUnKnownFileTypeError(fileName string) *UnKnownFileTypeError {
-	return &UnKnownFileTypeError{fmt.Sprintf("The type of the file \"%s\" is not known.", fileName), fileName}
-}
-
-// HelpFlag - Tell if the programm was called with -help
+// HelpFlag - Tell if the program was called with -help
 var HelpFlag bool
 
-// VerboseFlag - Tell if the programm was called with -verbose
+// VerboseFlag - Tell if the program was called with -verbose
 var VerboseFlag bool
 
-// SkipErrorExitFlag - Tell if the programm was called with -skip-error-exit
+// SkipErrorExitFlag - Tell if the program was called with -skip-error-exit
 var SkipErrorExitFlag bool
+
+// PrintCsvHeaderFlag - Tell if the program was called with  -print-csv-header
+var PrintCsvHeaderFlag bool
+
+// OutFileParameter - Tell if and where we should write the output to ( -out-file )
+var OutFileParameter string
+
+// DontPanicFlag - Tell if the prgramm was called with -dont-panic
+var DontPanicFlag bool
+
+// DepthParametr - Tell in what depth we should mak the analyses ( -depth )
+var DepthParametr string
+
+// PrintVersionFlag - tell if the program was called with the -version flag
+var PrintVersionFlag bool
+
+// PrintLicenseFlag - tell if the program was called with the -license flag
+var PrintLicenseFlag bool
 
 func main() {
 
@@ -46,15 +54,41 @@ func main() {
 
 		handleComandlineOptions()
 
-		if HelpFlag == true {
+		if VerboseFlag {
+			args := ""
+			for _, arg := range os.Args {
+				args = fmt.Sprintf("%s %s", args, arg)
+			}
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Call: %s", args))
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Version: %s", version))
+		}
+
+		if HelpFlag {
 			flag.Usage()
 			os.Exit(0)
 		}
 
-		successCount, report := processFiles(flag.Args())
-		for _, ret := range report {
-			fmt.Fprintln(os.Stdout, ret)
+		if PrintVersionFlag {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Version: %s", version))
+			os.Exit(0)
 		}
+
+		if PrintLicenseFlag {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("(c) %s - Apache License, Version 2.0( http://www.apache.org/licenses/LICENSE-2.0 )", Authors))
+			os.Exit(0)
+		}
+
+		out := getOutPutStream()
+		iFormater := getOutPutFormater()
+		defer out.Close()
+
+		successCount := processFiles(flag.Args(), iFormater)
+
+		errWrite := iFormater.WriteOutput(out)
+		if errWrite != nil {
+			HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
+		}
+
 		if VerboseFlag == true {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
 		}
@@ -72,13 +106,24 @@ func main() {
 // handleComandlineOptions - Setup and parse the comandline options.
 // Defines the usage function as well
 func handleComandlineOptions() {
-	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
-	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
-	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm with first error")
+
+	outFormater := gpsabl.NewCsvOutputFormater(";")
+
+	flag.BoolVar(&HelpFlag, "help", false, "Prints this help message")
+	flag.BoolVar(&PrintVersionFlag, "version", false, "Print the version of the program")
+	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print the license information of the program")
+	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
+	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
+	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
+	flag.StringVar(&OutFileParameter, "out-file", "", "Tell where to write the output. StdOut is used when not set")
+	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases")
+	flag.StringVar(&DepthParametr, "depth", outFormater.ValideDepthArgs[0],
+		fmt.Sprintf("Tell how depth the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in track files, and writes out basic statistic data found in the track", os.Args[0]))
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report", os.Args[0]))
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("Program Version: %s", version))
 		fmt.Fprintln(os.Stdout)
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 		fmt.Fprintln(os.Stdout, "  files")
@@ -86,73 +131,100 @@ func handleComandlineOptions() {
 		fmt.Fprintln(os.Stdout, "Options:")
 		flag.PrintDefaults()
 	}
-
+	// fmt.Println("Call: ", os.Args)
 	flag.Parse()
 
+	if !strings.Contains(outFormater.GetVlaideDepthArgsString(), DepthParametr) {
+		HandleError(newDepthParametrNotKnownError(DepthParametr), "", false, DontPanicFlag)
+	}
 }
 
-func processFiles(files []string) (int, []string) {
+func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 	allFiles := len(files)
 	successCount := 0
-	c := make(chan string)
+	c := make(chan bool, allFiles)
 	countFiles := 0
-	retVals := []string{}
+
+	if PrintCsvHeaderFlag {
+		iFormater.AddHeader()
+	}
 
 	for _, filePath := range files {
-		go goProcessFile(filePath, c)
+		go goProcessFile(filePath, iFormater, c)
 	}
 
 	for ret := range c {
-		if ret != "" {
+		if ret != false {
 			successCount++
-			retVals = append(retVals, ret)
 		}
 		countFiles++
 		if countFiles == allFiles {
 			close(c)
 		}
 	}
-	return successCount, retVals
+	return successCount
 }
 
-func goProcessFile(filePath string, c chan string) {
-	ret := processFile(filePath)
+func getOutPutFormater() gpsabl.OutputFormater {
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
+	return iFormater
+}
+
+func goProcessFile(filePath string, formater gpsabl.OutputFormater, c chan bool) {
+	ret := processFile(filePath, formater)
+
 	c <- ret
 }
 
-func processFile(filePath string) string {
-	retVal := ""
+func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
 	}
 	// Find out if we can read the file
 	reader, readerErr := getReader(filePath)
-	if HandleError(readerErr, filePath) == true {
-		return ""
+	if HandleError(readerErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+		return false
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
 	file, readErr := reader.ReadTracks()
-	if HandleError(readErr, filePath) == true {
-		return ""
+	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+		return false
 	}
 
 	// Convert the TrackFile into the TrackSummaryProvider interface
-	info := gpsabl.TrackSummaryProvider(&file)
+	// info := gpsabl.TrackSummaryProvider(file)
 
-	// Read Properties from the TrackFile
-	retVal = retVal + "File name: " + file.FilePath + getNewLine()
-	retVal = retVal + "Name: " + file.Name + getNewLine()
-	retVal = retVal + "Description: " + file.Description + getNewLine()
-	retVal = retVal + "NumberOfTracks: " + fmt.Sprintf(" %d ", file.NumberOfTracks) + getNewLine()
+	formater.AddOutPut(file, DepthParametr)
+	return true
+}
 
-	// Read properties troutgh the interface
-	retVal = retVal + "Distance:" + fmt.Sprintf(" %f ", info.GetDistance()) + "m" + getNewLine()
-	retVal = retVal + "AtituteRange:" + fmt.Sprintf(" %f ", info.GetAtituteRange()) + "m" + getNewLine()
-	retVal = retVal + "MinimumAtitute:" + fmt.Sprintf(" %f ", info.GetMinimumAtitute()) + "m" + getNewLine()
-	retVal = retVal + "MaximumAtitute:" + fmt.Sprintf(" %f ", info.GetMaximumAtitute()) + "m" + getNewLine()
+func getOutPutStream() *os.File {
+	var out *os.File
+	var errOpen error
+	var errCreate error
+	if OutFileParameter == "" {
+		out = os.Stdout
+	} else {
+		if fileExists(OutFileParameter) {
+			errDel := os.Remove(OutFileParameter)
+			if errDel != nil {
+				HandleError(errDel, OutFileParameter, false, DontPanicFlag)
+			}
+		}
+		out, errCreate = os.Create(OutFileParameter)
+		if errCreate != nil {
+			HandleError(errCreate, OutFileParameter, false, DontPanicFlag)
+		}
 
-	return retVal
+		out, errOpen = os.OpenFile(OutFileParameter, os.O_APPEND|os.O_WRONLY, 0600)
+		if errOpen != nil {
+			HandleError(errOpen, OutFileParameter, false, DontPanicFlag)
+		}
+	}
+	return out
 }
 
 func getReader(file string) (gpsabl.TrackReader, error) {
@@ -173,11 +245,17 @@ func getGpxReader(file string) gpsabl.TrackReader {
 	return gpsabl.TrackReader(&gpx)
 }
 
-func getNewLine() string {
-	if runtime.GOOS == "windows" {
-		return "\r\n"
-	} else {
-		return "\n"
+// fileExists checks if a file exists and is not a directory before we
+// try using it to prevent further errors.
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
 	}
 
+	if info.IsDir() {
+		err := newOutFileIsDirError(filename)
+		HandleError(err, filename, false, DontPanicFlag)
+	}
+	return true
 }
