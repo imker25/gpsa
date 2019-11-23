@@ -62,19 +62,19 @@ func newUnKnownFileTypeError(fileName string) *UnKnownFileTypeError {
 	return &UnKnownFileTypeError{fmt.Sprintf("The type of the file \"%s\" is not known.", fileName), fileName}
 }
 
-// The Version of this programm
+// The Version of this program
 var version = "undefined"
 
-// HelpFlag - Tell if the programm was called with -help
+// HelpFlag - Tell if the program was called with -help
 var HelpFlag bool
 
-// VerboseFlag - Tell if the programm was called with -verbose
+// VerboseFlag - Tell if the program was called with -verbose
 var VerboseFlag bool
 
-// SkipErrorExitFlag - Tell if the programm was called with -skip-error-exit
+// SkipErrorExitFlag - Tell if the program was called with -skip-error-exit
 var SkipErrorExitFlag bool
 
-// PrintCsvHeaderFlag - Tell if the programm was called with  -print-csv-header
+// PrintCsvHeaderFlag - Tell if the program was called with  -print-csv-header
 var PrintCsvHeaderFlag bool
 
 // OutFileParameter - Tell if and where we should write the output to ( -out-file )
@@ -83,8 +83,11 @@ var OutFileParameter string
 // DontPanicFlag - Tell if the prgramm was called with -dont-panic
 var DontPanicFlag bool
 
-// DepthParametr - Tell in what depth we should mak the analyses -depth
+// DepthParametr - Tell in what depth we should mak the analyses ( -depth )
 var DepthParametr string
+
+// PrintVersionFlag - tell if the program was called with the -version flag
+var PrintVersionFlag bool
 
 func main() {
 
@@ -92,8 +95,13 @@ func main() {
 
 		handleComandlineOptions()
 
-		if HelpFlag == true {
+		if HelpFlag {
 			flag.Usage()
+			os.Exit(0)
+		}
+
+		if PrintVersionFlag {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Version: %s", version))
 			os.Exit(0)
 		}
 
@@ -154,8 +162,9 @@ func handleComandlineOptions() {
 	outFormater := gpsabl.NewCsvOutputFormater(";")
 
 	flag.BoolVar(&HelpFlag, "help", false, "Prints this message")
-	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the programm with verbose output")
-	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the programm on track file processing errors")
+	flag.BoolVar(&PrintVersionFlag, "version", false, "Print the version of the program")
+	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
+	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
 	flag.StringVar(&OutFileParameter, "out-file", "", "Tell where to write the output. StdOut is used when not set")
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases")

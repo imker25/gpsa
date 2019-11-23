@@ -42,9 +42,9 @@ Options:
   -print-csv-header
         Print out a csv header line (default true)
   -skip-error-exit
-        Don't exit the programm on track file processing errors
+        Don't exit the program on track file processing errors
   -verbose
-        Run the programm with verbose output
+        Run the program with verbose output
 ```
 
 # Development

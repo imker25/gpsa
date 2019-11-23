@@ -12,7 +12,7 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
-// ErrorsHandled - Tell if the programm had to handle at least one error
+// ErrorsHandled - Tell if the program had to handle at least one error
 var ErrorsHandled bool
 
 // HandleError - Handles an error. Will do nothing and return false if the given error is nil.
