@@ -1,7 +1,26 @@
 # gpsa - A GPX Statistic Analysing tool
 This is a simple comandline tool, that may helps to extract statistic data out of *.gpx files
+- [gpsa - A GPX Statistic Analysing tool](#gpsa---a-gpx-statistic-analysing-tool)
+- [User Documentaion](#user-documentaion)
+  - [Installation](#installation)
+  - [Usage](#usage)
+- [Development](#development)
+  - [Build](#build)
+  - [Hints for VSCode Users](#hints-for-vscode-users)
+- [Geo Math Internals](#geo-math-internals)
+- [License](#license)
+# User Documentaion
 
-# Usage
+## Installation
+On Linux do the following in a empty folder:
+```sh
+wget https://homer.tobi.backfrak.de/jenkins/job/GPSA/job/master/lastSuccessfulBuild/artifact/bin/gpsa && chmod 770 ./gpsa
+
+```
+
+On Windows download [gpsa.exe](https://homer.tobi.backfrak.de/jenkins/job/GPSA/job/master/lastSuccessfulBuild/artifact/bin/gpsa.exe) and execute it on comandline.
+
+## Usage
 You might want to call ```-help```, to find out how to use the program.
 
 ```sh
@@ -99,11 +118,11 @@ The ```settings.json```:
 }
 ```
 
-## Internals
-The Geografic calculations are done with the  ```haversine formula```  as descripted [here](http://www.movable-type.co.uk/scripts/latlong.html. My Impelemtaion will ignore atitute difference for distance bigger then 33 km, by checking the agular distance to be bigger then 0.3°. For smaller distances the program will add the atitute difference using the ```pythagoras theorem```.
+# Geo Math Internals 
+The Geografic calculations are done with the  ```haversine formula```  as descripted [here](http://www.movable-type.co.uk/scripts/latlong.html). My Impelemtaion will ignore atitute difference for distance bigger then 33 km, by checking the agular distance to be bigger then 0.3°. For smaller distances the program will add the atitute difference using the ```pythagoras theorem```.
 
 # License
 
 gpsa is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-May got some testfiles from [gpxgo](https://github.com/tkrajina/gpxgo/tree/master/test_files)
+May got some testfiles and ideas from [gpxgo](https://github.com/tkrajina/gpxgo/tree/master/test_files)
 
