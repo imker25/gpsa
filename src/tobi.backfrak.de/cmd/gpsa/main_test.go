@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"testing"
 
 	"tobi.backfrak.de/internal/testhelper"
@@ -63,19 +62,6 @@ func TestGetReaderUnkonwnFile(t *testing.T) {
 
 	if reader != nil {
 		t.Errorf("The reader we got was not nil")
-	}
-}
-
-func TestUnKnownFileTypeErrorStruct(t *testing.T) {
-	path := "/some/sample/path"
-	err := newUnKnownFileTypeError(path)
-
-	if err.File != path {
-		t.Errorf("The File was %s, but %s was expected", err.File, path)
-	}
-
-	if strings.Contains(err.Error(), path) == false {
-		t.Errorf("The error messaage of GpxFileError does not contain the expected Path")
 	}
 }
 
