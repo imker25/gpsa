@@ -54,6 +54,14 @@ func main() {
 
 		handleComandlineOptions()
 
+		if VerboseFlag {
+			args := ""
+			for _, arg := range os.Args {
+				args = fmt.Sprintf("%s %s", args, arg)
+			}
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Call: %s", args))
+		}
+
 		if HelpFlag {
 			flag.Usage()
 			os.Exit(0)
