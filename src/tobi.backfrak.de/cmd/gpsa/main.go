@@ -60,6 +60,7 @@ func main() {
 				args = fmt.Sprintf("%s %s", args, arg)
 			}
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("Call: %s", args))
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Version: %s", version))
 		}
 
 		if HelpFlag {
