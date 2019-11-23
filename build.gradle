@@ -1,6 +1,6 @@
 // Build script for this project. May used in IDE or CI environment
 defaultTasks 'build'
-
+def programVersion='0.2.1'
 def goPath
 def scriptDirectory
 def scriptFile
@@ -12,6 +12,15 @@ String pkgDir
 String logDir
 String packagesToBuild = ''
 String packagesToTest = ''
+
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--always', '--long', '--dirty'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
 
 task getEnvironment {
     description 'Setup the environment for the build'
@@ -205,14 +214,17 @@ task build(dependsOn: 'clean') {
         println '##################################################################################'
     }
     doLast {
-        println "go install -v $packagesToBuild"
+        println "go install -v -ldflags=\"-X main.version=${programVersion}+${getGitHash()}\" $packagesToBuild"
+        def versionArg ='-X main.version=' + "${programVersion}+${getGitHash()}" +''
         def packageArray = packagesToBuild.split(' ');
-        def callArgs = new String[packageArray.length + 2]
+        def callArgs = new String[packageArray.length + 4]
         callArgs[0] = 'install'
         callArgs[1] = '-v'
+        callArgs[2] = "-ldflags" 
+        callArgs[3] = versionArg 
         def i = 0
         packageArray.each {
-            callArgs[i + 2] = it 
+            callArgs[i + 4] = it 
             i = i + 1
         }
        

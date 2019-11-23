@@ -62,6 +62,9 @@ func newUnKnownFileTypeError(fileName string) *UnKnownFileTypeError {
 	return &UnKnownFileTypeError{fmt.Sprintf("The type of the file \"%s\" is not known.", fileName), fileName}
 }
 
+// The Version of this programm
+var version = "undefined"
+
 // HelpFlag - Tell if the programm was called with -help
 var HelpFlag bool
 
@@ -162,6 +165,7 @@ func handleComandlineOptions() {
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track", os.Args[0]))
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("Program Version: %s", version))
 		fmt.Fprintln(os.Stdout)
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 		fmt.Fprintln(os.Stdout, "  files")
