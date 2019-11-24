@@ -6,7 +6,7 @@ import "os"
 type OutputFormater interface {
 
 	// AddOutPut - Add the output values of a TrackFile to the out file buffer
-	AddOutPut(trackFile TrackFile, depth string)
+	AddOutPut(trackFile TrackFile, depth string) error
 
 	// AddHeader- Add a AddHeader line to the out file buffer
 	AddHeader()

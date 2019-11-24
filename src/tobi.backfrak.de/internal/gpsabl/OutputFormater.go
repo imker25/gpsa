@@ -51,10 +51,16 @@ func NewCsvOutputFormater(seperator string) *CsvOutputFormater {
 }
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
-func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string) {
+func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string) error {
 	formater.mux.Lock()
 	defer formater.mux.Unlock()
-	formater.lineBuffer = append(formater.lineBuffer, formater.FormatOutPut(trackFile, false, depth)...)
+	lines, err := formater.FormatOutPut(trackFile, false, depth)
+	if err != nil {
+		return err
+	}
+	formater.lineBuffer = append(formater.lineBuffer, lines...)
+
+	return nil
 }
 
 // AddHeader - Add the formated header line to the internal buffer, so it can be written out later
@@ -84,7 +90,7 @@ func (formater *CsvOutputFormater) WriteOutput(outFile *os.File) error {
 }
 
 // FormatOutPut - Create the output for a TrackFile
-func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader bool, depth string) []string {
+func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader bool, depth string) ([]string, error) {
 	ret := []string{}
 	if printHeader {
 		header := formater.GetHeader()
@@ -99,10 +105,10 @@ func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader
 	case formater.ValideDepthArgs[2]:
 		addLinesFromTrackSegments(formater, trackFile, &ret)
 	default:
-		ret = append(ret, fmt.Sprintf("Error: Can not handle the given depth value \"%s\"%s", depth, GetNewLine()))
+		return ret, NewDepthParametrNotKnownError(depth)
 	}
 
-	return ret
+	return ret, nil
 }
 
 // GetHeader - Get the header line of a csv output
@@ -113,6 +119,18 @@ func (formater *CsvOutputFormater) GetHeader() string {
 		"AtituteRange (m)", formater.Seperator,
 		"MinimumAtitute (m)", formater.Seperator,
 		"MaximumAtitut (m)", formater.Seperator, GetNewLine())
+
+	return ret
+}
+
+// FormatTrackSummary - Create the outputline for a  TrackSummaryProvider
+func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
+	ret := fmt.Sprintf("%s%s%f%s%f%s%f%s%f%s%s",
+		name, formater.Seperator,
+		RoundFloat64To2Digits(info.GetDistance()/1000), formater.Seperator,
+		RoundFloat64To2Digits(float64(info.GetAtituteRange())), formater.Seperator,
+		RoundFloat64To2Digits(float64(info.GetMinimumAtitute())), formater.Seperator,
+		RoundFloat64To2Digits(float64(info.GetMaximumAtitute())), formater.Seperator, GetNewLine())
 
 	return ret
 }
@@ -129,18 +147,6 @@ func (formater *CsvOutputFormater) GetVlaideDepthArgsString() string {
 // CheckVlaideDepthArg -Check if a string is a valide depth arg
 func (formater *CsvOutputFormater) CheckVlaideDepthArg(agr string) bool {
 	return strings.Contains(formater.GetVlaideDepthArgsString(), agr)
-}
-
-// FormatTrackSummary - Create the outputline for a  TrackSummaryProvider
-func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
-	ret := fmt.Sprintf("%s%s%f%s%f%s%f%s%f%s%s",
-		name, formater.Seperator,
-		RoundFloat64To2Digits(info.GetDistance()/1000), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetAtituteRange())), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetMinimumAtitute())), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetMaximumAtitute())), formater.Seperator, GetNewLine())
-
-	return ret
 }
 
 // GetNewLine - Get the new line string depending on the OS

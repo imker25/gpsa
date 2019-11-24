@@ -52,15 +52,17 @@ func main() {
 
 	if cap(os.Args) > 1 {
 
+		// Setup and read-in comandline flags
 		handleComandlineOptions()
 
+		// Check flags, that will not process files
 		if VerboseFlag {
 			args := ""
 			for _, arg := range os.Args {
 				args = fmt.Sprintf("%s %s", args, arg)
 			}
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("Call: %s", args))
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Version: %s", version))
+			printVersion()
 		}
 
 		if HelpFlag {
@@ -69,7 +71,7 @@ func main() {
 		}
 
 		if PrintVersionFlag {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Version: %s", version))
+			printVersion()
 			os.Exit(0)
 		}
 
@@ -78,12 +80,17 @@ func main() {
 			os.Exit(0)
 		}
 
+		// Find out where to write the output. May a file, may STDOUT
 		out := getOutPutStream()
+
+		// Get the type that handles the output
 		iFormater := getOutPutFormater()
 		defer out.Close()
 
+		// Process the files, this will fill the buffer of the output type
 		successCount := processFiles(flag.Args(), iFormater)
 
+		// Write the output
 		errWrite := iFormater.WriteOutput(out)
 		if errWrite != nil {
 			HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
@@ -109,9 +116,10 @@ func handleComandlineOptions() {
 
 	outFormater := gpsabl.NewCsvOutputFormater(";")
 
-	flag.BoolVar(&HelpFlag, "help", false, "Prints this help message")
-	flag.BoolVar(&PrintVersionFlag, "version", false, "Print the version of the program")
-	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print the license information of the program")
+	// Setup the valide comandline flags
+	flag.BoolVar(&HelpFlag, "help", false, "Prints this help message and exit")
+	flag.BoolVar(&PrintVersionFlag, "version", false, "Print the version of the program and exit")
+	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print the license information of the program and exit")
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
@@ -123,7 +131,7 @@ func handleComandlineOptions() {
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report", os.Args[0]))
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("Program Version: %s", version))
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
 		fmt.Fprintln(os.Stdout)
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 		fmt.Fprintln(os.Stdout, "  files")
@@ -131,24 +139,29 @@ func handleComandlineOptions() {
 		fmt.Fprintln(os.Stdout, "Options:")
 		flag.PrintDefaults()
 	}
-	// fmt.Println("Call: ", os.Args)
+
+	// Read the given flags
 	flag.Parse()
 }
 
+// processFiles - prosses the input files and add the found coneted to the output buffer
 func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 	allFiles := len(files)
 	successCount := 0
 	c := make(chan bool, allFiles)
 	countFiles := 0
 
+	// Add the header to the output, when needed
 	if PrintCsvHeaderFlag {
 		iFormater.AddHeader()
 	}
 
+	// Process the files in a go routine
 	for _, filePath := range files {
 		go goProcessFile(filePath, iFormater, c)
 	}
 
+	// Read back the file processing results
 	for ret := range c {
 		if ret != false {
 			successCount++
@@ -158,25 +171,19 @@ func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 			close(c)
 		}
 	}
+
+	// Return how may files was processed fine
 	return successCount
 }
 
-func getOutPutFormater() gpsabl.OutputFormater {
-	formater := gpsabl.NewCsvOutputFormater(";")
-	if !formater.CheckVlaideDepthArg(DepthParametr) {
-		HandleError(gpsabl.NewDepthParametrNotKnownError(DepthParametr), "", false, DontPanicFlag)
-	}
-	iFormater := gpsabl.OutputFormater(formater)
-
-	return iFormater
-}
-
+// goProcessFile - Wraper around, processFile. Use this as go routine
 func goProcessFile(filePath string, formater gpsabl.OutputFormater, c chan bool) {
 	ret := processFile(filePath, formater)
 
 	c <- ret
 }
 
+// processFile - prosess one input file and add the found coneted to the output buffer
 func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
@@ -193,13 +200,27 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 		return false
 	}
 
-	// Convert the TrackFile into the TrackSummaryProvider interface
-	// info := gpsabl.TrackSummaryProvider(file)
+	// Add the file to the out buffer of the formater
+	addErr := formater.AddOutPut(file, DepthParametr)
+	if HandleError(addErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+		return false
+	}
 
-	formater.AddOutPut(file, DepthParametr)
 	return true
 }
 
+// Get the Interface to format the output
+func getOutPutFormater() gpsabl.OutputFormater {
+	formater := gpsabl.NewCsvOutputFormater(";")
+	if !formater.CheckVlaideDepthArg(DepthParametr) {
+		HandleError(gpsabl.NewDepthParametrNotKnownError(DepthParametr), "", false, DontPanicFlag)
+	}
+	iFormater := gpsabl.OutputFormater(formater)
+
+	return iFormater
+}
+
+// Get the file interface, we use as output. A file or STDOUT
 func getOutPutStream() *os.File {
 	var out *os.File
 	var errOpen error
@@ -207,7 +228,7 @@ func getOutPutStream() *os.File {
 	if OutFileParameter == "" {
 		out = os.Stdout
 	} else {
-		if fileExists(OutFileParameter) {
+		if outFileExists(OutFileParameter) {
 			errDel := os.Remove(OutFileParameter)
 			if errDel != nil {
 				HandleError(errDel, OutFileParameter, false, DontPanicFlag)
@@ -226,6 +247,7 @@ func getOutPutStream() *os.File {
 	return out
 }
 
+// Get the interface, that can read a given input file
 func getReader(file string) (gpsabl.TrackReader, error) {
 
 	if strings.HasSuffix(file, "gpx") == true { // If the file is a *.gpx, we can read it
@@ -236,6 +258,7 @@ func getReader(file string) (gpsabl.TrackReader, error) {
 	return nil, newUnKnownFileTypeError(file)
 }
 
+// Get the interface that can read a *.gpx file
 func getGpxReader(file string) gpsabl.TrackReader {
 	// Get the GpxFile type
 	gpx := gpxbl.NewGpxFile(file)
@@ -244,9 +267,9 @@ func getGpxReader(file string) gpsabl.TrackReader {
 	return gpsabl.TrackReader(&gpx)
 }
 
-// fileExists checks if a file exists and is not a directory before we
+// outFileExists checks if a file exists and is not a directory before we
 // try using it to prevent further errors.
-func fileExists(filename string) bool {
+func outFileExists(filename string) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		return false
@@ -257,4 +280,14 @@ func fileExists(filename string) bool {
 		HandleError(err, filename, false, DontPanicFlag)
 	}
 	return true
+}
+
+// Prints the version string
+func printVersion() {
+	fmt.Fprintln(os.Stdout, getVersion())
+}
+
+// Get the version string
+func getVersion() string {
+	return fmt.Sprintf("Version: %s", version)
 }
