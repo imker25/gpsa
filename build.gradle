@@ -281,7 +281,7 @@ task createBuildZip(type: Zip, dependsOn: 'createBinZip') {
     include "bin${File.separator}**"
     include "pkg${File.separator}**"
     include "logs${File.separator}**"
-    archiveName = org.gradle.internal.os.OperatingSystem.current().getName() + '_Build.zip'
+    archiveFileName = org.gradle.internal.os.OperatingSystem.current().getName() + "_Build.zip"
     destinationDirectory = file( buildscript.sourceFile.getParent())
 
     doFirst {
