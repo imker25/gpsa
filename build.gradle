@@ -162,7 +162,7 @@ task test(dependsOn: 'getEnvironment') {
         println '##################################################################################'
     }
     doLast {
-        println "go test -v $raceParameter $packagesToTest"
+        println "go test -v $raceParameter $packagesToTest > ${logDir}TestsRun.log "
         def packageArray = packagesToTest.split(' ');
         def callArgsTestRun = new String[packageArray.length + 3]
         callArgsTestRun[0] = 'test'
@@ -183,6 +183,36 @@ task test(dependsOn: 'getEnvironment') {
      
             standardOutput logFileStream
             errorOutput logFileStream
+        }
+    }
+}
+
+task cover(dependsOn: 'getEnvironment') {
+    description 'Run all go tests with coverage'
+    doFirst {
+        println '##################################################################################'
+        println 'Run tests -cover'
+        println '##################################################################################'
+    }
+    doLast {
+        println "go test -cover $packagesToTest"
+        def packageArray = packagesToTest.split(' ');
+        def callArgsTestRun = new String[packageArray.length + 3]
+        callArgsTestRun[0] = 'test'
+        callArgsTestRun[1] = '-v'
+        callArgsTestRun[2] = '-cover'
+        def i = 0
+        packageArray.each {
+            callArgsTestRun[i + 3] = it 
+            i = i + 1
+        }
+        
+        exec {
+            workingDir "$scriptDirectory"
+            executable "go"
+            args callArgsTestRun
+            environment('GOPATH', goPath)
+     
         }
     }
 }
