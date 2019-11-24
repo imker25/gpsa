@@ -7,22 +7,6 @@ package main
 
 import "fmt"
 
-// DepthParametrNotKnownError - Error when the given depth paramter is not known
-type DepthParametrNotKnownError struct {
-	err string
-	// File - The path to the dir that caused this error
-	GivenValue string
-}
-
-func (e *DepthParametrNotKnownError) Error() string { // Implement the Error Interface for the DepthParametrNotKnownError struct
-	return fmt.Sprintf("Error: %s", e.err)
-}
-
-// newDepthParametrNotKnownError- Get a new DepthParametrNotKnownError struct
-func newDepthParametrNotKnownError(givenValue string) *DepthParametrNotKnownError {
-	return &DepthParametrNotKnownError{fmt.Sprintf("The given -depth \"%s\" is not known.", givenValue), givenValue}
-}
-
 // OutFileIsDirError - Error when trying to write the output to a directory and not a file
 type OutFileIsDirError struct {
 	err string

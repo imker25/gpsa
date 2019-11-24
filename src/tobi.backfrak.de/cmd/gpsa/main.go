@@ -133,10 +133,6 @@ func handleComandlineOptions() {
 	}
 	// fmt.Println("Call: ", os.Args)
 	flag.Parse()
-
-	if !strings.Contains(outFormater.GetVlaideDepthArgsString(), DepthParametr) {
-		HandleError(newDepthParametrNotKnownError(DepthParametr), "", false, DontPanicFlag)
-	}
 }
 
 func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
@@ -167,6 +163,9 @@ func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 
 func getOutPutFormater() gpsabl.OutputFormater {
 	formater := gpsabl.NewCsvOutputFormater(";")
+	if !formater.CheckVlaideDepthArg(DepthParametr) {
+		HandleError(gpsabl.NewDepthParametrNotKnownError(DepthParametr), "", false, DontPanicFlag)
+	}
 	iFormater := gpsabl.OutputFormater(formater)
 
 	return iFormater

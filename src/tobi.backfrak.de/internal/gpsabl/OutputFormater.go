@@ -8,8 +8,25 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"sync"
 )
+
+// DepthParametrNotKnownError - Error when the given depth paramter is not known
+type DepthParametrNotKnownError struct {
+	err string
+	// File - The path to the dir that caused this error
+	GivenValue string
+}
+
+func (e *DepthParametrNotKnownError) Error() string { // Implement the Error Interface for the DepthParametrNotKnownError struct
+	return fmt.Sprintf("Error: %s", e.err)
+}
+
+// NewDepthParametrNotKnownError - Get a new DepthParametrNotKnownError struct
+func NewDepthParametrNotKnownError(givenValue string) *DepthParametrNotKnownError {
+	return &DepthParametrNotKnownError{fmt.Sprintf("The given -depth \"%s\" is not known.", givenValue), givenValue}
+}
 
 // CsvOutputFormater - type that formats TrackSummary into csv style
 type CsvOutputFormater struct {
@@ -107,6 +124,11 @@ func (formater *CsvOutputFormater) GetVlaideDepthArgsString() string {
 		ret = fmt.Sprintf("%s %s", arg, ret)
 	}
 	return ret
+}
+
+// CheckVlaideDepthArg -Check if a string is a valide depth arg
+func (formater *CsvOutputFormater) CheckVlaideDepthArg(agr string) bool {
+	return strings.Contains(formater.GetVlaideDepthArgsString(), agr)
 }
 
 // FormatTrackSummary - Create the outputline for a  TrackSummaryProvider

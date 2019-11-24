@@ -11,6 +11,19 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
+func TestDepthParametrNotKnownErrorStruct(t *testing.T) {
+	val := "asdgfg"
+	err := NewDepthParametrNotKnownError(val)
+
+	if err.GivenValue != val {
+		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
+	}
+
+	if strings.Contains(err.Error(), val) == false {
+		t.Errorf("The error messaage of DepthParametrNotKnownError does not contain the expected GivenValue")
+	}
+}
+
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
 
@@ -352,6 +365,18 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Error while writing the output: %s", err.Error())
+	}
+}
+
+func TestCheckVlaideDepthArg(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+
+	if frt.CheckVlaideDepthArg("asfd") == true {
+		t.Errorf("The CheckVlaideDepthArg returns true for \"asfd\"")
+	}
+
+	if frt.CheckVlaideDepthArg("file") == false {
+		t.Errorf("The CheckVlaideDepthArg returns false for \"file\"")
 	}
 }
 
