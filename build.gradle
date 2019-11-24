@@ -12,6 +12,7 @@ String pkgDir
 String logDir
 String packagesToBuild = ''
 String packagesToTest = ''
+def raceParameter
 
 def getGitHash = { ->
     def stdout = new ByteArrayOutputStream()
@@ -66,6 +67,12 @@ task getEnvironment {
             goPath ="$scriptDirectory"
         }
         
+        if ( osName.contains('Windows') == true) {
+            raceParameter = ''
+        } else {
+            raceParameter = '-race'
+        }
+
         println "GOPATH=$goPath"
         
         // Find all diretories within src/ that contains *.go files
@@ -155,12 +162,12 @@ task test(dependsOn: 'getEnvironment') {
         println '##################################################################################'
     }
     doLast {
-        println "go test -v -race $packagesToTest"
+        println "go test -v $raceParameter $packagesToTest"
         def packageArray = packagesToTest.split(' ');
         def callArgsTestRun = new String[packageArray.length + 3]
         callArgsTestRun[0] = 'test'
         callArgsTestRun[1] = '-v'
-        callArgsTestRun[2] = '-race'
+        callArgsTestRun[2] = raceParameter
         def i = 0
         packageArray.each {
             callArgsTestRun[i + 3] = it 
