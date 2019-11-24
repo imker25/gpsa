@@ -62,7 +62,9 @@ func main() {
 				args = fmt.Sprintf("%s %s", args, arg)
 			}
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("Call: %s", args))
-			printVersion()
+			if !PrintVersionFlag {
+				printVersion()
+			}
 		}
 
 		if HelpFlag {
@@ -80,24 +82,31 @@ func main() {
 			os.Exit(0)
 		}
 
-		// Find out where to write the output. May a file, may STDOUT
-		out := getOutPutStream()
+		// If don't have intput files, we do nothing
+		if len(flag.Args()) != 0 {
+			// Find out where to write the output. May a file, may STDOUT
+			out := getOutPutStream()
 
-		// Get the type that handles the output
-		iFormater := getOutPutFormater()
-		defer out.Close()
+			// Get the type that handles the output
+			iFormater := getOutPutFormater()
+			defer out.Close()
 
-		// Process the files, this will fill the buffer of the output type
-		successCount := processFiles(flag.Args(), iFormater)
+			// Process the files, this will fill the buffer of the output type
+			successCount := processFiles(flag.Args(), iFormater)
 
-		// Write the output
-		errWrite := iFormater.WriteOutput(out)
-		if errWrite != nil {
-			HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
-		}
+			// Write the output
+			errWrite := iFormater.WriteOutput(out)
+			if errWrite != nil {
+				HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
+			}
 
-		if VerboseFlag == true {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
+			if VerboseFlag == true {
+				fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
+			}
+		} else {
+			if VerboseFlag == true {
+				fmt.Fprintln(os.Stdout, "No input files given")
+			}
 		}
 
 	}
