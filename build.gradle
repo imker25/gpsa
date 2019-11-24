@@ -1,6 +1,6 @@
 // Build script for this project. May used in IDE or CI environment
 defaultTasks 'build'
-def programVersion='0.2.1'
+def programVersion='0.3.0'
 def goPath
 def scriptDirectory
 def scriptFile
