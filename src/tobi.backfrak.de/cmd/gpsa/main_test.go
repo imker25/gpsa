@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
 	"testing"
 
 	"tobi.backfrak.de/internal/gpsabl"
@@ -12,11 +16,46 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
+// Use this Mux to sync write access to the testdata/test-out.csv file
+var outFileMux sync.Mutex
+
 func TestHandleComandlineOptions(t *testing.T) {
 	handleComandlineOptions()
 
 	if HelpFlag == true {
 		t.Errorf("The HelpFlag is true, but should not")
+	}
+
+	if VerboseFlag == true {
+		t.Errorf("The VerboseFlag is true, but should not")
+	}
+
+	if SkipErrorExitFlag == true {
+		t.Errorf("The SkipErrorExitFlag is true, but should not")
+	}
+
+	if PrintVersionFlag == true {
+		t.Errorf("The PrintVersionFlag is true, but should not")
+	}
+
+	if PrintLicenseFlag == true {
+		t.Errorf("The PrintLicenseFlag is true, but should not")
+	}
+
+	if DepthParametr != "track" {
+		t.Errorf("The DepthParametr is \"%s\" but \"track\" was expected", DepthParametr)
+	}
+
+	if OutFileParameter != "" {
+		t.Errorf("The DepthParametr is \"%s\" but \"\" was expected", OutFileParameter)
+	}
+
+	if DontPanicFlag == false {
+		t.Errorf("The DontPanicFlag is false, but should not")
+	}
+
+	if PrintCsvHeaderFlag == false {
+		t.Errorf("The PrintCsvHeaderFlag is false, but should not")
 	}
 }
 
@@ -137,4 +176,99 @@ func TestProcessUnValideFiles(t *testing.T) {
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
 	DepthParametr = oldDepthValue
+}
+
+func TestGetOutPutStream_StdOut(t *testing.T) {
+	ErrorsHandled = false
+	oldOutFileParameter := OutFileParameter
+	OutFileParameter = ""
+	str := getOutPutStream()
+
+	switch os.File(*str) {
+	case *os.Stdout:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Got not the expected stream")
+	}
+	ErrorsHandled = false
+	OutFileParameter = oldOutFileParameter
+
+}
+
+func TestGetOutPutStream_AFile(t *testing.T) {
+	ErrorsHandled = false
+	oldOutFileParameter := OutFileParameter
+	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", "test-out.csv")
+	OutFileParameter = filePath
+
+	// Make sure the tests can be executed in parallel
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+
+	str := getOutPutStream()
+	str.Close()
+
+	if outFileExists(filePath) {
+		os.Remove(filePath)
+	} else {
+		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+	}
+
+	if str.Name() != filePath {
+		t.Errorf("The Outstream is not for %s, expected %s ", str.Name(), filePath)
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	ErrorsHandled = false
+	OutFileParameter = oldOutFileParameter
+
+}
+
+func TestGetOutPutStream_AExistingFile(t *testing.T) {
+	ErrorsHandled = false
+	oldOutFileParameter := OutFileParameter
+	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", "test-out.csv")
+	OutFileParameter = filePath
+
+	// Make sure the tests can be executed in parallel
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+
+	os.Create(filePath)
+	if !outFileExists(filePath) {
+		t.Errorf("Error while creating out file at test setup")
+	}
+	str := getOutPutStream()
+	str.Close()
+
+	if outFileExists(filePath) {
+		os.Remove(filePath)
+	} else {
+		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+	}
+
+	if str.Name() != filePath {
+		t.Errorf("The Outstream is not for %s, expected %s ", str.Name(), filePath)
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	ErrorsHandled = false
+	OutFileParameter = oldOutFileParameter
+
+}
+func TestGetOutPutFormater(t *testing.T) {
+	frt := getOutPutFormater()
+
+	switch frt.(type) {
+	case *gpsabl.CsvOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Got not the expected formater")
+	}
 }
