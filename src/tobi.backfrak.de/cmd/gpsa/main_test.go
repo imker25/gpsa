@@ -19,8 +19,13 @@ import (
 // Use this Mux to sync write access to the testdata/test-out.csv file
 var outFileMux sync.Mutex
 
+var ComandlineOptionsHandled bool
+
 func TestHandleComandlineOptions(t *testing.T) {
-	handleComandlineOptions()
+	if !ComandlineOptionsHandled {
+		handleComandlineOptions()
+		ComandlineOptionsHandled = true
+	}
 
 	if HelpFlag == true {
 		t.Errorf("The HelpFlag is true, but should not")
@@ -57,6 +62,14 @@ func TestHandleComandlineOptions(t *testing.T) {
 	if PrintCsvHeaderFlag == false {
 		t.Errorf("The PrintCsvHeaderFlag is false, but should not")
 	}
+}
+
+func TestCostumHelpMessage(t *testing.T) {
+	if !ComandlineOptionsHandled {
+		handleComandlineOptions()
+		ComandlineOptionsHandled = true
+	}
+	costumHelpMessage()
 }
 
 func TestHandleErrorNil(t *testing.T) {

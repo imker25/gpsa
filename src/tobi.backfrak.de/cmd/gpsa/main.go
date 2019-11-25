@@ -138,19 +138,21 @@ func handleComandlineOptions() {
 		fmt.Sprintf("Tell how depth the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
 
 	// Overwrite the std Usage function with some costum stuff
-	flag.Usage = func() {
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report", os.Args[0]))
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
-		fmt.Fprintln(os.Stdout)
-		fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
-		fmt.Fprintln(os.Stdout, "  files")
-		fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx) supported at the moment")
-		fmt.Fprintln(os.Stdout, "Options:")
-		flag.PrintDefaults()
-	}
+	flag.Usage = costumHelpMessage
 
 	// Read the given flags
 	flag.Parse()
+}
+
+func costumHelpMessage() {
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report", os.Args[0]))
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
+	fmt.Fprintln(os.Stdout)
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
+	fmt.Fprintln(os.Stdout, "  files")
+	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx) supported at the moment")
+	fmt.Fprintln(os.Stdout, "Options:")
+	flag.PrintDefaults()
 }
 
 // processFiles - prosses the input files and add the found coneted to the output buffer
