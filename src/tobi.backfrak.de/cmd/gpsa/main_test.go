@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 	"sync"
@@ -211,18 +213,30 @@ func TestGetOutPutStream_StdOut(t *testing.T) {
 func TestGetOutPutStream_AFile(t *testing.T) {
 	ErrorsHandled = false
 	oldOutFileParameter := OutFileParameter
-	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", "test-out.csv")
+	var big big.Int
+	big.SetInt64(10000)
+	max, _ := rand.Int(rand.Reader, &big)
+	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out-%d.csv", max))
 	OutFileParameter = filePath
 
 	// Make sure the tests can be executed in parallel
 	outFileMux.Lock()
 	defer outFileMux.Unlock()
 
+	if outFileExists(filePath) {
+		err := os.Remove(filePath)
+		if err != nil {
+			t.Errorf("Test setup was not able to delete %s. Error was: %s", filePath, err.Error())
+		}
+	}
 	str := getOutPutStream()
 	str.Close()
 
 	if outFileExists(filePath) {
-		os.Remove(filePath)
+		err := os.Remove(filePath)
+		if err != nil {
+			t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
+		}
 	} else {
 		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
 	}
@@ -243,22 +257,36 @@ func TestGetOutPutStream_AFile(t *testing.T) {
 func TestGetOutPutStream_AExistingFile(t *testing.T) {
 	ErrorsHandled = false
 	oldOutFileParameter := OutFileParameter
-	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", "test-out.csv")
+	var big big.Int
+	big.SetInt64(10000)
+	max, _ := rand.Int(rand.Reader, &big)
+	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out-%d.csv", max))
 	OutFileParameter = filePath
 
 	// Make sure the tests can be executed in parallel
 	outFileMux.Lock()
 	defer outFileMux.Unlock()
+	if !outFileExists(filePath) {
+		file, _ := os.Create(filePath)
+		file.Close()
+	}
 
-	os.Create(filePath)
 	if !outFileExists(filePath) {
 		t.Errorf("Error while creating out file at test setup")
 	}
 	str := getOutPutStream()
-	str.Close()
+
+	str.Sync()
+	closeErr := str.Close()
+	if closeErr != nil {
+		t.Errorf("Test cleanup was not able to close %s. Error was: %s", filePath, closeErr.Error())
+	}
 
 	if outFileExists(filePath) {
-		os.Remove(filePath)
+		err := os.Remove(filePath)
+		if err != nil {
+			t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
+		}
 	} else {
 		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
 	}
