@@ -11,24 +11,16 @@ import (
 	"tobi.backfrak.de/internal/gpsabl"
 )
 
-// ConvertTrk - Convert a gpxbl.Trk to a gpsabl.Track
+// ConvertTrk - Convert a gpxbl.Track to a gpsabl.Track
 func ConvertTrk(track Trk) gpsabl.Track {
-
-	info := GetTrackInfo(track)
-
-	return ConvertTrackInfo(info)
-}
-
-// ConvertTrackInfo - Convert a gpxbl.TrackInfo to a gpsabl.Track
-func ConvertTrackInfo(track TrackInfo) gpsabl.Track {
 
 	res := gpsabl.Track{}
 
 	res.Name = track.Name
-	res.NumberOfSegments = track.NumberOfSegments
+	res.NumberOfSegments = len(track.TrackSegments)
 	res.Description = track.Description
 
-	res.TrackSegments = convertSegments(track.Track.TrackSegments)
+	res.TrackSegments = convertSegments(track.TrackSegments)
 
 	gpsabl.FillTrackValues(&res)
 
