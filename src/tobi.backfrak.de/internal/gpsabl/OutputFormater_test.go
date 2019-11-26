@@ -449,7 +449,7 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 func getTrackFileTwoTracksWithThreeSegments() TrackFile {
 	trackFile := getTrackFileTwoTracks()
 	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFile().Tracks[0].TrackSegments[0])
-	trackFile.Tracks[0] = FillTrackValues(trackFile.Tracks[0])
+	FillTrackValues(&trackFile.Tracks[0])
 
 	return trackFile
 }
@@ -457,7 +457,7 @@ func getTrackFileTwoTracksWithThreeSegments() TrackFile {
 func getTrackFileTwoTracks() TrackFile {
 	trackFile := getSimpleTrackFile()
 	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFile().Tracks...)
-	trackFile = FillTrackFileValues(trackFile)
+	FillTrackFileValues(&trackFile)
 
 	return trackFile
 }

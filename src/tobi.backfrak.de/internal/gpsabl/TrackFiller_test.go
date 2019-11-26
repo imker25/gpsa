@@ -12,7 +12,7 @@ func TestFillDistancesThreePoints(t *testing.T) {
 	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
-	pnt2 = FillDistancesTrackPoint(pnt2, pnt1, pnt3)
+	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
 
 	if pnt2.VerticalDistanceBefore != -1.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnt2.VerticalDistanceBefore, -1.0)
@@ -36,7 +36,7 @@ func TestFillDistancesThreePointsBeforeAfter(t *testing.T) {
 	lat := pnt2.Latitude
 	eve := pnt2.Elevation
 
-	pnt2 = FillDistancesTrackPoint(pnt2, pnt1, pnt3)
+	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
 
 	if pnt2.Elevation != eve {
 		t.Errorf("The Elevation changed during FillDistancesTrackPoint")
@@ -56,7 +56,7 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
 	pnt3 := TrackPoint{}
 
-	pnt2 = FillDistancesTrackPoint(pnt2, pnt1, pnt3)
+	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
 
 	if pnt2.VerticalDistanceBefore != -1.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnt2.VerticalDistanceBefore, -1.0)
@@ -80,7 +80,7 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
-	pnt2 = FillDistancesTrackPoint(pnt2, pnt1, pnt3)
+	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
 
 	if pnt2.VerticalDistanceBefore != 0.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnt2.VerticalDistanceBefore, -1.0)
@@ -104,10 +104,9 @@ func TestFillTrackSegmentValuesSimple(t *testing.T) {
 
 	oldPointNumber := len(seg.TrackPoints)
 
-	seg = FillTrackSegmentValues(seg)
+	FillTrackSegmentValues(&seg)
 
 	if len(seg.TrackPoints) != oldPointNumber {
-		seg = FillTrackSegmentValues(seg)
 		t.Errorf("The number of track points changed during FillTrackSegmentValues() call")
 	}
 
@@ -138,7 +137,7 @@ func TestFillTrackValuesBeforeAfter(t *testing.T) {
 	track.TrackSegments = []TrackSegment{getSimpleTrackSegment()}
 	track.NumberOfSegments = 1
 
-	track = FillTrackValues(track)
+	FillTrackValues(&track)
 
 	if track.Name != name {
 		t.Errorf("The Name changed during FillTrackValues")
@@ -167,7 +166,7 @@ func TestFillTrackFileValuesBeforeAfter(t *testing.T) {
 	file.Tracks = []Track{getSimpleTrack()}
 	file.NumberOfTracks = 1
 
-	file = FillTrackFileValues(file)
+	FillTrackFileValues(&file)
 
 	if file.Name != name {
 		t.Errorf("The Name changed during FillTrackFileValues")
@@ -188,8 +187,10 @@ func TestFillTrackFileValuesBeforeAfter(t *testing.T) {
 
 func TestFillTrackValuesSimple(t *testing.T) {
 	track := Track{}
-	track.TrackSegments = []TrackSegment{FillTrackSegmentValues(getSimpleTrackSegment())}
-	track = FillTrackValues(track)
+	segs := getSimpleTrackSegment()
+	FillTrackSegmentValues(&segs)
+	track.TrackSegments = []TrackSegment{segs}
+	FillTrackValues(&track)
 
 	if track.AtituteRange != 1.0 {
 		t.Errorf("The AtituteRange is %f, but %f expected.", track.AtituteRange, 1.0)
@@ -211,7 +212,7 @@ func TestFillTrackValuesSimple(t *testing.T) {
 func TestFillTrackFileValuesSimple(t *testing.T) {
 	file := TrackFile{}
 	file.Tracks = []Track{getSimpleTrack()}
-	file = FillTrackFileValues(file)
+	FillTrackFileValues(&file)
 
 	if file.AtituteRange != 1.0 {
 		t.Errorf("The AtituteRange is %f, but %f expected.", file.AtituteRange, 1.0)
@@ -232,16 +233,20 @@ func TestFillTrackFileValuesSimple(t *testing.T) {
 
 func getSimpleTrackFile() TrackFile {
 	ret := NewTrackFile("/mys/track/file")
-	ret.Tracks = []Track{FillTrackValues(getSimpleTrack())}
-	ret = FillTrackFileValues(ret)
+	trk := getSimpleTrack()
+	FillTrackValues(&trk)
+	ret.Tracks = []Track{trk}
+	FillTrackFileValues(&ret)
 
 	return ret
 }
 
 func getSimpleTrack() Track {
 	ret := Track{}
-	ret.TrackSegments = []TrackSegment{FillTrackSegmentValues(getSimpleTrackSegment())}
-	ret = FillTrackValues(ret)
+	segs := getSimpleTrackSegment()
+	FillTrackSegmentValues(&segs)
+	ret.TrackSegments = []TrackSegment{segs}
+	FillTrackValues(&ret)
 
 	return ret
 }
@@ -252,7 +257,11 @@ func getSimpleTrackSegment() TrackSegment {
 	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
-	points := []TrackPoint{FillDistancesTrackPoint(pnt1, TrackPoint{}, pnt2), FillDistancesTrackPoint(pnt2, pnt1, pnt3), FillDistancesTrackPoint(pnt3, pnt2, TrackPoint{})}
+	FillDistancesTrackPoint(&pnt1, TrackPoint{}, pnt2)
+	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
+	FillDistancesTrackPoint(&pnt3, pnt2, TrackPoint{})
+
+	points := []TrackPoint{pnt1, pnt2, pnt3}
 	seg.TrackPoints = points
 
 	return seg

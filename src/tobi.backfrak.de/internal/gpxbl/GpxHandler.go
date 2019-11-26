@@ -59,7 +59,7 @@ func ReadGpxFile(filePath string) (gpsabl.TrackFile, error) {
 	ret.Description = gpx.Description
 	ret.NumberOfTracks = len(tracks)
 
-	ret = gpsabl.FillTrackFileValues(ret)
+	gpsabl.FillTrackFileValues(&ret)
 
 	return ret, nil
 }

@@ -6,39 +6,51 @@ package gpsabl
 // LICENSE file.
 
 // FillDistancesTrackPoint - Adds the distance values to the basePoint
-func FillDistancesTrackPoint(basePoint, beforePoint, nextPoint TrackPoint) TrackPoint {
-	retPoint := TrackPoint{}
-	retPoint.Elevation = basePoint.Elevation
-	retPoint.Latitude = basePoint.Latitude
-	retPoint.Longitude = basePoint.Longitude
-	retPoint.Number = basePoint.Number
+func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) {
 
 	if (beforePoint != TrackPoint{}) {
-		retPoint.HorizontalDistanceBefore = Distance(basePoint, beforePoint)
-		retPoint.VerticalDistanceBefore = basePoint.Elevation - beforePoint.Elevation
+		basePoint.HorizontalDistanceBefore = Distance(*basePoint, beforePoint)
+		basePoint.VerticalDistanceBefore = basePoint.Elevation - beforePoint.Elevation
 	}
 
 	if (nextPoint != TrackPoint{}) {
-		retPoint.HorizontalDistanceNext = Distance(basePoint, nextPoint)
-		retPoint.VerticalDistanceNext = nextPoint.Elevation - basePoint.Elevation
+		basePoint.HorizontalDistanceNext = Distance(*basePoint, nextPoint)
+		basePoint.VerticalDistanceNext = nextPoint.Elevation - basePoint.Elevation
 	}
-
-	return retPoint
 }
 
 // FillTrackSegmentValues - Fills the distance and atitute fields of a tack segment by adding up all TrackPoint distances
-func FillTrackSegmentValues(segment TrackSegment) TrackSegment {
+func FillTrackSegmentValues(segment *TrackSegment) {
 	iPnts := []TrackSummaryProvider{}
 	for i := range segment.TrackPoints {
 		iPnt := TrackSummaryProvider(&segment.TrackPoints[i])
 		iPnts = append(iPnts, iPnt)
 	}
 
-	ret := TrackSegment{}
-	fillTrackSummaryValues(&ret, iPnts)
-	ret.TrackPoints = segment.TrackPoints
+	fillTrackSummaryValues(segment, iPnts)
+}
 
-	return ret
+// FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+func FillTrackValues(track *Track) {
+	iSegs := []TrackSummaryProvider{}
+	for i := range track.TrackSegments {
+		iSeg := TrackSummaryProvider(&track.TrackSegments[i])
+		iSegs = append(iSegs, iSeg)
+	}
+
+	fillTrackSummaryValues(track, iSegs)
+}
+
+// FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+func FillTrackFileValues(file *TrackFile) {
+	iSegs := []TrackSummaryProvider{}
+	for i := range file.Tracks {
+		iSeg := TrackSummaryProvider(&file.Tracks[i])
+		iSegs = append(iSegs, iSeg)
+	}
+
+	fillTrackSummaryValues(file, iSegs)
+
 }
 
 func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider) {
@@ -59,43 +71,4 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	}
 
 	target.SetValues(dist, minimumAtitute, maximumAtitute)
-}
-
-// FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
-func FillTrackValues(track Track) Track {
-	iSegs := []TrackSummaryProvider{}
-	for i := range track.TrackSegments {
-		iSeg := TrackSummaryProvider(&track.TrackSegments[i])
-		iSegs = append(iSegs, iSeg)
-	}
-
-	ret := Track{}
-	fillTrackSummaryValues(&ret, iSegs)
-
-	ret.Name = track.Name
-	ret.NumberOfSegments = len(track.TrackSegments)
-	ret.Description = track.Description
-	ret.TrackSegments = track.TrackSegments
-
-	return ret
-}
-
-// FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
-func FillTrackFileValues(file TrackFile) TrackFile {
-	iSegs := []TrackSummaryProvider{}
-	for i := range file.Tracks {
-		iSeg := TrackSummaryProvider(&file.Tracks[i])
-		iSegs = append(iSegs, iSeg)
-	}
-
-	ret := TrackFile{}
-	fillTrackSummaryValues(&ret, iSegs)
-
-	ret.Name = file.Name
-	ret.NumberOfTracks = len(file.Tracks)
-	ret.Description = file.Description
-	ret.Tracks = file.Tracks
-	ret.FilePath = file.FilePath
-
-	return ret
 }
