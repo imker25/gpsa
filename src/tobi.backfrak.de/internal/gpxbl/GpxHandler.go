@@ -26,11 +26,7 @@ func (gpx *GpxFile) ReadTracks() (gpsabl.TrackFile, error) {
 	ret, err := ReadGpxFile(gpx.FilePath)
 
 	if err == nil {
-		(gpsabl.TrackSummarySetter(gpx)).SetValues(ret.Distance, ret.MinimumAtitute, ret.MaximumAtitute)
-		gpx.Name = ret.Name
-		gpx.NumberOfTracks = ret.NumberOfTracks
-		gpx.Tracks = ret.Tracks
-		gpx.Description = ret.Description
+		gpx.TrackFile = ret
 	}
 
 	return ret, err
