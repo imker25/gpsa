@@ -43,13 +43,13 @@ func FillTrackValues(track *Track) {
 
 // FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
 func FillTrackFileValues(file *TrackFile) {
-	iSegs := []TrackSummaryProvider{}
+	iTrks := []TrackSummaryProvider{}
 	for i := range file.Tracks {
-		iSeg := TrackSummaryProvider(&file.Tracks[i])
-		iSegs = append(iSegs, iSeg)
+		itrk := TrackSummaryProvider(&file.Tracks[i])
+		iTrks = append(iTrks, itrk)
 	}
 
-	fillTrackSummaryValues(file, iSegs)
+	fillTrackSummaryValues(file, iTrks)
 
 }
 
