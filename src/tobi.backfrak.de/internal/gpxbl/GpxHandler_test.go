@@ -101,6 +101,22 @@ func TestTrackReaderImpl(t *testing.T) {
 		t.Errorf("The MaximumAtitute is %f, but %f was expected", file.Tracks[0].MaximumAtitute, 402.00)
 	}
 
+	if file.Tracks[0].ElevationLose != 306 {
+		t.Errorf("The ElevationLose is %f, but %f was expected", file.Tracks[0].ElevationLose, 306.00)
+	}
+
+	if file.Tracks[0].ElevationGain != 326.999 {
+		t.Errorf("The ElevationGain is %f, but %f was expected", file.Tracks[0].ElevationGain, 326.999)
+	}
+
+	if file.Tracks[0].DownwardsDistance != 6179.120126667113 {
+		t.Errorf("The DownwardsDistance is %f, but %f was expected", file.Tracks[0].DownwardsDistance, 6179.120126667113)
+	}
+
+	if file.Tracks[0].UpwardsDistance != 5808.185627059774 {
+		t.Errorf("The UpwardsDistance is %f, but %f was expected", file.Tracks[0].UpwardsDistance, 5808.185627059774)
+	}
+
 	if file.FilePath != testhelper.GetValideGPX("01.gpx") {
 		t.Errorf("The FilePath is %s, but %s was expected", file.FilePath, testhelper.GetValideGPX("01.gpx"))
 	}
@@ -123,6 +139,22 @@ func TestTrackReaderImpl(t *testing.T) {
 
 	if file.MaximumAtitute != file.Tracks[0].MaximumAtitute {
 		t.Errorf("The MaximumAtitute is %f, but %f was expected", file.MaximumAtitute, file.Tracks[0].MaximumAtitute)
+	}
+
+	if file.ElevationGain != file.Tracks[0].ElevationGain {
+		t.Errorf("The ElevationGain is %f, but %f was expected", file.ElevationGain, file.Tracks[0].ElevationGain)
+	}
+
+	if file.ElevationLose != file.Tracks[0].ElevationLose {
+		t.Errorf("The ElevationLose is %f, but %f was expected", file.ElevationLose, file.Tracks[0].ElevationLose)
+	}
+
+	if file.DownwardsDistance != file.Tracks[0].DownwardsDistance {
+		t.Errorf("The DownwardsDistance is %f, but %f was expected", file.DownwardsDistance, file.Tracks[0].DownwardsDistance)
+	}
+
+	if file.UpwardsDistance != file.Tracks[0].UpwardsDistance {
+		t.Errorf("The UpwardsDistance is %f, but %f was expected", file.UpwardsDistance, file.Tracks[0].UpwardsDistance)
 	}
 }
 
@@ -187,6 +219,22 @@ func TestGpxFileInterfaceImplentaion2(t *testing.T) {
 
 	if info.GetMaximumAtitute() != file.Tracks[0].MaximumAtitute {
 		t.Errorf("The MaximumAtitute is %f, but %f was expected", info.GetMaximumAtitute(), file.Tracks[0].MaximumAtitute)
+	}
+
+	if info.GetDownwardsDistance() != file.Tracks[0].DownwardsDistance {
+		t.Errorf("The GetDownwardsDistance is %f, but %f was expected", info.GetDownwardsDistance(), file.Tracks[0].DownwardsDistance)
+	}
+
+	if info.GetElevationGain() != file.Tracks[0].ElevationGain {
+		t.Errorf("The GetElevationGain is %f, but %f was expected", info.GetElevationGain(), file.Tracks[0].ElevationGain)
+	}
+
+	if info.GetElevationLose() != file.Tracks[0].ElevationLose {
+		t.Errorf("The GetElevationLose is %f, but %f was expected", info.GetElevationLose(), file.Tracks[0].ElevationLose)
+	}
+
+	if info.GetUpwardsDistance() != file.Tracks[0].UpwardsDistance {
+		t.Errorf("The GetUpwardsDistance is %f, but %f was expected", info.GetUpwardsDistance(), file.Tracks[0].UpwardsDistance)
 	}
 
 	if gpx.Distance != file.Tracks[0].Distance {
@@ -266,6 +314,22 @@ func TestReadGpxFile(t *testing.T) {
 
 	if file.MaximumAtitute != file.Tracks[0].MaximumAtitute {
 		t.Errorf("The MaximumAtitute is %f, but %f was expected", file.MaximumAtitute, file.Tracks[0].MaximumAtitute)
+	}
+
+	if file.ElevationGain != file.Tracks[0].ElevationGain {
+		t.Errorf("The ElevationGain is %f, but %f was expected", file.ElevationGain, file.Tracks[0].ElevationGain)
+	}
+
+	if file.ElevationLose != file.Tracks[0].ElevationLose {
+		t.Errorf("The ElevationLose is %f, but %f was expected", file.ElevationLose, file.Tracks[0].ElevationLose)
+	}
+
+	if file.UpwardsDistance != file.Tracks[0].UpwardsDistance {
+		t.Errorf("The UpwardsDistance is %f, but %f was expected", file.UpwardsDistance, file.Tracks[0].UpwardsDistance)
+	}
+
+	if file.DownwardsDistance != file.Tracks[0].DownwardsDistance {
+		t.Errorf("The DownwardsDistance is %f, but %f was expected", file.DownwardsDistance, file.Tracks[0].DownwardsDistance)
 	}
 }
 

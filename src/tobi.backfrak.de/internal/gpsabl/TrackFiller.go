@@ -57,9 +57,17 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	var dist float64
 	var minimumAtitute float32
 	var maximumAtitute float32
+	var elevationGain float32
+	var elevationLose float32
+	var upwardsDistance float64
+	var downwardsDistance float64
 
 	for i, sum := range input {
 		dist = dist + sum.GetDistance()
+		elevationGain = elevationGain + sum.GetElevationGain()
+		elevationLose = elevationLose + sum.GetElevationLose()
+		upwardsDistance = upwardsDistance + sum.GetUpwardsDistance()
+		downwardsDistance = downwardsDistance + sum.GetDownwardsDistance()
 
 		if i == 0 || sum.GetMaximumAtitute() > maximumAtitute {
 			maximumAtitute = sum.GetMaximumAtitute()
@@ -70,5 +78,5 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 		}
 	}
 
-	target.SetValues(dist, minimumAtitute, maximumAtitute)
+	target.SetValues(dist, minimumAtitute, maximumAtitute, elevationGain, elevationLose, upwardsDistance, downwardsDistance)
 }

@@ -1,5 +1,7 @@
 package gpsabl
 
+import "math"
+
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -7,18 +9,46 @@ package gpsabl
 
 // TrackSummary - the struct to store track statistic data
 type TrackSummary struct {
-	Distance       float64
-	AtituteRange   float32
-	MinimumAtitute float32
-	MaximumAtitute float32
+	Distance          float64
+	AtituteRange      float32
+	MinimumAtitute    float32
+	MaximumAtitute    float32
+	ElevationGain     float32
+	ElevationLose     float32
+	UpwardsDistance   float64
+	DownwardsDistance float64
 }
 
 // SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
-func (sum *TrackSummary) SetValues(distance float64, minimumAtitute float32, maximumAtitute float32) {
+func (sum *TrackSummary) SetValues(distance float64, minimumAtitute float32, maximumAtitute float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64) {
 	sum.MinimumAtitute = minimumAtitute
 	sum.MaximumAtitute = maximumAtitute
 	sum.AtituteRange = maximumAtitute - minimumAtitute
 	sum.Distance = distance
+	sum.DownwardsDistance = downwardsDistance
+	sum.UpwardsDistance = upwardsDistance
+	sum.ElevationGain = elevationGain
+	sum.ElevationLose = elevationLose
+}
+
+// GetElevationGain - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetElevationGain() float32 {
+	return sum.ElevationGain
+}
+
+// GetElevationLose - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetElevationLose() float32 {
+	return sum.ElevationLose
+}
+
+// GetUpwardsDistance - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetUpwardsDistance() float64 {
+	return sum.UpwardsDistance
+}
+
+// GetDownwardsDistance - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetDownwardsDistance() float64 {
+	return sum.DownwardsDistance
 }
 
 // GetDistance - Implement the TrackSummaryProvider interface for TrackSummary
@@ -105,4 +135,36 @@ func (pnt TrackPoint) GetMaximumAtitute() float32 {
 // GetMinimumAtitute - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetMinimumAtitute() float32 {
 	return pnt.Elevation
+}
+
+// GetElevationGain - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetElevationGain() float32 {
+	if pnt.VerticalDistanceBefore > 0 {
+		return pnt.VerticalDistanceBefore
+	}
+	return 0
+}
+
+// GetElevationLose - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetElevationLose() float32 {
+	if pnt.VerticalDistanceBefore < 0 {
+		return float32(math.Abs(float64(pnt.VerticalDistanceBefore)))
+	}
+	return 0
+}
+
+// GetUpwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetUpwardsDistance() float64 {
+	if pnt.VerticalDistanceNext > 0 {
+		return pnt.HorizontalDistanceNext
+	}
+	return 0
+}
+
+// GetDownwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetDownwardsDistance() float64 {
+	if pnt.VerticalDistanceNext < 0 {
+		return pnt.HorizontalDistanceNext
+	}
+	return 0
 }
