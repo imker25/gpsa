@@ -1,8 +1,12 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"os"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"testing"
 
@@ -207,103 +211,107 @@ func TestGetOutPutStream_StdOut(t *testing.T) {
 
 }
 
-/* Tests disabled because they cause problems on windows
-
 func TestGetOutPutStream_AFile(t *testing.T) {
-	ErrorsHandled = false
-	oldOutFileParameter := OutFileParameter
-	var big big.Int
-	big.SetInt64(10000)
-	max, _ := rand.Int(rand.Reader, &big)
-	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out-%d.csv", max))
-	OutFileParameter = filePath
-
-	// Make sure the tests can be executed in parallel
-	outFileMux.Lock()
-	defer outFileMux.Unlock()
-
-	if outFileExists(filePath) {
-		err := os.Remove(filePath)
-		if err != nil {
-			t.Errorf("Test setup was not able to delete %s. Error was: %s", filePath, err.Error())
-		}
-	}
-	str := getOutPutStream()
-	str.Close()
-
-	if outFileExists(filePath) {
-		err := os.Remove(filePath)
-		if err != nil {
-			t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
-		}
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
 	} else {
-		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
-	}
+		ErrorsHandled = false
+		oldOutFileParameter := OutFileParameter
+		var big big.Int
+		big.SetInt64(10000)
+		max, _ := rand.Int(rand.Reader, &big)
+		filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out-%d.csv", max))
+		OutFileParameter = filePath
 
-	if str.Name() != filePath {
-		t.Errorf("The Outstream is not for %s, expected %s ", str.Name(), filePath)
-	}
+		// Make sure the tests can be executed in parallel
+		outFileMux.Lock()
+		defer outFileMux.Unlock()
 
-	if ErrorsHandled == true {
-		t.Errorf("Got an error, but expected none")
-	}
+		if outFileExists(filePath) {
+			err := os.Remove(filePath)
+			if err != nil {
+				t.Errorf("Test setup was not able to delete %s. Error was: %s", filePath, err.Error())
+			}
+		}
+		str := getOutPutStream()
+		str.Close()
 
-	ErrorsHandled = false
-	OutFileParameter = oldOutFileParameter
+		if outFileExists(filePath) {
+			err := os.Remove(filePath)
+			if err != nil {
+				t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
+			}
+		} else {
+			t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+		}
+
+		if str.Name() != filePath {
+			t.Errorf("The Outstream is not for %s, expected %s ", str.Name(), filePath)
+		}
+
+		if ErrorsHandled == true {
+			t.Errorf("Got an error, but expected none")
+		}
+
+		ErrorsHandled = false
+		OutFileParameter = oldOutFileParameter
+	}
 
 }
 
 func TestGetOutPutStream_AExistingFile(t *testing.T) {
-	ErrorsHandled = false
-	oldOutFileParameter := OutFileParameter
-	var big big.Int
-	big.SetInt64(10000)
-	max, _ := rand.Int(rand.Reader, &big)
-	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out-%d.csv", max))
-	OutFileParameter = filePath
-
-	// Make sure the tests can be executed in parallel
-	outFileMux.Lock()
-	defer outFileMux.Unlock()
-	if !outFileExists(filePath) {
-		file, _ := os.Create(filePath)
-		file.Close()
-	}
-
-	if !outFileExists(filePath) {
-		t.Errorf("Error while creating out file at test setup")
-	}
-	str := getOutPutStream()
-
-	str.Sync()
-	closeErr := str.Close()
-	if closeErr != nil {
-		t.Errorf("Test cleanup was not able to close %s. Error was: %s", filePath, closeErr.Error())
-	}
-
-	if outFileExists(filePath) {
-		err := os.Remove(filePath)
-		if err != nil {
-			t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
-		}
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
 	} else {
-		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+		ErrorsHandled = false
+		oldOutFileParameter := OutFileParameter
+		var big big.Int
+		big.SetInt64(10000)
+		max, _ := rand.Int(rand.Reader, &big)
+		filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out-%d.csv", max))
+		OutFileParameter = filePath
+
+		// Make sure the tests can be executed in parallel
+		outFileMux.Lock()
+		defer outFileMux.Unlock()
+		if !outFileExists(filePath) {
+			file, _ := os.Create(filePath)
+			file.Close()
+		}
+
+		if !outFileExists(filePath) {
+			t.Errorf("Error while creating out file at test setup")
+		}
+		str := getOutPutStream()
+
+		str.Sync()
+		closeErr := str.Close()
+		if closeErr != nil {
+			t.Errorf("Test cleanup was not able to close %s. Error was: %s", filePath, closeErr.Error())
+		}
+
+		if outFileExists(filePath) {
+			err := os.Remove(filePath)
+			if err != nil {
+				t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
+			}
+		} else {
+			t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+		}
+
+		if str.Name() != filePath {
+			t.Errorf("The Outstream is not for %s, expected %s ", str.Name(), filePath)
+		}
+
+		if ErrorsHandled == true {
+			t.Errorf("Got an error, but expected none")
+		}
+
+		ErrorsHandled = false
+		OutFileParameter = oldOutFileParameter
 	}
-
-	if str.Name() != filePath {
-		t.Errorf("The Outstream is not for %s, expected %s ", str.Name(), filePath)
-	}
-
-	if ErrorsHandled == true {
-		t.Errorf("Got an error, but expected none")
-	}
-
-	ErrorsHandled = false
-	OutFileParameter = oldOutFileParameter
-
 }
-Tests disabled because they cause problems on windows
-*/
+
 func TestGetOutPutFormater(t *testing.T) {
 	frt := getOutPutFormater()
 
