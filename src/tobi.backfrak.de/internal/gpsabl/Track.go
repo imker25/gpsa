@@ -10,7 +10,6 @@ import "math"
 // TrackSummary - the struct to store track statistic data
 type TrackSummary struct {
 	Distance          float64
-	AtituteRange      float32
 	MinimumAtitute    float32
 	MaximumAtitute    float32
 	ElevationGain     float32
@@ -23,7 +22,6 @@ type TrackSummary struct {
 func (sum *TrackSummary) SetValues(distance float64, minimumAtitute float32, maximumAtitute float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64) {
 	sum.MinimumAtitute = minimumAtitute
 	sum.MaximumAtitute = maximumAtitute
-	sum.AtituteRange = maximumAtitute - minimumAtitute
 	sum.Distance = distance
 	sum.DownwardsDistance = downwardsDistance
 	sum.UpwardsDistance = upwardsDistance
@@ -58,7 +56,7 @@ func (sum TrackSummary) GetDistance() float64 {
 
 // GetAtituteRange - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetAtituteRange() float32 {
-	return sum.AtituteRange
+	return sum.MaximumAtitute - sum.MinimumAtitute
 }
 
 // GetMaximumAtitute Implement the TrackSummaryProvider interface for TrackSummary

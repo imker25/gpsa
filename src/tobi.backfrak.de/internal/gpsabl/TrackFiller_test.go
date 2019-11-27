@@ -114,10 +114,6 @@ func TestFillTrackSegmentValuesSimple(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f expected.", seg.Distance, 23.885148437468256)
 	}
 
-	if seg.AtituteRange != 1.0 {
-		t.Errorf("The AtituteRange is %f, but %f expected.", seg.AtituteRange, 1.0)
-	}
-
 	if seg.MaximumAtitute != 109.0 {
 		t.Errorf("The MaximumAtitute is %f, but %f expected.", seg.MaximumAtitute, 109.0)
 	}
@@ -192,10 +188,6 @@ func TestFillTrackValuesSimple(t *testing.T) {
 	track.TrackSegments = []TrackSegment{segs}
 	FillTrackValues(&track)
 
-	if track.AtituteRange != 1.0 {
-		t.Errorf("The AtituteRange is %f, but %f expected.", track.AtituteRange, 1.0)
-	}
-
 	if track.Distance != 23.885148437468256 {
 		t.Errorf("The Distance is %f, but %f expected.", track.Distance, 23.885148437468256)
 	}
@@ -213,10 +205,6 @@ func TestFillTrackFileValuesSimple(t *testing.T) {
 	file := TrackFile{}
 	file.Tracks = []Track{getSimpleTrack()}
 	FillTrackFileValues(&file)
-
-	if file.AtituteRange != 1.0 {
-		t.Errorf("The AtituteRange is %f, but %f expected.", file.AtituteRange, 1.0)
-	}
 
 	if file.Distance != 23.885148437468256 {
 		t.Errorf("The Distance is %f, but %f expected.", file.Distance, 23.885148437468256)

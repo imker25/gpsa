@@ -63,10 +63,6 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 		t.Errorf("track.NumberOfSegments  has not the expected value %d but is %d", 1, track.NumberOfSegments)
 	}
 
-	if track.AtituteRange != 2.0 {
-		t.Errorf("track.AtituteRange  has not the expected value %f but is %f", 2.0, track.AtituteRange)
-	}
-
 	if track.MinimumAtitute != 99.1 {
 		t.Errorf("track.MinimumAtitute  has not the expected value %f but is %f", 99.1, track.MinimumAtitute)
 	}
@@ -77,5 +73,21 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 
 	if track.Distance != 49.32007928467905 {
 		t.Errorf("track.Distance  has not the expected value %f but is %f", 49.32007928467905, track.Distance)
+	}
+
+	if track.ElevationLose != 2.0 {
+		t.Errorf("track.ElevationLose  has not the expected value %f but is %f", 2.0, track.ElevationLose)
+	}
+
+	if track.ElevationGain != 1.0 {
+		t.Errorf("track.ElevationGain  has not the expected value %f but is %f", 1.0, track.ElevationGain)
+	}
+
+	if track.UpwardsDistance != 27.65582137412336 {
+		t.Errorf("track.UpwardsDistance  has not the expected value %f but is %f", 27.65582137412336, track.UpwardsDistance)
+	}
+
+	if track.DownwardsDistance != 21.664257910555698 {
+		t.Errorf("track.DownwardsDistance  has not the expected value %f but is %f", 21.664257910555698, track.DownwardsDistance)
 	}
 }

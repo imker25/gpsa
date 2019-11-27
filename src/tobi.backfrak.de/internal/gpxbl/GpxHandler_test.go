@@ -49,8 +49,8 @@ func TestTrackReaderOnePointTrack(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f was expected", file.Tracks[0].Distance, 0.0)
 	}
 
-	if file.Tracks[0].AtituteRange != 0.0 {
-		t.Errorf("The AtituteRange is %f, but %f was expected", file.Tracks[0].AtituteRange, 0.0)
+	if file.Tracks[0].UpwardsDistance != 0.0 {
+		t.Errorf("The AtituteRange is %f, but %f was expected", file.Tracks[0].UpwardsDistance, 0.0)
 	}
 }
 
@@ -89,10 +89,6 @@ func TestTrackReaderImpl(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f was expected", file.Tracks[0].Distance, 18478.293509238614)
 	}
 
-	if file.Tracks[0].AtituteRange != 104.0 {
-		t.Errorf("The AtituteRange is %f, but %f was expected", file.Tracks[0].AtituteRange, 104.00)
-	}
-
 	if file.Tracks[0].MinimumAtitute != 298.0 {
 		t.Errorf("The MinimumAtitute is %f, but %f was expected", file.Tracks[0].MinimumAtitute, 298.00)
 	}
@@ -127,10 +123,6 @@ func TestTrackReaderImpl(t *testing.T) {
 
 	if file.Distance != file.Tracks[0].Distance {
 		t.Errorf("The Distance is %f, but %f was expected", file.Distance, file.Tracks[0].Distance)
-	}
-
-	if file.AtituteRange != file.Tracks[0].AtituteRange {
-		t.Errorf("The AtituteRange is %f, but %f was expected", file.AtituteRange, file.Tracks[0].AtituteRange)
 	}
 
 	if file.MinimumAtitute != file.Tracks[0].MinimumAtitute {
@@ -179,8 +171,8 @@ func TestGpxFileInterfaceImplentaion1(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f was expected", info.GetDistance(), file.Tracks[0].Distance)
 	}
 
-	if info.GetAtituteRange() != file.Tracks[0].AtituteRange {
-		t.Errorf("The AtituteRange is %f, but %f was expected", info.GetAtituteRange(), file.Tracks[0].AtituteRange)
+	if info.GetAtituteRange() != file.Tracks[0].GetAtituteRange() {
+		t.Errorf("The AtituteRange is %f, but %f was expected", info.GetAtituteRange(), file.Tracks[0].GetAtituteRange())
 	}
 
 	if info.GetMinimumAtitute() != file.Tracks[0].MinimumAtitute {
@@ -209,8 +201,8 @@ func TestGpxFileInterfaceImplentaion2(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f was expected", info.GetDistance(), file.Tracks[0].Distance)
 	}
 
-	if info.GetAtituteRange() != file.Tracks[0].AtituteRange {
-		t.Errorf("The AtituteRange is %f, but %f was expected", info.GetAtituteRange(), file.Tracks[0].AtituteRange)
+	if info.GetAtituteRange() != file.Tracks[0].GetAtituteRange() {
+		t.Errorf("The AtituteRange is %f, but %f was expected", info.GetAtituteRange(), file.Tracks[0].GetAtituteRange())
 	}
 
 	if info.GetMinimumAtitute() != file.Tracks[0].MinimumAtitute {
@@ -239,10 +231,6 @@ func TestGpxFileInterfaceImplentaion2(t *testing.T) {
 
 	if gpx.Distance != file.Tracks[0].Distance {
 		t.Errorf("The Distance is %f, but %f was expected", gpx.Distance, file.Tracks[0].Distance)
-	}
-
-	if gpx.AtituteRange != file.Tracks[0].AtituteRange {
-		t.Errorf("The AtituteRange is %f, but %f was expected", gpx.AtituteRange, file.Tracks[0].AtituteRange)
 	}
 
 	if gpx.MinimumAtitute != file.Tracks[0].MinimumAtitute {
@@ -302,10 +290,6 @@ func TestReadGpxFile(t *testing.T) {
 
 	if file.Distance != file.Tracks[0].Distance {
 		t.Errorf("The Distance is %f, but %f was expected", file.Distance, file.Tracks[0].Distance)
-	}
-
-	if file.AtituteRange != file.Tracks[0].AtituteRange {
-		t.Errorf("The AtituteRange is %f, but %f was expected", file.AtituteRange, file.Tracks[0].AtituteRange)
 	}
 
 	if file.MinimumAtitute != file.Tracks[0].MinimumAtitute {
