@@ -115,7 +115,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 		t.Errorf("The output has not the expected number of files")
 	}
 
-	if strings.Count(ret[0], ";") != 5 {
+	if strings.Count(ret[0], ";") != 9 {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
@@ -265,7 +265,7 @@ func TestAddHeader(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != 5 {
+	if strings.Count(lines[0], ";") != 9 {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 }
@@ -285,12 +285,20 @@ func TestAddOutPut(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != 5 {
+	if strings.Count(lines[0], ";") != 9 {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
-	if strings.Contains(lines[0], "0.0200") == false {
+	if strings.Count(lines[0], "0.020000;") != 1 {
 		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "1.000000;") != 3 {
+		t.Errorf("The output does not contian the ElevationGain as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "0.010000;") != 2 {
+		t.Errorf("The output does not contian the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 }
 
