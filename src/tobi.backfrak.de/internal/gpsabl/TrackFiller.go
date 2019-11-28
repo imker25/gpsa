@@ -1,5 +1,7 @@
 package gpsabl
 
+import "fmt"
+
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -17,6 +19,7 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 		basePoint.HorizontalDistanceNext = Distance(*basePoint, nextPoint)
 		basePoint.VerticalDistanceNext = nextPoint.Elevation - basePoint.Elevation
 	}
+	fmt.Println(fmt.Sprintf("%d;%f;", basePoint.Number, basePoint.Elevation))
 }
 
 // FillTrackSegmentValues - Fills the distance and atitute fields of a tack segment by adding up all TrackPoint distances
