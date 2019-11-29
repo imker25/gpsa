@@ -111,13 +111,14 @@ type TrackPoint struct {
 	Longitude                float32
 	HorizontalDistanceBefore float64
 	HorizontalDistanceNext   float64
+	DistanceNext             float64
 	VerticalDistanceBefore   float32
 	VerticalDistanceNext     float32
 }
 
 // GetDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetDistance() float64 {
-	return pnt.HorizontalDistanceNext
+	return pnt.DistanceNext
 }
 
 // GetAtituteRange - Implement the TrackSummaryProvider interface for TrackPoint
@@ -154,7 +155,7 @@ func (pnt TrackPoint) GetElevationLose() float32 {
 // GetUpwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetUpwardsDistance() float64 {
 	if pnt.VerticalDistanceNext > 0 {
-		return pnt.HorizontalDistanceNext
+		return pnt.DistanceNext
 	}
 	return 0
 }
@@ -162,7 +163,7 @@ func (pnt TrackPoint) GetUpwardsDistance() float64 {
 // GetDownwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetDownwardsDistance() float64 {
 	if pnt.VerticalDistanceNext < 0 {
-		return pnt.HorizontalDistanceNext
+		return pnt.DistanceNext
 	}
 	return 0
 }

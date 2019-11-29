@@ -11,12 +11,13 @@ import "fmt"
 func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) {
 
 	if (beforePoint != TrackPoint{}) {
-		basePoint.HorizontalDistanceBefore = Distance(*basePoint, beforePoint)
+		basePoint.HorizontalDistanceBefore = HaversineDistance(*basePoint, beforePoint)
 		basePoint.VerticalDistanceBefore = basePoint.Elevation - beforePoint.Elevation
 	}
 
 	if (nextPoint != TrackPoint{}) {
-		basePoint.HorizontalDistanceNext = Distance(*basePoint, nextPoint)
+		basePoint.HorizontalDistanceNext = HaversineDistance(*basePoint, nextPoint)
+		basePoint.DistanceNext = DistanceFromHaversine(basePoint.HorizontalDistanceNext, *basePoint, nextPoint)
 		basePoint.VerticalDistanceNext = nextPoint.Elevation - basePoint.Elevation
 	}
 	fmt.Println(fmt.Sprintf("%d;%f;", basePoint.Number, basePoint.Elevation))
