@@ -8,15 +8,7 @@ package gpsabl
 import "testing"
 
 func TestFillDistancesThreePoints(t *testing.T) {
-	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
-	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
-	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
-	pnts := []TrackPoint{pnt1, pnt2, pnt3}
-
-	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
-
-	FillCorectedElevationTrackPoint(pnts)
-	FillElevationGainLoseTrackPoint(pnts)
+	pnts := gerSimpleTrackPointArray()
 
 	if pnts[1].VerticalDistanceBefore != -1.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, -1.0)
@@ -59,6 +51,7 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
 	pnt3 := TrackPoint{}
+
 	pnts := []TrackPoint{pnt1, pnt2, pnt3}
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
@@ -104,7 +97,7 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 	}
 
 	if pnts[1].HorizontalDistanceNext == 0.0 {
-		t.Errorf("The HorizontalDistanceBefore is %f, but %f was not expected", pnt2.HorizontalDistanceNext, 0.0)
+		t.Errorf("The HorizontalDistanceBefore is %f, but %f was not expected", pnts[1].HorizontalDistanceNext, 0.0)
 	}
 
 	if pnts[1].VerticalDistanceNext != 1.0 {
@@ -254,6 +247,13 @@ func getSimpleTrack() Track {
 
 func getSimpleTrackSegment() TrackSegment {
 	seg := TrackSegment{}
+	points := gerSimpleTrackPointArray()
+	seg.TrackPoints = points
+
+	return seg
+}
+
+func gerSimpleTrackPointArray() []TrackPoint {
 	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
@@ -265,7 +265,5 @@ func getSimpleTrackSegment() TrackSegment {
 	FillCorectedElevationTrackPoint(points)
 	FillElevationGainLoseTrackPoint(points)
 
-	seg.TrackPoints = points
-
-	return seg
+	return points
 }
