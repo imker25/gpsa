@@ -10,6 +10,7 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 
 	if (beforePoint != TrackPoint{}) {
 		basePoint.HorizontalDistanceBefore = HaversineDistance(*basePoint, beforePoint)
+		basePoint.DistanceBefore = DistanceFromHaversine(basePoint.HorizontalDistanceBefore, *basePoint, beforePoint)
 	}
 
 	if (nextPoint != TrackPoint{}) {
@@ -82,6 +83,15 @@ func FillElevationGainLoseTrackPoint(pnts []TrackPoint) {
 		} else {
 			pnts[i].VerticalDistanceNext = 0.0
 		}
+	}
+}
+
+// FillDistanceToThisPoint - Fills the DistanceToThisPoint value
+func FillDistanceToThisPoint(pnts []TrackPoint) {
+	disToHere := float64(0.0)
+	for i := range pnts {
+		disToHere += pnts[i].DistanceBefore
+		pnts[i].DistanceToThisPoint = disToHere
 	}
 }
 

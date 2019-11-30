@@ -35,6 +35,30 @@ func TestTrackReaderAllValideGPX(t *testing.T) {
 				if len(trackFile.Tracks) < 1 {
 					t.Errorf("The can not find tracks in %s.", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()))
 				}
+
+				for _, track := range gpxFile.Tracks {
+					for _, seg := range track.TrackSegments {
+						for i := range seg.TrackPoints {
+							if i > 0 {
+								if seg.TrackPoints[i].DistanceToThisPoint <= seg.TrackPoints[i-1].DistanceToThisPoint {
+									t.Errorf("File %s: The DistanceToThisPoint for point %d, is %f but the point before had %f", gpxFile.FilePath, i, seg.TrackPoints[i].DistanceToThisPoint, seg.TrackPoints[i-1].DistanceToThisPoint)
+								}
+							}
+						}
+					}
+				}
+
+				for _, track := range trackFile.Tracks {
+					for _, seg := range track.TrackSegments {
+						for i := range seg.TrackPoints {
+							if i > 0 {
+								if seg.TrackPoints[i].DistanceToThisPoint <= seg.TrackPoints[i-1].DistanceToThisPoint {
+									t.Errorf("File %s: The DistanceToThisPoint for point %d, is %f but the point before had %f", trackFile.FilePath, i, seg.TrackPoints[i].DistanceToThisPoint, seg.TrackPoints[i-1].DistanceToThisPoint)
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}

@@ -71,6 +71,7 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 		return ret[i].Number < ret[j].Number
 	})
 
+	gpsabl.FillDistanceToThisPoint(ret)
 	gpsabl.FillCorectedElevationTrackPoint(ret)
 	gpsabl.FillElevationGainLoseTrackPoint(ret)
 

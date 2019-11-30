@@ -21,6 +21,14 @@ func TestFillDistancesThreePoints(t *testing.T) {
 	if pnts[1].VerticalDistanceNext != 1.0 {
 		t.Errorf("The VerticalDistanceNext is %f, but %f was expected", pnts[1].VerticalDistanceNext, 1.0)
 	}
+
+	for i := range pnts {
+		if i > 0 {
+			if pnts[i].DistanceToThisPoint <= pnts[i-1].DistanceToThisPoint {
+				t.Errorf("The DistanceToThisPoint for point %d, is %f but the point before had %f", i, pnts[i].DistanceToThisPoint, pnts[i-1].DistanceToThisPoint)
+			}
+		}
+	}
 }
 
 func TestFillDistancesThreePointsBeforeAfter(t *testing.T) {
@@ -262,6 +270,7 @@ func gerSimpleTrackPointArray() []TrackPoint {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
+	FillDistanceToThisPoint(points)
 	FillCorectedElevationTrackPoint(points)
 	FillElevationGainLoseTrackPoint(points)
 
