@@ -1,7 +1,5 @@
 package gpsabl
 
-import "fmt"
-
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -12,15 +10,13 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 
 	if (beforePoint != TrackPoint{}) {
 		basePoint.HorizontalDistanceBefore = HaversineDistance(*basePoint, beforePoint)
-		basePoint.VerticalDistanceBefore = basePoint.Elevation - beforePoint.Elevation
 	}
 
 	if (nextPoint != TrackPoint{}) {
 		basePoint.HorizontalDistanceNext = HaversineDistance(*basePoint, nextPoint)
 		basePoint.DistanceNext = DistanceFromHaversine(basePoint.HorizontalDistanceNext, *basePoint, nextPoint)
-		basePoint.VerticalDistanceNext = nextPoint.Elevation - basePoint.Elevation
 	}
-	fmt.Println(fmt.Sprintf("%d;%f;", basePoint.Number, basePoint.Elevation))
+
 }
 
 // FillTrackSegmentValues - Fills the distance and atitute fields of a tack segment by adding up all TrackPoint distances
@@ -57,6 +53,38 @@ func FillTrackFileValues(file *TrackFile) {
 
 }
 
+// FillCorectedElevationTrackPoint - Set the CorectedElevation value in a list of TrackPoints
+// Basicaly this will run a somthing algorythm over the Elevation
+func FillCorectedElevationTrackPoint(pnts []TrackPoint) {
+	numPnts := len(pnts)
+	for i := range pnts {
+		if i > 0 && i < (numPnts-1) && numPnts > 10 { // A smothing algorythm makes no sense for very short tracks
+			pnts[i].CorectedElevation = getCorrectedElevation(pnts[i], pnts[i-1], pnts[i+1])
+		} else {
+			pnts[i].CorectedElevation = pnts[i].Elevation
+		}
+
+		// fmt.Println(fmt.Sprintf("%d;%f;%f;", pnts[i].Number, pnts[i].Elevation, pnts[i].CorectedElevation))
+	}
+}
+
+// FillElevationGainLoseTrackPoint - Set the VerticalDistanceBefore and VerticalDistanceNext values
+func FillElevationGainLoseTrackPoint(pnts []TrackPoint) {
+	numPnts := len(pnts)
+	for i := range pnts {
+		if i > 0 && pnts[i-1].CorectedElevation > 0.0 {
+			pnts[i].VerticalDistanceBefore = pnts[i].CorectedElevation - pnts[i-1].CorectedElevation
+		} else {
+			pnts[i].VerticalDistanceBefore = 0.0
+		}
+		if i < (numPnts-1) && pnts[i+1].CorectedElevation > 0.0 {
+			pnts[i].VerticalDistanceNext = pnts[i+1].CorectedElevation - pnts[i].CorectedElevation
+		} else {
+			pnts[i].VerticalDistanceNext = 0.0
+		}
+	}
+}
+
 func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider) {
 	var dist float64
 	var minimumAtitute float32
@@ -83,4 +111,17 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	}
 
 	target.SetValues(dist, minimumAtitute, maximumAtitute, elevationGain, elevationLose, upwardsDistance, downwardsDistance)
+}
+
+func getCorrectedElevation(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {
+
+	if beforePoint.Elevation > 0 && nextPoint.Elevation > 0 {
+		dEve := nextPoint.Elevation - beforePoint.Elevation
+		dx := basePoint.HorizontalDistanceBefore + basePoint.HorizontalDistanceNext
+		a := dEve / float32(dx)
+
+		return beforePoint.Elevation + (a * float32(basePoint.HorizontalDistanceBefore))
+	}
+
+	return basePoint.Elevation
 }

@@ -1,7 +1,5 @@
 package gpsabl
 
-import "math"
-
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -112,6 +110,7 @@ type TrackPoint struct {
 	HorizontalDistanceBefore float64
 	HorizontalDistanceNext   float64
 	DistanceNext             float64
+	CorectedElevation        float32
 	VerticalDistanceBefore   float32
 	VerticalDistanceNext     float32
 }
@@ -138,16 +137,16 @@ func (pnt TrackPoint) GetMinimumAtitute() float32 {
 
 // GetElevationGain - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetElevationGain() float32 {
-	if pnt.VerticalDistanceBefore > 0 {
-		return pnt.VerticalDistanceBefore
+	if pnt.VerticalDistanceNext > 0 {
+		return pnt.VerticalDistanceNext
 	}
 	return 0
 }
 
 // GetElevationLose - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetElevationLose() float32 {
-	if pnt.VerticalDistanceBefore < 0 {
-		return float32(math.Abs(float64(pnt.VerticalDistanceBefore)))
+	if pnt.VerticalDistanceNext < 0 {
+		return pnt.VerticalDistanceNext
 	}
 	return 0
 }

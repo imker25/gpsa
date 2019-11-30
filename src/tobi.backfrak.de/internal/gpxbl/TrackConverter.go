@@ -50,7 +50,7 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 		c := make(chan gpsabl.TrackPoint, pointCount)
 		pointCounter := 0
 		for i, point := range points {
-			go goConvertPoint(point, i, &points, pointCount, c)
+			go goConvertPointDistance(point, i, &points, pointCount, c)
 
 		}
 		for pnt := range c {
@@ -62,7 +62,7 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 		}
 	} else {
 		for i, point := range points {
-			pnt := convertPoint(point, i, &points, pointCount)
+			pnt := convertPointDistance(point, i, &points, pointCount)
 			ret = append(ret, pnt)
 		}
 	}
@@ -70,10 +70,14 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 	sort.Slice(ret, func(i, j int) bool {
 		return ret[i].Number < ret[j].Number
 	})
+
+	gpsabl.FillCorectedElevationTrackPoint(ret)
+	gpsabl.FillElevationGainLoseTrackPoint(ret)
+
 	return ret
 }
 
-func convertPoint(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.TrackPoint {
+func convertPointDistance(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.TrackPoint {
 	pnt := gpsabl.TrackPoint{}
 	pnt.Latitude = point.Latitude
 	pnt.Longitude = point.Longitude
@@ -100,9 +104,9 @@ func convertPoint(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.Trac
 	return pnt
 }
 
-func goConvertPoint(point Trkpt, i int, pnts *[]Trkpt, pointCount int, c chan gpsabl.TrackPoint) {
+func goConvertPointDistance(point Trkpt, i int, pnts *[]Trkpt, pointCount int, c chan gpsabl.TrackPoint) {
 
-	c <- convertPoint(point, i, pnts, pointCount)
+	c <- convertPointDistance(point, i, pnts, pointCount)
 }
 
 func convertBasicPointValues(latitude, longitude, elevation float32) gpsabl.TrackPoint {

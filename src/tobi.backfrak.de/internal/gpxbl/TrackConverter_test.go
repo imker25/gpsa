@@ -75,8 +75,8 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 		t.Errorf("track.Distance  has not the expected value %f but is %f", 49.32007928467905, track.Distance)
 	}
 
-	if track.ElevationLose != 2.0 {
-		t.Errorf("track.ElevationLose  has not the expected value %f but is %f", 2.0, track.ElevationLose)
+	if track.ElevationLose != -2.0 {
+		t.Errorf("track.ElevationLose  has not the expected value %f but is %f", -2.0, track.ElevationLose)
 	}
 
 	if track.ElevationGain != 1.0 {
