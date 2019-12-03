@@ -12,37 +12,43 @@ import (
 )
 
 // ConvertTrk - Convert a gpxbl.Track to a gpsabl.Track
-func ConvertTrk(track Trk) gpsabl.Track {
+func ConvertTrk(track Trk, corection string) (gpsabl.Track, error) {
 
 	res := gpsabl.Track{}
-
+	var err error
 	res.Name = track.Name
 	res.NumberOfSegments = len(track.TrackSegments)
 	res.Description = track.Description
 
-	res.TrackSegments = convertSegments(track.TrackSegments)
+	res.TrackSegments, err = convertSegments(track.TrackSegments, corection)
+	if err != nil {
+		return res, err
+	}
 
 	gpsabl.FillTrackValues(&res)
 
-	return res
+	return res, err
 }
 
-func convertSegments(segments []Trkseg) []gpsabl.TrackSegment {
+func convertSegments(segments []Trkseg, corection string) ([]gpsabl.TrackSegment, error) {
 	var ret []gpsabl.TrackSegment
-
+	var err error
 	for _, seg := range segments {
 
 		segment := gpsabl.TrackSegment{}
-		segment.TrackPoints = convertPoints(seg.TrackPoints)
+		segment.TrackPoints, err = convertPoints(seg.TrackPoints, corection)
+		if err != nil {
+			return nil, err
+		}
 
 		gpsabl.FillTrackSegmentValues(&segment)
 		ret = append(ret, segment)
 	}
 
-	return ret
+	return ret, nil
 }
 
-func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
+func convertPoints(points []Trkpt, corection string) ([]gpsabl.TrackPoint, error) {
 	var ret []gpsabl.TrackPoint
 
 	pointCount := len(points)
@@ -72,10 +78,13 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 	})
 
 	gpsabl.FillDistanceToThisPoint(ret)
-	gpsabl.FillCorectedElevationTrackPoint(ret)
+	err := gpsabl.FillCorectedElevationTrackPoint(ret, corection)
+	if err != nil {
+		return nil, err
+	}
 	gpsabl.FillElevationGainLoseTrackPoint(ret)
 
-	return ret
+	return ret, nil
 }
 
 func convertPointDistance(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.TrackPoint {

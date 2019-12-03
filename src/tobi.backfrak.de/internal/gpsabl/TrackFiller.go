@@ -1,5 +1,9 @@
 package gpsabl
 
+import (
+	"strings"
+)
+
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -54,17 +58,56 @@ func FillTrackFileValues(file *TrackFile) {
 
 }
 
+// GetValideCorectionParamters - Get the valide paramters for FillCorectedElevationTrackPoint corection paramter
+func GetValideCorectionParamters() []string {
+	return []string{"none", "linear"}
+}
+
+// GetValideCorectionParamtersString - Get the valide paramters for FillCorectedElevationTrackPoint corection paramter as one string
+func GetValideCorectionParamtersString() string {
+	ret := ""
+	for _, str := range GetValideCorectionParamters() {
+		ret = str + " " + ret
+	}
+
+	return ret
+}
+
+// CheckValideCorectionParamters - Check if a string is a valide paramter for FillCorectedElevationTrackPoint corection paramter
+func CheckValideCorectionParamters(given string) bool {
+	return strings.Contains(GetValideCorectionParamtersString(), given)
+}
+
 // FillCorectedElevationTrackPoint - Set the CorectedElevation value in a list of TrackPoints
 // Basicaly this will run a somthing algorythm over the Elevation
-func FillCorectedElevationTrackPoint(pnts []TrackPoint) {
+func FillCorectedElevationTrackPoint(pnts []TrackPoint, corection string) error {
+
+	switch corection {
+	case GetValideCorectionParamters()[1]:
+		fillCorectedElevationTrackPointLinear(pnts)
+	case GetValideCorectionParamters()[0]:
+		fillCorectedElevationTrackPointNone(pnts)
+	default:
+		return NewCorectionParamterNotKnownError(corection)
+	}
+
+	return nil
+}
+
+func fillCorectedElevationTrackPointNone(pnts []TrackPoint) {
+	for i := range pnts {
+		pnts[i].CorectedElevation = pnts[i].Elevation
+	}
+}
+
+func fillCorectedElevationTrackPointLinear(pnts []TrackPoint) {
 	numPnts := len(pnts)
 	for i := range pnts {
-		if i > 0 && i < (numPnts-1) && numPnts > 10 { // A smothing algorythm makes no sense for very short tracks
+		if i > 0 && i < (numPnts-1) {
 			pnts[i].CorectedElevation = getCorrectedElevation(pnts[i], pnts[i-1], pnts[i+1])
 		} else {
 			pnts[i].CorectedElevation = pnts[i].Elevation
 		}
-
 		// fmt.Println(fmt.Sprintf("%d;%f;%f;", pnts[i].Number, pnts[i].Elevation, pnts[i].CorectedElevation))
 	}
 }

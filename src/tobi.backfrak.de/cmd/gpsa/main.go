@@ -42,6 +42,9 @@ var DontPanicFlag bool
 // DepthParametr - Tell in what depth we should mak the analyses ( -depth )
 var DepthParametr string
 
+// CorrectionParameter - Tell how we should correct Elevation data from the track ( -correction )
+var CorrectionParameter string
+
 // PrintVersionFlag - tell if the program was called with the -version flag
 var PrintVersionFlag bool
 
@@ -136,6 +139,8 @@ func handleComandlineOptions() {
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases")
 	flag.StringVar(&DepthParametr, "depth", outFormater.ValideDepthArgs[0],
 		fmt.Sprintf("Tell how depth the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
+	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValideCorectionParamters()[0],
+		fmt.Sprintf("Tell how the programm should correct the elevation data read from the track. Possible values are [%s]", gpsabl.GetValideCorectionParamtersString()))
 
 	// Overwrite the std Usage function with some costum stuff
 	flag.Usage = costumHelpMessage
@@ -157,6 +162,11 @@ func costumHelpMessage() {
 
 // processFiles - prosses the input files and add the found coneted to the output buffer
 func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
+
+	if !gpsabl.CheckValideCorectionParamters(CorrectionParameter) {
+		HandleError(gpsabl.NewCorectionParamterNotKnownError(CorrectionParameter), "", false, DontPanicFlag)
+	}
+
 	allFiles := len(files)
 	successCount := 0
 	c := make(chan bool, allFiles)
@@ -206,7 +216,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
-	file, readErr := reader.ReadTracks()
+	file, readErr := reader.ReadTracks(CorrectionParameter)
 	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}

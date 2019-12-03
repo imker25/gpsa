@@ -22,8 +22,8 @@ func NewGpxFile(filePath string) GpxFile {
 
 // ReadTracks - Read the *.gpx from the inputs GpxFile.FilePath, and return a GpxFile struct that contains all information
 // Implement the gpsabl.TrackReader interface for *.gpx files
-func (gpx *GpxFile) ReadTracks() (gpsabl.TrackFile, error) {
-	ret, err := ReadGpxFile(gpx.FilePath)
+func (gpx *GpxFile) ReadTracks(corection string) (gpsabl.TrackFile, error) {
+	ret, err := ReadGpxFile(gpx.FilePath, corection)
 
 	if err == nil {
 		gpx.TrackFile = ret
@@ -33,19 +33,22 @@ func (gpx *GpxFile) ReadTracks() (gpsabl.TrackFile, error) {
 }
 
 // ReadGpxFile - Reads a *.gpx file
-func ReadGpxFile(filePath string) (gpsabl.TrackFile, error) {
+func ReadGpxFile(filePath string, corection string) (gpsabl.TrackFile, error) {
 	ret := gpsabl.TrackFile{}
 	ret.FilePath = filePath
 
-	gpx, err := ReadGPX(filePath)
+	gpx, fileError := ReadGPX(filePath)
 
-	if err != nil {
-		return ret, err
+	if fileError != nil {
+		return ret, fileError
 	}
 
 	var tracks []gpsabl.Track
 	for _, trk := range gpx.Tracks {
-		track := ConvertTrk(trk)
+		track, convertError := ConvertTrk(trk, corection)
+		if convertError != nil {
+			return ret, convertError
+		}
 		tracks = append(tracks, track)
 
 	}

@@ -64,7 +64,7 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	FillCorectedElevationTrackPoint(pnts)
+	FillCorectedElevationTrackPoint(pnts, "none")
 	FillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != -1.0 {
@@ -93,7 +93,7 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	FillCorectedElevationTrackPoint(pnts)
+	FillCorectedElevationTrackPoint(pnts, "none")
 	FillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 108.0 {
@@ -271,7 +271,7 @@ func gerSimpleTrackPointArray() []TrackPoint {
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
 	FillDistanceToThisPoint(points)
-	FillCorectedElevationTrackPoint(points)
+	FillCorectedElevationTrackPoint(points, "none")
 	FillElevationGainLoseTrackPoint(points)
 
 	return points

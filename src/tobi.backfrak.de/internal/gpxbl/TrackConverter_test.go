@@ -49,7 +49,10 @@ func getTrk() Trk {
 func TestConvertTrkBasicInfo(t *testing.T) {
 	input := getTrk()
 
-	track := ConvertTrk(input)
+	track, err := ConvertTrk(input, "none")
+	if err != nil {
+		t.Errorf("Got a error, but expected none. The error is: %s", err)
+	}
 
 	if track.Name != input.Name {
 		t.Errorf("track.Name  has not the expected value %s", input.Name)
@@ -91,10 +94,10 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 		t.Errorf("track.DownwardsDistance  has not the expected value %f but is %f", 21.664257910555698, track.DownwardsDistance)
 	}
 
-	for i := range(track.TrackSegments[0].TrackPoints) {
+	for i := range track.TrackSegments[0].TrackPoints {
 		if i > 0 {
 			if track.TrackSegments[0].TrackPoints[i].DistanceToThisPoint <= track.TrackSegments[0].TrackPoints[i-1].DistanceToThisPoint {
-				t.Errorf("The DistanceToThisPoint for point %d, is %f but the point before had %f", i, track.TrackSegments[0].TrackPoints[i].DistanceToThisPoint, track.TrackSegments[0].TrackPoints[i-1].DistanceToThisPoint )
+				t.Errorf("The DistanceToThisPoint for point %d, is %f but the point before had %f", i, track.TrackSegments[0].TrackPoints[i].DistanceToThisPoint, track.TrackSegments[0].TrackPoints[i-1].DistanceToThisPoint)
 			}
 		}
 	}
