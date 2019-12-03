@@ -79,10 +79,7 @@ func convertPoints(points []Trkpt) []gpsabl.TrackPoint {
 }
 
 func convertPointDistance(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.TrackPoint {
-	pnt := gpsabl.TrackPoint{}
-	pnt.Latitude = point.Latitude
-	pnt.Longitude = point.Longitude
-	pnt.Elevation = point.Elevation
+	pnt := convertBasicPointValues(point.Latitude, point.Longitude, point.Elevation)
 	pnt.Number = i
 	points := *pnts
 
