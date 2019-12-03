@@ -79,7 +79,7 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 		t.Errorf("The HorizontalDistanceBefore is %f, but %f was expected", pnts[1].HorizontalDistanceNext, 0.0)
 	}
 
-	if pnts[1].VerticalDistanceNext != 0.0 {
+	if pnts[1].VerticalDistanceNext != -108.0 {
 		t.Errorf("The VerticalDistanceNext is %f, but %f was expected", pnts[1].VerticalDistanceNext, 0.0)
 	}
 }
@@ -96,7 +96,7 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 	FillCorectedElevationTrackPoint(pnts)
 	FillElevationGainLoseTrackPoint(pnts)
 
-	if pnts[1].VerticalDistanceBefore != 0.0 {
+	if pnts[1].VerticalDistanceBefore != 108.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, 0.0)
 	}
 

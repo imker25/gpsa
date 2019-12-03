@@ -73,12 +73,12 @@ func FillCorectedElevationTrackPoint(pnts []TrackPoint) {
 func FillElevationGainLoseTrackPoint(pnts []TrackPoint) {
 	numPnts := len(pnts)
 	for i := range pnts {
-		if i > 0 && pnts[i-1].CorectedElevation > 0.0 {
+		if i > 0 { // Evaluation of the first point don't count
 			pnts[i].VerticalDistanceBefore = pnts[i].CorectedElevation - pnts[i-1].CorectedElevation
 		} else {
 			pnts[i].VerticalDistanceBefore = 0.0
 		}
-		if i < (numPnts-1) && pnts[i+1].CorectedElevation > 0.0 {
+		if i < (numPnts - 1) { // Evaluation of the last point don't count
 			pnts[i].VerticalDistanceNext = pnts[i+1].CorectedElevation - pnts[i].CorectedElevation
 		} else {
 			pnts[i].VerticalDistanceNext = 0.0
