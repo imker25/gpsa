@@ -5,7 +5,30 @@ package gpsabl
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
+
+func TestCheckValideCorectionParamters(t *testing.T) {
+
+	if CheckValideCorectionParamters("asd") {
+		t.Errorf("The CheckValideCorectionParamters return true for \"asd\"")
+	}
+
+	if !CheckValideCorectionParamters("none") {
+		t.Errorf("The CheckValideCorectionParamters return false for \"none\"")
+	}
+
+	if !CheckValideCorectionParamters("linear") {
+		t.Errorf("The CheckValideCorectionParamters return false for \"none\"")
+	}
+
+	if len(GetValideCorectionParamters()) != 2 {
+		t.Errorf("The number of ValideCorectionParamters is %d, but %d was expected", len(GetValideCorectionParamters()), 2)
+	}
+
+}
 
 func TestFillDistancesThreePoints(t *testing.T) {
 	pnts := gerSimpleTrackPointArray()
@@ -81,6 +104,41 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 
 	if pnts[1].VerticalDistanceNext != -108.0 {
 		t.Errorf("The VerticalDistanceNext is %f, but %f was expected", pnts[1].VerticalDistanceNext, 0.0)
+	}
+}
+
+func TestFillDistancesThreePointWithLinearCorection(t *testing.T) {
+	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
+	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+
+	pnts := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
+
+	FillCorectedElevationTrackPoint(pnts, "linear")
+	FillElevationGainLoseTrackPoint(pnts)
+
+	if pnts[1].VerticalDistanceBefore != 0.0 {
+		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, 0.0)
+	}
+
+	if pnts[1].VerticalDistanceNext != 0.0 {
+		t.Errorf("The VerticalDistanceNext is %f, but %f was expected", pnts[1].VerticalDistanceNext, 0.0)
+	}
+}
+func TestFillDistancesThreePointWithUnkonwCorection(t *testing.T) {
+	pnts := gerSimpleTrackPointArray()
+	err := FillCorectedElevationTrackPoint(pnts, "asd")
+	if err != nil {
+		switch ty := err.(type) {
+		case *CorectionParamterNotKnownError:
+			fmt.Println("OK")
+		default:
+			t.Errorf("The Error FillCorectedElevationTrackPoint gave is of the wrong type. The type is %v", ty)
+		}
+	} else {
+		t.Errorf("FillCorectedElevationTrackPoint did not return a error, but was expected")
 	}
 }
 

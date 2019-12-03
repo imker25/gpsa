@@ -65,6 +65,10 @@ func TestHandleComandlineOptions(t *testing.T) {
 	if PrintCsvHeaderFlag == false {
 		t.Errorf("The PrintCsvHeaderFlag is false, but should not")
 	}
+
+	if CorrectionParameter != "none" {
+		t.Errorf("The CorrectionParameter is \"%s\" but \"none\" was expected", DepthParametr)
+	}
 }
 
 func TestCostumHelpMessage(t *testing.T) {
@@ -127,6 +131,9 @@ func TestProcessValideFiles(t *testing.T) {
 	SkipErrorExitFlag = true
 	oldDepthValue := DepthParametr
 	DepthParametr = "file"
+	oldCorrectionPAr := CorrectionParameter
+	CorrectionParameter = "linear"
+
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
 
@@ -142,6 +149,49 @@ func TestProcessValideFiles(t *testing.T) {
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
 	DepthParametr = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
+}
+
+func TestProcessFilesDifferenCorrection(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParametr
+	DepthParametr = "file"
+	oldCorrectionPAr := CorrectionParameter
+	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
+
+	CorrectionParameter = "none"
+	formater1 := gpsabl.NewCsvOutputFormater(";")
+	iFormater1 := gpsabl.OutputFormater(formater1)
+	successCount1 := processFiles(files, iFormater1)
+	if successCount1 != 2 {
+		t.Errorf("Not all files was proccess successfull as expected")
+	}
+
+	CorrectionParameter = "linear"
+	formater2 := gpsabl.NewCsvOutputFormater(";")
+	iFormater2 := gpsabl.OutputFormater(formater2)
+	successCount2 := processFiles(files, iFormater2)
+	if successCount2 != 2 {
+		t.Errorf("Not all files was proccess successfull as expected")
+	}
+
+	if len(formater2.GetLines()) != len(formater1.GetLines()) {
+		t.Errorf("The formater have a different amout of lines")
+	}
+
+	if formater2.GetLines()[1] == formater1.GetLines()[1] {
+		t.Errorf("Both formaters return the same values")
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Errors occured, but should not")
+	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParametr = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
 }
 
 func TestProcessMixedFiles(t *testing.T) {
@@ -150,6 +200,8 @@ func TestProcessMixedFiles(t *testing.T) {
 	SkipErrorExitFlag = true
 	oldDepthValue := DepthParametr
 	DepthParametr = "file"
+	oldCorrectionPAr := CorrectionParameter
+	CorrectionParameter = "linear"
 
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
@@ -168,6 +220,7 @@ func TestProcessMixedFiles(t *testing.T) {
 
 	SkipErrorExitFlag = oldFlagValue
 	DepthParametr = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
 }
 
 func TestProcessUnValideFiles(t *testing.T) {
@@ -176,6 +229,8 @@ func TestProcessUnValideFiles(t *testing.T) {
 	SkipErrorExitFlag = true
 	oldDepthValue := DepthParametr
 	DepthParametr = "file"
+	oldCorrectionPAr := CorrectionParameter
+	CorrectionParameter = "linear"
 
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
@@ -192,6 +247,7 @@ func TestProcessUnValideFiles(t *testing.T) {
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
 	DepthParametr = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
 }
 
 func TestGetOutPutStream_StdOut(t *testing.T) {
