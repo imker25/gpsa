@@ -12,18 +12,6 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-func TestDepthParametrNotKnownErrorStruct(t *testing.T) {
-	val := "asdgfg"
-	err := NewDepthParametrNotKnownError(val)
-
-	if err.GivenValue != val {
-		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
-	}
-
-	if strings.Contains(err.Error(), val) == false {
-		t.Errorf("The error messaage of DepthParametrNotKnownError does not contain the expected GivenValue")
-	}
-}
 
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
