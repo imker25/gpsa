@@ -32,6 +32,8 @@ Usage: ./bin/gpsa [options] [files]
   files
         One or more track files (only *.gpx) supported at the moment
 Options:
+  -correction string
+        Tell how the programm should correct the elevation data read from the track. Possible values are [linear none ] (default "none")
   -depth string
         Tell how depth the program should analyse the files. Possible values are [segment file track ] (default "track")
   -dont-panic
@@ -51,6 +53,7 @@ Options:
   -version
         Print the version of the program
 ```
+
 
 # Development
 To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine. 
