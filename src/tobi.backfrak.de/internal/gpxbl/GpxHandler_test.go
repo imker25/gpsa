@@ -88,6 +88,22 @@ func TestTrackReader02(t *testing.T) {
 	}
 }
 
+func TestTrackReaderUnValideCorrectionParameter(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValideGPX("02.gpx"))
+
+	_, err := gpx.ReadTracks("asdfg")
+	if err != nil {
+		switch ty := err.(type) {
+		case *gpsabl.CorectionParamterNotKnownError:
+			fmt.Println("OK")
+		default:
+			t.Errorf("The Error ReadTracks gave is of the wrong type. The type is %v", ty)
+		}
+	} else {
+		t.Errorf("ReadTracks did not return a error, but was expected")
+	}
+}
+
 func TestTrackReaderImpl(t *testing.T) {
 	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
 
