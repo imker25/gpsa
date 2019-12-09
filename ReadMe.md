@@ -4,6 +4,7 @@ This is a simple comandline tool, that may helps to extract statistic data out o
 - [User Documentaion](#user-documentaion)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [Examples](#examples)
 - [Development](#development)
   - [Build](#build)
   - [Hints for VSCode Users](#hints-for-vscode-users)
@@ -28,7 +29,7 @@ You might want to call ```-help```, to find out how to use the program.
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
 Program Version: 0.2.1+afb46fa
 
-Usage: ./bin/gpsa [options] [files]
+Usage: ./gpsa [options] [files]
   files
         One or more track files (only *.gpx) supported at the moment
 Options:
@@ -53,7 +54,41 @@ Options:
   -version
         Print the version of the program
 ```
+### Examples
+Simple call with one file:
+```sh
+~$  ./gpsa my/test/file.gpx
+Name;Distance (km);AtituteRange (m);MinimumAtitute (m);MaximumAtitut (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
+GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;
 
+```
+
+Simple call with multible filess:
+```sh
+~$  ./gpsa my/test/01.gpx my/test/02.gpx my/test/03.gpx
+Name;Distance (km);AtituteRange (m);MinimumAtitute (m);MaximumAtitut (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
+GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;
+02.gpx: 2019-08-18 11:07:40;37.820000;104.090000;347.020000;451.110000;263.880000;-251.430000;17.860000;19.770000;
+03.gpx: Tulln - Wien;37.640000;48.000000;158.000000;206.000000;52.000000;-26.000000;17.520000;14.060000;
+
+```
+
+Get statistc for a number of files into a csv output:
+```sh
+~$  ./gpsa -out-file=gps-statistics.csv my/test/*.gpx
+
+```
+Get statistc for a number of files into a csv output, with verbose comandline output:
+```sh
+~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
+Call:  ./gpsa -verbose -out-file=gps-statistics.csv my/test/01.gpx my/test/02.gpx my/test/03.gpx
+Version: 0.3.2+94c23fc
+Read file: my/test/01.gpx
+Read file: my/test/02.gpx
+Read file: my/test/03.gpx
+3 of 3 files process successfull
+
+```
 
 # Development
 To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine. 
