@@ -52,6 +52,37 @@ func TestCheckValideCorectionParamtersString(t *testing.T) {
 	}
 }
 
+func TestFillValuesTrackPointArrayWrongCorrection(t *testing.T) {
+	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
+	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+
+	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
+	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, "asd")
+	if err != nil {
+		switch ty := err.(type) {
+		case *CorectionParamterNotKnownError:
+			fmt.Println("OK")
+		default:
+			t.Errorf("The Error FillDistancesTrackPoint gave is of the wrong type. The type is %v", ty)
+		}
+	} else {
+		t.Errorf("FillDistancesTrackPoint did not return a error, but was expected")
+	}
+}
+
+func TestFillValuesTrackPointArrayValideCorrection(t *testing.T) {
+	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
+	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+
+	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
+	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, GetValideCorectionParamters()[0])
+	if err != nil {
+		t.Errorf("FillDistancesTrackPoint did return a error, but was expected to. The error is %s", err.Error())
+	}
+}
+
 func TestFillDistancesThreePoints(t *testing.T) {
 	pnts := gerSimpleTrackPointArray()
 
