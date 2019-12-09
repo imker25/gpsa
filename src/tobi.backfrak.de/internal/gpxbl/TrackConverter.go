@@ -48,7 +48,7 @@ func convertSegments(segments []Trkseg, corection string) ([]gpsabl.TrackSegment
 	return ret, nil
 }
 
-func convertPoints(points []Trkpt, corection string) ([]gpsabl.TrackPoint, error) {
+func convertPoints(points []Trkpt, correction string) ([]gpsabl.TrackPoint, error) {
 	var ret []gpsabl.TrackPoint
 
 	pointCount := len(points)
@@ -77,13 +77,10 @@ func convertPoints(points []Trkpt, corection string) ([]gpsabl.TrackPoint, error
 		return ret[i].Number < ret[j].Number
 	})
 
-	gpsabl.FillDistanceToThisPoint(ret)
-	err := gpsabl.FillCorectedElevationTrackPoint(ret, corection)
+	err := gpsabl.FillValuesTrackPointArray(ret, correction)
 	if err != nil {
 		return nil, err
 	}
-	gpsabl.FillElevationGainLoseTrackPoint(ret)
-	gpsabl.FillCountUpDownWards(ret, corection)
 
 	return ret, nil
 }

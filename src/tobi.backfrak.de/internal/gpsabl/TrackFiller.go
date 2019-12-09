@@ -2,7 +2,6 @@ package gpsabl
 
 import (
 	"math"
-	"strings"
 )
 
 // Copyright 2019 by tobi@backfrak.de. All
@@ -13,7 +12,8 @@ import (
 // MinimalStepHight - The minimal evelation difference for the setp algorythm
 const MinimalStepHight = 10.0
 
-// FillDistancesTrackPoint - Adds the distance values to the basePoint
+// FillDistancesTrackPoint - Adds the distance values to the basePoint.
+// The Values of Elevation, Latitude and Longitude had to be set to all points before!
 func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) {
 
 	if (beforePoint != TrackPoint{}) {
@@ -28,7 +28,23 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 
 }
 
+// FillValuesTrackPointArray - Fills all the values of all in points in the array, but not distances.
+// You may use FillDistancesTrackPoint to get the distance values
+// The Array must be soreted by the points Number!
+func FillValuesTrackPointArray(pnts []TrackPoint, correction string) error {
+	fillDistanceToThisPoint(pnts)
+	err := fillCorectedElevationTrackPoint(pnts, correction)
+	if err != nil {
+		return err
+	}
+	fillElevationGainLoseTrackPoint(pnts)
+	fillCountUpDownWards(pnts, correction)
+
+	return nil
+}
+
 // FillTrackSegmentValues - Fills the distance and atitute fields of a tack segment by adding up all TrackPoint distances
+// All TrackPoint values has to be set before. See FillDistancesTrackPoint and FillValuesTrackPointArray
 func FillTrackSegmentValues(segment *TrackSegment) {
 	iPnts := []TrackSummaryProvider{}
 	for i := range segment.TrackPoints {
@@ -40,6 +56,7 @@ func FillTrackSegmentValues(segment *TrackSegment) {
 }
 
 // FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+// All TrackSegment has to be set before. See FillTrackSegmentValues
 func FillTrackValues(track *Track) {
 	iSegs := []TrackSummaryProvider{}
 	for i := range track.TrackSegments {
@@ -51,6 +68,7 @@ func FillTrackValues(track *Track) {
 }
 
 // FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+// All Track values has to be set before. See FillTrackValues
 func FillTrackFileValues(file *TrackFile) {
 	iTrks := []TrackSummaryProvider{}
 	for i := range file.Tracks {
@@ -59,7 +77,6 @@ func FillTrackFileValues(file *TrackFile) {
 	}
 
 	fillTrackSummaryValues(file, iTrks)
-
 }
 
 // GetValideCorectionParamters - Get the valide paramters for FillCorectedElevationTrackPoint corection paramter
@@ -79,12 +96,18 @@ func GetValideCorectionParamtersString() string {
 
 // CheckValideCorectionParamters - Check if a string is a valide paramter for FillCorectedElevationTrackPoint corection paramter
 func CheckValideCorectionParamters(given string) bool {
-	return strings.Contains(GetValideCorectionParamtersString(), given)
+	for _, str := range GetValideCorectionParamters() {
+		if str == given {
+			return true
+		}
+	}
+
+	return false
 }
 
-// FillCorectedElevationTrackPoint - Set the CorectedElevation value in a list of TrackPoints
+// fillCorectedElevationTrackPoint - Set the CorectedElevation value in a list of TrackPoints
 // Basicaly this will run a somthing algorythm over the Elevation
-func FillCorectedElevationTrackPoint(pnts []TrackPoint, corection string) error {
+func fillCorectedElevationTrackPoint(pnts []TrackPoint, corection string) error {
 
 	switch corection {
 	case GetValideCorectionParamters()[1]:
@@ -130,8 +153,8 @@ func fillCorectedElevationTrackPointLinear(pnts []TrackPoint) {
 	}
 }
 
-// FillElevationGainLoseTrackPoint - Set the VerticalDistanceBefore and VerticalDistanceNext values
-func FillElevationGainLoseTrackPoint(pnts []TrackPoint) {
+// fillElevationGainLoseTrackPoint - Set the VerticalDistanceBefore and VerticalDistanceNext values
+func fillElevationGainLoseTrackPoint(pnts []TrackPoint) {
 	numPnts := len(pnts)
 	for i := range pnts {
 		if i > 0 { // Evaluation of the first point don't count
@@ -147,8 +170,8 @@ func FillElevationGainLoseTrackPoint(pnts []TrackPoint) {
 	}
 }
 
-// FillDistanceToThisPoint - Fills the DistanceToThisPoint value
-func FillDistanceToThisPoint(pnts []TrackPoint) {
+// fillDistanceToThisPoint - Fills the DistanceToThisPoint value
+func fillDistanceToThisPoint(pnts []TrackPoint) {
 	disToHere := float64(0.0)
 	for i := range pnts {
 		disToHere += pnts[i].DistanceBefore
@@ -157,7 +180,7 @@ func FillDistanceToThisPoint(pnts []TrackPoint) {
 }
 
 // FillCountUpDownWards - Fills the CountUpwards and CountDownwards value
-func FillCountUpDownWards(pnts []TrackPoint, correction string) {
+func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 	numPnts := len(pnts)
 	if correction == GetValideCorectionParamters()[2] { // In case we do steps correction, CorectedElevation will make no sense
 		for i := range pnts {

@@ -7,6 +7,7 @@ package gpsabl
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -32,6 +33,23 @@ func TestCheckValideCorectionParamters(t *testing.T) {
 		t.Errorf("The number of ValideCorectionParamters is %d, but %d was expected", len(GetValideCorectionParamters()), 2)
 	}
 
+}
+
+func TestCheckValideCorectionParamtersString(t *testing.T) {
+
+	valideParms := GetValideCorectionParamtersString()
+
+	if strings.Contains(valideParms, "asd") {
+		t.Errorf("The ValideCorectionParamtersString contains \"asd\"")
+	}
+
+	if !strings.Contains(valideParms, "none") {
+		t.Errorf("The ValideCorectionParamtersString not contains \"none\"")
+	}
+
+	if !strings.Contains(valideParms, "steps") {
+		t.Errorf("The ValideCorectionParamtersString not contains \"steps\"")
+	}
 }
 
 func TestFillDistancesThreePoints(t *testing.T) {
@@ -91,8 +109,8 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	FillCorectedElevationTrackPoint(pnts, "none")
-	FillElevationGainLoseTrackPoint(pnts)
+	fillCorectedElevationTrackPoint(pnts, "none")
+	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != -1.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, -1.0)
@@ -120,8 +138,8 @@ func TestFillDistancesThreePointWithLinearCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	FillCorectedElevationTrackPoint(pnts, "linear")
-	FillElevationGainLoseTrackPoint(pnts)
+	fillCorectedElevationTrackPoint(pnts, "linear")
+	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 0.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, 0.0)
@@ -141,9 +159,9 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	FillCorectedElevationTrackPoint(pnts, "steps")
-	FillElevationGainLoseTrackPoint(pnts)
-	FillCountUpDownWards(pnts, "steps")
+	fillCorectedElevationTrackPoint(pnts, "steps")
+	fillElevationGainLoseTrackPoint(pnts)
+	fillCountUpDownWards(pnts, "steps")
 
 	if pnts[1].VerticalDistanceBefore != 0.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, 0.0)
@@ -155,7 +173,7 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 }
 func TestFillDistancesThreePointWithUnkonwCorection(t *testing.T) {
 	pnts := gerSimpleTrackPointArray()
-	err := FillCorectedElevationTrackPoint(pnts, "asd")
+	err := fillCorectedElevationTrackPoint(pnts, "asd")
 	if err != nil {
 		switch ty := err.(type) {
 		case *CorectionParamterNotKnownError:
@@ -177,8 +195,8 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	FillCorectedElevationTrackPoint(pnts, "none")
-	FillElevationGainLoseTrackPoint(pnts)
+	fillCorectedElevationTrackPoint(pnts, "none")
+	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 108.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, 0.0)
@@ -354,10 +372,7 @@ func gerSimpleTrackPointArray() []TrackPoint {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillDistanceToThisPoint(points)
-	FillCorectedElevationTrackPoint(points, "none")
-	FillElevationGainLoseTrackPoint(points)
-	FillCountUpDownWards(points, "none")
+	FillValuesTrackPointArray(points, "none")
 
 	return points
 }
