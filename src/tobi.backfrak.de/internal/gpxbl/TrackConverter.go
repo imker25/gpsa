@@ -83,6 +83,7 @@ func convertPoints(points []Trkpt, corection string) ([]gpsabl.TrackPoint, error
 		return nil, err
 	}
 	gpsabl.FillElevationGainLoseTrackPoint(ret)
+	gpsabl.FillCountUpDownWards(ret, corection)
 
 	return ret, nil
 }

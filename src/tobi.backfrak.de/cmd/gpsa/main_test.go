@@ -66,8 +66,8 @@ func TestHandleComandlineOptions(t *testing.T) {
 		t.Errorf("The PrintCsvHeaderFlag is false, but should not")
 	}
 
-	if CorrectionParameter != "none" {
-		t.Errorf("The CorrectionParameter is \"%s\" but \"none\" was expected", DepthParametr)
+	if CorrectionParameter != "steps" {
+		t.Errorf("The CorrectionParameter is \"%s\" but \"steps\" was expected", DepthParametr)
 	}
 }
 

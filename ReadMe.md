@@ -33,7 +33,7 @@ Usage: ./bin/gpsa [options] [files]
         One or more track files (only *.gpx) supported at the moment
 Options:
   -correction string
-        Tell how the programm should correct the elevation data read from the track. Possible values are [linear none ] (default "none")
+        Tell how the programm should correct the elevation data read from the track. Possible values are [steps linear none ] (default "steps")
   -depth string
         Tell how depth the program should analyse the files. Possible values are [segment file track ] (default "track")
   -dont-panic

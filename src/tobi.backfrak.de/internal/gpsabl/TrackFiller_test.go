@@ -21,10 +21,14 @@ func TestCheckValideCorectionParamters(t *testing.T) {
 	}
 
 	if !CheckValideCorectionParamters("linear") {
-		t.Errorf("The CheckValideCorectionParamters return false for \"none\"")
+		t.Errorf("The CheckValideCorectionParamters return false for \"linear\"")
 	}
 
-	if len(GetValideCorectionParamters()) != 2 {
+	if !CheckValideCorectionParamters("steps") {
+		t.Errorf("The CheckValideCorectionParamters return false for \"steps\"")
+	}
+
+	if len(GetValideCorectionParamters()) != 3 {
 		t.Errorf("The number of ValideCorectionParamters is %d, but %d was expected", len(GetValideCorectionParamters()), 2)
 	}
 
@@ -118,6 +122,28 @@ func TestFillDistancesThreePointWithLinearCorection(t *testing.T) {
 
 	FillCorectedElevationTrackPoint(pnts, "linear")
 	FillElevationGainLoseTrackPoint(pnts)
+
+	if pnts[1].VerticalDistanceBefore != 0.0 {
+		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, 0.0)
+	}
+
+	if pnts[1].VerticalDistanceNext != 0.0 {
+		t.Errorf("The VerticalDistanceNext is %f, but %f was expected", pnts[1].VerticalDistanceNext, 0.0)
+	}
+}
+
+func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
+	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
+	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
+
+	pnts := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
+
+	FillCorectedElevationTrackPoint(pnts, "steps")
+	FillElevationGainLoseTrackPoint(pnts)
+	FillCountUpDownWards(pnts, "steps")
 
 	if pnts[1].VerticalDistanceBefore != 0.0 {
 		t.Errorf("The VerticalDistanceBefore is %f, but %f was expected", pnts[1].VerticalDistanceBefore, 0.0)
@@ -331,6 +357,7 @@ func gerSimpleTrackPointArray() []TrackPoint {
 	FillDistanceToThisPoint(points)
 	FillCorectedElevationTrackPoint(points, "none")
 	FillElevationGainLoseTrackPoint(points)
+	FillCountUpDownWards(points, "none")
 
 	return points
 }

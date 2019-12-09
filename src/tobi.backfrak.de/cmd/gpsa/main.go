@@ -139,7 +139,7 @@ func handleComandlineOptions() {
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases")
 	flag.StringVar(&DepthParametr, "depth", outFormater.ValideDepthArgs[0],
 		fmt.Sprintf("Tell how depth the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
-	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValideCorectionParamters()[0],
+	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValideCorectionParamters()[2],
 		fmt.Sprintf("Tell how the programm should correct the elevation data read from the track. Possible values are [%s]", gpsabl.GetValideCorectionParamtersString()))
 
 	// Overwrite the std Usage function with some costum stuff

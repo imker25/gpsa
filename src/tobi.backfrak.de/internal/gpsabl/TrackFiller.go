@@ -1,6 +1,7 @@
 package gpsabl
 
 import (
+	"math"
 	"strings"
 )
 
@@ -8,6 +9,9 @@ import (
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
+
+// MinimalStepHight - The minimal evelation difference for the setp algorythm
+const MinimalStepHight = 10.0
 
 // FillDistancesTrackPoint - Adds the distance values to the basePoint
 func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) {
@@ -60,7 +64,7 @@ func FillTrackFileValues(file *TrackFile) {
 
 // GetValideCorectionParamters - Get the valide paramters for FillCorectedElevationTrackPoint corection paramter
 func GetValideCorectionParamters() []string {
-	return []string{"none", "linear"}
+	return []string{"none", "linear", "steps"}
 }
 
 // GetValideCorectionParamtersString - Get the valide paramters for FillCorectedElevationTrackPoint corection paramter as one string
@@ -87,6 +91,8 @@ func FillCorectedElevationTrackPoint(pnts []TrackPoint, corection string) error 
 		fillCorectedElevationTrackPointLinear(pnts)
 	case GetValideCorectionParamters()[0]:
 		fillCorectedElevationTrackPointNone(pnts)
+	case GetValideCorectionParamters()[2]:
+		fillCorectedElevationTrackPointSteps(pnts)
 	default:
 		return NewCorectionParamterNotKnownError(corection)
 	}
@@ -100,15 +106,27 @@ func fillCorectedElevationTrackPointNone(pnts []TrackPoint) {
 	}
 }
 
+func fillCorectedElevationTrackPointSteps(pnts []TrackPoint) {
+	numPnts := len(pnts)
+	for i := range pnts {
+		if i > 0 && i < (numPnts-1) {
+			pnts[i].CorectedElevation = getCorrectedElevationSteps(pnts[i], pnts[i-1], pnts[i+1])
+		} else {
+			pnts[i].CorectedElevation = pnts[i].Elevation
+		}
+		//fmt.Println(fmt.Sprintf("%f;%f;%f;", pnts[i].DistanceToThisPoint, pnts[i].Elevation, pnts[i].CorectedElevation))
+	}
+}
+
 func fillCorectedElevationTrackPointLinear(pnts []TrackPoint) {
 	numPnts := len(pnts)
 	for i := range pnts {
 		if i > 0 && i < (numPnts-1) {
-			pnts[i].CorectedElevation = getCorrectedElevation(pnts[i], pnts[i-1], pnts[i+1])
+			pnts[i].CorectedElevation = getCorrectedElevationLinear(pnts[i], pnts[i-1], pnts[i+1])
 		} else {
 			pnts[i].CorectedElevation = pnts[i].Elevation
 		}
-		// fmt.Println(fmt.Sprintf("%d;%f;%f;", pnts[i].Number, pnts[i].Elevation, pnts[i].CorectedElevation))
+		// fmt.Println(fmt.Sprintf("%f;%f;%f;", pnts[i].DistanceToThisPoint, pnts[i].Elevation, pnts[i].CorectedElevation))
 	}
 }
 
@@ -135,6 +153,40 @@ func FillDistanceToThisPoint(pnts []TrackPoint) {
 	for i := range pnts {
 		disToHere += pnts[i].DistanceBefore
 		pnts[i].DistanceToThisPoint = disToHere
+	}
+}
+
+// FillCountUpDownWards - Fills the CountUpwards and CountDownwards value
+func FillCountUpDownWards(pnts []TrackPoint, correction string) {
+	numPnts := len(pnts)
+	if correction == GetValideCorectionParamters()[2] { // In case we do steps correction, CorectedElevation will make no sense
+		for i := range pnts {
+			if i < (numPnts - 1) { // Evaluation of the last point don't count
+				eveDiff := pnts[i+1].Elevation - pnts[i].Elevation
+				if eveDiff > 0 {
+					pnts[i].CountUpwards = true
+				}
+
+				if eveDiff < 0 {
+					pnts[i].CountDownwards = true
+				}
+
+			}
+		}
+	} else {
+		for i := range pnts {
+			if i < (numPnts - 1) { // Evaluation of the last point don't count
+				eveDiff := pnts[i+1].CorectedElevation - pnts[i].CorectedElevation
+				if eveDiff > 0 {
+					pnts[i].CountUpwards = true
+				}
+
+				if eveDiff < 0 {
+					pnts[i].CountDownwards = true
+				}
+
+			}
+		}
 	}
 }
 
@@ -166,9 +218,9 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	target.SetValues(dist, minimumAtitute, maximumAtitute, elevationGain, elevationLose, upwardsDistance, downwardsDistance)
 }
 
-func getCorrectedElevation(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {
+func getCorrectedElevationLinear(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {
 
-	if beforePoint.Elevation > 0 && nextPoint.Elevation > 0 {
+	if beforePoint.Elevation != 0 && nextPoint.Elevation != 0 {
 		dEve := nextPoint.Elevation - beforePoint.Elevation
 		dx := basePoint.HorizontalDistanceBefore + basePoint.HorizontalDistanceNext
 		a := dEve / float32(dx)
@@ -177,4 +229,17 @@ func getCorrectedElevation(basePoint TrackPoint, beforePoint TrackPoint, nextPoi
 	}
 
 	return basePoint.Elevation
+}
+
+func getCorrectedElevationSteps(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {
+
+	eveDiffBefore := basePoint.Elevation - beforePoint.CorectedElevation
+	eveDiffAfter := nextPoint.Elevation - basePoint.Elevation
+	sameDirection := eveDiffBefore * eveDiffAfter
+
+	if math.Abs(float64(eveDiffBefore)) >= MinimalStepHight && (sameDirection > 0 || math.Abs(float64(eveDiffAfter)) < MinimalStepHight) {
+		return basePoint.Elevation
+	}
+
+	return beforePoint.CorectedElevation
 }

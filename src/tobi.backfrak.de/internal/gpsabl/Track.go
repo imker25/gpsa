@@ -115,6 +115,8 @@ type TrackPoint struct {
 	CorectedElevation        float32
 	VerticalDistanceBefore   float32
 	VerticalDistanceNext     float32
+	CountUpwards             bool
+	CountDownwards           bool
 }
 
 // GetDistance - Implement the TrackSummaryProvider interface for TrackPoint
@@ -155,7 +157,7 @@ func (pnt TrackPoint) GetElevationLose() float32 {
 
 // GetUpwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetUpwardsDistance() float64 {
-	if pnt.VerticalDistanceNext > 0 {
+	if pnt.CountUpwards {
 		return pnt.DistanceNext
 	}
 	return 0
@@ -163,7 +165,7 @@ func (pnt TrackPoint) GetUpwardsDistance() float64 {
 
 // GetDownwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetDownwardsDistance() float64 {
-	if pnt.VerticalDistanceNext < 0 {
+	if pnt.CountDownwards {
 		return pnt.DistanceNext
 	}
 	return 0
