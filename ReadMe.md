@@ -1,19 +1,26 @@
 # gpsa - A GPX Statistic Analysing tool
-This is a simple comandline tool, that may helps to extract statistic data out of *.gpx files
-- [gpsa - A GPX Statistic Analysing tool](#gpsa---a-gpx-statistic-analysing-tool)
-- [User Documentaion](#user-documentaion)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Examples](#examples)
-- [Development](#development)
-  - [Build](#build)
-  - [Hints for VSCode Users](#hints-for-vscode-users)
-- [Geo Math Internals](#geo-math-internals)
-- [License](#license)
-# User Documentaion
 
-## Installation
+This is a simple comandline tool, that may helps to extract statistic data out of *.gpx files
+
+- [gpsa - A GPX Statistic Analysing tool](#gpsa---a-gpx-statistic-analysing-tool)
+  - [User Documentaion](#user-documentaion)
+    - [Installation](#installation)
+    - [Usage](#usage)
+      - [Examples](#examples)
+  - [Development](#development)
+    - [Build](#build)
+    - [Hints for VSCode Users](#hints-for-vscode-users)
+  - [Geo Math Internals](#geo-math-internals)
+  - [License](#license)
+  
+## User Documentaion
+
+Some documentation and examples about gpsa usage.
+
+### Installation
+
 On Linux do the following in a empty folder:
+
 ```sh
 wget https://homer.tobi.backfrak.de/jenkins/job/GPSA/job/master/lastSuccessfulBuild/artifact/bin/gpsa && chmod 770 ./gpsa
 
@@ -21,11 +28,12 @@ wget https://homer.tobi.backfrak.de/jenkins/job/GPSA/job/master/lastSuccessfulBu
 
 On Windows download [gpsa.exe](https://homer.tobi.backfrak.de/jenkins/job/GPSA/job/master/lastSuccessfulBuild/artifact/bin/gpsa.exe) and execute it on comandline.
 
-## Usage
+### Usage
+
 You might want to call ```-help```, to find out how to use the program.
 
-```
-~$ ./gpsa -help                                                     
+```sh
+~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
 Program Version: 0.2.1+afb46fa
 
@@ -54,8 +62,11 @@ Options:
   -version
         Print the version of the program
 ```
-### Examples
+
+#### Examples
+
 Simple call with one file:
+
 ```sh
 ~$  ./gpsa my/test/file.gpx
 Name;Distance (km);AtituteRange (m);MinimumAtitute (m);MaximumAtitut (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
@@ -64,6 +75,7 @@ GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.
 ```
 
 Simple call with multible filess:
+
 ```sh
 ~$  ./gpsa my/test/01.gpx my/test/02.gpx my/test/03.gpx
 Name;Distance (km);AtituteRange (m);MinimumAtitute (m);MaximumAtitut (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
@@ -74,11 +86,14 @@ GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.
 ```
 
 Get statistc for a number of files into a csv output:
+
 ```sh
 ~$  ./gpsa -out-file=gps-statistics.csv my/test/*.gpx
 
 ```
+
 Get statistc for a number of files into a csv output, with verbose comandline output:
+
 ```sh
 ~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
 Call:  ./gpsa -verbose -out-file=gps-statistics.csv my/test/01.gpx my/test/02.gpx my/test/03.gpx
@@ -90,10 +105,12 @@ Read file: my/test/03.gpx
 
 ```
 
-# Development
+## Development
+
 To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine. 
 
-## Build
+### Build
+
 Use [Gradle](https://gradle.org/) to build and test the porject
 
 ```sh
@@ -102,10 +119,12 @@ gradle build test   # build and run the tests for the project
 gradle test         # test the project
 ```
 
-## Hints for VSCode Users
+### Hints for VSCode Users
+
 If you use [VS Code](https://code.visualstudio.com/) for GO development, you might find the following example settings usefull.
 
 The ```tasks.json```:
+
 ```json
 {
     "version": "2.0.0",
@@ -133,6 +152,7 @@ The ```tasks.json```:
 ```
 
 The ```launch.json```:
+
 ```json
 {
     "version": "0.2.0",
@@ -155,16 +175,18 @@ The ```launch.json```:
 ```
 
 The ```settings.json```:
+
 ```json
 {
       "go.gopath": "${env:GOPATH}:${workspaceFolder}",
 }
 ```
 
-# Geo Math Internals 
+## Geo Math Internals 
+
 The Geografic calculations are done with the  ```haversine formula```  as descripted [here](http://www.movable-type.co.uk/scripts/latlong.html). My Impelemtaion will ignore atitute difference for distance bigger then 33 km, by checking the agular distance to be bigger then 0.3°. For smaller distances the program will add the atitute difference using the ```pythagoras theorem```.
 
-# License
+## License
 
 gpsa is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 May got some testfiles and ideas from [gpxgo](https://github.com/tkrajina/gpxgo/tree/master/test_files)
