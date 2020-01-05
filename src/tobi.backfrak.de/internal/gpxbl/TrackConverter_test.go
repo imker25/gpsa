@@ -66,12 +66,12 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 		t.Errorf("track.NumberOfSegments  has not the expected value %d but is %d", 1, track.NumberOfSegments)
 	}
 
-	if track.MinimumAtitute != 99.1 {
-		t.Errorf("track.MinimumAtitute  has not the expected value %f but is %f", 99.1, track.MinimumAtitute)
+	if track.MinimumAltitude != 99.1 {
+		t.Errorf("track.MinimumAltitude  has not the expected value %f but is %f", 99.1, track.MinimumAltitude)
 	}
 
-	if track.MaximumAtitute != 101.1 {
-		t.Errorf("track.MaximumAtitute  has not the expected value %f but is %f", 101.1, track.MaximumAtitute)
+	if track.MaximumAltitude != 101.1 {
+		t.Errorf("track.MaximumAltitude  has not the expected value %f but is %f", 101.1, track.MaximumAltitude)
 	}
 
 	if track.Distance != 49.32007928467905 {

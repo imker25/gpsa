@@ -8,8 +8,8 @@ package gpsabl
 // TrackSummary - the struct to store track statistic data
 type TrackSummary struct {
 	Distance          float64
-	MinimumAtitute    float32
-	MaximumAtitute    float32
+	MinimumAltitude    float32
+	MaximumAltitude    float32
 	ElevationGain     float32
 	ElevationLose     float32
 	UpwardsDistance   float64
@@ -17,9 +17,9 @@ type TrackSummary struct {
 }
 
 // SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
-func (sum *TrackSummary) SetValues(distance float64, minimumAtitute float32, maximumAtitute float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64) {
-	sum.MinimumAtitute = minimumAtitute
-	sum.MaximumAtitute = maximumAtitute
+func (sum *TrackSummary) SetValues(distance float64, minimumAltitude float32, maximumAltitude float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64) {
+	sum.MinimumAltitude = minimumAltitude
+	sum.MaximumAltitude = maximumAltitude
 	sum.Distance = distance
 	sum.DownwardsDistance = downwardsDistance
 	sum.UpwardsDistance = upwardsDistance
@@ -52,19 +52,19 @@ func (sum TrackSummary) GetDistance() float64 {
 	return sum.Distance
 }
 
-// GetAtituteRange - Implement the TrackSummaryProvider interface for TrackSummary
-func (sum TrackSummary) GetAtituteRange() float32 {
-	return sum.MaximumAtitute - sum.MinimumAtitute
+// GetAltitudeRange - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetAltitudeRange() float32 {
+	return sum.MaximumAltitude - sum.MinimumAltitude
 }
 
-// GetMaximumAtitute Implement the TrackSummaryProvider interface for TrackSummary
-func (sum TrackSummary) GetMaximumAtitute() float32 {
-	return sum.MaximumAtitute
+// GetMaximumAltitude Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetMaximumAltitude() float32 {
+	return sum.MaximumAltitude
 }
 
-// GetMinimumAtitute - Implement the TrackSummaryProvider interface for TrackSummary
-func (sum TrackSummary) GetMinimumAtitute() float32 {
-	return sum.MinimumAtitute
+// GetMinimumAltitude - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetMinimumAltitude() float32 {
+	return sum.MinimumAltitude
 }
 
 // TrackFile - A struct to handle track files
@@ -124,18 +124,18 @@ func (pnt TrackPoint) GetDistance() float64 {
 	return pnt.DistanceBefore
 }
 
-// GetAtituteRange - Implement the TrackSummaryProvider interface for TrackPoint
-func (pnt TrackPoint) GetAtituteRange() float32 {
+// GetAltitudeRange - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetAltitudeRange() float32 {
 	return 0.0
 }
 
-// GetMaximumAtitute Implement the TrackSummaryProvider interface for TrackPoint
-func (pnt TrackPoint) GetMaximumAtitute() float32 {
+// GetMaximumAltitude Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetMaximumAltitude() float32 {
 	return pnt.Elevation
 }
 
-// GetMinimumAtitute - Implement the TrackSummaryProvider interface for TrackPoint
-func (pnt TrackPoint) GetMinimumAtitute() float32 {
+// GetMinimumAltitude - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetMinimumAltitude() float32 {
 	return pnt.Elevation
 }
 

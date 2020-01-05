@@ -13,9 +13,9 @@ type TrackReader interface {
 // TrackSummaryProvider - Interface for classes that provide track summary data
 type TrackSummaryProvider interface {
 	GetDistance() float64
-	GetAtituteRange() float32
-	GetMinimumAtitute() float32
-	GetMaximumAtitute() float32
+	GetAltitudeRange() float32
+	GetMinimumAltitude() float32
+	GetMaximumAltitude() float32
 	GetElevationGain() float32
 	GetElevationLose() float32
 	GetUpwardsDistance() float64
@@ -24,5 +24,5 @@ type TrackSummaryProvider interface {
 
 // TrackSummarySetter - Interface for classes that can set track summary data
 type TrackSummarySetter interface {
-	SetValues(distance float64, minimumAtitute float32, maximumAtitute float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64)
+	SetValues(distance float64, minimumAltitude float32, maximumAltitude float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64)
 }

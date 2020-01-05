@@ -215,8 +215,8 @@ func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 
 func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider) {
 	var dist float64
-	var minimumAtitute float32
-	var maximumAtitute float32
+	var minimumAltitude float32
+	var maximumAltitude float32
 	var elevationGain float32
 	var elevationLose float32
 	var upwardsDistance float64
@@ -229,16 +229,16 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 		upwardsDistance = upwardsDistance + sum.GetUpwardsDistance()
 		downwardsDistance = downwardsDistance + sum.GetDownwardsDistance()
 
-		if i == 0 || sum.GetMaximumAtitute() > maximumAtitute {
-			maximumAtitute = sum.GetMaximumAtitute()
+		if i == 0 || sum.GetMaximumAltitude() > maximumAltitude {
+			maximumAltitude = sum.GetMaximumAltitude()
 		}
 
-		if i == 0 || sum.GetMinimumAtitute() < minimumAtitute {
-			minimumAtitute = sum.GetMinimumAtitute()
+		if i == 0 || sum.GetMinimumAltitude() < minimumAltitude {
+			minimumAltitude = sum.GetMinimumAltitude()
 		}
 	}
 
-	target.SetValues(dist, minimumAtitute, maximumAtitute, elevationGain, elevationLose, upwardsDistance, downwardsDistance)
+	target.SetValues(dist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance)
 }
 
 func getCorrectedElevationLinear(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {

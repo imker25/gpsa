@@ -24,16 +24,16 @@ func TestTrackSummary(t *testing.T) {
 		t.Errorf("The GetDistance() rutrns %f, but %f was expected", iSum.GetDistance(), 100.1)
 	}
 
-	if !CompareFloat64With4Digits(float64(iSum.GetAtituteRange()), 30.2) {
-		t.Errorf("The GetAtituteRange() rutrns %f, but %f was expected", iSum.GetAtituteRange(), 30.2)
+	if !CompareFloat64With4Digits(float64(iSum.GetAltitudeRange()), 30.2) {
+		t.Errorf("The GetAltitudeRange() rutrns %f, but %f was expected", iSum.GetAltitudeRange(), 30.2)
 	}
 
-	if iSum.GetMaximumAtitute() != 40.6 {
-		t.Errorf("The GetMaximumAtitute() rutrns %f, but %f was expected", iSum.GetMaximumAtitute(), 40.6)
+	if iSum.GetMaximumAltitude() != 40.6 {
+		t.Errorf("The GetMaximumAltitude() rutrns %f, but %f was expected", iSum.GetMaximumAltitude(), 40.6)
 	}
 
-	if iSum.GetMinimumAtitute() != 10.4 {
-		t.Errorf("The GetMinimumAtitute() rutrns %f, but %f was expected", iSum.GetMinimumAtitute(), 10.4)
+	if iSum.GetMinimumAltitude() != 10.4 {
+		t.Errorf("The GetMinimumAltitude() rutrns %f, but %f was expected", iSum.GetMinimumAltitude(), 10.4)
 	}
 
 	if iSum.GetElevationGain() != 40.2 {
@@ -65,16 +65,16 @@ func TestTrackFileIsTrackSummary(t *testing.T) {
 		t.Errorf("The GetDistance() does return %f, but %f was expected", sum.GetDistance(), 0.0)
 	}
 
-	if sum.GetAtituteRange() != 0.0 {
-		t.Errorf("The GetAtituteRange() does return %f, but %f was expected", sum.GetAtituteRange(), 0.0)
+	if sum.GetAltitudeRange() != 0.0 {
+		t.Errorf("The GetAltitudeRange() does return %f, but %f was expected", sum.GetAltitudeRange(), 0.0)
 	}
 
-	if sum.GetMaximumAtitute() != 0.0 {
-		t.Errorf("The GetMaximumAtitute() does return %f, but %f was expected", sum.GetMaximumAtitute(), 0.0)
+	if sum.GetMaximumAltitude() != 0.0 {
+		t.Errorf("The GetMaximumAltitude() does return %f, but %f was expected", sum.GetMaximumAltitude(), 0.0)
 	}
 
-	if sum.GetMinimumAtitute() != 0.0 {
-		t.Errorf("The GetMinimumAtitute() does return %f, but %f was expected", sum.GetMinimumAtitute(), 0.0)
+	if sum.GetMinimumAltitude() != 0.0 {
+		t.Errorf("The GetMinimumAltitude() does return %f, but %f was expected", sum.GetMinimumAltitude(), 0.0)
 	}
 }
 
@@ -90,16 +90,16 @@ func TestTrackIsTrackSummary(t *testing.T) {
 		t.Errorf("The GetDistance() does return %f, but %f was expected", sum.GetDistance(), 0.0)
 	}
 
-	if sum.GetAtituteRange() != 0.0 {
-		t.Errorf("The GetAtituteRange() does return %f, but %f was expected", sum.GetAtituteRange(), 0.0)
+	if sum.GetAltitudeRange() != 0.0 {
+		t.Errorf("The GetAltitudeRange() does return %f, but %f was expected", sum.GetAltitudeRange(), 0.0)
 	}
 
-	if sum.GetMaximumAtitute() != 0.0 {
-		t.Errorf("The GetMaximumAtitute() does return %f, but %f was expected", sum.GetMaximumAtitute(), 0.0)
+	if sum.GetMaximumAltitude() != 0.0 {
+		t.Errorf("The GetMaximumAltitude() does return %f, but %f was expected", sum.GetMaximumAltitude(), 0.0)
 	}
 
-	if sum.GetMinimumAtitute() != 0.0 {
-		t.Errorf("The GetMinimumAtitute() does return %f, but %f was expected", sum.GetMinimumAtitute(), 0.0)
+	if sum.GetMinimumAltitude() != 0.0 {
+		t.Errorf("The GetMinimumAltitude() does return %f, but %f was expected", sum.GetMinimumAltitude(), 0.0)
 	}
 }
 
@@ -115,15 +115,15 @@ func TestTrackSegmentIsTrackSummary(t *testing.T) {
 		t.Errorf("The GetDistance() does return %f, but %f was expected", sum.GetDistance(), 0.0)
 	}
 
-	if sum.GetAtituteRange() != 0.0 {
-		t.Errorf("The GetAtituteRange() does return %f, but %f was expected", sum.GetAtituteRange(), 0.0)
+	if sum.GetAltitudeRange() != 0.0 {
+		t.Errorf("The GetAltitudeRange() does return %f, but %f was expected", sum.GetAltitudeRange(), 0.0)
 	}
 
-	if sum.GetMaximumAtitute() != 0.0 {
-		t.Errorf("The GetMaximumAtitute() does return %f, but %f was expected", sum.GetMaximumAtitute(), 0.0)
+	if sum.GetMaximumAltitude() != 0.0 {
+		t.Errorf("The GetMaximumAltitude() does return %f, but %f was expected", sum.GetMaximumAltitude(), 0.0)
 	}
 
-	if sum.GetMinimumAtitute() != 0.0 {
-		t.Errorf("The GetMinimumAtitute() does return %f, but %f was expected", sum.GetMinimumAtitute(), 0.0)
+	if sum.GetMinimumAltitude() != 0.0 {
+		t.Errorf("The GetMinimumAltitude() does return %f, but %f was expected", sum.GetMinimumAltitude(), 0.0)
 	}
 }

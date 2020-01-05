@@ -261,12 +261,12 @@ func TestFillTrackSegmentValuesSimple(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f expected.", seg.Distance, 23.885148437468256)
 	}
 
-	if seg.MaximumAtitute != 109.0 {
-		t.Errorf("The MaximumAtitute is %f, but %f expected.", seg.MaximumAtitute, 109.0)
+	if seg.MaximumAltitude != 109.0 {
+		t.Errorf("The MaximumAltitude is %f, but %f expected.", seg.MaximumAltitude, 109.0)
 	}
 
-	if seg.MinimumAtitute != 108.0 {
-		t.Errorf("The MinimumAtitute is %f, but %f expected.", seg.MinimumAtitute, 108.0)
+	if seg.MinimumAltitude != 108.0 {
+		t.Errorf("The MinimumAltitude is %f, but %f expected.", seg.MinimumAltitude, 108.0)
 	}
 }
 
@@ -339,12 +339,12 @@ func TestFillTrackValuesSimple(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f expected.", track.Distance, 23.885148437468256)
 	}
 
-	if track.MaximumAtitute != 109.0 {
-		t.Errorf("The MaximumAtitute is %f, but %f expected.", track.MaximumAtitute, 109.0)
+	if track.MaximumAltitude != 109.0 {
+		t.Errorf("The MaximumAltitude is %f, but %f expected.", track.MaximumAltitude, 109.0)
 	}
 
-	if track.MinimumAtitute != 108.0 {
-		t.Errorf("The MinimumAtitute is %f, but %f expected.", track.MinimumAtitute, 108.0)
+	if track.MinimumAltitude != 108.0 {
+		t.Errorf("The MinimumAltitude is %f, but %f expected.", track.MinimumAltitude, 108.0)
 	}
 }
 
@@ -357,12 +357,12 @@ func TestFillTrackFileValuesSimple(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f expected.", file.Distance, 23.885148437468256)
 	}
 
-	if file.MaximumAtitute != 109.0 {
-		t.Errorf("The MaximumAtitute is %f, but %f expected.", file.MaximumAtitute, 109.0)
+	if file.MaximumAltitude != 109.0 {
+		t.Errorf("The MaximumAltitude is %f, but %f expected.", file.MaximumAltitude, 109.0)
 	}
 
-	if file.MinimumAtitute != 108.0 {
-		t.Errorf("The MinimumAtitute is %f, but %f expected.", file.MinimumAtitute, 108.0)
+	if file.MinimumAltitude != 108.0 {
+		t.Errorf("The MinimumAltitude is %f, but %f expected.", file.MinimumAltitude, 108.0)
 	}
 }
 
