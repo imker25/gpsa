@@ -7,7 +7,7 @@ package main
 
 import "fmt"
 
-// OutFileIsDirError - Error when trying to write the output to a directory and not a file
+// OutFileIsDirError - Error when trying to write the output to a directory and not to a file
 type OutFileIsDirError struct {
 	err string
 	// File - The path to the dir that caused this error

@@ -19,7 +19,7 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-// Use this Mux to sync write access to the testdata/test-out.csv file
+// Use this Mutex to sync write access to the testdata/test-out.csv file
 var outFileMux sync.Mutex
 
 var ComandlineOptionsHandled bool
@@ -31,23 +31,23 @@ func TestHandleComandlineOptions(t *testing.T) {
 	}
 
 	if HelpFlag == true {
-		t.Errorf("The HelpFlag is true, but should not")
+		t.Errorf("The HelpFlag is set to true but false was expected")
 	}
 
 	if VerboseFlag == true {
-		t.Errorf("The VerboseFlag is true, but should not")
+		t.Errorf("The VerboseFlag is set to true but false was expected")
 	}
 
 	if SkipErrorExitFlag == true {
-		t.Errorf("The SkipErrorExitFlag is true, but should not")
+		t.Errorf("The SkipErrorExitFlag is set to true but false was expected")
 	}
 
 	if PrintVersionFlag == true {
-		t.Errorf("The PrintVersionFlag is true, but should not")
+		t.Errorf("The PrintVersionFlag is set to true but false was expected")
 	}
 
 	if PrintLicenseFlag == true {
-		t.Errorf("The PrintLicenseFlag is true, but should not")
+		t.Errorf("The PrintLicenseFlag is set to true but false was expected")
 	}
 
 	if DepthParametr != "track" {
@@ -59,11 +59,11 @@ func TestHandleComandlineOptions(t *testing.T) {
 	}
 
 	if DontPanicFlag == false {
-		t.Errorf("The DontPanicFlag is false, but should not")
+		t.Errorf("The DontPanicFlag is set to false but true was expected")
 	}
 
 	if PrintCsvHeaderFlag == false {
-		t.Errorf("The PrintCsvHeaderFlag is false, but should not")
+		t.Errorf("The PrintCsvHeaderFlag is set to false but true was expected")
 	}
 
 	if CorrectionParameter != "steps" {
@@ -81,7 +81,7 @@ func TestCostumHelpMessage(t *testing.T) {
 
 func TestHandleErrorNil(t *testing.T) {
 	if HandleError(nil, "my/path", true, true) == true {
-		t.Errorf("HandleError reutrns true, when nil error was given")
+		t.Errorf("HandleError returns true, when nil error was given")
 	}
 
 }
@@ -91,11 +91,11 @@ func TestHandleErrorNotNil(t *testing.T) {
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
 	if HandleError(newUnKnownFileTypeError("my/path"), "my/path", true, true) == false {
-		t.Errorf("HandleError reutrns false, when error was given")
+		t.Errorf("HandleError retutns false, when error was given")
 	}
 
 	if ErrorsHandled == false {
-		t.Errorf("ErrorsHandled should be true, after a error was handeled")
+		t.Errorf("ErrorsHandled should be true after a error was handled")
 	}
 	SkipErrorExitFlag = oldFlagValue
 	ErrorsHandled = false
@@ -117,7 +117,7 @@ func TestGetReaderUnkonwnFile(t *testing.T) {
 	reader, err := getReader("/some/track.txt")
 
 	if err == nil {
-		t.Errorf("Got no error when try to get a reader for a txt file.")
+		t.Errorf("Got no error when trying to get a reader for a txt file.")
 	}
 
 	if reader != nil {
@@ -140,11 +140,11 @@ func TestProcessValideFiles(t *testing.T) {
 	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
 	successCount := processFiles(files, iFormater)
 	if successCount != 2 {
-		t.Errorf("Not all files was proccess successfull as expected")
+		t.Errorf("Not all files were processed successfully as expected")
 	}
 
 	if ErrorsHandled == true {
-		t.Errorf("Errors occured, but should not")
+		t.Errorf("Errors occured that were not expected")
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
@@ -166,7 +166,7 @@ func TestProcessFilesDifferenCorrection(t *testing.T) {
 	iFormater1 := gpsabl.OutputFormater(formater1)
 	successCount1 := processFiles(files, iFormater1)
 	if successCount1 != 2 {
-		t.Errorf("Not all files was proccess successfull as expected")
+		t.Errorf("Not all files were processed successfully as expected")
 	}
 
 	CorrectionParameter = "linear"
@@ -174,7 +174,7 @@ func TestProcessFilesDifferenCorrection(t *testing.T) {
 	iFormater2 := gpsabl.OutputFormater(formater2)
 	successCount2 := processFiles(files, iFormater2)
 	if successCount2 != 2 {
-		t.Errorf("Not all files was proccess successfull as expected")
+		t.Errorf("Not all files were processed successfully as expected")
 	}
 
 	if len(formater2.GetLines()) != len(formater1.GetLines()) {
@@ -186,7 +186,7 @@ func TestProcessFilesDifferenCorrection(t *testing.T) {
 	}
 
 	if ErrorsHandled == true {
-		t.Errorf("Errors occured, but should not")
+		t.Errorf("Errors occured that were not expected")
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
@@ -209,11 +209,11 @@ func TestProcessMixedFiles(t *testing.T) {
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
 	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
-		t.Errorf("Not two files was proccess with error as expected")
+		t.Errorf("More or less than two files were processed with error - expected exactly two of them")
 	}
 
 	if ErrorsHandled == false {
-		t.Errorf("No errors occured, but should")
+		t.Errorf("No errors occured where errors were expected")
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
@@ -238,11 +238,11 @@ func TestProcessUnValideFiles(t *testing.T) {
 	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
 	successCount := processFiles(files, iFormater)
 	if successCount != 0 {
-		t.Errorf("Not all files was proccess with error as expected")
+		t.Errorf("Not all files were processed with error as expected")
 	}
 
 	if ErrorsHandled == false {
-		t.Errorf("No errors occured, but should")
+		t.Errorf("No errors occured were errors were expected")
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
@@ -260,7 +260,7 @@ func TestGetOutPutStream_StdOut(t *testing.T) {
 	case *os.Stdout:
 		fmt.Println("OK")
 	default:
-		t.Errorf("Got not the expected stream")
+		t.Errorf("Did not receive the expected stream")
 	}
 	ErrorsHandled = false
 	OutFileParameter = oldOutFileParameter
@@ -298,7 +298,7 @@ func TestGetOutPutStream_AFile(t *testing.T) {
 				t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
 			}
 		} else {
-			t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+			t.Errorf("The outfile \"%s\" was not created as expected", filePath)
 		}
 
 		if str.Name() != filePath {
@@ -306,7 +306,7 @@ func TestGetOutPutStream_AFile(t *testing.T) {
 		}
 
 		if ErrorsHandled == true {
-			t.Errorf("Got an error, but expected none")
+			t.Errorf("Got an error where no error was expected")
 		}
 
 		ErrorsHandled = false
@@ -360,7 +360,7 @@ func TestGetOutPutStream_AExistingFile(t *testing.T) {
 		}
 
 		if ErrorsHandled == true {
-			t.Errorf("Got an error, but expected none")
+			t.Errorf("Got an error where no error was expected")
 		}
 
 		ErrorsHandled = false
@@ -375,6 +375,6 @@ func TestGetOutPutFormater(t *testing.T) {
 	case *gpsabl.CsvOutputFormater:
 		fmt.Println("OK")
 	default:
-		t.Errorf("Got not the expected formater")
+		t.Errorf("Did not receive the expected formater")
 	}
 }

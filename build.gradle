@@ -4,9 +4,9 @@ def programVersion='0.3.2'
 def goPath
 def scriptDirectory
 def scriptFile
-def osName 
-def osVersion 
-String srcDir 
+def osName
+def osVersion
+String srcDir
 String binDir
 String pkgDir
 String logDir
@@ -46,7 +46,7 @@ task getEnvironment {
         def logDirBase = new File(logDir)
         logDirBase.mkdirs()
 
-        // Make sure the gopath is valide for build
+        // Make sure the gopath is valid for build
         goPath = "${System.env.GOPATH}"
 
         if ("$goPath"!="null" ) {
@@ -66,7 +66,7 @@ task getEnvironment {
             println "No GOPATH set. Set it to: $scriptDirectory"
             goPath ="$scriptDirectory"
         }
-        
+
         if ( osName.contains('Windows') == true) {
             raceParameter = ''
         } else {
@@ -74,10 +74,10 @@ task getEnvironment {
         }
 
         println "GOPATH=$goPath"
-        
-        // Find all diretories within src/ that contains *.go files
+
+        // Find all directories within src/ that contains *.go files
         new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*.go/ , type: groovy.io.FileType.FILES]){
-                String packageDir = it.getParent() 
+                String packageDir = it.getParent()
                 String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
                 if ((packagesToBuild.contains(packageName + ' ') == false) && (packageName.contains('github.com') == false)) {
                     packagesToBuild = packageName + ' ' + packagesToBuild
@@ -86,7 +86,7 @@ task getEnvironment {
 
         // Find all directories within src/ that contains *_test.go files
         new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*_test.go/, type: groovy.io.FileType.FILES]){
-                String packageDir = it.getParent() 
+                String packageDir = it.getParent()
                 String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
                 if ((packagesToTest.contains(packageName + ' ') == false) && (packageName.contains('github.com') == false)) {
                     packagesToTest = packageName + ' ' + packagesToTest
@@ -104,10 +104,10 @@ task getEnvironment {
 }
 
 task installTestConvert(dependsOn: 'getEnvironment') {
-    description 'Install all dependecies needed for test result convertion'
+    description 'Install all dependecies needed for test result conversion'
     doFirst {
         println '##################################################################################'
-        println 'Install Test Result convertion tools '
+        println 'Install Test Result conversion tools '
         println '##################################################################################'
     }
     doLast {
@@ -136,15 +136,15 @@ task clean(dependsOn: 'getEnvironment') {
     doLast {
         println "Delete binaries in $binDir"
         delete fileTree(binDir) {
-            
+
         }
         println "Delete packages in $pkgDir"
         delete fileTree(pkgDir) {
-            
+
         }
         println "Delete logs in $logDir"
         delete fileTree(logDir) {
-            
+
         }
 
         println "Delete zips in $scriptDirectory"
@@ -170,17 +170,17 @@ task test(dependsOn: 'getEnvironment') {
         callArgsTestRun[2] = raceParameter
         def i = 0
         packageArray.each {
-            callArgsTestRun[i + 3] = it 
+            callArgsTestRun[i + 3] = it
             i = i + 1
         }
-        
+
         def logFileStream = new FileOutputStream(logDir + "TestsRun.log")
         exec {
             workingDir "$scriptDirectory"
             executable "go"
             args callArgsTestRun
             environment('GOPATH', goPath)
-     
+
             standardOutput logFileStream
             errorOutput logFileStream
         }
@@ -203,16 +203,16 @@ task cover(dependsOn: 'getEnvironment') {
         callArgsTestRun[2] = '-cover'
         def i = 0
         packageArray.each {
-            callArgsTestRun[i + 3] = it 
+            callArgsTestRun[i + 3] = it
             i = i + 1
         }
-        
+
         exec {
             workingDir "$scriptDirectory"
             executable "go"
             args callArgsTestRun
             environment('GOPATH', goPath)
-     
+
         }
     }
 }
@@ -242,7 +242,7 @@ task convertTestResults(dependsOn: 'installTestConvert') {
 
         }
     }
-} 
+}
 
 task build(dependsOn: 'clean') {
     description 'Compile all go packages'
@@ -258,14 +258,14 @@ task build(dependsOn: 'clean') {
         def callArgs = new String[packageArray.length + 4]
         callArgs[0] = 'install'
         callArgs[1] = '-v'
-        callArgs[2] = "-ldflags" 
-        callArgs[3] = versionArg 
+        callArgs[2] = "-ldflags"
+        callArgs[3] = versionArg
         def i = 0
         packageArray.each {
-            callArgs[i + 4] = it 
+            callArgs[i + 4] = it
             i = i + 1
         }
-       
+
         exec {
             workingDir "$scriptDirectory"
             executable "go"
@@ -300,14 +300,12 @@ task createBinZip(type: Zip, dependsOn: 'getEnvironment') {
     }
 }
 
-// Do something after each task, no matter the state
+// Do something after each task, no taking care about the state
 gradle.taskGraph.afterTask { taskWasRunning, TaskState state ->
 
     // Find out what task was running before
    if ((taskWasRunning == build) || (taskWasRunning == test))  {
         println "$taskWasRunning exit"
 
-   } 
+   }
 }
-
-

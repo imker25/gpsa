@@ -1,9 +1,9 @@
 # gpsa - A GPX Statistic Analysing tool
 
-This is a simple comandline tool, that may helps to extract statistic data out of *.gpx files
+This is a simple command line tool that helps to extract statistic data out of *.gpx files
 
 - [gpsa - A GPX Statistic Analysing tool](#gpsa---a-gpx-statistic-analysing-tool)
-  - [User Documentaion](#user-documentaion)
+  - [User Documentation](#user-documentation)
     - [Installation](#installation)
     - [Usage](#usage)
       - [Examples](#examples)
@@ -12,8 +12,8 @@ This is a simple comandline tool, that may helps to extract statistic data out o
     - [Hints for VSCode Users](#hints-for-vscode-users)
   - [Geo Math Internals](#geo-math-internals)
   - [License](#license)
-  
-## User Documentaion
+
+## User Documentation
 
 Some documentation and examples about gpsa usage.
 
@@ -30,7 +30,7 @@ On Windows download [gpsa.exe](https://homer.tobi.backfrak.de/jenkins/job/GPSA/j
 
 ### Usage
 
-You might want to call ```-help```, to find out how to use the program.
+You might want to call ```-help``` to find out how to use the program.
 
 ```sh
 ~$ ./gpsa -help
@@ -42,21 +42,21 @@ Usage: ./gpsa [options] [files]
         One or more track files (only *.gpx) supported at the moment
 Options:
   -correction string
-        Tell how the programm should correct the elevation data read from the track. Possible values are [steps linear none ] (default "steps")
+        Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
   -depth string
-        Tell how depth the program should analyse the files. Possible values are [segment file track ] (default "track")
+        Define the way the program should analyse the files. Possible values are [segment file track ] (default "track")
   -dont-panic
-        Tell if the prgramm will exit with panic, or with negiatv exit code in error cases (default true)
+        Define if the programm will exit with panic or with a negativ exit code in error cases (default true). Possible values are ToDoTobi
   -help
         Prints this help message
   -license
         Print the license information of the program
   -out-file string
-        Tell where to write the output. StdOut is used when not set
+        Define where to write the output. (default "StdOut" if not explicitly set)
   -print-csv-header
-        Print out a csv header line (default true)
+        Print out a csv header line (default true). Possible values are ToDoTobi
   -skip-error-exit
-        Don't exit the program on track file processing errors
+        Use this flag if you don't want to abort the program during track file processing errors
   -verbose
         Run the program with verbose output
   -version
@@ -74,7 +74,7 @@ GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.
 
 ```
 
-Simple call with multible filess:
+Simple call with multiple files:
 
 ```sh
 ~$  ./gpsa my/test/01.gpx my/test/02.gpx my/test/03.gpx
@@ -85,14 +85,14 @@ GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.
 
 ```
 
-Get statistc for a number of files into a csv output:
+Get statistics for a number of files into a csv output:
 
 ```sh
 ~$  ./gpsa -out-file=gps-statistics.csv my/test/*.gpx
 
 ```
 
-Get statistc for a number of files into a csv output, with verbose comandline output:
+Get statistics for a number of files into a csv output, with verbose comandline output:
 
 ```sh
 ~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
@@ -107,11 +107,11 @@ Read file: my/test/03.gpx
 
 ## Development
 
-To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine. 
+To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine.
 
 ### Build
 
-Use [Gradle](https://gradle.org/) to build and test the porject
+Use [Gradle](https://gradle.org/) to build and test the project
 
 ```sh
 gradle build        # build the project
@@ -121,7 +121,7 @@ gradle test         # test the project
 
 ### Hints for VSCode Users
 
-If you use [VS Code](https://code.visualstudio.com/) for GO development, you might find the following example settings usefull.
+If you use [VS Code](https://code.visualstudio.com/) for GO development, you might find the following example settings useful.
 
 The ```tasks.json```:
 
@@ -148,7 +148,7 @@ The ```tasks.json```:
             }
         }
     ]
-} 
+}
 ```
 
 The ```launch.json```:
@@ -182,12 +182,11 @@ The ```settings.json```:
 }
 ```
 
-## Geo Math Internals 
+## Geo Math Internals
 
-The Geografic calculations are done with the  ```haversine formula```  as descripted [here](http://www.movable-type.co.uk/scripts/latlong.html). My Impelemtaion will ignore atitute difference for distance bigger then 33 km, by checking the agular distance to be bigger then 0.3°. For smaller distances the program will add the atitute difference using the ```pythagoras theorem```.
+The Geografic calculations are done with the  ```haversine formula```  as described [here](http://www.movable-type.co.uk/scripts/latlong.html). My implementation will ignore altitude differences for distances bigger than 33km by checking the angular distance which in this case then is bigger than 0.3°. For smaller distances the program will add the altitude difference using the ```pythagoras theorem```.
 
 ## License
 
 gpsa is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 May got some testfiles and ideas from [gpxgo](https://github.com/tkrajina/gpxgo/tree/master/test_files)
-

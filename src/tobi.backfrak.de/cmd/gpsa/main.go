@@ -15,10 +15,10 @@ import (
 	"tobi.backfrak.de/internal/gpxbl"
 )
 
-// Authors - Information about the authors of the program. You might want to add your name here when contribute to this software
+// Authors - Information about the authors of the program. You might want to add your name here when contributing to this software
 const Authors = "tobi@backfrak.de"
 
-// The Version of this program, will be set at compile time by the gradle build script
+// The version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
 
 // HelpFlag - Tell if the program was called with -help
@@ -39,8 +39,8 @@ var OutFileParameter string
 // DontPanicFlag - Tell if the prgramm was called with -dont-panic
 var DontPanicFlag bool
 
-// DepthParametr - Tell in what depth we should mak the analyses ( -depth )
-var DepthParametr string
+// DepthParameter - Tell in what depth we should mak the analyses ( -depth )
+var DepthParameter string
 
 // CorrectionParameter - Tell how we should correct Elevation data from the track ( -correction )
 var CorrectionParameter string
@@ -85,9 +85,9 @@ func main() {
 			os.Exit(0)
 		}
 
-		// If don't have intput files, we do nothing
+		// If we don't have input files, we do nothing
 		if len(flag.Args()) != 0 {
-			// Find out where to write the output. May a file, may STDOUT
+			// Find out where to write the output. May be a file or STDOUT
 			out := getOutPutStream()
 
 			// Get the type that handles the output
@@ -104,7 +104,7 @@ func main() {
 			}
 
 			if VerboseFlag == true {
-				fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files process successfull", successCount, len(flag.Args())))
+				fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(flag.Args())))
 			}
 		} else {
 			if VerboseFlag == true {
@@ -122,34 +122,34 @@ func main() {
 	}
 }
 
-// handleComandlineOptions - Setup and parse the comandline options.
+// handleComandlineOptions - Setup and parse the commandline options.
 // Defines the usage function as well
 func handleComandlineOptions() {
 
 	outFormater := gpsabl.NewCsvOutputFormater(";")
 
-	// Setup the valide comandline flags
-	flag.BoolVar(&HelpFlag, "help", false, "Prints this help message and exit")
-	flag.BoolVar(&PrintVersionFlag, "version", false, "Print the version of the program and exit")
-	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print the license information of the program and exit")
+	// Setup the valid comandline flags
+	flag.BoolVar(&HelpFlag, "help", false, "Print help message and exit")
+	flag.BoolVar(&PrintVersionFlag, "version", false, "Print version of the program and exit")
+	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print license information of the program and exit")
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
-	flag.StringVar(&OutFileParameter, "out-file", "", "Tell where to write the output. StdOut is used when not set")
-	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Tell if the prgramm will exit with panic, or with negiatv exit code in error cases")
-	flag.StringVar(&DepthParametr, "depth", outFormater.ValideDepthArgs[0],
-		fmt.Sprintf("Tell how depth the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
+	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set")
+	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases")
+	flag.StringVar(&DepthParameter, "depth", outFormater.ValideDepthArgs[0],
+		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
 	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValideCorectionParamters()[2],
-		fmt.Sprintf("Tell how the programm should correct the elevation data read from the track. Possible values are [%s]", gpsabl.GetValideCorectionParamtersString()))
+		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValideCorectionParamtersString()))
 
-	// Overwrite the std Usage function with some costum stuff
-	flag.Usage = costumHelpMessage
+	// Overwrite the std Usage function with some custom stuff
+	flag.Usage = customHelpMessage
 
 	// Read the given flags
 	flag.Parse()
 }
 
-func costumHelpMessage() {
+func customHelpMessage() {
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report", os.Args[0]))
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
 	fmt.Fprintln(os.Stdout)
@@ -160,7 +160,7 @@ func costumHelpMessage() {
 	flag.PrintDefaults()
 }
 
-// processFiles - prosses the input files and add the found coneted to the output buffer
+// processFiles - processes the input files and adds the found content to the output buffer
 func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 
 	if !gpsabl.CheckValideCorectionParamters(CorrectionParameter) {
@@ -193,7 +193,7 @@ func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 		}
 	}
 
-	// Return how may files was processed fine
+	// Return how may files were processed fine
 	return successCount
 }
 
@@ -204,7 +204,7 @@ func goProcessFile(filePath string, formater gpsabl.OutputFormater, c chan bool)
 	c <- ret
 }
 
-// processFile - prosess one input file and add the found coneted to the output buffer
+// processFile - processes one input file and adds the found content to the output buffer
 func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + filePath)
@@ -222,7 +222,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Add the file to the out buffer of the formater
-	addErr := formater.AddOutPut(file, DepthParametr)
+	addErr := formater.AddOutPut(file, DepthParameter)
 	if HandleError(addErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
@@ -233,15 +233,15 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
 	formater := gpsabl.NewCsvOutputFormater(";")
-	if !formater.CheckVlaideDepthArg(DepthParametr) {
-		HandleError(gpsabl.NewDepthParametrNotKnownError(DepthParametr), "", false, DontPanicFlag)
+	if !formater.CheckVlaideDepthArg(DepthParameter) {
+		HandleError(gpsabl.NewDepthParametrNotKnownError(DepthParameter), "", false, DontPanicFlag)
 	}
 	iFormater := gpsabl.OutputFormater(formater)
 
 	return iFormater
 }
 
-// Get the file interface, we use as output. A file or STDOUT
+// Get the file interface we are using as output. Maybe a file or STDOUT
 func getOutPutStream() *os.File {
 	var out *os.File
 	var errOpen error
@@ -268,7 +268,7 @@ func getOutPutStream() *os.File {
 	return out
 }
 
-// Get the interface, that can read a given input file
+// Get the interface that can read a given input file
 func getReader(file string) (gpsabl.TrackReader, error) {
 
 	if strings.HasSuffix(file, "gpx") == true { // If the file is a *.gpx, we can read it

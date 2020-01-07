@@ -14,7 +14,7 @@ func TestUnKnownFileTypeErrorStruct(t *testing.T) {
 	}
 
 	if strings.Contains(err.Error(), path) == false {
-		t.Errorf("The error messaage of UnKnownFileTypeError does not contain the expected Path")
+		t.Errorf("The error message of UnKnownFileTypeError does not contain the expected path")
 	}
 }
 
@@ -23,10 +23,10 @@ func TestOutFileIsDirErrorStruct(t *testing.T) {
 	err := newOutFileIsDirError(path)
 
 	if err.Dir != path {
-		t.Errorf("The Dir was %s, but %s was expected", err.Dir, path)
+		t.Errorf("The directory was %s, but %s was expected", err.Dir, path)
 	}
 
 	if strings.Contains(err.Error(), path) == false {
-		t.Errorf("The error messaage of OutFileIsDirError does not contain the expected Dir")
+		t.Errorf("The error message of OutFileIsDirError does not contain the expected directory")
 	}
 }

@@ -28,33 +28,33 @@ pipeline {
 						}
 						stage('Test windows binaries') {
 							steps('Run') {
-								bat 'gradle test' 
+								bat 'gradle test'
 							}
-							
+
 						}
 					}
 					post('Deploy windows results') {
         				always {
-							bat 'gradle convertTestResults' 
+							bat 'gradle convertTestResults'
 							junit "logs\\*.xml"
 							bat 'gradle createBuildZip'
 							archiveArtifacts "*.zip"
-							archiveArtifacts "bin\\gpsa.exe"	
+							archiveArtifacts "bin\\gpsa.exe"
 						}
-					}	
-					
+					}
+
 				}
-                
-        
+
+
                 stage('Run on Linux') {
                     agent {
                         label "unix"
                     }
 					stages{
-						stage('Prepare linux worspace'){
+						stage('Prepare linux workspace'){
 							steps ('Checkout') {
 								checkout scm
-							}							
+							}
 						}
 						stage('Create linux binaries') {
 							steps ('Build') {
@@ -63,19 +63,19 @@ pipeline {
 						}
 						stage('Test linux binaries') {
 							steps('Run') {
-								sh 'gradle test' 
+								sh 'gradle test'
 							}
-							
+
 						}
 					}
 					post('Deploy linux results') {
-        				always {	
-							sh 'gradle convertTestResults' 
-							junit "logs/*.xml"					
-							sh 'gradle createBuildZip'	
-							archiveArtifacts "*.zip"	
-							archiveArtifacts "bin/gpsa"												
-						}						
+        				always {
+							sh 'gradle convertTestResults'
+							junit "logs/*.xml"
+							sh 'gradle createBuildZip'
+							archiveArtifacts "*.zip"
+							archiveArtifacts "bin/gpsa"
+						}
 					}
                 }
             }
