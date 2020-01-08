@@ -25,7 +25,7 @@ type Trk struct {
 	TrackSegments []Trkseg `xml:"trkseg"`
 }
 
-// Trkseg - Represents a track segement, basicaly a arry of Trkpt
+// Trkseg - Represents a track segment, basically an array of Trkpt
 type Trkseg struct {
 	TrackPoints []Trkpt `xml:"trkpt"`
 }
@@ -37,7 +37,7 @@ type Trkpt struct {
 	Longitude float32 `xml:"lon,attr"`
 }
 
-// GpxFileError - Error when trying to load not a gpx file
+// GpxFileError - Error when trying to load something that is no gpx file
 type GpxFileError struct {
 	err string
 	// File - The path to the file that caused this error

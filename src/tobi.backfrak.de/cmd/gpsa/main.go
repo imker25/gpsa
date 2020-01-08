@@ -21,34 +21,34 @@ const Authors = "tobi@backfrak.de"
 // The version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
 
-// HelpFlag - Tell if the program was called with -help
+// HelpFlag - Tells if the program was called with -help
 var HelpFlag bool
 
-// VerboseFlag - Tell if the program was called with -verbose
+// VerboseFlag - Tells if the program was called with -verbose
 var VerboseFlag bool
 
-// SkipErrorExitFlag - Tell if the program was called with -skip-error-exit
+// SkipErrorExitFlag - Tells if the program was called with -skip-error-exit
 var SkipErrorExitFlag bool
 
-// PrintCsvHeaderFlag - Tell if the program was called with  -print-csv-header
+// PrintCsvHeaderFlag - Tells if the program was called with -print-csv-header
 var PrintCsvHeaderFlag bool
 
-// OutFileParameter - Tell if and where we should write the output to ( -out-file )
+// OutFileParameter - Tells if and where we should write the output to ( -out-file )
 var OutFileParameter string
 
-// DontPanicFlag - Tell if the prgramm was called with -dont-panic
+// DontPanicFlag - Tells if the program was called with -dont-panic
 var DontPanicFlag bool
 
-// DepthParameter - Tell in what depth we should mak the analyses ( -depth )
+// DepthParameter - Tells for which depth we should perform the analyses ( -depth )
 var DepthParameter string
 
-// CorrectionParameter - Tell how we should correct Elevation data from the track ( -correction )
+// CorrectionParameter - Tells how we should correct Elevation data from the track ( -correction )
 var CorrectionParameter string
 
-// PrintVersionFlag - tell if the program was called with the -version flag
+// PrintVersionFlag - Tells if the program was called with the -version flag
 var PrintVersionFlag bool
 
-// PrintLicenseFlag - tell if the program was called with the -license flag
+// PrintLicenseFlag - Tells if the program was called with the -license flag
 var PrintLicenseFlag bool
 
 func main() {
@@ -137,10 +137,10 @@ func handleComandlineOptions() {
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line")
 	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set")
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases")
-	flag.StringVar(&DepthParameter, "depth", outFormater.ValideDepthArgs[0],
-		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetVlaideDepthArgsString()))
-	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValideCorectionParamters()[2],
-		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValideCorectionParamtersString()))
+	flag.StringVar(&DepthParameter, "depth", outFormater.ValidDepthArgs[0],
+		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetValidDepthArgsString()))
+	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValidCorrectionParameters()[2],
+		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
@@ -163,8 +163,8 @@ func customHelpMessage() {
 // processFiles - processes the input files and adds the found content to the output buffer
 func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 
-	if !gpsabl.CheckValideCorectionParamters(CorrectionParameter) {
-		HandleError(gpsabl.NewCorectionParamterNotKnownError(CorrectionParameter), "", false, DontPanicFlag)
+	if !gpsabl.CheckValidCorrectionParameters(CorrectionParameter) {
+		HandleError(gpsabl.NewCorrectionParameterNotKnownError(CorrectionParameter), "", false, DontPanicFlag)
 	}
 
 	allFiles := len(files)
@@ -233,8 +233,8 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
 	formater := gpsabl.NewCsvOutputFormater(";")
-	if !formater.CheckVlaideDepthArg(DepthParameter) {
-		HandleError(gpsabl.NewDepthParametrNotKnownError(DepthParameter), "", false, DontPanicFlag)
+	if !formater.CheckValidDepthArg(DepthParameter) {
+		HandleError(gpsabl.NewDepthParameterNotKnownError(DepthParameter), "", false, DontPanicFlag)
 	}
 	iFormater := gpsabl.OutputFormater(formater)
 

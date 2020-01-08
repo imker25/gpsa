@@ -14,7 +14,7 @@
  xmlns="http://www.topografix.com/GPX/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
 
 	<name>GPX name</name>
-	<desc>A valide GPX Track</desc>
+	<desc>A valid GPX Track</desc>
 	<trk>
 		<name>Track name</name>
 		<number>1</number>

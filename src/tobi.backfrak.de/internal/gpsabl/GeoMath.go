@@ -29,18 +29,18 @@ func HaversineDistance(pnt1, pnt2 TrackPoint) float64 {
 	return float64(EarthRadius+((pnt1.Elevation+pnt2.Elevation)/2)) * c
 }
 
-// Distance -  Calcs the distance between two TrackPoints in Meter.
-// Assuming a spherical earth, but adding hight differences if needed
+// Distance -  Calculates the distance between two TrackPoints in Meter.
+// Assuming a spherical earth, but adding height differences if needed
 func Distance(pnt1, pnt2 TrackPoint) float64 {
 	dist := HaversineDistance(pnt1, pnt2)
 
 	return DistanceFromHaversine(dist, pnt1, pnt2)
 }
 
-// DistanceFromHaversine - Calcs the distance between two TrackPoints in Meter.
-// Adding hight differences if needed
+// DistanceFromHaversine - Calculates the distance between two TrackPoints in Meter.
+// Adding height differences if needed
 func DistanceFromHaversine(dist float64, pnt1, pnt2 TrackPoint) float64 {
-	// When the distance is bigger then 33km, elevation gain will be ignored
+	// When the distance is bigger than 33km elevation gain will be ignored
 	if dist >= 33000.0 {
 		return dist
 	}

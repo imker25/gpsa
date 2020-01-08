@@ -167,7 +167,7 @@ The ```launch.json```:
             "args": [
           //      "-dont-panic=false",
                 "-out-file=/dev/shm/test.csv",
-                "${workspaceRoot}/testdata/valide-gpx/02.gpx"
+                "${workspaceRoot}/testdata/valid-gpx/02.gpx"
             ]
         }
     ]

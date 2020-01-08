@@ -55,43 +55,43 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 	}
 
 	if track.Name != input.Name {
-		t.Errorf("track.Name  has not the expected value %s", input.Name)
+		t.Errorf("track.Name has not the expected value %s", input.Name)
 	}
 
 	if track.Description != input.Description {
-		t.Errorf("track.Description  has not the expected value %s", input.Description)
+		t.Errorf("track.Description has not the expected value %s", input.Description)
 	}
 
 	if track.NumberOfSegments != 1 {
-		t.Errorf("track.NumberOfSegments  has not the expected value %d but is %d", 1, track.NumberOfSegments)
+		t.Errorf("track.NumberOfSegments has not the expected value %d but is %d", 1, track.NumberOfSegments)
 	}
 
 	if track.MinimumAltitude != 99.1 {
-		t.Errorf("track.MinimumAltitude  has not the expected value %f but is %f", 99.1, track.MinimumAltitude)
+		t.Errorf("track.MinimumAltitude has not the expected value %f but is %f", 99.1, track.MinimumAltitude)
 	}
 
 	if track.MaximumAltitude != 101.1 {
-		t.Errorf("track.MaximumAltitude  has not the expected value %f but is %f", 101.1, track.MaximumAltitude)
+		t.Errorf("track.MaximumAltitude has not the expected value %f but is %f", 101.1, track.MaximumAltitude)
 	}
 
 	if track.Distance != 49.32007928467905 {
-		t.Errorf("track.Distance  has not the expected value %f but is %f", 49.32007928467905, track.Distance)
+		t.Errorf("track.Distance has not the expected value %f but is %f", 49.32007928467905, track.Distance)
 	}
 
 	if track.ElevationLose != -2.0 {
-		t.Errorf("track.ElevationLose  has not the expected value %f but is %f", -2.0, track.ElevationLose)
+		t.Errorf("track.ElevationLose has not the expected value %f but is %f", -2.0, track.ElevationLose)
 	}
 
 	if track.ElevationGain != 1.0 {
-		t.Errorf("track.ElevationGain  has not the expected value %f but is %f", 1.0, track.ElevationGain)
+		t.Errorf("track.ElevationGain has not the expected value %f but is %f", 1.0, track.ElevationGain)
 	}
 
 	if track.UpwardsDistance != 27.65582137412336 {
-		t.Errorf("track.UpwardsDistance  has not the expected value %f but is %f", 27.65582137412336, track.UpwardsDistance)
+		t.Errorf("track.UpwardsDistance has not the expected value %f but is %f", 27.65582137412336, track.UpwardsDistance)
 	}
 
 	if track.DownwardsDistance != 21.664257910555698 {
-		t.Errorf("track.DownwardsDistance  has not the expected value %f but is %f", 21.664257910555698, track.DownwardsDistance)
+		t.Errorf("track.DownwardsDistance has not the expected value %f but is %f", 21.664257910555698, track.DownwardsDistance)
 	}
 
 	for i := range track.TrackSegments[0].TrackPoints {

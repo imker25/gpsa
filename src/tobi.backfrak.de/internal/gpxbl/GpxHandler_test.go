@@ -20,20 +20,20 @@ import (
 	"tobi.backfrak.de/internal/testhelper"
 )
 
-func TestTrackReaderAllValideGPX(t *testing.T) {
-	files, _ := ioutil.ReadDir(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx"))
+func TestTrackReaderAllValidGPX(t *testing.T) {
+	files, _ := ioutil.ReadDir(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valid-gpx"))
 
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".gpx") {
 			if file.IsDir() == false {
-				gpxFile := NewGpxFile(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()))
+				gpxFile := NewGpxFile(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valid-gpx", file.Name()))
 				trackFile, err := gpxFile.ReadTracks("linear")
 				if err != nil {
-					t.Errorf("Got the following error while reading file %s: %s", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()), err.Error())
+					t.Errorf("Got the following error while reading file %s: %s", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valid-gpx", file.Name()), err.Error())
 					return
 				}
 				if len(trackFile.Tracks) < 1 {
-					t.Errorf("The can not find tracks in %s.", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valide-gpx", file.Name()))
+					t.Errorf("The can not find tracks in %s.", filepath.Join(testhelper.GetProjectRoot(), "testdata", "valid-gpx", file.Name()))
 				}
 
 				for _, track := range gpxFile.Tracks {
@@ -65,7 +65,7 @@ func TestTrackReaderAllValideGPX(t *testing.T) {
 }
 
 func TestTrackReaderOnePointTrack(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetValideGPX("06.gpx"))
+	gpx := NewGpxFile(testhelper.GetValidGPX("06.gpx"))
 
 	file, _ := gpx.ReadTracks("none")
 
@@ -79,7 +79,7 @@ func TestTrackReaderOnePointTrack(t *testing.T) {
 }
 
 func TestTrackReader02(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetValideGPX("02.gpx"))
+	gpx := NewGpxFile(testhelper.GetValidGPX("02.gpx"))
 
 	file, _ := gpx.ReadTracks("none")
 
@@ -88,13 +88,13 @@ func TestTrackReader02(t *testing.T) {
 	}
 }
 
-func TestTrackReaderUnValideCorrectionParameter(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetValideGPX("02.gpx"))
+func TestTrackReaderInValidCorrectionParameter(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValidGPX("02.gpx"))
 
 	_, err := gpx.ReadTracks("asdfg")
 	if err != nil {
 		switch ty := err.(type) {
-		case *gpsabl.CorectionParamterNotKnownError:
+		case *gpsabl.CorrectionParameterNotKnownError:
 			fmt.Println("OK")
 		default:
 			t.Errorf("The Error ReadTracks gave is of the wrong type. The type is %v", ty)
@@ -105,10 +105,10 @@ func TestTrackReaderUnValideCorrectionParameter(t *testing.T) {
 }
 
 func TestTrackReaderImpl(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
+	gpx := NewGpxFile(testhelper.GetValidGPX("01.gpx"))
 
-	if gpx.FilePath != testhelper.GetValideGPX("01.gpx") {
-		t.Errorf("GpxFile.FilePath was not %s but %s", testhelper.GetValideGPX("01.gpx"), gpx.FilePath)
+	if gpx.FilePath != testhelper.GetValidGPX("01.gpx") {
+		t.Errorf("GpxFile.FilePath was not %s but %s", testhelper.GetValidGPX("01.gpx"), gpx.FilePath)
 	}
 
 	file, err := gpx.ReadTracks("linear")
@@ -118,7 +118,7 @@ func TestTrackReaderImpl(t *testing.T) {
 	}
 
 	if file.Tracks == nil {
-		t.Errorf("Got nil tracks when reading a valide file")
+		t.Errorf("Got nil tracks when reading a valid file")
 	}
 
 	if len(file.Tracks) != 1 {
@@ -153,8 +153,8 @@ func TestTrackReaderImpl(t *testing.T) {
 		t.Errorf("The UpwardsDistance is %f, but %f was expected", file.Tracks[0].UpwardsDistance, 8038.332888190817)
 	}
 
-	if file.FilePath != testhelper.GetValideGPX("01.gpx") {
-		t.Errorf("The FilePath is %s, but %s was expected", file.FilePath, testhelper.GetValideGPX("01.gpx"))
+	if file.FilePath != testhelper.GetValidGPX("01.gpx") {
+		t.Errorf("The FilePath is %s, but %s was expected", file.FilePath, testhelper.GetValidGPX("01.gpx"))
 	}
 
 	if file.NumberOfTracks != 1 {
@@ -191,7 +191,7 @@ func TestTrackReaderImpl(t *testing.T) {
 }
 
 func TestGpxFileInterfaceImplentaion1(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
+	gpx := NewGpxFile(testhelper.GetValidGPX("01.gpx"))
 
 	reader := gpsabl.TrackReader(&gpx)
 
@@ -225,7 +225,7 @@ func TestGpxFileInterfaceImplentaion1(t *testing.T) {
 }
 
 func TestGpxFileInterfaceImplentaion2(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetValideGPX("01.gpx"))
+	gpx := NewGpxFile(testhelper.GetValidGPX("01.gpx"))
 
 	reader := gpsabl.TrackReader(&gpx)
 
@@ -283,9 +283,9 @@ func TestGpxFileInterfaceImplentaion2(t *testing.T) {
 }
 
 func TestReadGpxFile(t *testing.T) {
-	file, err := ReadGpxFile(testhelper.GetValideGPX("01.gpx"), "none")
+	file, err := ReadGpxFile(testhelper.GetValidGPX("01.gpx"), "none")
 	if err != nil {
-		t.Errorf("Something wrong when reading a valide gpx file: %s", err.Error())
+		t.Errorf("Something wrong when reading a valid gpx file: %s", err.Error())
 	}
 
 	if len(file.Tracks) != 1 {
@@ -296,7 +296,7 @@ func TestReadGpxFile(t *testing.T) {
 		t.Errorf("The GPX name was not expected. Got: %s", file.Name)
 	}
 
-	if file.Description != "A valide GPX Track" {
+	if file.Description != "A valid GPX Track" {
 		t.Errorf("The GPX Description was not expected. Got: %s", file.Description)
 	}
 
@@ -320,8 +320,8 @@ func TestReadGpxFile(t *testing.T) {
 		t.Errorf("The track point 0 Longitude was not expected. Got: %f", file.Tracks[0].TrackSegments[0].TrackPoints[0].Longitude)
 	}
 
-	if file.FilePath != testhelper.GetValideGPX("01.gpx") {
-		t.Errorf("The FilePath is %s, but %s was expected", file.FilePath, testhelper.GetValideGPX("01.gpx"))
+	if file.FilePath != testhelper.GetValidGPX("01.gpx") {
+		t.Errorf("The FilePath is %s, but %s was expected", file.FilePath, testhelper.GetValidGPX("01.gpx"))
 	}
 
 	if file.NumberOfTracks != 1 {
@@ -358,7 +358,7 @@ func TestReadGpxFile(t *testing.T) {
 }
 
 func TestReadTracksNotExistingGPX(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetValideGPX("NotExisting.gpx"))
+	gpx := NewGpxFile(testhelper.GetValidGPX("NotExisting.gpx"))
 	_, err := gpx.ReadTracks("none")
 	switch v := err.(type) {
 	case nil:
@@ -370,12 +370,12 @@ func TestReadTracksNotExistingGPX(t *testing.T) {
 	}
 }
 
-func TestReadTracksUnValideGPX(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetUnValideGPX("01.gpx"))
+func TestReadTracksInvalidGPX(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetInvalidGPX("01.gpx"))
 	_, err := gpx.ReadTracks("none")
 	switch v := err.(type) {
 	case nil:
-		t.Errorf("No error, when reading a unvalide gpx file")
+		t.Errorf("No error, when reading an invalid gpx file")
 	case *xml.SyntaxError:
 		fmt.Println("OK")
 	default:
@@ -385,13 +385,13 @@ func TestReadTracksUnValideGPX(t *testing.T) {
 }
 
 func TestReadTracksNotGPX(t *testing.T) {
-	gpx := NewGpxFile(testhelper.GetUnValideGPX("02.gpx"))
+	gpx := NewGpxFile(testhelper.GetInvalidGPX("02.gpx"))
 	file, err := gpx.ReadTracks("none")
 	switch v := err.(type) {
 	case nil:
-		t.Errorf("No error, when reading a unvalide gpx file")
+		t.Errorf("No error, when reading an invalid gpx file")
 	case *GpxFileError:
-		checkGpxFileError(v, testhelper.GetUnValideGPX("02.gpx"), t)
+		checkGpxFileError(v, testhelper.GetInvalidGPX("02.gpx"), t)
 	default:
 		t.Errorf("Expected a *gpsabl.GpxFileError, got a %s", reflect.TypeOf(v))
 	}

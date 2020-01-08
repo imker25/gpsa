@@ -11,44 +11,44 @@ import (
 	"testing"
 )
 
-func TestCheckValideCorectionParamters(t *testing.T) {
+func TestCheckValidCorrectionParameters(t *testing.T) {
 
-	if CheckValideCorectionParamters("asd") {
-		t.Errorf("The CheckValideCorectionParamters return true for \"asd\"")
+	if CheckValidCorrectionParameters("asd") {
+		t.Errorf("The CheckValidCorrectionParameters return true for \"asd\"")
 	}
 
-	if !CheckValideCorectionParamters("none") {
-		t.Errorf("The CheckValideCorectionParamters return false for \"none\"")
+	if !CheckValidCorrectionParameters("none") {
+		t.Errorf("The CheckValidCorrectionParameters return false for \"none\"")
 	}
 
-	if !CheckValideCorectionParamters("linear") {
-		t.Errorf("The CheckValideCorectionParamters return false for \"linear\"")
+	if !CheckValidCorrectionParameters("linear") {
+		t.Errorf("The CheckValidCorrectionParameters return false for \"linear\"")
 	}
 
-	if !CheckValideCorectionParamters("steps") {
-		t.Errorf("The CheckValideCorectionParamters return false for \"steps\"")
+	if !CheckValidCorrectionParameters("steps") {
+		t.Errorf("The CheckValidCorrectionParameters return false for \"steps\"")
 	}
 
-	if len(GetValideCorectionParamters()) != 3 {
-		t.Errorf("The number of ValideCorectionParamters is %d, but %d was expected", len(GetValideCorectionParamters()), 2)
+	if len(GetValidCorrectionParameters()) != 3 {
+		t.Errorf("The number of ValidCorrectionParameters is %d, but %d was expected", len(GetValidCorrectionParameters()), 2)
 	}
 
 }
 
-func TestCheckValideCorectionParamtersString(t *testing.T) {
+func TestCheckValidCorrectionParametersString(t *testing.T) {
 
-	valideParms := GetValideCorectionParamtersString()
+	validParms := GetValidCorrectionParametersString()
 
-	if strings.Contains(valideParms, "asd") {
-		t.Errorf("The ValideCorectionParamtersString contains \"asd\"")
+	if strings.Contains(validParms, "asd") {
+		t.Errorf("The ValidCorrectionParametersString contains \"asd\"")
 	}
 
-	if !strings.Contains(valideParms, "none") {
-		t.Errorf("The ValideCorectionParamtersString not contains \"none\"")
+	if !strings.Contains(validParms, "none") {
+		t.Errorf("The ValidCorrectionParametersString not contains \"none\"")
 	}
 
-	if !strings.Contains(valideParms, "steps") {
-		t.Errorf("The ValideCorectionParamtersString not contains \"steps\"")
+	if !strings.Contains(validParms, "steps") {
+		t.Errorf("The ValidCorrectionParametersString not contains \"steps\"")
 	}
 }
 
@@ -61,7 +61,7 @@ func TestFillValuesTrackPointArrayWrongCorrection(t *testing.T) {
 	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, "asd")
 	if err != nil {
 		switch ty := err.(type) {
-		case *CorectionParamterNotKnownError:
+		case *CorrectionParameterNotKnownError:
 			fmt.Println("OK")
 		default:
 			t.Errorf("The Error FillDistancesTrackPoint gave is of the wrong type. The type is %v", ty)
@@ -71,13 +71,13 @@ func TestFillValuesTrackPointArrayWrongCorrection(t *testing.T) {
 	}
 }
 
-func TestFillValuesTrackPointArrayValideCorrection(t *testing.T) {
+func TestFillValuesTrackPointArrayValidCorrection(t *testing.T) {
 	pnt1 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 	pnt2 := getTrackPoint(50.11495750, 8.684874770, 108.0)
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
 	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
-	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, GetValideCorectionParamters()[0])
+	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, GetValidCorrectionParameters()[0])
 	if err != nil {
 		t.Errorf("FillDistancesTrackPoint did return a error, but was expected to. The error is %s", err.Error())
 	}
@@ -140,7 +140,7 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorectedElevationTrackPoint(pnts, "none")
+	fillCorrectedElevationTrackPoint(pnts, "none")
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != -1.0 {
@@ -169,7 +169,7 @@ func TestFillDistancesThreePointWithLinearCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorectedElevationTrackPoint(pnts, "linear")
+	fillCorrectedElevationTrackPoint(pnts, "linear")
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 0.0 {
@@ -190,7 +190,7 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorectedElevationTrackPoint(pnts, "steps")
+	fillCorrectedElevationTrackPoint(pnts, "steps")
 	fillElevationGainLoseTrackPoint(pnts)
 	fillCountUpDownWards(pnts, "steps")
 
@@ -202,18 +202,18 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 		t.Errorf("The VerticalDistanceNext is %f, but %f was expected", pnts[1].VerticalDistanceNext, 0.0)
 	}
 }
-func TestFillDistancesThreePointWithUnkonwCorection(t *testing.T) {
+func TestFillDistancesThreePointWithUnknownCorrection(t *testing.T) {
 	pnts := gerSimpleTrackPointArray()
-	err := fillCorectedElevationTrackPoint(pnts, "asd")
+	err := fillCorrectedElevationTrackPoint(pnts, "asd")
 	if err != nil {
 		switch ty := err.(type) {
-		case *CorectionParamterNotKnownError:
+		case *CorrectionParameterNotKnownError:
 			fmt.Println("OK")
 		default:
-			t.Errorf("The Error FillCorectedElevationTrackPoint gave is of the wrong type. The type is %v", ty)
+			t.Errorf("The Error fillCorrectedElevationTrackPoint gave is of the wrong type. The type is %v", ty)
 		}
 	} else {
-		t.Errorf("FillCorectedElevationTrackPoint did not return a error, but was expected")
+		t.Errorf("fillCorrectedElevationTrackPoint did not return a error, but was expected")
 	}
 }
 
@@ -226,7 +226,7 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorectedElevationTrackPoint(pnts, "none")
+	fillCorrectedElevationTrackPoint(pnts, "none")
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 108.0 {

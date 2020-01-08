@@ -7,7 +7,7 @@ package gpsabl
 
 // TrackReader - The interface for all functions that can read gps data files like *.gpx
 type TrackReader interface {
-	ReadTracks(corection string) (TrackFile, error)
+	ReadTracks(correction string) (TrackFile, error)
 }
 
 // TrackSummaryProvider - Interface for classes that provide track summary data

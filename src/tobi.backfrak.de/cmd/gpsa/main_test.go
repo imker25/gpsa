@@ -113,7 +113,7 @@ func TestGetReaderGpxFile(t *testing.T) {
 	}
 }
 
-func TestGetReaderUnkonwnFile(t *testing.T) {
+func TestGetReaderUnknownFile(t *testing.T) {
 	reader, err := getReader("/some/track.txt")
 
 	if err == nil {
@@ -125,7 +125,7 @@ func TestGetReaderUnkonwnFile(t *testing.T) {
 	}
 }
 
-func TestProcessValideFiles(t *testing.T) {
+func TestProcessValidFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
@@ -137,7 +137,7 @@ func TestProcessValideFiles(t *testing.T) {
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
 
-	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
+	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx")}
 	successCount := processFiles(files, iFormater)
 	if successCount != 2 {
 		t.Errorf("Not all files were processed successfully as expected")
@@ -159,7 +159,7 @@ func TestProcessFilesDifferenCorrection(t *testing.T) {
 	oldDepthValue := DepthParametr
 	DepthParametr = "file"
 	oldCorrectionPAr := CorrectionParameter
-	files := []string{testhelper.GetValideGPX("01.gpx"), testhelper.GetValideGPX("02.gpx")}
+	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx")}
 
 	CorrectionParameter = "none"
 	formater1 := gpsabl.NewCsvOutputFormater(";")
@@ -206,7 +206,7 @@ func TestProcessMixedFiles(t *testing.T) {
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
 
-	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
+	files := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetValidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx")}
 	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
 		t.Errorf("More or less than two files were processed with error - expected exactly two of them")
@@ -223,7 +223,7 @@ func TestProcessMixedFiles(t *testing.T) {
 	CorrectionParameter = oldCorrectionPAr
 }
 
-func TestProcessUnValideFiles(t *testing.T) {
+func TestProcessInValidFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
@@ -235,7 +235,7 @@ func TestProcessUnValideFiles(t *testing.T) {
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
 
-	files := []string{testhelper.GetUnValideGPX("01.gpx"), testhelper.GetUnValideGPX("02.gpx")}
+	files := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx")}
 	successCount := processFiles(files, iFormater)
 	if successCount != 0 {
 		t.Errorf("Not all files were processed with error as expected")

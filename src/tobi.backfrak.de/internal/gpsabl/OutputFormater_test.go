@@ -16,12 +16,12 @@ import (
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
 
-	if sut.Seperator != ";" {
-		t.Errorf("The Seperator was \"%s\", but \";\" was expected", sut.Seperator)
+	if sut.Separator != ";" {
+		t.Errorf("The Separator was \"%s\", but \";\" was expected", sut.Separator)
 	}
 
-	if len(sut.ValideDepthArgs) != 3 {
-		t.Errorf("The ValideDepthArgs array does not contain the expeced number of values")
+	if len(sut.ValidDepthArgs) != 3 {
+		t.Errorf("The ValidDepthArgs array does not contain the expected number of values")
 	}
 
 	if len(sut.lineBuffer) != 0 {
@@ -39,7 +39,7 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 
 	ret, err := formater.FormatOutPut(trackFile, true, "file")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
 
 	if len(ret) != 2 {
@@ -51,11 +51,11 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 	}
 
 	if strings.Contains(ret[1], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", ret[1])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
 	}
 
 	if strings.Contains(ret[1], trackFile.FilePath) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[1])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[1])
 	}
 }
 
@@ -66,7 +66,7 @@ func TestFormatOutPutWithHeaderAndSetName(t *testing.T) {
 
 	ret, err := formater.FormatOutPut(trackFile, true, "file")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	if len(ret) != 2 {
@@ -78,15 +78,15 @@ func TestFormatOutPutWithHeaderAndSetName(t *testing.T) {
 	}
 
 	if strings.Contains(ret[1], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", ret[1])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
 	}
 
 	if strings.Contains(ret[1], trackFile.Name) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[1])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[1])
 	}
 
 	if strings.Contains(ret[1], trackFile.FilePath) == true {
-		t.Errorf("The output does contian the FilePath but should not. It is: %s", ret[1])
+		t.Errorf("The output does contain the FilePath but should not. It is: %s", ret[1])
 	}
 }
 
@@ -96,7 +96,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 
 	ret, err := formater.FormatOutPut(trackFile, false, "file")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
 
 	if len(ret) != 1 {
@@ -108,7 +108,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 	}
 
 	if strings.Contains(ret[0], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[0])
 	}
 }
 
@@ -118,7 +118,7 @@ func TestFormatOutPutWithOutHeaderTrackDepth(t *testing.T) {
 
 	ret, err := formater.FormatOutPut(trackFile, false, "track")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	if len(ret) != 1 {
@@ -126,11 +126,11 @@ func TestFormatOutPutWithOutHeaderTrackDepth(t *testing.T) {
 	}
 
 	if strings.Contains(ret[0], trackFile.FilePath) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], "#1;") == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 }
 
@@ -141,7 +141,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackName(t *testing.T) {
 
 	ret, err := formater.FormatOutPut(trackFile, false, "track")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	if len(ret) != 1 {
@@ -149,15 +149,15 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackName(t *testing.T) {
 	}
 
 	if strings.Contains(ret[0], trackFile.FilePath) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], trackFile.Tracks[0].Name) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], "#1;") == true {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 }
 
@@ -169,7 +169,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackFileNameSetTrackName(t *test
 
 	ret, err := formater.FormatOutPut(trackFile, false, "track")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	if len(ret) != 1 {
@@ -177,19 +177,19 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackFileNameSetTrackName(t *test
 	}
 
 	if strings.Contains(ret[0], trackFile.FilePath) == true {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], trackFile.Name) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], trackFile.Tracks[0].Name) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], "#1;") == true {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 }
 
@@ -201,7 +201,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 
 	ret, err := formater.FormatOutPut(trackFile, false, "segment")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	if len(ret) != 1 {
@@ -209,23 +209,23 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 	}
 
 	if strings.Contains(ret[0], trackFile.FilePath) == true {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], trackFile.Name) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], trackFile.Tracks[0].Name) == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
 	if strings.Contains(ret[0], "Segment #1;") == false {
-		t.Errorf("The output does not contian the name as expected. It is: %s", ret[0])
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 }
 
-func TestFormatOutPutWithOutHeaderUnValideDepth(t *testing.T) {
+func TestFormatOutPutWithOutHeaderInvalidDepth(t *testing.T) {
 	formater := NewCsvOutputFormater(";")
 	trackFile := getSimpleTrackFile()
 	_, err := formater.FormatOutPut(trackFile, false, "abc")
@@ -235,7 +235,7 @@ func TestFormatOutPutWithOutHeaderUnValideDepth(t *testing.T) {
 	}
 
 	switch err.(type) {
-	case *DepthParametrNotKnownError:
+	case *DepthParameterNotKnownError:
 		fmt.Println("OK")
 	default:
 		t.Errorf("The error is not from the expected type")
@@ -254,7 +254,7 @@ func TestAddHeader(t *testing.T) {
 	}
 
 	if strings.Count(lines[0], ";") != 9 {
-		t.Errorf("The Number of semicolons is not the same in each line")
+		t.Errorf("The number of semicolons is not the same in each line")
 	}
 }
 
@@ -264,7 +264,7 @@ func TestAddOutPut(t *testing.T) {
 
 	err := frt.AddOutPut(trackFile, "file")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	lines := frt.GetLines()
@@ -274,19 +274,19 @@ func TestAddOutPut(t *testing.T) {
 	}
 
 	if strings.Count(lines[0], ";") != 9 {
-		t.Errorf("The Number of semicolons is not the same in each line")
+		t.Errorf("The number of semicolons is not the same in each line")
 	}
 
 	if strings.Count(lines[0], "0.020000;") != 1 {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[0])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
 	if strings.Count(lines[0], "1.000000;") != 3 {
-		t.Errorf("The output does not contian the ElevationGain as expected. It is: %s", lines[0])
+		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
 	if strings.Count(lines[0], "0.010000;") != 2 {
-		t.Errorf("The output does not contian the UpwardsDistance as expected. It is: %s", lines[0])
+		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 }
 
@@ -297,7 +297,7 @@ func TestAddHeaderAndOutPut(t *testing.T) {
 	frt.AddHeader()
 	err := frt.AddOutPut(trackFile, "file")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	lines := frt.GetLines()
@@ -307,11 +307,11 @@ func TestAddHeaderAndOutPut(t *testing.T) {
 	}
 
 	if strings.Count(lines[0], ";") != strings.Count(lines[1], ";") {
-		t.Errorf("The Number of semicolons is not the same in each line")
+		t.Errorf("The number of semicolons is not the same in each line")
 	}
 
 	if strings.Contains(lines[1], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[0])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 }
 
@@ -329,11 +329,11 @@ func TestAddHeaderAndOutPutFileTwoTracksFileDepth(t *testing.T) {
 	}
 
 	if strings.Count(lines[0], ";") != strings.Count(lines[1], ";") {
-		t.Errorf("The Number of semicolons is not the same in each line")
+		t.Errorf("The number of semicolons is not the same in each line")
 	}
 
 	if strings.Contains(lines[1], "0.0500") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[1])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[1])
 	}
 }
 
@@ -344,7 +344,7 @@ func TestAddHeaderAndOutPutFileTwoTracksTrackDepth(t *testing.T) {
 	frt.AddHeader()
 	err := frt.AddOutPut(trackFile, "track")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	lines := frt.GetLines()
@@ -354,15 +354,15 @@ func TestAddHeaderAndOutPutFileTwoTracksTrackDepth(t *testing.T) {
 	}
 
 	if strings.Count(lines[0], ";") != strings.Count(lines[1], ";") {
-		t.Errorf("The Number of semicolons is not the same in each line")
+		t.Errorf("The number of semicolons is not the same in each line")
 	}
 
 	if strings.Contains(lines[1], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[1])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[1])
 	}
 
 	if strings.Contains(lines[2], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[2])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[2])
 	}
 }
 
@@ -373,7 +373,7 @@ func TestAddHeaderAndOutPutFileTwoTracksSegmentDepth(t *testing.T) {
 	frt.AddHeader()
 	err := frt.AddOutPut(trackFile, "segment")
 	if err != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", err.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 
 	lines := frt.GetLines()
@@ -383,15 +383,15 @@ func TestAddHeaderAndOutPutFileTwoTracksSegmentDepth(t *testing.T) {
 	}
 
 	if strings.Count(lines[0], ";") != strings.Count(lines[3], ";") {
-		t.Errorf("The Number of semicolons is not the same in each line")
+		t.Errorf("The number of semicolons is not the same in each line")
 	}
 
 	if strings.Contains(lines[1], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[1])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[1])
 	}
 
 	if strings.Contains(lines[3], "0.0200") == false {
-		t.Errorf("The output does not contian the distance as expected. It is: %s", lines[2])
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[2])
 	}
 }
 
@@ -402,7 +402,7 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 	frt.AddHeader()
 	errAdd := frt.AddOutPut(trackFile, "segment")
 	if errAdd != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", errAdd.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
 
 	errWrite := frt.WriteOutput(os.Stdout)
@@ -412,15 +412,15 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 	}
 }
 
-func TestCheckVlaideDepthArg(t *testing.T) {
+func TestCheckValidDepthArg(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 
-	if frt.CheckVlaideDepthArg("asfd") == true {
-		t.Errorf("The CheckVlaideDepthArg returns true for \"asfd\"")
+	if frt.CheckValidDepthArg("asfd") == true {
+		t.Errorf("The CheckValidDepthArg returns true for \"asfd\"")
 	}
 
-	if frt.CheckVlaideDepthArg("file") == false {
-		t.Errorf("The CheckVlaideDepthArg returns false for \"file\"")
+	if frt.CheckValidDepthArg("file") == false {
+		t.Errorf("The CheckValidDepthArg returns false for \"file\"")
 	}
 }
 
@@ -432,7 +432,7 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 	iFrt.AddHeader()
 	errAdd := iFrt.AddOutPut(trackFile, "track")
 	if errAdd != nil {
-		t.Errorf("Got a error, but did not expect one. The error is: %s", errAdd.Error())
+		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
 
 	errWrite := iFrt.WriteOutput(os.Stdout)

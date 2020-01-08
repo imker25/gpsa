@@ -23,7 +23,7 @@ func newOutFileIsDirError(dirName string) *OutFileIsDirError {
 	return &OutFileIsDirError{fmt.Sprintf("The given -out-file \"%s\" is a directory.", dirName), dirName}
 }
 
-// UnKnownFileTypeError - Error when trying to load not known file type
+// UnKnownFileTypeError - Error when trying to load unknown file type
 type UnKnownFileTypeError struct {
 	err string
 	// File - The path to the file that caused this error

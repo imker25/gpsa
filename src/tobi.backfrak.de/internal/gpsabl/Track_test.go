@@ -21,35 +21,35 @@ func TestTrackSummary(t *testing.T) {
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {
-		t.Errorf("The GetDistance() rutrns %f, but %f was expected", iSum.GetDistance(), 100.1)
+		t.Errorf("The GetDistance() returns %f, but %f was expected", iSum.GetDistance(), 100.1)
 	}
 
 	if !CompareFloat64With4Digits(float64(iSum.GetAltitudeRange()), 30.2) {
-		t.Errorf("The GetAltitudeRange() rutrns %f, but %f was expected", iSum.GetAltitudeRange(), 30.2)
+		t.Errorf("The GetAltitudeRange() returns %f, but %f was expected", iSum.GetAltitudeRange(), 30.2)
 	}
 
 	if iSum.GetMaximumAltitude() != 40.6 {
-		t.Errorf("The GetMaximumAltitude() rutrns %f, but %f was expected", iSum.GetMaximumAltitude(), 40.6)
+		t.Errorf("The GetMaximumAltitude() returns %f, but %f was expected", iSum.GetMaximumAltitude(), 40.6)
 	}
 
 	if iSum.GetMinimumAltitude() != 10.4 {
-		t.Errorf("The GetMinimumAltitude() rutrns %f, but %f was expected", iSum.GetMinimumAltitude(), 10.4)
+		t.Errorf("The GetMinimumAltitude() returns %f, but %f was expected", iSum.GetMinimumAltitude(), 10.4)
 	}
 
 	if iSum.GetElevationGain() != 40.2 {
-		t.Errorf("The GetElevationGain() rutrns %f, but %f was expected", iSum.GetElevationGain(), 40.2)
+		t.Errorf("The GetElevationGain() returns %f, but %f was expected", iSum.GetElevationGain(), 40.2)
 	}
 
 	if iSum.GetElevationLose() != 10.0 {
-		t.Errorf("The GetElevationLose() rutrns %f, but %f was expected", iSum.GetElevationLose(), 10.0)
+		t.Errorf("The GetElevationLose() returns %f, but %f was expected", iSum.GetElevationLose(), 10.0)
 	}
 
 	if iSum.GetUpwardsDistance() != 70.1 {
-		t.Errorf("The GetUpwardsDistance() rutrns %f, but %f was expected", iSum.GetUpwardsDistance(), 70.1)
+		t.Errorf("The GetUpwardsDistance() returns %f, but %f was expected", iSum.GetUpwardsDistance(), 70.1)
 	}
 
 	if iSum.GetDownwardsDistance() != 30.0 {
-		t.Errorf("The GetDownwardsDistance() rutrns %f, but %f was expected", iSum.GetDownwardsDistance(), 30.0)
+		t.Errorf("The GetDownwardsDistance() returns %f, but %f was expected", iSum.GetDownwardsDistance(), 30.0)
 	}
 }
 

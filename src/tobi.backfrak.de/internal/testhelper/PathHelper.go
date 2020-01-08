@@ -36,7 +36,7 @@ func GetProjectRoot() string {
 
 func isRootPath(wd string) bool {
 
-	file := filepath.Join(wd, "testdata", "valide-gpx", "01.gpx")
+	file := filepath.Join(wd, "testdata", "valid-gpx", "01.gpx")
 	if fileExists(file) {
 		return true
 	}
@@ -44,18 +44,18 @@ func isRootPath(wd string) bool {
 	return false
 }
 
-// GetValideGPX - Get the file path to a valide gpx file with the given name
-func GetValideGPX(name string) string {
+// GetValidGPX - Get the file path to a valid gpx file with the given name
+func GetValidGPX(name string) string {
 	rootDir := GetProjectRoot()
 
-	return filepath.Join(rootDir, "testdata", "valide-gpx", name)
+	return filepath.Join(rootDir, "testdata", "valid-gpx", name)
 }
 
-// GetUnValideGPX - Get the file path to a valide gpx file with the given name
-func GetUnValideGPX(name string) string {
+// GetInvalidGPX - Get the file path to a valid gpx file with the given name
+func GetInvalidGPX(name string) string {
 	rootDir := GetProjectRoot()
 
-	return filepath.Join(rootDir, "testdata", "unvalide-gpx", name)
+	return filepath.Join(rootDir, "testdata", "invalid-gpx", name)
 }
 
 func fileExists(filename string) bool {

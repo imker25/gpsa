@@ -33,7 +33,7 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 // The Array must be soreted by the points Number!
 func FillValuesTrackPointArray(pnts []TrackPoint, correction string) error {
 	fillDistanceToThisPoint(pnts)
-	err := fillCorectedElevationTrackPoint(pnts, correction)
+	err := fillCorrectedElevationTrackPoint(pnts, correction)
 	if err != nil {
 		return err
 	}
@@ -79,24 +79,24 @@ func FillTrackFileValues(file *TrackFile) {
 	fillTrackSummaryValues(file, iTrks)
 }
 
-// GetValideCorectionParamters - Get the valide paramters for FillCorectedElevationTrackPoint corection paramter
-func GetValideCorectionParamters() []string {
+// GetValidCorrectionParameters - Get the valid parameters for fillCorrectedElevationTrackPoint correction parameter
+func GetValidCorrectionParameters() []string {
 	return []string{"none", "linear", "steps"}
 }
 
-// GetValideCorectionParamtersString - Get the valide paramters for FillCorectedElevationTrackPoint corection paramter as one string
-func GetValideCorectionParamtersString() string {
+// GetValidCorrectionParametersString - Get the valid parameters for fillCorrectedElevationTrackPoint correction parameter as one string
+func GetValidCorrectionParametersString() string {
 	ret := ""
-	for _, str := range GetValideCorectionParamters() {
+	for _, str := range GetValidCorrectionParameters() {
 		ret = str + " " + ret
 	}
 
 	return ret
 }
 
-// CheckValideCorectionParamters - Check if a string is a valide paramter for FillCorectedElevationTrackPoint corection paramter
-func CheckValideCorectionParamters(given string) bool {
-	for _, str := range GetValideCorectionParamters() {
+// CheckValidCorrectionParameters - Check if a string is a valid parameter for fillCorrectedElevationTrackPoint correction parameter
+func CheckValidCorrectionParameters(given string) bool {
+	for _, str := range GetValidCorrectionParameters() {
 		if str == given {
 			return true
 		}
@@ -105,31 +105,31 @@ func CheckValideCorectionParamters(given string) bool {
 	return false
 }
 
-// fillCorectedElevationTrackPoint - Set the CorectedElevation value in a list of TrackPoints
+// fillCorrectedElevationTrackPoint - Set the CorectedElevation value in a list of TrackPoints
 // Basicaly this will run a somthing algorythm over the Elevation
-func fillCorectedElevationTrackPoint(pnts []TrackPoint, corection string) error {
+func fillCorrectedElevationTrackPoint(pnts []TrackPoint, correction string) error {
 
-	switch corection {
-	case GetValideCorectionParamters()[1]:
-		fillCorectedElevationTrackPointLinear(pnts)
-	case GetValideCorectionParamters()[0]:
-		fillCorectedElevationTrackPointNone(pnts)
-	case GetValideCorectionParamters()[2]:
-		fillCorectedElevationTrackPointSteps(pnts)
+	switch correction {
+	case GetValidCorrectionParameters()[1]:
+		fillCorrectedElevationTrackPointLinear(pnts)
+	case GetValidCorrectionParameters()[0]:
+		fillCorrectedElevationTrackPointNone(pnts)
+	case GetValidCorrectionParameters()[2]:
+		fillCorrectedElevationTrackPointSteps(pnts)
 	default:
-		return NewCorectionParamterNotKnownError(corection)
+		return NewCorrectionParameterNotKnownError(correction)
 	}
 
 	return nil
 }
 
-func fillCorectedElevationTrackPointNone(pnts []TrackPoint) {
+func fillCorrectedElevationTrackPointNone(pnts []TrackPoint) {
 	for i := range pnts {
 		pnts[i].CorectedElevation = pnts[i].Elevation
 	}
 }
 
-func fillCorectedElevationTrackPointSteps(pnts []TrackPoint) {
+func fillCorrectedElevationTrackPointSteps(pnts []TrackPoint) {
 	numPnts := len(pnts)
 	for i := range pnts {
 		if i > 0 && i < (numPnts-1) {
@@ -141,7 +141,7 @@ func fillCorectedElevationTrackPointSteps(pnts []TrackPoint) {
 	}
 }
 
-func fillCorectedElevationTrackPointLinear(pnts []TrackPoint) {
+func fillCorrectedElevationTrackPointLinear(pnts []TrackPoint) {
 	numPnts := len(pnts)
 	for i := range pnts {
 		if i > 0 && i < (numPnts-1) {
@@ -182,7 +182,7 @@ func fillDistanceToThisPoint(pnts []TrackPoint) {
 // FillCountUpDownWards - Fills the CountUpwards and CountDownwards value
 func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 	numPnts := len(pnts)
-	if correction == GetValideCorectionParamters()[2] { // In case we do steps correction, CorectedElevation will make no sense
+	if correction == GetValidCorrectionParameters()[2] { // In case we do steps correction, CorectedElevation will make no sense
 		for i := range pnts {
 			if i < (numPnts - 1) { // Evaluation of the last point don't count
 				eveDiff := pnts[i+1].Elevation - pnts[i].Elevation

@@ -2,34 +2,34 @@ package gpsabl
 
 import "fmt"
 
-// DepthParametrNotKnownError - Error when the given depth paramter is not known
-type DepthParametrNotKnownError struct {
+// DepthParameterNotKnownError - Error when the given depth parameter is not known
+type DepthParameterNotKnownError struct {
 	err string
 	// File - The path to the dir that caused this error
 	GivenValue string
 }
 
-func (e *DepthParametrNotKnownError) Error() string { // Implement the Error Interface for the DepthParametrNotKnownError struct
+func (e *DepthParameterNotKnownError) Error() string { // Implement the Error Interface for the DepthParameterNotKnownError struct
 	return fmt.Sprintf("Error: %s", e.err)
 }
 
-// NewDepthParametrNotKnownError - Get a new DepthParametrNotKnownError struct
-func NewDepthParametrNotKnownError(givenValue string) *DepthParametrNotKnownError {
-	return &DepthParametrNotKnownError{fmt.Sprintf("The given -depth \"%s\" is not known.", givenValue), givenValue}
+// NewDepthParameterNotKnownError - Get a new DepthParameterNotKnownError struct
+func NewDepthParameterNotKnownError(givenValue string) *DepthParameterNotKnownError {
+	return &DepthParameterNotKnownError{fmt.Sprintf("The given -depth \"%s\" is not known.", givenValue), givenValue}
 }
 
-// CorectionParamterNotKnownError - Error when the given corection paramter is not known
-type CorectionParamterNotKnownError struct {
+// CorrectionParameterNotKnownError - Error when the given correction parameter is not known
+type CorrectionParameterNotKnownError struct {
 	err string
 	// File - The path to the dir that caused this error
 	GivenValue string
 }
 
-func (e *CorectionParamterNotKnownError) Error() string { // Implement the Error Interface for the DepthParametrNotKnownError struct
+func (e *CorrectionParameterNotKnownError) Error() string { // Implement the Error Interface for the DepthParameterNotKnownError struct
 	return fmt.Sprintf("Error: %s", e.err)
 }
 
-// NewCorectionParamterNotKnownError - Get a new DepthParametrNotKnownError struct
-func NewCorectionParamterNotKnownError(givenValue string) *CorectionParamterNotKnownError {
-	return &CorectionParamterNotKnownError{fmt.Sprintf("The given -corection \"%s\" is not known.", givenValue), givenValue}
+// NewCorrectionParameterNotKnownError - Get a new DepthParameterNotKnownError struct
+func NewCorrectionParameterNotKnownError(givenValue string) *CorrectionParameterNotKnownError {
+	return &CorrectionParameterNotKnownError{fmt.Sprintf("The given -correction \"%s\" is not known.", givenValue), givenValue}
 }

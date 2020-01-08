@@ -12,7 +12,7 @@ import (
 )
 
 // ConvertTrk - Convert a gpxbl.Track to a gpsabl.Track
-func ConvertTrk(track Trk, corection string) (gpsabl.Track, error) {
+func ConvertTrk(track Trk, correction string) (gpsabl.Track, error) {
 
 	res := gpsabl.Track{}
 	var err error
@@ -20,7 +20,7 @@ func ConvertTrk(track Trk, corection string) (gpsabl.Track, error) {
 	res.NumberOfSegments = len(track.TrackSegments)
 	res.Description = track.Description
 
-	res.TrackSegments, err = convertSegments(track.TrackSegments, corection)
+	res.TrackSegments, err = convertSegments(track.TrackSegments, correction)
 	if err != nil {
 		return res, err
 	}
@@ -30,13 +30,13 @@ func ConvertTrk(track Trk, corection string) (gpsabl.Track, error) {
 	return res, err
 }
 
-func convertSegments(segments []Trkseg, corection string) ([]gpsabl.TrackSegment, error) {
+func convertSegments(segments []Trkseg, correction string) ([]gpsabl.TrackSegment, error) {
 	var ret []gpsabl.TrackSegment
 	var err error
 	for _, seg := range segments {
 
 		segment := gpsabl.TrackSegment{}
-		segment.TrackPoints, err = convertPoints(seg.TrackPoints, corection)
+		segment.TrackPoints, err = convertPoints(seg.TrackPoints, correction)
 		if err != nil {
 			return nil, err
 		}

@@ -92,7 +92,7 @@ func TestDistanceMunichColone(t *testing.T) {
 
 	dist1 := HaversineDistance(pnt1, pnt2)
 	dist2 := Distance(pnt1, pnt2)
-	// Since the distance is bigger then 33km, Elevation gain will be ignored
+	// As the distance is bigger than 33km elevation gain will be ignored
 	if dist2 != dist1 {
 		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
 	}
@@ -104,7 +104,7 @@ func TestShortDistance1(t *testing.T) {
 
 	dist1 := HaversineDistance(pnt1, pnt2)
 	dist2 := Distance(pnt1, pnt2)
-	// Since the distance is smaller then 33km, Elevation gain will not be ignored
+	// As the distance is smaller than 33km elevation gain will not be ignored
 	if dist2 == dist1 {
 		t.Errorf("The distance was calculated with %f but %f was not expected", dist2, dist1)
 	}
@@ -116,7 +116,7 @@ func TestShortDistance2(t *testing.T) {
 
 	dist1 := HaversineDistance(pnt1, pnt2)
 	dist2 := Distance(pnt1, pnt2)
-	// Since the distance is smaller then 33km, Elevation gain will not be ignored
+	// As the distance is smaller than 33km elevation gain will not be ignored
 	if dist2 == dist1 {
 		t.Errorf("The distance was calculated with %f but %f was not expected", dist2, dist1)
 	}
@@ -128,7 +128,7 @@ func TestShortDistance3(t *testing.T) {
 
 	dist1 := Distance(pnt2, pnt1)
 	dist2 := Distance(pnt1, pnt2)
-	// Since the distance is smaller then 33km, Elevation gain will not be ignored
+	// As the distance is smaller than 33km elevation gain will not be ignored
 	if dist2 != dist1 {
 		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
 	}

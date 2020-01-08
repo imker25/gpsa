@@ -14,21 +14,21 @@ import (
 
 // CsvOutputFormater - type that formats TrackSummary into csv style
 type CsvOutputFormater struct {
-	// Seperator - The seperator used to seperate values in csv
-	Seperator string
+	// Separator - The separator used to separate values in csv
+	Separator string
 
-	// ValideDepthArgs - The valide args values for the -depth paramter
-	ValideDepthArgs []string
+	// ValidDepthArgs - The valid args values for the -depth parameter
+	ValidDepthArgs []string
 
 	lineBuffer []string
 	mux        sync.Mutex
 }
 
 // NewCsvOutputFormater - Get a new CsvOutputFormater
-func NewCsvOutputFormater(seperator string) *CsvOutputFormater {
+func NewCsvOutputFormater(separator string) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
-	ret.Seperator = seperator
-	ret.ValideDepthArgs = []string{"track", "file", "segment"}
+	ret.Separator = separator
+	ret.ValidDepthArgs = []string{"track", "file", "segment"}
 	ret.lineBuffer = []string{}
 
 	return &ret
@@ -82,14 +82,14 @@ func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader
 	}
 
 	switch depth {
-	case formater.ValideDepthArgs[1]:
+	case formater.ValidDepthArgs[1]:
 		ret = append(ret, formater.FormatTrackSummary(TrackSummaryProvider(trackFile), getLineNameFromTrackFile(trackFile)))
-	case formater.ValideDepthArgs[0]:
+	case formater.ValidDepthArgs[0]:
 		addLinesFromTracks(formater, trackFile, &ret)
-	case formater.ValideDepthArgs[2]:
+	case formater.ValidDepthArgs[2]:
 		addLinesFromTrackSegments(formater, trackFile, &ret)
 	default:
-		return ret, NewDepthParametrNotKnownError(depth)
+		return ret, NewDepthParameterNotKnownError(depth)
 	}
 
 	return ret, nil
@@ -98,51 +98,51 @@ func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader
 // GetHeader - Get the header line of a csv output
 func (formater *CsvOutputFormater) GetHeader() string {
 	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-		"Name", formater.Seperator,
-		"Distance (km)", formater.Seperator,
-		"AltitudeRange (m)", formater.Seperator,
-		"MinimumAltitude (m)", formater.Seperator,
-		"MaximumAltitude (m)", formater.Seperator,
-		"ElevationGain (m)", formater.Seperator,
-		"ElevationLose (m)", formater.Seperator,
-		"UpwardsDistance (km)", formater.Seperator,
-		"DownwardsDistance (km)", formater.Seperator,
+		"Name", formater.Separator,
+		"Distance (km)", formater.Separator,
+		"AltitudeRange (m)", formater.Separator,
+		"MinimumAltitude (m)", formater.Separator,
+		"MaximumAltitude (m)", formater.Separator,
+		"ElevationGain (m)", formater.Separator,
+		"ElevationLose (m)", formater.Separator,
+		"UpwardsDistance (km)", formater.Separator,
+		"DownwardsDistance (km)", formater.Separator,
 		GetNewLine(),
 	)
 
 	return ret
 }
 
-// FormatTrackSummary - Create the outputline for a  TrackSummaryProvider
+// FormatTrackSummary - Create the outputline for a TrackSummaryProvider
 func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
 	ret := fmt.Sprintf("%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s",
-		name, formater.Seperator,
-		RoundFloat64To2Digits(info.GetDistance()/1000), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetMaximumAltitude())), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetElevationGain())), formater.Seperator,
-		RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Seperator,
-		RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Seperator,
-		RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Seperator,
+		name, formater.Separator,
+		RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
+		RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
+		RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Separator,
+		RoundFloat64To2Digits(float64(info.GetMaximumAltitude())), formater.Separator,
+		RoundFloat64To2Digits(float64(info.GetElevationGain())), formater.Separator,
+		RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Separator,
+		RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
+		RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
 		GetNewLine(),
 	)
 
 	return ret
 }
 
-// GetVlaideDepthArgsString - Get the VlaideDepthArgs in one string
-func (formater *CsvOutputFormater) GetVlaideDepthArgsString() string {
+// GetValidDepthArgsString - Get the ValidDepthArgs in one string
+func (formater *CsvOutputFormater) GetValidDepthArgsString() string {
 	ret := ""
-	for _, arg := range formater.ValideDepthArgs {
+	for _, arg := range formater.ValidDepthArgs {
 		ret = fmt.Sprintf("%s %s", arg, ret)
 	}
 	return ret
 }
 
-// CheckVlaideDepthArg -Check if a string is a valide depth arg
-func (formater *CsvOutputFormater) CheckVlaideDepthArg(agr string) bool {
-	return strings.Contains(formater.GetVlaideDepthArgsString(), agr)
+// CheckValidDepthArg -Check if a string is a valid depth arg
+func (formater *CsvOutputFormater) CheckValidDepthArg(agr string) bool {
+	return strings.Contains(formater.GetValidDepthArgsString(), agr)
 }
 
 // GetNewLine - Get the new line string depending on the OS
