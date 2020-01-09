@@ -50,12 +50,12 @@ func TestHandleComandlineOptions(t *testing.T) {
 		t.Errorf("The PrintLicenseFlag is set to true but false was expected")
 	}
 
-	if DepthParametr != "track" {
-		t.Errorf("The DepthParametr is \"%s\" but \"track\" was expected", DepthParametr)
+	if DepthParameter != "track" {
+		t.Errorf("The DepthParameter is \"%s\" but \"track\" was expected", DepthParameter)
 	}
 
 	if OutFileParameter != "" {
-		t.Errorf("The DepthParametr is \"%s\" but \"\" was expected", OutFileParameter)
+		t.Errorf("The DepthParameter is \"%s\" but \"\" was expected", OutFileParameter)
 	}
 
 	if DontPanicFlag == false {
@@ -67,7 +67,7 @@ func TestHandleComandlineOptions(t *testing.T) {
 	}
 
 	if CorrectionParameter != "steps" {
-		t.Errorf("The CorrectionParameter is \"%s\" but \"steps\" was expected", DepthParametr)
+		t.Errorf("The CorrectionParameter is \"%s\" but \"steps\" was expected", DepthParameter)
 	}
 }
 
@@ -76,7 +76,7 @@ func TestCostumHelpMessage(t *testing.T) {
 		handleComandlineOptions()
 		ComandlineOptionsHandled = true
 	}
-	costumHelpMessage()
+	customHelpMessage()
 }
 
 func TestHandleErrorNil(t *testing.T) {
@@ -129,8 +129,8 @@ func TestProcessValidFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
-	oldDepthValue := DepthParametr
-	DepthParametr = "file"
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "linear"
 
@@ -148,7 +148,7 @@ func TestProcessValidFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
-	DepthParametr = oldDepthValue
+	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
 }
 
@@ -156,8 +156,8 @@ func TestProcessFilesDifferenCorrection(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
-	oldDepthValue := DepthParametr
-	DepthParametr = "file"
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
 	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx")}
 
@@ -190,7 +190,7 @@ func TestProcessFilesDifferenCorrection(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
-	DepthParametr = oldDepthValue
+	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
 }
 
@@ -198,8 +198,8 @@ func TestProcessMixedFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
-	oldDepthValue := DepthParametr
-	DepthParametr = "file"
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "linear"
 
@@ -219,7 +219,7 @@ func TestProcessMixedFiles(t *testing.T) {
 	SkipErrorExitFlag = oldFlagValue
 
 	SkipErrorExitFlag = oldFlagValue
-	DepthParametr = oldDepthValue
+	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
 }
 
@@ -227,8 +227,8 @@ func TestProcessInValidFiles(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
-	oldDepthValue := DepthParametr
-	DepthParametr = "file"
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "linear"
 
@@ -246,7 +246,7 @@ func TestProcessInValidFiles(t *testing.T) {
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
-	DepthParametr = oldDepthValue
+	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
 }
 
