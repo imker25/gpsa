@@ -12,6 +12,7 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
+const numberOfSemiclonsExpected = 11
 
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
@@ -103,8 +104,8 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 		t.Errorf("The output has not the expected number of files")
 	}
 
-	if strings.Count(ret[0], ";") != 9 {
-		t.Errorf("The Number of semicolons is not the same in each line")
+	if strings.Count(ret[0], ";") != numberOfSemiclonsExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(ret[0], ";"), numberOfSemiclonsExpected)
 	}
 
 	if strings.Contains(ret[0], "0.0200") == false {
@@ -253,8 +254,8 @@ func TestAddHeader(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != 9 {
-		t.Errorf("The number of semicolons is not the same in each line")
+	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
 	}
 }
 
@@ -273,8 +274,8 @@ func TestAddOutPut(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != 9 {
-		t.Errorf("The number of semicolons is not the same in each line")
+	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
 	}
 
 	if strings.Count(lines[0], "0.020000;") != 1 {
@@ -287,6 +288,50 @@ func TestAddOutPut(t *testing.T) {
 
 	if strings.Count(lines[0], "0.010000;") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "not valid;") != 2 {
+		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
+	}
+}
+
+func TestAddOutPutWithTimeStamp(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getSimpleTrackFileWithTime()
+
+	err := frt.AddOutPut(trackFile, "file")
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+
+	lines := frt.GetLines()
+
+	if len(lines) != 1 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
+	}
+
+	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
+	}
+
+	if strings.Count(lines[0], "0.020000;") != 1 {
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "1.000000;") != 3 {
+		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "0.010000;") != 2 {
+		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "2014-08-22T17:19:33Z;") != 1 {
+		t.Errorf("The output does not contain the StartTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "2014-08-22T17:19:53Z;") != 1 {
+		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
 	}
 }
 
@@ -442,6 +487,50 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 	}
 }
 
+func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileOneTrackWithTimeOneWithout()
+
+	err := frt.AddOutPut(trackFile, "track")
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+
+	lines := frt.GetLines()
+
+	if len(lines) != 2 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
+	}
+
+	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
+	}
+
+	if strings.Count(lines[0], "0.020000;") != 1 {
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "1.000000;") != 3 {
+		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "0.010000;") != 2 {
+		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "2014-08-22T17:19:33Z;") != 1 {
+		t.Errorf("The output does not contain the StartTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "2014-08-22T17:19:53Z;") != 1 {
+		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[1], "not valid;") != 2 {
+		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
+	}
+}
+
 func getTrackFileTwoTracksWithThreeSegments() TrackFile {
 	trackFile := getTrackFileTwoTracks()
 	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFile().Tracks[0].TrackSegments[0])
@@ -452,6 +541,14 @@ func getTrackFileTwoTracksWithThreeSegments() TrackFile {
 
 func getTrackFileTwoTracks() TrackFile {
 	trackFile := getSimpleTrackFile()
+	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFile().Tracks...)
+	FillTrackFileValues(&trackFile)
+
+	return trackFile
+}
+
+func getTrackFileOneTrackWithTimeOneWithout() TrackFile {
+	trackFile := getSimpleTrackFileWithTime()
 	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFile().Tracks...)
 	FillTrackFileValues(&trackFile)
 

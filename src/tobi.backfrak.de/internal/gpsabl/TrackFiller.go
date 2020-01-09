@@ -2,6 +2,7 @@ package gpsabl
 
 import (
 	"math"
+	"time"
 )
 
 // Copyright 2019 by tobi@backfrak.de. All
@@ -221,6 +222,9 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	var elevationLose float32
 	var upwardsDistance float64
 	var downwardsDistance float64
+	timeDataValide := true
+	var startTime time.Time
+	var endTime time.Time
 
 	for i, sum := range input {
 		dist = dist + sum.GetDistance()
@@ -236,9 +240,22 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 		if i == 0 || sum.GetMinimumAltitude() < minimumAltitude {
 			minimumAltitude = sum.GetMinimumAltitude()
 		}
+
+		if sum.GetTimeDataValide() == false {
+			timeDataValide = false
+		}
 	}
 
-	target.SetValues(dist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance)
+	// If the input has no elements, there can not be valide time data
+	if len(input) <= 0 {
+		timeDataValide = false
+	}
+	if timeDataValide {
+		startTime = input[0].GetStartTime()
+		endTime = input[len(input)-1].GetEndTime()
+	}
+	target.SetValues(dist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance,
+		timeDataValide, startTime, endTime)
 }
 
 func getCorrectedElevationLinear(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {

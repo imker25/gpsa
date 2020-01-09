@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 // CsvOutputFormater - type that formats TrackSummary into csv style
@@ -97,8 +98,10 @@ func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader
 
 // GetHeader - Get the header line of a csv output
 func (formater *CsvOutputFormater) GetHeader() string {
-	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		"Name", formater.Separator,
+		"StartTime", formater.Separator,
+		"EndTime", formater.Separator,
 		"Distance (km)", formater.Separator,
 		"AltitudeRange (m)", formater.Separator,
 		"MinimumAltitude (m)", formater.Separator,
@@ -115,18 +118,38 @@ func (formater *CsvOutputFormater) GetHeader() string {
 
 // FormatTrackSummary - Create the outputline for a TrackSummaryProvider
 func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
-	ret := fmt.Sprintf("%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s",
-		name, formater.Separator,
-		RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
-		RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
-		RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Separator,
-		RoundFloat64To2Digits(float64(info.GetMaximumAltitude())), formater.Separator,
-		RoundFloat64To2Digits(float64(info.GetElevationGain())), formater.Separator,
-		RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Separator,
-		RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
-		RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
-		GetNewLine(),
-	)
+	var ret string
+	if info.GetTimeDataValide() {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s",
+			name, formater.Separator,
+			info.GetStartTime().Format(time.RFC3339), formater.Separator,
+			info.GetEndTime().Format(time.RFC3339), formater.Separator,
+			RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetMaximumAltitude())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetElevationGain())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Separator,
+			RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
+			RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
+			GetNewLine(),
+		)
+	} else {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s",
+			name, formater.Separator,
+			"not valid", formater.Separator,
+			"not valid", formater.Separator,
+			RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetMaximumAltitude())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetElevationGain())), formater.Separator,
+			RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Separator,
+			RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
+			RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
+			GetNewLine(),
+		)
+	}
 
 	return ret
 }

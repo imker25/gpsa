@@ -35,6 +35,7 @@ type Trkpt struct {
 	Elevation float32 `xml:"ele"`
 	Latitude  float32 `xml:"lat,attr"`
 	Longitude float32 `xml:"lon,attr"`
+	Time      string  `xml:"time"`
 }
 
 // GpxFileError - Error when trying to load something that is no gpx file

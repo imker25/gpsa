@@ -64,6 +64,55 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 	}
 }
 
+func TestCompexTrackWithTimeStampInSomeSegments(t *testing.T) {
+	gpxFile := NewGpxFile(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valid-gpx", "04.gpx"))
+	fmt.Println(gpxFile.FilePath)
+	trackFile, err := gpxFile.ReadTracks("linear")
+	if err != nil {
+		t.Errorf("Got the following error while reading file %s: %s", gpxFile.FilePath, err.Error())
+		return
+	}
+
+	if trackFile.GetTimeDataValide() == true {
+		t.Errorf("Track file seems to have time data, but should not")
+	}
+}
+
+func TestTrackReaderWithTimeStamps(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValidGPX("12.gpx"))
+
+	file, _ := gpx.ReadTracks("none")
+
+	if len(file.Tracks) != 1 {
+		t.Errorf("Expected 1 Tracks, got %d", len(file.Tracks))
+	}
+
+	if file.GetStartTime() != file.Tracks[0].GetStartTime() {
+		t.Errorf("The StartTime does not match for Track")
+	}
+
+	if file.GetEndTime() != file.Tracks[0].GetEndTime() {
+		t.Errorf("The EndTime does not match for Track")
+	}
+
+	if file.GetStartTime() != file.Tracks[0].TrackSegments[0].GetStartTime() {
+		t.Errorf("The StartTime does not match for TrackSegments")
+	}
+
+	if file.GetEndTime() != file.Tracks[0].TrackSegments[0].GetEndTime() {
+		t.Errorf("The EndTime does not match for TrackSegments")
+	}
+
+	if file.GetStartTime() != file.Tracks[0].TrackSegments[0].TrackPoints[0].GetStartTime() {
+		t.Errorf("The StartTime does not match for TrackPoints")
+	}
+
+	lastPoint := len(file.Tracks[0].TrackSegments[0].TrackPoints) - 1
+	if file.GetEndTime() != file.Tracks[0].TrackSegments[0].TrackPoints[lastPoint].GetEndTime() {
+		t.Errorf("The EndTime does not match for TrackPoints")
+	}
+}
+
 func TestTrackReaderOnePointTrack(t *testing.T) {
 	gpx := NewGpxFile(testhelper.GetValidGPX("06.gpx"))
 

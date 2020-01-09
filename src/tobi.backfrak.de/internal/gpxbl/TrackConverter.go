@@ -7,6 +7,7 @@ package gpxbl
 
 import (
 	"sort"
+	"time"
 
 	"tobi.backfrak.de/internal/gpsabl"
 )
@@ -41,8 +42,11 @@ func convertSegments(segments []Trkseg, correction string) ([]gpsabl.TrackSegmen
 			return nil, err
 		}
 
-		gpsabl.FillTrackSegmentValues(&segment)
-		ret = append(ret, segment)
+		// Add only segments, that contain points
+		if len(seg.TrackPoints) > 0 {
+			gpsabl.FillTrackSegmentValues(&segment)
+			ret = append(ret, segment)
+		}
 	}
 
 	return ret, nil
@@ -86,23 +90,23 @@ func convertPoints(points []Trkpt, correction string) ([]gpsabl.TrackPoint, erro
 }
 
 func convertPointDistance(point Trkpt, i int, pnts *[]Trkpt, pointCount int) gpsabl.TrackPoint {
-	pnt := convertBasicPointValues(point.Latitude, point.Longitude, point.Elevation)
+	pnt := convertBasicPointValues(point.Latitude, point.Longitude, point.Elevation, point.Time)
 	pnt.Number = i
 	points := *pnts
 
 	if i == 0 && pointCount > 1 {
-		pntNext := convertBasicPointValues(points[i+1].Latitude, points[i+1].Longitude, points[i+1].Elevation)
+		pntNext := convertBasicPointValues(points[i+1].Latitude, points[i+1].Longitude, points[i+1].Elevation, points[i+1].Time)
 		gpsabl.FillDistancesTrackPoint(&pnt, gpsabl.TrackPoint{}, pntNext)
 	}
 
 	if i > 0 && i < pointCount-1 {
-		pntNext := convertBasicPointValues(points[i+1].Latitude, points[i+1].Longitude, points[i+1].Elevation)
-		pntBefore := convertBasicPointValues(points[i-1].Latitude, points[i-1].Longitude, points[i-1].Elevation)
+		pntNext := convertBasicPointValues(points[i+1].Latitude, points[i+1].Longitude, points[i+1].Elevation, points[i+1].Time)
+		pntBefore := convertBasicPointValues(points[i-1].Latitude, points[i-1].Longitude, points[i-1].Elevation, points[i-1].Time)
 		gpsabl.FillDistancesTrackPoint(&pnt, pntBefore, pntNext)
 	}
 
 	if i == pointCount-1 && pointCount > 1 {
-		pntBefore := convertBasicPointValues(points[i-1].Latitude, points[i-1].Longitude, points[i-1].Elevation)
+		pntBefore := convertBasicPointValues(points[i-1].Latitude, points[i-1].Longitude, points[i-1].Elevation, points[i-1].Time)
 		gpsabl.FillDistancesTrackPoint(&pnt, pntBefore, gpsabl.TrackPoint{})
 	}
 
@@ -114,11 +118,19 @@ func goConvertPointDistance(point Trkpt, i int, pnts *[]Trkpt, pointCount int, c
 	c <- convertPointDistance(point, i, pnts, pointCount)
 }
 
-func convertBasicPointValues(latitude, longitude, elevation float32) gpsabl.TrackPoint {
+func convertBasicPointValues(latitude, longitude, elevation float32, timeStamp string) gpsabl.TrackPoint {
 	pnt := gpsabl.TrackPoint{}
 	pnt.Latitude = latitude
 	pnt.Longitude = longitude
 	pnt.Elevation = elevation
+
+	if timeStamp == "" {
+		pnt.TimeValide = false
+	} else {
+		pnt.TimeValide = true
+		t, _ := time.Parse(time.RFC3339, timeStamp)
+		pnt.Time = t
+	}
 
 	return pnt
 }

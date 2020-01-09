@@ -7,6 +7,7 @@ package gpxbl
 
 import (
 	"testing"
+	"time"
 )
 
 func getTrk() Trk {
@@ -44,6 +45,38 @@ func getTrk() Trk {
 
 	return track
 
+}
+
+func getTrkWithTime() Trk {
+	track := getTrk()
+
+	track.TrackSegments[0].TrackPoints[0].Time = "2014-08-22T16:49:07Z"
+	track.TrackSegments[0].TrackPoints[1].Time = "2014-08-22T16:49:17Z"
+	track.TrackSegments[0].TrackPoints[2].Time = "2014-08-22T16:49:27Z"
+
+	return track
+}
+
+func TestConvertTrkTimeInfo(t *testing.T) {
+	input := getTrkWithTime()
+
+	track, err := ConvertTrk(input, "none")
+	if err != nil {
+		t.Errorf("Got a error, but expected none. The error is: %s", err)
+	}
+
+	if track.Distance != 49.32007928467905 {
+		t.Errorf("track.Distance  has not the expected value %f but is %f", 49.32007928467905, track.Distance)
+	}
+
+	for i := range track.TrackSegments[0].TrackPoints {
+		if track.TrackSegments[0].TrackPoints[i].TimeValide == false {
+			t.Errorf("track.TrackSegments[0].TrackPoints[%d].TimeValide is false but should not", i)
+		}
+		if track.TrackSegments[0].TrackPoints[i].Time.Format(time.RFC3339) != input.TrackSegments[0].TrackPoints[i].Time {
+			t.Errorf("track.TrackSegments[0].TrackPoints[%d].Time is %s but should be %s", i, track.TrackSegments[0].TrackPoints[i].Time.Format(time.RFC3339), input.TrackSegments[0].TrackPoints[i].Time)
+		}
+	}
 }
 
 func TestConvertTrkBasicInfo(t *testing.T) {
@@ -99,6 +132,9 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 			if track.TrackSegments[0].TrackPoints[i].DistanceToThisPoint <= track.TrackSegments[0].TrackPoints[i-1].DistanceToThisPoint {
 				t.Errorf("The DistanceToThisPoint for point %d, is %f but the point before had %f", i, track.TrackSegments[0].TrackPoints[i].DistanceToThisPoint, track.TrackSegments[0].TrackPoints[i-1].DistanceToThisPoint)
 			}
+		}
+		if track.TrackSegments[0].TrackPoints[i].TimeValide == true {
+			t.Errorf("track.TrackSegments[0].TrackPoints[%d].TimeValide is true but should not", i)
 		}
 	}
 }

@@ -1,5 +1,7 @@
 package gpsabl
 
+import "time"
+
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -8,16 +10,29 @@ package gpsabl
 // TrackSummary - the struct to store track statistic data
 type TrackSummary struct {
 	Distance          float64
-	MinimumAltitude    float32
-	MaximumAltitude    float32
+	MinimumAltitude   float32
+	MaximumAltitude   float32
 	ElevationGain     float32
 	ElevationLose     float32
 	UpwardsDistance   float64
 	DownwardsDistance float64
+	TimeDataValide    bool
+	StartTime         time.Time
+	EndTime           time.Time
 }
 
 // SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
-func (sum *TrackSummary) SetValues(distance float64, minimumAltitude float32, maximumAltitude float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64) {
+func (sum *TrackSummary) SetValues(distance float64,
+	minimumAltitude float32,
+	maximumAltitude float32,
+	elevationGain float32,
+	elevationLose float32,
+	upwardsDistance float64,
+	downwardsDistance float64,
+	timeDataValide bool,
+	startTime time.Time,
+	endTime time.Time) {
+
 	sum.MinimumAltitude = minimumAltitude
 	sum.MaximumAltitude = maximumAltitude
 	sum.Distance = distance
@@ -25,6 +40,9 @@ func (sum *TrackSummary) SetValues(distance float64, minimumAltitude float32, ma
 	sum.UpwardsDistance = upwardsDistance
 	sum.ElevationGain = elevationGain
 	sum.ElevationLose = elevationLose
+	sum.StartTime = startTime
+	sum.EndTime = endTime
+	sum.TimeDataValide = timeDataValide
 }
 
 // GetElevationGain - Implement the TrackSummaryProvider interface for TrackSummary
@@ -67,6 +85,21 @@ func (sum TrackSummary) GetMinimumAltitude() float32 {
 	return sum.MinimumAltitude
 }
 
+// GetStartTime - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetStartTime() time.Time {
+	return sum.StartTime
+}
+
+// GetEndTime - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetEndTime() time.Time {
+	return sum.EndTime
+}
+
+// GetTimeDataValide - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetTimeDataValide() bool {
+	return sum.TimeDataValide
+}
+
 // TrackFile - A struct to handle track files
 type TrackFile struct {
 	TrackSummary
@@ -107,6 +140,8 @@ type TrackPoint struct {
 	Elevation                float32
 	Latitude                 float32
 	Longitude                float32
+	Time                     time.Time
+	TimeValide               bool
 	HorizontalDistanceBefore float64
 	HorizontalDistanceNext   float64
 	DistanceNext             float64
@@ -169,4 +204,19 @@ func (pnt TrackPoint) GetDownwardsDistance() float64 {
 		return pnt.DistanceNext
 	}
 	return 0
+}
+
+// GetStartTime - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetStartTime() time.Time {
+	return pnt.Time
+}
+
+// GetEndTime - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetEndTime() time.Time {
+	return pnt.Time
+}
+
+// GetTimeDataValide - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetTimeDataValide() bool {
+	return pnt.TimeValide
 }

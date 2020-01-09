@@ -1,6 +1,9 @@
 package gpsabl
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
@@ -139,6 +142,15 @@ func getTrackPoint(lat, lon, ele float32) TrackPoint {
 	pnt.Latitude = lat
 	pnt.Longitude = lon
 	pnt.Elevation = ele
+	pnt.TimeValide = false
+
+	return pnt
+}
+
+func getTrackPointWithTime(lat, lon, ele float32, time time.Time) TrackPoint {
+	pnt := getTrackPoint(lat, lon, ele)
+	pnt.TimeValide = true
+	pnt.Time = time
 
 	return pnt
 }

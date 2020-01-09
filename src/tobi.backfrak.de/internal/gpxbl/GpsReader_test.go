@@ -95,6 +95,17 @@ func TestReadValidMultiTrackGPX(t *testing.T) {
 		t.Errorf("Expected 5 Tracks, got %d", len(gpx.Tracks))
 	}
 }
+func TestReadValidGPXWithTimeStamp(t *testing.T) {
+	gpx, err := ReadGPX(testhelper.GetValidGPX("12.gpx"))
+	if err != nil {
+		t.Errorf("Something wrong when reading a valide gpx file: %s", err.Error())
+	}
+
+	if len(gpx.Tracks) != 1 {
+		t.Errorf("Expected 1 Tracks but  %d was returned", len(gpx.Tracks))
+	}
+
+}
 
 func TestReadAllValidGPX(t *testing.T) {
 	files, _ := ioutil.ReadDir(filepath.Join(testhelper.GetProjectRoot(), "testdata", "valid-gpx"))

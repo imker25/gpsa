@@ -159,7 +159,7 @@ func TestProcessFilesDifferenCorrection(t *testing.T) {
 	oldDepthValue := DepthParameter
 	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
-	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx")}
+	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("12.gpx")}
 
 	CorrectionParameter = "none"
 	formater1 := gpsabl.NewCsvOutputFormater(";")

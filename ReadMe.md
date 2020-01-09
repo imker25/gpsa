@@ -46,7 +46,7 @@ Options:
   -depth string
         Define the way the program should analyse the files. Possible values are [segment file track ] (default "track")
   -dont-panic
-        Define if the programm will exit with panic or with a negativ exit code in error cases (default true). Possible values are ToDoTobi
+        Define if the programm will exit with panic or with a negativ exit code in error cases. Possible values are [true false] (default true).
   -help
         Prints this help message
   -license
@@ -54,7 +54,7 @@ Options:
   -out-file string
         Define where to write the output. (default "StdOut" if not explicitly set)
   -print-csv-header
-        Print out a csv header line (default true). Possible values are ToDoTobi
+        Print out a csv header line. Possible values are [true false] (default true). 
   -skip-error-exit
         Use this flag if you don't want to abort the program during track file processing errors
   -verbose
@@ -69,8 +69,8 @@ Simple call with one file:
 
 ```sh
 ~$  ./gpsa my/test/file.gpx
-Name;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
-GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;
+Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
+GPX name: Track name;1901-12-13T20:45:52Z;1901-12-13T20:45:52Z;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;
 
 ```
 
@@ -78,10 +78,10 @@ Simple call with multiple files:
 
 ```sh
 ~$  ./gpsa my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Name;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
-GPX name: Track name;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;
-02.gpx: 2019-08-18 11:07:40;37.820000;104.090000;347.020000;451.110000;263.880000;-251.430000;17.860000;19.770000;
-03.gpx: Tulln - Wien;37.640000;48.000000;158.000000;206.000000;52.000000;-26.000000;17.520000;14.060000;
+Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);
+GPX name: Track name;1901-12-13T20:45:52Z;1901-12-13T20:45:52Z;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;
+02.gpx: 2019-08-18 11:07:40;2019-08-18T09:11:01Z;2019-08-18T15:47:34Z;37.820000;104.090000;347.020000;451.110000;263.880000;-251.430000;17.860000;19.770000;
+03.gpx: Tulln - Wien;not valid;not valid;37.640000;48.000000;158.000000;206.000000;52.000000;-26.000000;17.520000;14.060000;
 
 ```
 

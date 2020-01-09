@@ -4,7 +4,10 @@ package gpsabl
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestNewTrackFile(t *testing.T) {
 	file := NewTrackFile("myFile")
@@ -17,7 +20,7 @@ func TestNewTrackFile(t *testing.T) {
 func TestTrackSummary(t *testing.T) {
 	sum := TrackSummary{}
 	iSumSet := TrackSummarySetter(&sum)
-	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0)
+	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now())
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {

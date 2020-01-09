@@ -1,5 +1,7 @@
 package gpsabl
 
+import "time"
+
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
@@ -20,9 +22,21 @@ type TrackSummaryProvider interface {
 	GetElevationLose() float32
 	GetUpwardsDistance() float64
 	GetDownwardsDistance() float64
+	GetTimeDataValide() bool
+	GetStartTime() time.Time
+	GetEndTime() time.Time
 }
 
 // TrackSummarySetter - Interface for classes that can set track summary data
 type TrackSummarySetter interface {
-	SetValues(distance float64, minimumAltitude float32, maximumAltitude float32, elevationGain float32, elevationLose float32, upwardsDistance float64, downwardsDistance float64)
+	SetValues(distance float64,
+		minimumAltitude float32,
+		maximumAltitude float32,
+		elevationGain float32,
+		elevationLose float32,
+		upwardsDistance float64,
+		downwardsDistance float64,
+		timeDataValide bool,
+		startTime time.Time,
+		endTime time.Time)
 }
