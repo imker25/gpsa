@@ -119,7 +119,7 @@ func (formater *CsvOutputFormater) GetHeader() string {
 // FormatTrackSummary - Create the outputline for a TrackSummaryProvider
 func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
 	var ret string
-	if info.GetTimeDataValide() {
+	if info.GetTimeDataValid() {
 		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
 			info.GetStartTime().Format(time.RFC3339), formater.Separator,

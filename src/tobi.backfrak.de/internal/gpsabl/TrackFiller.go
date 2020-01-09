@@ -222,7 +222,7 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	var elevationLose float32
 	var upwardsDistance float64
 	var downwardsDistance float64
-	timeDataValide := true
+	timeDataValid := true
 	var startTime time.Time
 	var endTime time.Time
 
@@ -241,21 +241,21 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 			minimumAltitude = sum.GetMinimumAltitude()
 		}
 
-		if sum.GetTimeDataValide() == false {
-			timeDataValide = false
+		if sum.GetTimeDataValid() == false {
+			timeDataValid = false
 		}
 	}
 
 	// If the input has no elements, there can not be valide time data
 	if len(input) <= 0 {
-		timeDataValide = false
+		timeDataValid = false
 	}
-	if timeDataValide {
+	if timeDataValid {
 		startTime = input[0].GetStartTime()
 		endTime = input[len(input)-1].GetEndTime()
 	}
 	target.SetValues(dist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance,
-		timeDataValide, startTime, endTime)
+		timeDataValid, startTime, endTime)
 }
 
 func getCorrectedElevationLinear(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {

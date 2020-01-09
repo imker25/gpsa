@@ -70,8 +70,8 @@ func TestConvertTrkTimeInfo(t *testing.T) {
 	}
 
 	for i := range track.TrackSegments[0].TrackPoints {
-		if track.TrackSegments[0].TrackPoints[i].TimeValide == false {
-			t.Errorf("track.TrackSegments[0].TrackPoints[%d].TimeValide is false but should not", i)
+		if track.TrackSegments[0].TrackPoints[i].TimeValid == false {
+			t.Errorf("track.TrackSegments[0].TrackPoints[%d].TimeValid is false but should not", i)
 		}
 		if track.TrackSegments[0].TrackPoints[i].Time.Format(time.RFC3339) != input.TrackSegments[0].TrackPoints[i].Time {
 			t.Errorf("track.TrackSegments[0].TrackPoints[%d].Time is %s but should be %s", i, track.TrackSegments[0].TrackPoints[i].Time.Format(time.RFC3339), input.TrackSegments[0].TrackPoints[i].Time)
@@ -133,8 +133,8 @@ func TestConvertTrkBasicInfo(t *testing.T) {
 				t.Errorf("The DistanceToThisPoint for point %d, is %f but the point before had %f", i, track.TrackSegments[0].TrackPoints[i].DistanceToThisPoint, track.TrackSegments[0].TrackPoints[i-1].DistanceToThisPoint)
 			}
 		}
-		if track.TrackSegments[0].TrackPoints[i].TimeValide == true {
-			t.Errorf("track.TrackSegments[0].TrackPoints[%d].TimeValide is true but should not", i)
+		if track.TrackSegments[0].TrackPoints[i].TimeValid == true {
+			t.Errorf("track.TrackSegments[0].TrackPoints[%d].TimeValid is true but should not", i)
 		}
 	}
 }

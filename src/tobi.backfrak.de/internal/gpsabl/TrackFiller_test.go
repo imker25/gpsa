@@ -328,15 +328,15 @@ func TestFillTrackFileValuesBeforeAfter(t *testing.T) {
 		t.Errorf("The Tracks changed during FillTrackFileValues")
 	}
 
-	if file.GetTimeDataValide() == true {
+	if file.GetTimeDataValid() == true {
 		t.Errorf("The Time data for TrackFile is valide, but should not")
 	}
 
-	if file.Tracks[0].GetTimeDataValide() == true {
+	if file.Tracks[0].GetTimeDataValid() == true {
 		t.Errorf("The Time data for Track is valide, but should not")
 	}
 
-	if file.Tracks[0].TrackSegments[0].GetTimeDataValide() == true {
+	if file.Tracks[0].TrackSegments[0].GetTimeDataValid() == true {
 		t.Errorf("The Time data for TrackSegments is valide, but should not")
 	}
 }
@@ -353,15 +353,15 @@ func TestSimpleTrackFileNoTime(t *testing.T) {
 		t.Errorf("The Tracks changed during FillTrackFileValues")
 	}
 
-	if file.GetTimeDataValide() == true {
+	if file.GetTimeDataValid() == true {
 		t.Errorf("The Time data for TrackFile is valide, but should not")
 	}
 
-	if file.Tracks[0].GetTimeDataValide() == true {
+	if file.Tracks[0].GetTimeDataValid() == true {
 		t.Errorf("The Time data for Track is valide, but should not")
 	}
 
-	if file.Tracks[0].TrackSegments[0].GetTimeDataValide() == true {
+	if file.Tracks[0].TrackSegments[0].GetTimeDataValid() == true {
 		t.Errorf("The Time data for TrackSegments is valide, but should not")
 	}
 }
@@ -444,15 +444,15 @@ func TestFillSimpleTrackFileWithTime(t *testing.T) {
 		t.Errorf("The end time is %s, but %s was expected", file.GetEndTime().Format(time.RFC3339), "2014-08-22T17:19:53Z")
 	}
 
-	if file.GetTimeDataValide() == false {
+	if file.GetTimeDataValid() == false {
 		t.Errorf("The Time data for TrackFile is not valide, but should")
 	}
 
-	if file.Tracks[0].GetTimeDataValide() == false {
+	if file.Tracks[0].GetTimeDataValid() == false {
 		t.Errorf("The Time data for Track is not valide, but should")
 	}
 
-	if file.Tracks[0].TrackSegments[0].GetTimeDataValide() == false {
+	if file.Tracks[0].TrackSegments[0].GetTimeDataValid() == false {
 		t.Errorf("The Time data for TrackSegments is not valide, but should")
 	}
 }

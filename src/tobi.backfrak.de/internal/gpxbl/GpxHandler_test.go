@@ -73,7 +73,7 @@ func TestCompexTrackWithTimeStampInSomeSegments(t *testing.T) {
 		return
 	}
 
-	if trackFile.GetTimeDataValide() == true {
+	if trackFile.GetTimeDataValid() == true {
 		t.Errorf("Track file seems to have time data, but should not")
 	}
 }

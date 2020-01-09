@@ -16,7 +16,7 @@ type TrackSummary struct {
 	ElevationLose     float32
 	UpwardsDistance   float64
 	DownwardsDistance float64
-	TimeDataValide    bool
+	TimeDataValid     bool
 	StartTime         time.Time
 	EndTime           time.Time
 }
@@ -29,7 +29,7 @@ func (sum *TrackSummary) SetValues(distance float64,
 	elevationLose float32,
 	upwardsDistance float64,
 	downwardsDistance float64,
-	timeDataValide bool,
+	timeDataValid bool,
 	startTime time.Time,
 	endTime time.Time) {
 
@@ -42,7 +42,7 @@ func (sum *TrackSummary) SetValues(distance float64,
 	sum.ElevationLose = elevationLose
 	sum.StartTime = startTime
 	sum.EndTime = endTime
-	sum.TimeDataValide = timeDataValide
+	sum.TimeDataValid = timeDataValid
 }
 
 // GetElevationGain - Implement the TrackSummaryProvider interface for TrackSummary
@@ -95,9 +95,9 @@ func (sum TrackSummary) GetEndTime() time.Time {
 	return sum.EndTime
 }
 
-// GetTimeDataValide - Implement the TrackSummaryProvider interface for TrackSummary
-func (sum TrackSummary) GetTimeDataValide() bool {
-	return sum.TimeDataValide
+// GetTimeDataValid - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetTimeDataValid() bool {
+	return sum.TimeDataValid
 }
 
 // TrackFile - A struct to handle track files
@@ -141,7 +141,7 @@ type TrackPoint struct {
 	Latitude                 float32
 	Longitude                float32
 	Time                     time.Time
-	TimeValide               bool
+	TimeValid                bool
 	HorizontalDistanceBefore float64
 	HorizontalDistanceNext   float64
 	DistanceNext             float64
@@ -216,7 +216,7 @@ func (pnt TrackPoint) GetEndTime() time.Time {
 	return pnt.Time
 }
 
-// GetTimeDataValide - Implement the TrackSummaryProvider interface for TrackPoint
-func (pnt TrackPoint) GetTimeDataValide() bool {
-	return pnt.TimeValide
+// GetTimeDataValid - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetTimeDataValid() bool {
+	return pnt.TimeValid
 }

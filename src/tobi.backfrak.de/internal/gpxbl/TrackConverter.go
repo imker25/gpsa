@@ -125,18 +125,18 @@ func convertBasicPointValues(latitude, longitude, elevation float32, timeStamp s
 	pnt.Elevation = elevation
 
 	if timeStamp == "" {
-		pnt.TimeValide = false
+		pnt.TimeValid = false
 	} else {
 
 		t, err := time.Parse(time.RFC3339, timeStamp)
 
 		// In case the time stamp of the track point is not in the specifyed format, it is not valid
 		if err != nil {
-			pnt.TimeValide = false
+			pnt.TimeValid = false
 			return pnt
 		}
 
-		pnt.TimeValide = true
+		pnt.TimeValid = true
 		pnt.Time = t
 	}
 

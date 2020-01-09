@@ -142,14 +142,14 @@ func getTrackPoint(lat, lon, ele float32) TrackPoint {
 	pnt.Latitude = lat
 	pnt.Longitude = lon
 	pnt.Elevation = ele
-	pnt.TimeValide = false
+	pnt.TimeValid = false
 
 	return pnt
 }
 
 func getTrackPointWithTime(lat, lon, ele float32, time time.Time) TrackPoint {
 	pnt := getTrackPoint(lat, lon, ele)
-	pnt.TimeValide = true
+	pnt.TimeValid = true
 	pnt.Time = time
 
 	return pnt

@@ -22,7 +22,7 @@ type TrackSummaryProvider interface {
 	GetElevationLose() float32
 	GetUpwardsDistance() float64
 	GetDownwardsDistance() float64
-	GetTimeDataValide() bool
+	GetTimeDataValid() bool
 	GetStartTime() time.Time
 	GetEndTime() time.Time
 }
@@ -36,7 +36,7 @@ type TrackSummarySetter interface {
 		elevationLose float32,
 		upwardsDistance float64,
 		downwardsDistance float64,
-		timeDataValide bool,
+		timeDataValid bool,
 		startTime time.Time,
 		endTime time.Time)
 }
