@@ -79,6 +79,74 @@ func TestConvertTrkTimeInfo(t *testing.T) {
 	}
 }
 
+func TestConvertBasicPointValues(t *testing.T) {
+	inPnt := getTrk().TrackSegments[0].TrackPoints[0]
+	pnt := convertBasicPointValues(inPnt.Longitude, inPnt.Longitude, inPnt.Elevation, inPnt.Time)
+
+	if pnt.TimeValid {
+		t.Errorf("The TimeValid is true, but false is expected")
+	}
+
+	if inPnt.Elevation != pnt.Elevation {
+		t.Errorf("Elevation does not match")
+	}
+
+	if inPnt.Longitude != pnt.Longitude {
+		t.Errorf("Longitude does not match")
+	}
+
+	if inPnt.Latitude != pnt.Latitude {
+		t.Errorf("Latitude does not match")
+	}
+}
+
+func TestConvertBasicPointValuesWithTime(t *testing.T) {
+	inPnt := getTrkWithTime().TrackSegments[0].TrackPoints[0]
+	pnt := convertBasicPointValues(inPnt.Longitude, inPnt.Longitude, inPnt.Elevation, inPnt.Time)
+
+	if !pnt.TimeValid {
+		t.Errorf("The TimeValid is false, but true is expected")
+	}
+
+	if inPnt.Time != pnt.Time.Format(time.RFC3339) {
+		t.Errorf("Time does not match")
+	}
+
+	if inPnt.Elevation != pnt.Elevation {
+		t.Errorf("Elevation does not match")
+	}
+
+	if inPnt.Longitude != pnt.Longitude {
+		t.Errorf("Longitude does not match")
+	}
+
+	if inPnt.Latitude != pnt.Latitude {
+		t.Errorf("Latitude does not match")
+	}
+}
+
+func TestConvertBasicPointValuesWithUnFormatedTime(t *testing.T) {
+	inPnt := getTrkWithTime().TrackSegments[0].TrackPoints[0]
+	inPnt.Time = "lala"
+	pnt := convertBasicPointValues(inPnt.Longitude, inPnt.Longitude, inPnt.Elevation, inPnt.Time)
+
+	if pnt.TimeValid {
+		t.Errorf("The TimeValid is true, but false is expected")
+	}
+
+	if inPnt.Elevation != pnt.Elevation {
+		t.Errorf("Elevation does not match")
+	}
+
+	if inPnt.Longitude != pnt.Longitude {
+		t.Errorf("Longitude does not match")
+	}
+
+	if inPnt.Latitude != pnt.Latitude {
+		t.Errorf("Latitude does not match")
+	}
+}
+
 func TestConvertTrkBasicInfo(t *testing.T) {
 	input := getTrk()
 
