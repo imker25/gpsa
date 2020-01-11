@@ -111,7 +111,7 @@ To develop this software install [Go](https://golang.org/) and [Gradle](https://
 
 ### Build
 
-Use [Gradle](https://gradle.org/) to build and test the project
+Use [Gradle](https://gradle.org/) to build and test the project.
 
 ```sh
 gradle build        # build the project
