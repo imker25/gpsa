@@ -20,7 +20,7 @@ pipeline {
 	options { skipDefaultCheckout() }
 	
     stages {
-		stage('GitHub integration') {
+		stage('GitHub Integration') {
 			steps ('Publish build start on GitHub') {
 				setBuildStatus("Build started", "SUCCESS");
 			}
