@@ -15,7 +15,7 @@ void setBuildStatus(String message, String state) {
 
 pipeline {
     agent {
-		label "unix"
+		label "awaiter"
 	}
 	options { skipDefaultCheckout() }
 
