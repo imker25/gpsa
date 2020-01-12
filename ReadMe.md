@@ -1,8 +1,8 @@
-# gpsa - A GPX Statistic Analysing tool
+# gpsa - A GPX Statistic extracting tool
 
-This is a simple command line tool that helps to extract statistic data out of *.gpx files
+This is a simple command line tool that helps to extract data for statistical analysis out of *.gpx files. You might want to use this program to extract data like "Distance" or "ElevationGain" from a bunch of *.gpx files and store this data in a *.csv file for further analysis.
 
-- [gpsa - A GPX Statistic Analysing tool](#gpsa---a-gpx-statistic-analysing-tool)
+- [gpsa - A GPX Statistic extracting tool](#gpsa---a-gpx-statistic-extracting-tool)
   - [User Documentation](#user-documentation)
     - [Installation](#installation)
     - [Usage](#usage)
