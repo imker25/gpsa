@@ -160,6 +160,8 @@ func TestProcessValidFilesWithEmpyElements(t *testing.T) {
 	DepthParameter = "track"
 	oldCorrectionPar := CorrectionParameter
 	CorrectionParameter = "linear"
+	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
+	PrintCsvHeaderFlag = false
 
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
@@ -182,6 +184,7 @@ func TestProcessValidFilesWithEmpyElements(t *testing.T) {
 	SkipErrorExitFlag = oldFlagValue
 	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPar
+	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
 }
 
 func TestProcessFilesDifferentCorrection(t *testing.T) {
