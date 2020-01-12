@@ -153,6 +153,58 @@ func TestTrackReaderInValidCorrectionParameter(t *testing.T) {
 	}
 }
 
+func TestTrackReaderEmptyTrack(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetInvalidGPX("03.gpx"))
+
+	_, err := gpx.ReadTracks("none")
+	if err != nil {
+		switch ty := err.(type) {
+		case *EmptyGpxFileError:
+			fmt.Println("OK")
+		default:
+			t.Errorf("The Error ReadTracks gave is of the wrong type. The type is %v", ty)
+		}
+	} else {
+		t.Errorf("ReadTracks did not return a error, but was expected")
+	}
+}
+
+func TestTrackReaderTrackWithEmptySegment(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValidGPX("13.gpx"))
+
+	trk, err := gpx.ReadTracks("none")
+	if err != nil {
+		t.Errorf("Got a error, but expected none. The error is: %s", err)
+	}
+
+	if len(trk.Tracks) != 1 {
+		t.Errorf("Got %d tracks, but expected 1", len(trk.Tracks))
+	}
+
+	if len(trk.Tracks[0].TrackSegments) != 1 {
+		t.Errorf("Got %d track segments, but expected 1", len(trk.Tracks))
+	}
+
+}
+
+func TestTrackReaderOneEmptyTrack(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValidGPX("14.gpx"))
+
+	trk, err := gpx.ReadTracks("none")
+	if err != nil {
+		t.Errorf("Got a error, but expected none. The error is: %s", err)
+	}
+
+	if len(trk.Tracks) != 1 {
+		t.Errorf("Got %d tracks, but expected 1", len(trk.Tracks))
+	}
+
+	if len(trk.Tracks[0].TrackSegments) != 1 {
+		t.Errorf("Got %d track segments, but expected 1", len(trk.Tracks))
+	}
+
+}
+
 func TestTrackReaderImpl(t *testing.T) {
 	gpx := NewGpxFile(testhelper.GetValidGPX("01.gpx"))
 

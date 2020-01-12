@@ -36,14 +36,14 @@ func convertSegments(segments []Trkseg, correction string) ([]gpsabl.TrackSegmen
 	var err error
 	for _, seg := range segments {
 
-		segment := gpsabl.TrackSegment{}
-		segment.TrackPoints, err = convertPoints(seg.TrackPoints, correction)
-		if err != nil {
-			return nil, err
-		}
-
 		// Add only segments, that contain points
 		if len(seg.TrackPoints) > 0 {
+			segment := gpsabl.TrackSegment{}
+			segment.TrackPoints, err = convertPoints(seg.TrackPoints, correction)
+			if err != nil {
+				return nil, err
+			}
+
 			gpsabl.FillTrackSegmentValues(&segment)
 			ret = append(ret, segment)
 		}
@@ -130,7 +130,7 @@ func convertBasicPointValues(latitude, longitude, elevation float32, timeStamp s
 
 		t, err := time.Parse(time.RFC3339, timeStamp)
 
-		// In case the time stamp of the track point is not in the specifyed format, it is not valid
+		// In case the time stamp of the track point is not in the specified format, it is not valid
 		if err != nil {
 			pnt.TimeValid = false
 			return pnt
