@@ -14,7 +14,9 @@ void setBuildStatus(String message, String state) {
 }
 
 pipeline {
-    agent none
+    agent {
+		label "unix"
+	}
 	options { skipDefaultCheckout() }
 
     stages {
@@ -92,6 +94,7 @@ pipeline {
         }
     }
 	post ('Publish build result on GitHub') {
+
 		success {
 			setBuildStatus("Build complete", "SUCCESS");
 		}
