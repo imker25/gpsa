@@ -36,14 +36,14 @@ func convertSegments(segments []Trkseg, correction string) ([]gpsabl.TrackSegmen
 	var err error
 	for _, seg := range segments {
 
-		segment := gpsabl.TrackSegment{}
-		segment.TrackPoints, err = convertPoints(seg.TrackPoints, correction)
-		if err != nil {
-			return nil, err
-		}
-
 		// Add only segments, that contain points
 		if len(seg.TrackPoints) > 0 {
+			segment := gpsabl.TrackSegment{}
+			segment.TrackPoints, err = convertPoints(seg.TrackPoints, correction)
+			if err != nil {
+				return nil, err
+			}
+
 			gpsabl.FillTrackSegmentValues(&segment)
 			ret = append(ret, segment)
 		}

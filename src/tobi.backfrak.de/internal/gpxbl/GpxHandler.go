@@ -57,6 +57,7 @@ func ReadGpxFile(filePath string, correction string) (gpsabl.TrackFile, error) {
 
 	}
 
+	// If no valid tracks found in the file, a error is returned
 	if len(tracks) > 0 {
 		ret.Tracks = tracks
 		ret.Name = gpx.Name

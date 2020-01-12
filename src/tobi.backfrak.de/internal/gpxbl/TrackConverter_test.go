@@ -79,6 +79,25 @@ func TestConvertTrkTimeInfo(t *testing.T) {
 	}
 }
 
+func TestConvertSegmentsWithNoPoints(t *testing.T) {
+	inPut := getTrk()
+
+	inPut.TrackSegments = append(inPut.TrackSegments, Trkseg{})
+
+	outSegs, err := convertSegments(inPut.TrackSegments, "none")
+	if err != nil {
+		t.Errorf("Got a error, but expected none. The error is: %s", err)
+	}
+
+	if len(inPut.TrackSegments) != 2 {
+		t.Errorf("The input had %d segments, but 2 was expected.", len(inPut.TrackSegments))
+	}
+
+	if len(outSegs) != 1 {
+		t.Errorf("Got %d segments, but expected 1", len(outSegs))
+	}
+}
+
 func TestConvertBasicPointValues(t *testing.T) {
 	inPnt := getTrk().TrackSegments[0].TrackPoints[0]
 	pnt := convertBasicPointValues(inPnt.Longitude, inPnt.Longitude, inPnt.Elevation, inPnt.Time)
