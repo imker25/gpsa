@@ -144,7 +144,7 @@ func TestProcessValidFiles(t *testing.T) {
 	}
 
 	if ErrorsHandled == true {
-		t.Errorf("Errors occured that were not expected")
+		t.Errorf("Errors occurred that were not expected")
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
@@ -152,7 +152,39 @@ func TestProcessValidFiles(t *testing.T) {
 	CorrectionParameter = oldCorrectionPAr
 }
 
-func TestProcessFilesDifferenCorrection(t *testing.T) {
+func TestProcessValidFilesWithEmpyElements(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParameter
+	DepthParameter = "track"
+	oldCorrectionPar := CorrectionParameter
+	CorrectionParameter = "linear"
+
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
+	files := []string{testhelper.GetValidGPX("13.gpx"), testhelper.GetValidGPX("14.gpx")}
+	successCount := processFiles(files, iFormater)
+	if successCount != 2 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Errors occurred that were not expected")
+	}
+
+	if len(formater.GetLines()) != 2 {
+		t.Errorf("Got %d lines, but expected 2", len(formater.GetLines()))
+	}
+
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParameter = oldDepthValue
+	CorrectionParameter = oldCorrectionPar
+}
+
+func TestProcessFilesDifferentCorrection(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
 	SkipErrorExitFlag = true
@@ -206,7 +238,7 @@ func TestProcessMixedFiles(t *testing.T) {
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
 
-	files := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetValidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx")}
+	files := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetValidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx"), testhelper.GetInvalidGPX("03.gpx")}
 	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
 		t.Errorf("More or less than two files were processed with error - expected exactly two of them")
