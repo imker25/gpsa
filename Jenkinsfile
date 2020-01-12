@@ -3,11 +3,24 @@
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-pipeline {
-    agent none
-	options { skipDefaultCheckout() }
+void setBuildStatus(String message, String state) {
+  step([
+      $class: "GitHubCommitStatusSetter",
+      reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/imker25/gpsa"],
+      contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
+      errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+      statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+  ]);
+}
 
+pipeline {
+    agent {
+		label "awaiter"
+	}
+	options { skipDefaultCheckout() }
+	
     stages {
+
         stage('Build, test and deploy the gpsa project') {
             parallel {
                 stage('Run on Windows') {
@@ -81,4 +94,18 @@ pipeline {
             }
         }
     }
+	post ('Publish build result on GitHub') {
+
+		success {
+			setBuildStatus("Build complete", "SUCCESS");
+		}
+
+		failure {
+			setBuildStatus("Build complete", "FAILURE");
+		}
+
+		unstable {
+			setBuildStatus("Build complete", "UNSTABLE");
+		}
+	}
 }
