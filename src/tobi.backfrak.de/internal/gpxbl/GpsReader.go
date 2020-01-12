@@ -6,7 +6,6 @@ package gpxbl
 // LICENSE file.
 import (
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 )
 
@@ -36,22 +35,6 @@ type Trkpt struct {
 	Latitude  float32 `xml:"lat,attr"`
 	Longitude float32 `xml:"lon,attr"`
 	Time      string  `xml:"time"`
-}
-
-// GpxFileError - Error when trying to load something that is no gpx file
-type GpxFileError struct {
-	err string
-	// File - The path to the file that caused this error
-	File string
-}
-
-func (e *GpxFileError) Error() string { // Implement the Error Interface for the GpxFileError struct
-	return fmt.Sprintf("Error: %s", e.err)
-}
-
-// newGpxFileError - Get a new GpxFileError struct
-func newGpxFileError(fileName string) *GpxFileError {
-	return &GpxFileError{fmt.Sprintf("The file \"%s\" is not a gpx file", fileName), fileName}
 }
 
 // ReadGPX - Read a GPX file

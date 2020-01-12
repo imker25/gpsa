@@ -45,20 +45,27 @@ func ReadGpxFile(filePath string, correction string) (gpsabl.TrackFile, error) {
 
 	var tracks []gpsabl.Track
 	for _, trk := range gpx.Tracks {
-		track, convertError := ConvertTrk(trk, correction)
-		if convertError != nil {
-			return ret, convertError
+
+		// Add only tracks that contain segments
+		if len(trk.TrackSegments) > 0 {
+			track, convertError := ConvertTrk(trk, correction)
+			if convertError != nil {
+				return ret, convertError
+			}
+			tracks = append(tracks, track)
 		}
-		tracks = append(tracks, track)
 
 	}
 
-	ret.Tracks = tracks
-	ret.Name = gpx.Name
-	ret.Description = gpx.Description
-	ret.NumberOfTracks = len(tracks)
+	if len(tracks) > 0 {
+		ret.Tracks = tracks
+		ret.Name = gpx.Name
+		ret.Description = gpx.Description
+		ret.NumberOfTracks = len(tracks)
 
-	gpsabl.FillTrackFileValues(&ret)
-
+		gpsabl.FillTrackFileValues(&ret)
+	} else {
+		return ret, newEmptyGpxFileError(filePath)
+	}
 	return ret, nil
 }
