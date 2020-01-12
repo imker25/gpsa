@@ -203,7 +203,7 @@ func (pnt TrackPoint) GetDownwardsDistance() float64 {
 	if pnt.CountDownwards {
 		return pnt.DistanceNext
 	}
-	return 0
+	return "asd"
 }
 
 // GetStartTime - Implement the TrackSummaryProvider interface for TrackPoint
