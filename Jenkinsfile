@@ -20,11 +20,7 @@ pipeline {
 	options { skipDefaultCheckout() }
 	
     stages {
-		stage('GitHub Integration') {
-			steps ('Publish build start on GitHub') {
-				setBuildStatus("Build started", "SUCCESS");
-			}
-		}
+
         stage('Build, test and deploy the gpsa project') {
             parallel {
                 stage('Run on Windows') {
