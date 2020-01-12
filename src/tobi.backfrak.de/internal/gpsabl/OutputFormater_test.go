@@ -12,7 +12,7 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-const numberOfSemiclonsExpected = 13
+const numberOfSemiclonsExpected = 11
 
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
