@@ -187,6 +187,82 @@ func TestProcessValidFilesWithEmpyElements(t *testing.T) {
 	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
 }
 
+func TestProcessValidFilesWithDuplicateElementsDetectionenabeled(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParameter
+	DepthParameter = "track"
+	oldCorrectionPar := CorrectionParameter
+	CorrectionParameter = "linear"
+	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
+	PrintCsvHeaderFlag = false
+	oldSuppressDuplicateOutPutFlag := SuppressDuplicateOutPutFlag
+	SuppressDuplicateOutPutFlag = true
+
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
+	files := []string{testhelper.GetValidGPX("15.gpx")}
+	successCount := processFiles(files, iFormater)
+	if successCount != 1 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Errors occurred that were not expected")
+	}
+
+	if len(formater.GetLines()) != 1 {
+		t.Errorf("Got %d lines, but expected 1", len(formater.GetLines()))
+	}
+
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParameter = oldDepthValue
+	CorrectionParameter = oldCorrectionPar
+	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
+	SuppressDuplicateOutPutFlag = oldSuppressDuplicateOutPutFlag
+}
+
+func TestProcessValidFilesWithDuplicateElementsDetectionDisabeled(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParameter
+	DepthParameter = "track"
+	oldCorrectionPar := CorrectionParameter
+	CorrectionParameter = "linear"
+	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
+	PrintCsvHeaderFlag = false
+	oldSuppressDuplicateOutPutFlag := SuppressDuplicateOutPutFlag
+	SuppressDuplicateOutPutFlag = false
+
+	formater := gpsabl.NewCsvOutputFormater(";")
+	iFormater := gpsabl.OutputFormater(formater)
+
+	files := []string{testhelper.GetValidGPX("15.gpx")}
+	successCount := processFiles(files, iFormater)
+	if successCount != 1 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Errors occurred that were not expected")
+	}
+
+	if len(formater.GetLines()) != 2 {
+		t.Errorf("Got %d lines, but expected 2", len(formater.GetLines()))
+	}
+
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParameter = oldDepthValue
+	CorrectionParameter = oldCorrectionPar
+	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
+	SuppressDuplicateOutPutFlag = oldSuppressDuplicateOutPutFlag
+}
+
 func TestProcessFilesDifferentCorrection(t *testing.T) {
 	ErrorsHandled = false
 	oldFlagValue := SkipErrorExitFlag
