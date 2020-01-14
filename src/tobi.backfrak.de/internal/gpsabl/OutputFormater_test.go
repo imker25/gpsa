@@ -263,7 +263,7 @@ func TestAddOutPut(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getSimpleTrackFile()
 
-	err := frt.AddOutPut(trackFile, "file")
+	err := frt.AddOutPut(trackFile, "file", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -299,7 +299,7 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getSimpleTrackFileWithTime()
 
-	err := frt.AddOutPut(trackFile, "file")
+	err := frt.AddOutPut(trackFile, "file", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -340,7 +340,7 @@ func TestAddHeaderAndOutPut(t *testing.T) {
 	trackFile := getSimpleTrackFile()
 
 	frt.AddHeader()
-	err := frt.AddOutPut(trackFile, "file")
+	err := frt.AddOutPut(trackFile, "file", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -365,7 +365,7 @@ func TestAddHeaderAndOutPutFileTwoTracksFileDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracks()
 
 	frt.AddHeader()
-	frt.AddOutPut(trackFile, "file")
+	frt.AddOutPut(trackFile, "file", false)
 
 	lines := frt.GetLines()
 
@@ -387,7 +387,7 @@ func TestAddHeaderAndOutPutFileTwoTracksTrackDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracks()
 
 	frt.AddHeader()
-	err := frt.AddOutPut(trackFile, "track")
+	err := frt.AddOutPut(trackFile, "track", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -416,7 +416,7 @@ func TestAddHeaderAndOutPutFileTwoTracksSegmentDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
 
 	frt.AddHeader()
-	err := frt.AddOutPut(trackFile, "segment")
+	err := frt.AddOutPut(trackFile, "segment", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -445,7 +445,7 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
 
 	frt.AddHeader()
-	errAdd := frt.AddOutPut(trackFile, "segment")
+	errAdd := frt.AddOutPut(trackFile, "segment", false)
 	if errAdd != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
@@ -475,7 +475,7 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 
 	iFrt := OutputFormater(frt)
 	iFrt.AddHeader()
-	errAdd := iFrt.AddOutPut(trackFile, "track")
+	errAdd := iFrt.AddOutPut(trackFile, "track", false)
 	if errAdd != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
@@ -491,7 +491,7 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getTrackFileOneTrackWithTimeOneWithout()
 
-	err := frt.AddOutPut(trackFile, "track")
+	err := frt.AddOutPut(trackFile, "track", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}

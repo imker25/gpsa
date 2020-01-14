@@ -36,7 +36,7 @@ func NewCsvOutputFormater(separator string) *CsvOutputFormater {
 }
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
-func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string) error {
+func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, filterDuplicate bool) error {
 	formater.mux.Lock()
 	defer formater.mux.Unlock()
 	lines, err := formater.FormatOutPut(trackFile, false, depth)

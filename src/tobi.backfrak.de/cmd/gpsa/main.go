@@ -222,7 +222,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Add the file to the out buffer of the formater
-	addErr := formater.AddOutPut(file, DepthParameter)
+	addErr := formater.AddOutPut(file, DepthParameter, false)
 	if HandleError(addErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
