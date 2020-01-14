@@ -263,7 +263,7 @@ func TestAddOutPut(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getSimpleTrackFile()
 
-	err := frt.AddOutPut(trackFile, "file")
+	err := frt.AddOutPut(trackFile, "file", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -299,7 +299,7 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getSimpleTrackFileWithTime()
 
-	err := frt.AddOutPut(trackFile, "file")
+	err := frt.AddOutPut(trackFile, "file", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -340,7 +340,7 @@ func TestAddHeaderAndOutPut(t *testing.T) {
 	trackFile := getSimpleTrackFile()
 
 	frt.AddHeader()
-	err := frt.AddOutPut(trackFile, "file")
+	err := frt.AddOutPut(trackFile, "file", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -365,7 +365,7 @@ func TestAddHeaderAndOutPutFileTwoTracksFileDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracks()
 
 	frt.AddHeader()
-	frt.AddOutPut(trackFile, "file")
+	frt.AddOutPut(trackFile, "file", false)
 
 	lines := frt.GetLines()
 
@@ -387,7 +387,7 @@ func TestAddHeaderAndOutPutFileTwoTracksTrackDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracks()
 
 	frt.AddHeader()
-	err := frt.AddOutPut(trackFile, "track")
+	err := frt.AddOutPut(trackFile, "track", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -416,7 +416,7 @@ func TestAddHeaderAndOutPutFileTwoTracksSegmentDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
 
 	frt.AddHeader()
-	err := frt.AddOutPut(trackFile, "segment")
+	err := frt.AddOutPut(trackFile, "segment", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -445,7 +445,7 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
 
 	frt.AddHeader()
-	errAdd := frt.AddOutPut(trackFile, "segment")
+	errAdd := frt.AddOutPut(trackFile, "segment", false)
 	if errAdd != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
@@ -475,7 +475,7 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 
 	iFrt := OutputFormater(frt)
 	iFrt.AddHeader()
-	errAdd := iFrt.AddOutPut(trackFile, "track")
+	errAdd := iFrt.AddOutPut(trackFile, "track", false)
 	if errAdd != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
@@ -487,11 +487,60 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 	}
 }
 
+func TestCsvOutputFormaterDuplicateFilterWithTimeStamp(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegmentsWithTime()
+
+	errAdd := frt.AddOutPut(trackFile, "track", true)
+	if errAdd != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
+	}
+
+	if len(frt.GetLines()) != 1 {
+		t.Errorf("Got %d lines, but expected 1", len(frt.GetLines()))
+	}
+}
+
+func TestCsvOutputFormaterDuplicateFilterWithOutTime(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	errAdd := frt.AddOutPut(trackFile, "track", true)
+	if errAdd != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
+	}
+
+	if len(frt.GetLines()) != 2 {
+		t.Errorf("Got %d lines, but expected 1", len(frt.GetLines()))
+	}
+}
+
+func TestAddOutPutWithUnValidFilter(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	errAdd := frt.AddOutPut(trackFile, "ba", false)
+	if errAdd == nil {
+		t.Errorf("Got no error but did expect one.")
+	}
+
+}
+func TestAddOutPutWithUnValidFilterAndDuplicateFilter(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	errAdd := frt.AddOutPut(trackFile, "ba", true)
+	if errAdd == nil {
+		t.Errorf("Got no error but did expect one.")
+	}
+
+}
+
 func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getTrackFileOneTrackWithTimeOneWithout()
 
-	err := frt.AddOutPut(trackFile, "track")
+	err := frt.AddOutPut(trackFile, "track", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -531,6 +580,36 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 	}
 }
 
+func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
+
+	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
+	line := "b;789,101;fgh"
+
+	if outPutContainsLineByTimeStamps(outPut, line) == false {
+		t.Errorf("Got false, but expect true")
+	}
+}
+
+func TestOutPutContainsLineByTimeStamps2(t *testing.T) {
+
+	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
+	line := "b;789,100;fgh"
+
+	if outPutContainsLineByTimeStamps(outPut, line) == true {
+		t.Errorf("Got true, but expect false")
+	}
+}
+
+func TestOutPutContainsLineByTimeStamps3(t *testing.T) {
+
+	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
+	line := "b;780,101;fgh"
+
+	if outPutContainsLineByTimeStamps(outPut, line) == true {
+		t.Errorf("Got true, but expect false")
+	}
+}
+
 func getTrackFileTwoTracksWithThreeSegments() TrackFile {
 	trackFile := getTrackFileTwoTracks()
 	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFile().Tracks[0].TrackSegments[0])
@@ -539,9 +618,25 @@ func getTrackFileTwoTracksWithThreeSegments() TrackFile {
 	return trackFile
 }
 
+func getTrackFileTwoTracksWithThreeSegmentsWithTime() TrackFile {
+	trackFile := getTrackFileTwoTracksWithTime()
+	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFileWithTime().Tracks[0].TrackSegments[0])
+	FillTrackValues(&trackFile.Tracks[0])
+
+	return trackFile
+}
+
 func getTrackFileTwoTracks() TrackFile {
 	trackFile := getSimpleTrackFile()
 	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFile().Tracks...)
+	FillTrackFileValues(&trackFile)
+
+	return trackFile
+}
+
+func getTrackFileTwoTracksWithTime() TrackFile {
+	trackFile := getSimpleTrackFileWithTime()
+	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFileWithTime().Tracks...)
 	FillTrackFileValues(&trackFile)
 
 	return trackFile

@@ -51,6 +51,9 @@ var PrintVersionFlag bool
 // PrintLicenseFlag - Tells if the program was called with the -license flag
 var PrintLicenseFlag bool
 
+// SuppressDuplicateOutPutFlag - Tells if the program was called with the -suppressDuplicateOutPut flag
+var SuppressDuplicateOutPutFlag bool
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -117,7 +120,7 @@ func main() {
 	if ErrorsHandled == false {
 		os.Exit(0)
 	} else {
-		fmt.Fprintln(os.Stderr, "At least one error occured")
+		fmt.Fprintln(os.Stderr, "At least one error occurred")
 		os.Exit(-1)
 	}
 }
@@ -129,6 +132,7 @@ func handleComandlineOptions() {
 	outFormater := gpsabl.NewCsvOutputFormater(";")
 
 	// Setup the valid comandline flags
+	flag.BoolVar(&SuppressDuplicateOutPutFlag, "suppressDuplicateOutPutFlag", false, "Suppress the output of duplicate lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.")
 	flag.BoolVar(&HelpFlag, "help", false, "Print help message and exit")
 	flag.BoolVar(&PrintVersionFlag, "version", false, "Print version of the program and exit")
 	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print license information of the program and exit")
@@ -222,7 +226,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Add the file to the out buffer of the formater
-	addErr := formater.AddOutPut(file, DepthParameter)
+	addErr := formater.AddOutPut(file, DepthParameter, SuppressDuplicateOutPutFlag)
 	if HandleError(addErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}

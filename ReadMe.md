@@ -57,6 +57,8 @@ Options:
         Print out a csv header line. Possible values are [true false] (default true). 
   -skip-error-exit
         Use this flag if you don't want to abort the program during track file processing errors
+ -suppressDuplicateOutPutFlag
+        Suppress the output of duplicate output lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
   -verbose
         Run the program with verbose output
   -version
