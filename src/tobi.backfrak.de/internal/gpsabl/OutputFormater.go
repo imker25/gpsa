@@ -43,6 +43,9 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, 
 
 	var lines []string
 	linesFromFile, err := formater.FormatOutPut(trackFile, false, depth)
+	if err != nil {
+		return err
+	}
 	if filterDuplicate {
 		for _, line := range linesFromFile {
 			if outPutContainsLineByTimeStamps(lines, line) == false && outPutContainsLineByTimeStamps(formater.GetLines(), line) == false {
@@ -56,9 +59,6 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, 
 	if len(lines) > 0 {
 		formater.mux.Lock()
 		defer formater.mux.Unlock()
-		if err != nil {
-			return err
-		}
 		formater.lineBuffer = append(formater.lineBuffer, lines...)
 	}
 

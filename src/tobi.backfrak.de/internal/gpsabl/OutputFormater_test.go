@@ -515,6 +515,27 @@ func TestCsvOutputFormaterDuplicateFilterWithOutTime(t *testing.T) {
 	}
 }
 
+func TestAddOutPutWithUnValidFilter(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	errAdd := frt.AddOutPut(trackFile, "ba", false)
+	if errAdd == nil {
+		t.Errorf("Got no error but did expect one.")
+	}
+
+}
+func TestAddOutPutWithUnValidFilterAndDuplicateFilter(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	errAdd := frt.AddOutPut(trackFile, "ba", true)
+	if errAdd == nil {
+		t.Errorf("Got no error but did expect one.")
+	}
+
+}
+
 func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getTrackFileOneTrackWithTimeOneWithout()
@@ -556,6 +577,36 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 
 	if strings.Count(lines[1], "not valid;") != 2 {
 		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
+	}
+}
+
+func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
+
+	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
+	line := "b;789,101;fgh"
+
+	if outPutContainsLineByTimeStamps(outPut, line) == false {
+		t.Errorf("Got false, but expect true")
+	}
+}
+
+func TestOutPutContainsLineByTimeStamps2(t *testing.T) {
+
+	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
+	line := "b;789,100;fgh"
+
+	if outPutContainsLineByTimeStamps(outPut, line) == true {
+		t.Errorf("Got true, but expect false")
+	}
+}
+
+func TestOutPutContainsLineByTimeStamps3(t *testing.T) {
+
+	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
+	line := "b;780,101;fgh"
+
+	if outPutContainsLineByTimeStamps(outPut, line) == true {
+		t.Errorf("Got true, but expect false")
 	}
 }
 
