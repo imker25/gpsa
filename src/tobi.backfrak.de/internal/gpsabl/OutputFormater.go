@@ -13,6 +13,9 @@ import (
 	"time"
 )
 
+// NotValidValue - The value set when values are not valid
+const NotValidValue = "not valid"
+
 // CsvOutputFormater - type that formats TrackSummary into csv style
 type CsvOutputFormater struct {
 	// Separator - The separator used to separate values in csv
@@ -37,13 +40,27 @@ func NewCsvOutputFormater(separator string) *CsvOutputFormater {
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
 func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, filterDuplicate bool) error {
-	formater.mux.Lock()
-	defer formater.mux.Unlock()
-	lines, err := formater.FormatOutPut(trackFile, false, depth)
-	if err != nil {
-		return err
+
+	var lines []string
+	linesFromFile, err := formater.FormatOutPut(trackFile, false, depth)
+	if filterDuplicate {
+		for _, line := range linesFromFile {
+			if outPutContainsLineByTimeStamps(lines, line) == false && outPutContainsLineByTimeStamps(formater.GetLines(), line) == false {
+				lines = append(lines, line)
+			}
+		}
+	} else {
+		lines = linesFromFile
 	}
-	formater.lineBuffer = append(formater.lineBuffer, lines...)
+
+	if len(lines) > 0 {
+		formater.mux.Lock()
+		defer formater.mux.Unlock()
+		if err != nil {
+			return err
+		}
+		formater.lineBuffer = append(formater.lineBuffer, lines...)
+	}
 
 	return nil
 }
@@ -137,8 +154,8 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider,
 	} else {
 		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
-			"not valid", formater.Separator,
-			"not valid", formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
 			RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Separator,
@@ -175,6 +192,40 @@ func GetNewLine() string {
 	}
 	return "\n"
 
+}
+
+func outPutContainsLineByTimeStamps(output []string, newLine string) bool {
+
+	newLineStartTime := getStartTimeFormOutPutLine(newLine)
+	newLineEndTime := getEndTimeFormOutPutLine(newLine)
+
+	// Don't tread all lines with no valid time values as duplicates
+	if newLineStartTime == NotValidValue {
+		return false
+	}
+
+	for _, outLine := range output {
+		outLineStartTime := getStartTimeFormOutPutLine(outLine)
+		outLineEndTime := getEndTimeFormOutPutLine(outLine)
+
+		if outLineStartTime == newLineStartTime && outLineEndTime == newLineEndTime {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getStartTimeFormOutPutLine(line string) string {
+	lineFields := strings.Split(line, ";")
+
+	return lineFields[1]
+}
+
+func getEndTimeFormOutPutLine(line string) string {
+	lineFields := strings.Split(line, ";")
+
+	return lineFields[2]
 }
 
 func addLinesFromTrackSegments(formater *CsvOutputFormater, trackFile TrackFile, lines *[]string) {

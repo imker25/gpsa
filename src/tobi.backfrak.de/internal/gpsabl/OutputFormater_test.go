@@ -487,6 +487,34 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 	}
 }
 
+func TestCsvOutputFormaterDuplicateFilterWithTimeStamp(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegmentsWithTime()
+
+	errAdd := frt.AddOutPut(trackFile, "track", true)
+	if errAdd != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
+	}
+
+	if len(frt.GetLines()) != 1 {
+		t.Errorf("Got %d lines, but expected 1", len(frt.GetLines()))
+	}
+}
+
+func TestCsvOutputFormaterDuplicateFilterWithOutTime(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+
+	errAdd := frt.AddOutPut(trackFile, "track", true)
+	if errAdd != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
+	}
+
+	if len(frt.GetLines()) != 2 {
+		t.Errorf("Got %d lines, but expected 1", len(frt.GetLines()))
+	}
+}
+
 func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 	frt := NewCsvOutputFormater(";")
 	trackFile := getTrackFileOneTrackWithTimeOneWithout()
@@ -539,9 +567,25 @@ func getTrackFileTwoTracksWithThreeSegments() TrackFile {
 	return trackFile
 }
 
+func getTrackFileTwoTracksWithThreeSegmentsWithTime() TrackFile {
+	trackFile := getTrackFileTwoTracksWithTime()
+	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFileWithTime().Tracks[0].TrackSegments[0])
+	FillTrackValues(&trackFile.Tracks[0])
+
+	return trackFile
+}
+
 func getTrackFileTwoTracks() TrackFile {
 	trackFile := getSimpleTrackFile()
 	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFile().Tracks...)
+	FillTrackFileValues(&trackFile)
+
+	return trackFile
+}
+
+func getTrackFileTwoTracksWithTime() TrackFile {
+	trackFile := getSimpleTrackFileWithTime()
+	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFileWithTime().Tracks...)
 	FillTrackFileValues(&trackFile)
 
 	return trackFile
