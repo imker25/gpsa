@@ -25,6 +25,8 @@ type TrackSummaryProvider interface {
 	GetTimeDataValid() bool
 	GetStartTime() time.Time
 	GetEndTime() time.Time
+	GetMovingTime() time.Duration
+	GetAvarageSpeed() float64
 }
 
 // TrackSummarySetter - Interface for classes that can set track summary data

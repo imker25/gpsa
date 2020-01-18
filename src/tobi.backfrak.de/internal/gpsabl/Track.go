@@ -1,6 +1,8 @@
 package gpsabl
 
-import "time"
+import (
+	"time"
+)
 
 // Copyright 2019 by tobi@backfrak.de. All
 // rights reserved. Use of this source code is governed
@@ -19,6 +21,8 @@ type TrackSummary struct {
 	TimeDataValid     bool
 	StartTime         time.Time
 	EndTime           time.Time
+	MovingTime        time.Duration
+	AvarageSpeed      float64
 }
 
 // SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
@@ -43,6 +47,8 @@ func (sum *TrackSummary) SetValues(distance float64,
 	sum.StartTime = startTime
 	sum.EndTime = endTime
 	sum.TimeDataValid = timeDataValid
+	sum.MovingTime = sum.EndTime.Sub(sum.StartTime)
+	sum.AvarageSpeed = sum.Distance / float64(sum.MovingTime/1000000000)
 }
 
 // GetElevationGain - Implement the TrackSummaryProvider interface for TrackSummary
@@ -100,6 +106,16 @@ func (sum TrackSummary) GetTimeDataValid() bool {
 	return sum.TimeDataValid
 }
 
+// GetMovingTime - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetMovingTime() time.Duration {
+	return sum.MovingTime
+}
+
+// GetAvarageSpeed - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetAvarageSpeed() float64 {
+	return sum.AvarageSpeed
+}
+
 // TrackFile - A struct to handle track files
 type TrackFile struct {
 	TrackSummary
@@ -152,6 +168,8 @@ type TrackPoint struct {
 	VerticalDistanceNext     float32
 	CountUpwards             bool
 	CountDownwards           bool
+	MovingTime               time.Duration
+	AvarageSpeed             float64
 }
 
 // GetDistance - Implement the TrackSummaryProvider interface for TrackPoint
@@ -219,4 +237,14 @@ func (pnt TrackPoint) GetEndTime() time.Time {
 // GetTimeDataValid - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetTimeDataValid() bool {
 	return pnt.TimeValid
+}
+
+// GetMovingTime - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetMovingTime() time.Duration {
+	return pnt.MovingTime
+}
+
+// GetAvarageSpeed - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetAvarageSpeed() float64 {
+	return pnt.AvarageSpeed
 }

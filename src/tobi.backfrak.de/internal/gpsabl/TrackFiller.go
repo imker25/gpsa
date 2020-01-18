@@ -40,6 +40,7 @@ func FillValuesTrackPointArray(pnts []TrackPoint, correction string) error {
 	}
 	fillElevationGainLoseTrackPoint(pnts)
 	fillCountUpDownWards(pnts, correction)
+	fillSpeedValues(pnts)
 
 	return nil
 }
@@ -178,6 +179,15 @@ func fillDistanceToThisPoint(pnts []TrackPoint) {
 		disToHere += pnts[i].DistanceBefore
 		pnts[i].DistanceToThisPoint = disToHere
 	}
+}
+
+func fillSpeedValues(pnts []TrackPoint) {
+	startTime := pnts[0].Time
+	for _, pnt := range pnts {
+		pnt.MovingTime = pnt.Time.Sub(startTime)
+		pnt.AvarageSpeed = pnt.DistanceToThisPoint / float64((pnt.MovingTime / 1000000000))
+	}
+
 }
 
 // FillCountUpDownWards - Fills the CountUpwards and CountDownwards value

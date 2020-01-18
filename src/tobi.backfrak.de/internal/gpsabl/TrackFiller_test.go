@@ -455,6 +455,30 @@ func TestFillSimpleTrackFileWithTime(t *testing.T) {
 	if file.Tracks[0].TrackSegments[0].GetTimeDataValid() == false {
 		t.Errorf("The Time data for TrackSegments is not valide, but should")
 	}
+
+	if file.Tracks[0].GetAvarageSpeed() != 1.1942574218734128 {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].GetAvarageSpeed() != file.GetAvarageSpeed() {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].GetAvarageSpeed() != file.Tracks[0].TrackSegments[0].GetAvarageSpeed() {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].GetMovingTime() != 20000000000 {
+		t.Errorf("The MovingTime is %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	}
+
+	if file.Tracks[0].GetMovingTime() != file.GetMovingTime() {
+		t.Errorf("The MovingTime is %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	}
+
+	if file.Tracks[0].GetMovingTime() != file.Tracks[0].TrackSegments[0].GetMovingTime() {
+		t.Errorf("The MovingTime is %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	}
 }
 
 func getSimpleTrackFile() TrackFile {
