@@ -20,7 +20,8 @@ func TestNewTrackFile(t *testing.T) {
 func TestTrackSummary(t *testing.T) {
 	sum := TrackSummary{}
 	iSumSet := TrackSummarySetter(&sum)
-	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now())
+	// now := time.Now()
+	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now(), time.Now().Sub(time.Now()))
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {

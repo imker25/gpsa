@@ -481,6 +481,49 @@ func TestFillSimpleTrackFileWithTime(t *testing.T) {
 	}
 }
 
+/*
+func TestTrackTimeWithGaps(t *testing.T) {
+	file := getSimpleTrackFileWithTime()
+	if len(file.Tracks) != 1 {
+		t.Errorf("Expected 1 Tracks, got %d", len(file.Tracks))
+	}
+	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	t2, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:43Z")
+	t3, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:53Z")
+	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
+	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 108.0, t2)
+	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t3)
+	points := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
+	FillDistancesTrackPoint(&points[1], points[0], points[2])
+	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
+	FillValuesTrackPointArray(points, "none")
+	laterTrack := Track{}
+	seg := TrackSegment{}
+	seg.TrackPoints = points
+	FillTrackSegmentValues(&seg)
+	laterTrack.TrackSegments = []TrackSegment{}
+	FillTrackValues(&laterTrack)
+	laterTrack.NumberOfSegments = 1
+
+	file.Tracks = append(file.Tracks, laterTrack)
+
+	if len(file.Tracks) != 2 {
+		t.Errorf("Expected 2 Tracks, got %d", len(file.Tracks))
+	}
+
+	if file.GetStartTime() != file.Tracks[0].GetStartTime() {
+		t.Errorf("The StartTime does not match for Track")
+	}
+
+	if file.GetEndTime() != file.Tracks[1].GetEndTime() {
+		t.Errorf("The EndTime does not match for Track")
+	}
+
+}
+*/
+
 func getSimpleTrackFile() TrackFile {
 	ret := NewTrackFile("/mys/track/file")
 	trk := getSimpleTrack()

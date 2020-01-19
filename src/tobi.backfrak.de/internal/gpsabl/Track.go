@@ -35,7 +35,8 @@ func (sum *TrackSummary) SetValues(distance float64,
 	downwardsDistance float64,
 	timeDataValid bool,
 	startTime time.Time,
-	endTime time.Time) {
+	endTime time.Time,
+	movigTime time.Duration) {
 
 	sum.MinimumAltitude = minimumAltitude
 	sum.MaximumAltitude = maximumAltitude
@@ -47,8 +48,10 @@ func (sum *TrackSummary) SetValues(distance float64,
 	sum.StartTime = startTime
 	sum.EndTime = endTime
 	sum.TimeDataValid = timeDataValid
-	sum.MovingTime = sum.EndTime.Sub(sum.StartTime)
-	sum.AvarageSpeed = sum.Distance / float64(sum.MovingTime/1000000000)
+	sum.MovingTime = movigTime
+	if timeDataValid {
+		sum.AvarageSpeed = sum.Distance / float64(sum.MovingTime/1000000000)
+	}
 }
 
 // GetElevationGain - Implement the TrackSummaryProvider interface for TrackSummary

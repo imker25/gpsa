@@ -54,7 +54,7 @@ func FillTrackSegmentValues(segment *TrackSegment) {
 		iPnts = append(iPnts, iPnt)
 	}
 
-	fillTrackSummaryValues(segment, iPnts)
+	fillTrackSummaryValues(segment, iPnts, true)
 }
 
 // FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
@@ -66,7 +66,7 @@ func FillTrackValues(track *Track) {
 		iSegs = append(iSegs, iSeg)
 	}
 
-	fillTrackSummaryValues(track, iSegs)
+	fillTrackSummaryValues(track, iSegs, false)
 }
 
 // FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
@@ -78,7 +78,7 @@ func FillTrackFileValues(file *TrackFile) {
 		iTrks = append(iTrks, itrk)
 	}
 
-	fillTrackSummaryValues(file, iTrks)
+	fillTrackSummaryValues(file, iTrks, false)
 }
 
 // GetValidCorrectionParameters - Get the valid parameters for fillCorrectedElevationTrackPoint correction parameter
@@ -183,9 +183,11 @@ func fillDistanceToThisPoint(pnts []TrackPoint) {
 
 func fillSpeedValues(pnts []TrackPoint) {
 	startTime := pnts[0].Time
-	for _, pnt := range pnts {
-		pnt.MovingTime = pnt.Time.Sub(startTime)
-		pnt.AvarageSpeed = pnt.DistanceToThisPoint / float64((pnt.MovingTime / 1000000000))
+	for i, pnt := range pnts {
+		if pnt.TimeValid {
+			pnts[i].MovingTime = pnt.Time.Sub(startTime)
+			pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnt.MovingTime / 1000000000))
+		}
 	}
 
 }
@@ -224,7 +226,7 @@ func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 	}
 }
 
-func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider) {
+func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider, inputIsPoints bool) {
 	var dist float64
 	var minimumAltitude float32
 	var maximumAltitude float32
@@ -235,6 +237,8 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	timeDataValid := true
 	var startTime time.Time
 	var endTime time.Time
+	var movingTime time.Duration
+	var movingTimeSum time.Duration
 
 	for i, sum := range input {
 		dist = dist + sum.GetDistance()
@@ -242,6 +246,7 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 		elevationLose = elevationLose + sum.GetElevationLose()
 		upwardsDistance = upwardsDistance + sum.GetUpwardsDistance()
 		downwardsDistance = downwardsDistance + sum.GetDownwardsDistance()
+		movingTimeSum = movingTimeSum + sum.GetMovingTime()
 
 		if i == 0 || sum.GetMaximumAltitude() > maximumAltitude {
 			maximumAltitude = sum.GetMaximumAltitude()
@@ -263,9 +268,14 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	if timeDataValid {
 		startTime = input[0].GetStartTime()
 		endTime = input[len(input)-1].GetEndTime()
+		if inputIsPoints {
+			movingTime = input[len(input)-1].GetMovingTime()
+		} else {
+			movingTime = movingTimeSum
+		}
 	}
 	target.SetValues(dist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance,
-		timeDataValid, startTime, endTime)
+		timeDataValid, startTime, endTime, movingTime)
 }
 
 func getCorrectedElevationLinear(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {

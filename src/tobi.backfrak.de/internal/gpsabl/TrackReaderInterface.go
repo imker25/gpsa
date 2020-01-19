@@ -40,5 +40,6 @@ type TrackSummarySetter interface {
 		downwardsDistance float64,
 		timeDataValid bool,
 		startTime time.Time,
-		endTime time.Time)
+		endTime time.Time,
+		movingTime time.Duration)
 }
