@@ -10,7 +10,7 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-// MinimalStepHight - The minimal evelation difference for the setp algorythm
+// MinimalStepHight - The minimal evelation difference for the step algorithm
 const MinimalStepHight = 10.0
 
 // FillDistancesTrackPoint - Adds the distance values to the basePoint.
@@ -45,7 +45,7 @@ func FillValuesTrackPointArray(pnts []TrackPoint, correction string) error {
 	return nil
 }
 
-// FillTrackSegmentValues - Fills the distance and atitute fields of a tack segment by adding up all TrackPoint distances
+// FillTrackSegmentValues - Fills the distance and attitude fields of a tack segment by adding up all TrackPoint distances
 // All TrackPoint values has to be set before. See FillDistancesTrackPoint and FillValuesTrackPointArray
 func FillTrackSegmentValues(segment *TrackSegment) {
 	iPnts := []TrackSummaryProvider{}
@@ -57,7 +57,7 @@ func FillTrackSegmentValues(segment *TrackSegment) {
 	fillTrackSummaryValues(segment, iPnts, true)
 }
 
-// FillTrackValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+// FillTrackValues - Fills the distance and attitude fields of a tack  by adding up all TrackSegments distances
 // All TrackSegment has to be set before. See FillTrackSegmentValues
 func FillTrackValues(track *Track) {
 	iSegs := []TrackSummaryProvider{}
@@ -69,7 +69,7 @@ func FillTrackValues(track *Track) {
 	fillTrackSummaryValues(track, iSegs, false)
 }
 
-// FillTrackFileValues - Fills the distance and atitute fields of a tack  by adding up all TrackSegments distances
+// FillTrackFileValues - Fills the distance and attitude fields of a tack  by adding up all TrackSegments distances
 // All Track values has to be set before. See FillTrackValues
 func FillTrackFileValues(file *TrackFile) {
 	iTrks := []TrackSummaryProvider{}
@@ -107,8 +107,8 @@ func CheckValidCorrectionParameters(given string) bool {
 	return false
 }
 
-// fillCorrectedElevationTrackPoint - Set the CorectedElevation value in a list of TrackPoints
-// Basicaly this will run a somthing algorythm over the Elevation
+// fillCorrectedElevationTrackPoint - Set the CorrectedElevation value in a list of TrackPoints
+// Basically this will run a somthing algorithm over the Elevation
 func fillCorrectedElevationTrackPoint(pnts []TrackPoint, correction string) error {
 
 	switch correction {
@@ -186,7 +186,7 @@ func fillSpeedValues(pnts []TrackPoint) {
 	for i, pnt := range pnts {
 		if pnt.TimeValid {
 			pnts[i].MovingTime = pnt.Time.Sub(startTime)
-			pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnt.MovingTime / 1000000000))
+			pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
 		}
 	}
 
