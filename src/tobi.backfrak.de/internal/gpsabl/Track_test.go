@@ -20,7 +20,8 @@ func TestNewTrackFile(t *testing.T) {
 func TestTrackSummary(t *testing.T) {
 	sum := TrackSummary{}
 	iSumSet := TrackSummarySetter(&sum)
-	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now())
+	// now := time.Now()
+	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now(), time.Now().Sub(time.Now()))
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {
@@ -54,6 +55,43 @@ func TestTrackSummary(t *testing.T) {
 	if iSum.GetDownwardsDistance() != 30.0 {
 		t.Errorf("The GetDownwardsDistance() returns %f, but %f was expected", iSum.GetDownwardsDistance(), 30.0)
 	}
+
+	if iSum.GetTimeDataValid() == true {
+		t.Errorf("The GetTimeDataValid()  is true, but false is expected")
+	}
+}
+
+func TestTrackSummaryWithTime(t *testing.T) {
+	sum := TrackSummary{}
+	iSumSet := TrackSummarySetter(&sum)
+	endTime, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	startTime, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
+	movingTime := endTime.Sub(startTime)
+	distance := 100.0
+	speed := distance / float64(movingTime/1000000000)
+	iSumSet.SetValues(distance, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, true, startTime, endTime, movingTime)
+	iSum := TrackSummaryProvider(sum)
+
+	if iSum.GetTimeDataValid() == false {
+		t.Errorf("The GetTimeDataValid()  is false, but true is expected")
+	}
+
+	if iSum.GetStartTime() != startTime {
+		t.Errorf("GetStartTime() is not the expected value")
+	}
+
+	if iSum.GetEndTime() != endTime {
+		t.Errorf("GetEndTime() is not the expected value")
+	}
+
+	if iSum.GetMovingTime() != movingTime {
+		t.Errorf("GetMovingTime() is not the expected value")
+	}
+
+	if iSum.GetAvarageSpeed() != speed {
+		t.Errorf("GetAvarageSpeed() is not the expected value")
+	}
+
 }
 
 func TestTrackFileIsTrackSummary(t *testing.T) {

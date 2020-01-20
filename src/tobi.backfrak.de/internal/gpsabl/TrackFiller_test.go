@@ -455,6 +455,127 @@ func TestFillSimpleTrackFileWithTime(t *testing.T) {
 	if file.Tracks[0].TrackSegments[0].GetTimeDataValid() == false {
 		t.Errorf("The Time data for TrackSegments is not valide, but should")
 	}
+
+	if file.Tracks[0].GetAvarageSpeed() != 1.1942574218734128 {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].GetAvarageSpeed() != file.GetAvarageSpeed() {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].GetAvarageSpeed() != file.Tracks[0].TrackSegments[0].GetAvarageSpeed() {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].GetMovingTime() != 20000000000 {
+		t.Errorf("The MovingTime is %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	}
+
+	if file.Tracks[0].GetMovingTime() != file.GetMovingTime() {
+		t.Errorf("The MovingTime is %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	}
+
+	if file.Tracks[0].GetMovingTime() != file.Tracks[0].TrackSegments[0].GetMovingTime() {
+		t.Errorf("The MovingTime is %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	}
+}
+
+func TestTrackTimeWithGaps(t *testing.T) {
+	file := getTrackFileWithTimeGaps()
+
+	if len(file.Tracks) != 2 {
+		t.Errorf("Expected 2 Tracks, got %d", len(file.Tracks))
+	}
+
+	if file.GetStartTime() != file.Tracks[0].GetStartTime() {
+		t.Errorf("The StartTime does not match for Track")
+	}
+
+	if file.GetEndTime() != file.Tracks[1].GetEndTime() {
+		t.Errorf("The EndTime does not match for Track")
+	}
+
+	if file.GetMovingTime() == file.Tracks[0].GetMovingTime() {
+		t.Errorf("The file.GetMovingTime() %d is the same as the first Track's moving time", file.GetMovingTime())
+	}
+
+	if file.GetMovingTime() == file.Tracks[1].GetMovingTime() {
+		t.Errorf("The file.GetMovingTime() %d is the same as the seconds Track's moving time", file.GetMovingTime())
+	}
+
+	if file.GetMovingTime() != (file.Tracks[0].GetMovingTime() + file.Tracks[1].GetMovingTime()) {
+		t.Errorf("The file.GetMovingTime() %d is the same as all MovingTimes together.", file.GetMovingTime())
+	}
+
+	if file.GetMovingTime() == file.GetEndTime().Sub(file.GetStartTime()) {
+		t.Errorf("The file.GetMovingTime() is the same as EndTime - StartTime")
+	}
+
+}
+
+func TestTrackSpeedWithGaps(t *testing.T) {
+	file := getTrackFileWithTimeGaps()
+
+	if len(file.Tracks) != 2 {
+		t.Errorf("Expected 2 Tracks, got %d", len(file.Tracks))
+	}
+
+	if file.Tracks[0].GetAvarageSpeed() != 1.1942574218734128 {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].TrackSegments[0].GetAvarageSpeed() != 1.1942574218734128 {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].TrackSegments[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[1].GetAvarageSpeed() != 0.5971287109367064 {
+		t.Errorf("The AvarageSpeed is %f, but expect 0.5971287109367064", file.Tracks[1].GetAvarageSpeed())
+	}
+
+	if file.Tracks[1].TrackSegments[0].GetAvarageSpeed() != 0.5971287109367064 {
+		t.Errorf("The AvarageSpeed is %f, but expect 0.5971287109367064", file.Tracks[1].TrackSegments[0].GetAvarageSpeed())
+	}
+
+	if file.GetAvarageSpeed() != 0.7961716145822753 {
+		t.Errorf("The AvarageSpeed is %f, but expect 0.7961716145822753", file.GetAvarageSpeed())
+	}
+
+	wrongSpeed := file.GetDistance() / float64(file.GetEndTime().Sub(file.GetStartTime())/1000000000)
+	if file.GetAvarageSpeed() == wrongSpeed {
+		t.Errorf("The AvarageSpeed is the same as the speed calculated from start and end time")
+	}
+
+}
+
+func getTrackFileWithTimeGaps() TrackFile {
+	file := getSimpleTrackFileWithTime()
+
+	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
+	t2, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	t3, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:53Z")
+	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
+	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 108.0, t2)
+	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t3)
+	points := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
+	FillDistancesTrackPoint(&points[1], points[0], points[2])
+	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
+	FillValuesTrackPointArray(points, "none")
+	laterTrack := Track{}
+	seg := TrackSegment{}
+	seg.TrackPoints = points
+	FillTrackSegmentValues(&seg)
+	laterTrack.TrackSegments = append(laterTrack.TrackSegments, seg)
+	FillTrackValues(&laterTrack)
+	laterTrack.NumberOfSegments = 1
+
+	file.Tracks = append(file.Tracks, laterTrack)
+	file.NumberOfTracks = 2
+	FillTrackFileValues(&file)
+
+	return file
 }
 
 func getSimpleTrackFile() TrackFile {

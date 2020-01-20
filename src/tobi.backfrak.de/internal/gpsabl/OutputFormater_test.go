@@ -12,7 +12,7 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-const numberOfSemiclonsExpected = 11
+const numberOfSemicolonExpected = 13
 
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
@@ -104,8 +104,8 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 		t.Errorf("The output has not the expected number of files")
 	}
 
-	if strings.Count(ret[0], ";") != numberOfSemiclonsExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(ret[0], ";"), numberOfSemiclonsExpected)
+	if strings.Count(ret[0], ";") != numberOfSemicolonExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(ret[0], ";"), numberOfSemicolonExpected)
 	}
 
 	if strings.Contains(ret[0], "0.0200") == false {
@@ -254,8 +254,8 @@ func TestAddHeader(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
+	if strings.Count(lines[0], ";") != numberOfSemicolonExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 }
 
@@ -274,8 +274,8 @@ func TestAddOutPut(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
+	if strings.Count(lines[0], ";") != numberOfSemicolonExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
 	if strings.Count(lines[0], "0.020000;") != 1 {
@@ -290,7 +290,7 @@ func TestAddOutPut(t *testing.T) {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "not valid;") != 2 {
+	if strings.Count(lines[0], "not valid;") != 4 {
 		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
 	}
 }
@@ -310,8 +310,8 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
+	if strings.Count(lines[0], ";") != numberOfSemicolonExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
 	if strings.Count(lines[0], "0.020000;") != 1 {
@@ -332,6 +332,14 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 
 	if strings.Count(lines[0], "2014-08-22T17:19:53Z;") != 1 {
 		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "20s;") != 1 {
+		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "4.300000;") != 1 {
+		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 }
 
@@ -551,8 +559,8 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[0], ";") != numberOfSemiclonsExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemiclonsExpected)
+	if strings.Count(lines[0], ";") != numberOfSemicolonExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
 	if strings.Count(lines[0], "0.020000;") != 1 {
@@ -575,8 +583,16 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "not valid;") != 2 {
-		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
+	if strings.Count(lines[0], "20s;") != 1 {
+		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "4.300000;") != 1 {
+		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[1], "not valid;") != 4 {
+		t.Errorf("The output does not contain the Time values as often as expected. Found it %d times in: %s", strings.Count(lines[1], "not valid;"), lines[1])
 	}
 }
 
