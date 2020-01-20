@@ -64,8 +64,8 @@ func TestTrackSummary(t *testing.T) {
 func TestTrackSummaryWithTime(t *testing.T) {
 	sum := TrackSummary{}
 	iSumSet := TrackSummarySetter(&sum)
-	endTime, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
-	startTime, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	endTime, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	startTime, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
 	movingTime := endTime.Sub(startTime)
 	distance := 100.0
 	speed := distance / float64(movingTime/1000000000)

@@ -186,7 +186,9 @@ func fillSpeedValues(pnts []TrackPoint) {
 	for i, pnt := range pnts {
 		if pnt.TimeValid {
 			pnts[i].MovingTime = pnt.Time.Sub(startTime)
-			pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
+			if pnts[i].MovingTime > 0 {
+				pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
+			}
 		}
 	}
 

@@ -49,7 +49,7 @@ func (sum *TrackSummary) SetValues(distance float64,
 	sum.EndTime = endTime
 	sum.TimeDataValid = timeDataValid
 	sum.MovingTime = movigTime
-	if timeDataValid {
+	if timeDataValid && movigTime > 0 {
 		sum.AvarageSpeed = sum.Distance / float64(sum.MovingTime/1000000000)
 	}
 }
