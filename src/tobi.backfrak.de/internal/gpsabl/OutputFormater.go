@@ -127,7 +127,7 @@ func (formater *CsvOutputFormater) GetHeader() string {
 		"ElevationLose (m)", formater.Separator,
 		"UpwardsDistance (km)", formater.Separator,
 		"DownwardsDistance (km)", formater.Separator,
-		"MovingTime (hh:mm:ss)", formater.Separator,
+		"MovingTime (xxhxxmxxs)", formater.Separator,
 		"AverageSpeed (km/h)", formater.Separator,
 		GetNewLine(),
 	)
