@@ -35,7 +35,7 @@ You might want to call ```-help``` to find out how to use the program.
 ```sh
 ~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
-Program Version: 0.4.0+318bc1a
+Program Version: 0.5.0+c02da77
 
 Usage: ./gpsa [options] [files]
   files
