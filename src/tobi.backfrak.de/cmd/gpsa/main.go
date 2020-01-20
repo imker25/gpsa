@@ -132,7 +132,7 @@ func handleComandlineOptions() {
 	outFormater := gpsabl.NewCsvOutputFormater(";")
 
 	// Setup the valid comandline flags
-	flag.BoolVar(&SuppressDuplicateOutPutFlag, "suppressDuplicateOutPutFlag", false, "Suppress the output of duplicate lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.")
+	flag.BoolVar(&SuppressDuplicateOutPutFlag, "suppress-duplicate-out-put", false, "Suppress the output of duplicate lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.")
 	flag.BoolVar(&HelpFlag, "help", false, "Print help message and exit")
 	flag.BoolVar(&PrintVersionFlag, "version", false, "Print version of the program and exit")
 	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print license information of the program and exit")
