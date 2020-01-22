@@ -79,7 +79,7 @@ task getEnvironment {
         new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*.go/ , type: groovy.io.FileType.FILES]){
                 String packageDir = it.getParent()
                 String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
-                if ((packagesToBuild.contains(packageName + ' ') == false) && (packageName.contains('github.com') == false)) {
+                if ((packagesToBuild.contains(packageName + ' ') == false) && (packageName.contains('tobi.backfrak.de') == true)) {
                     packagesToBuild = packageName + ' ' + packagesToBuild
                 }
         }
@@ -88,7 +88,7 @@ task getEnvironment {
         new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*_test.go/, type: groovy.io.FileType.FILES]){
                 String packageDir = it.getParent()
                 String packageName = packageDir.replaceAll(java.util.regex.Matcher.quoteReplacement(srcDir), '')
-                if ((packagesToTest.contains(packageName + ' ') == false) && (packageName.contains('github.com') == false)) {
+                if ((packagesToTest.contains(packageName + ' ') == false) && (packageName.contains('tobi.backfrak.de') == true)) {
                     packagesToTest = packageName + ' ' + packagesToTest
                 }
         }
@@ -113,15 +113,10 @@ task installTestConvert(dependsOn: 'getEnvironment') {
     doLast {
         // Install go get github.com/tebeka/go2xunit so it can be used after test execution
         println "go get github.com/tebeka/go2xunit"
-        def callArgsGo2xunit = new String[2]
-        callArgsGo2xunit[0] = 'get'
-        callArgsGo2xunit[1] = 'github.com/tebeka/go2xunit'
         exec {
             workingDir "$scriptDirectory"
-            executable "go"
-            args callArgsGo2xunit
+            commandLine 'go', 'get', 'github.com/tebeka/go2xunit'
             environment('GOPATH', goPath)
-
         }
     }
 }
@@ -229,17 +224,10 @@ task convertTestResults(dependsOn: 'installTestConvert') {
         def logXMLFile = logDir + 'TestsResult.xml'
         def convertExe = binDir + 'go2xunit'
         println "${convertExe} -input ${logTextFile} -output ${logXMLFile}"
-        def callArgsTestConvert = new String[4]
-        callArgsTestConvert[0] = '-input'
-        callArgsTestConvert[1] = logTextFile
-        callArgsTestConvert[2] = '-output'
-        callArgsTestConvert[3] = logXMLFile
         exec {
             workingDir "$scriptDirectory"
-            executable convertExe
-            args callArgsTestConvert
+            commandLine convertExe, '-input', logTextFile, '-output', logXMLFile
             environment('GOPATH', goPath)
-
         }
     }
 }
