@@ -171,8 +171,13 @@ type TrackPoint struct {
 	VerticalDistanceNext     float32
 	CountUpwards             bool
 	CountDownwards           bool
+	CountMoving              bool
 	MovingTime               time.Duration
+	TimeDurationBefore       time.Duration
+	TimeDurationNext         time.Duration
 	AvarageSpeed             float64
+	SpeedBefore              float64
+	SpeedNext                float64
 }
 
 // GetDistance - Implement the TrackSummaryProvider interface for TrackPoint

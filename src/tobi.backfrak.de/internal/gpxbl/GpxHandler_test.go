@@ -40,7 +40,7 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 					for _, seg := range track.TrackSegments {
 						for i := range seg.TrackPoints {
 							if i > 0 {
-								if seg.TrackPoints[i].DistanceToThisPoint <= seg.TrackPoints[i-1].DistanceToThisPoint {
+								if seg.TrackPoints[i].CountMoving && seg.TrackPoints[i].DistanceToThisPoint <= seg.TrackPoints[i-1].DistanceToThisPoint {
 									t.Errorf("File %s: The DistanceToThisPoint for point %d, is %f but the point before had %f", gpxFile.FilePath, i, seg.TrackPoints[i].DistanceToThisPoint, seg.TrackPoints[i-1].DistanceToThisPoint)
 								}
 							}
@@ -52,7 +52,7 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 					for _, seg := range track.TrackSegments {
 						for i := range seg.TrackPoints {
 							if i > 0 {
-								if seg.TrackPoints[i].DistanceToThisPoint <= seg.TrackPoints[i-1].DistanceToThisPoint {
+								if seg.TrackPoints[i].CountMoving && seg.TrackPoints[i].DistanceToThisPoint <= seg.TrackPoints[i-1].DistanceToThisPoint {
 									t.Errorf("File %s: The DistanceToThisPoint for point %d, is %f but the point before had %f", trackFile.FilePath, i, seg.TrackPoints[i].DistanceToThisPoint, seg.TrackPoints[i-1].DistanceToThisPoint)
 								}
 							}

@@ -548,6 +548,43 @@ func TestTrackSpeedWithGaps(t *testing.T) {
 
 }
 
+func TestTrackTimeWithStillPoints(t *testing.T) {
+	file := getTrackFileWithStandStillPoints()
+
+	if file.Tracks[0].GetAvarageSpeed() != 1.1942574218734128 {
+		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	}
+
+	if file.Tracks[0].GetMovingTime() != 20000000000 {
+		t.Errorf("The MovingTime in %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	}
+}
+
+func getTrackFileWithStandStillPoints() TrackFile {
+	file := getSimpleTrackFileWithTime()
+
+	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
+	t2, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	t3, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:53Z")
+	t4, _ := time.Parse(time.RFC3339, "2014-08-22T19:20:13Z")
+	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
+	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 108.0, t2)
+	pnt3 := getTrackPointWithTime(50.11495751, 8.684874771, 108.0, t3)
+	pnt4 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t4)
+	points := []TrackPoint{pnt1, pnt2, pnt3, pnt4}
+
+	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
+	FillDistancesTrackPoint(&points[1], points[0], points[2])
+	FillDistancesTrackPoint(&points[2], points[1], points[3])
+	FillDistancesTrackPoint(&points[3], points[2], TrackPoint{})
+	FillValuesTrackPointArray(points, "none")
+
+	file.NumberOfTracks = 1
+	FillTrackFileValues(&file)
+
+	return file
+}
+
 func getTrackFileWithTimeGaps() TrackFile {
 	file := getSimpleTrackFileWithTime()
 
