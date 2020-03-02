@@ -551,17 +551,26 @@ func TestTrackSpeedWithGaps(t *testing.T) {
 func TestTrackTimeWithStillPoints(t *testing.T) {
 	file := getTrackFileWithStandStillPoints()
 
-	if file.Tracks[0].GetAvarageSpeed() != 1.1942574218734128 {
-		t.Errorf("The AvarageSpeed is %f, but expect 1.1942574218734128", file.Tracks[0].GetAvarageSpeed())
+	if file.Tracks[0].GetAvarageSpeed() != 0.5971287109367064 {
+		t.Errorf("The AvarageSpeed is %f, but expect 0.5971287109367064", file.Tracks[0].GetAvarageSpeed())
 	}
 
-	if file.Tracks[0].GetMovingTime() != 20000000000 {
-		t.Errorf("The MovingTime in %d, but expect 20000000000", file.Tracks[0].GetMovingTime())
+	if file.Tracks[0].GetMovingTime() != 40000000000 {
+		t.Errorf("The MovingTime in %d, but expect 40000000000", file.Tracks[0].GetMovingTime())
+	}
+
+	if file.GetEndTime().Sub(file.GetStartTime()) == file.Tracks[0].GetMovingTime() {
+		t.Errorf("The GetMovingTime is the same as the speed calculated from start and end time")
+	}
+
+	wrongSpeed := file.GetDistance() / float64(file.GetEndTime().Sub(file.GetStartTime())/1000000000)
+	if file.GetAvarageSpeed() == wrongSpeed {
+		t.Errorf("The AvarageSpeed is the same as the speed calculated from start and end time")
 	}
 }
 
 func getTrackFileWithStandStillPoints() TrackFile {
-	file := getSimpleTrackFileWithTime()
+	var file TrackFile
 
 	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
 	t2, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
@@ -578,6 +587,15 @@ func getTrackFileWithStandStillPoints() TrackFile {
 	FillDistancesTrackPoint(&points[2], points[1], points[3])
 	FillDistancesTrackPoint(&points[3], points[2], TrackPoint{})
 	FillValuesTrackPointArray(points, "none")
+	laterTrack := Track{}
+	seg := TrackSegment{}
+	seg.TrackPoints = points
+	FillTrackSegmentValues(&seg)
+	laterTrack.TrackSegments = append(laterTrack.TrackSegments, seg)
+	FillTrackValues(&laterTrack)
+	laterTrack.NumberOfSegments = 1
+
+	file.Tracks = append(file.Tracks, laterTrack)
 
 	file.NumberOfTracks = 1
 	FillTrackFileValues(&file)
