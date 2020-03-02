@@ -32,7 +32,8 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 
 }
 
-// FillValuesTrackPointArray - Fills all the values of all in points in the array, but not distances.
+// FillValuesTrackPointArray - Fills all the values of all in points in the array, but not distances and basic info
+// like Elevation, Latitude and Longitude and Time (including TimeValid)
 // You may use FillDistancesTrackPoint to get the distance values
 // The Array must be soreted by the points Number!
 func FillValuesTrackPointArray(pnts []TrackPoint, correction string) error {
@@ -191,6 +192,9 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 				} else {
 					pnts[i].CountMoving = false
 				}
+			} else {
+				// Make sure the first point counts as moving
+				pnts[i].CountMoving = true
 			}
 
 			if i < (len(pnts) - 1) {
@@ -204,8 +208,10 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 				pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
 			}
 		} else {
+			// If we can not calc the speed because of missing time info, all points count
 			disToHere += pnts[i].DistanceBefore
 			pnts[i].DistanceToThisPoint = disToHere
+			pnts[i].CountMoving = true
 		}
 	}
 
