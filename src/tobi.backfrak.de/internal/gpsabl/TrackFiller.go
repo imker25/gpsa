@@ -36,8 +36,8 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 // You may use FillDistancesTrackPoint to get the distance values
 // The Array must be soreted by the points Number!
 func FillValuesTrackPointArray(pnts []TrackPoint, correction string) error {
-	//	fillDistanceToThisPoint(pnts)
-	fillSpeedValues(pnts)
+
+	fillDistanceTimeAndSpeedValues(pnts)
 	err := fillCorrectedElevationTrackPoint(pnts, correction)
 	if err != nil {
 		return err
@@ -175,16 +175,7 @@ func fillElevationGainLoseTrackPoint(pnts []TrackPoint) {
 	}
 }
 
-// fillDistanceToThisPoint - Fills the DistanceToThisPoint value
-func fillDistanceToThisPoint(pnts []TrackPoint) {
-	disToHere := float64(0.0)
-	for i := range pnts {
-		disToHere += pnts[i].DistanceBefore
-		pnts[i].DistanceToThisPoint = disToHere
-	}
-}
-
-func fillSpeedValues(pnts []TrackPoint) {
+func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 	disToHere := float64(0.0)
 	var movingTime time.Duration
 	for i, pnt := range pnts {
