@@ -13,6 +13,9 @@ import (
 // MinimalStepHight - The minimal evelation difference for the step algorithm
 const MinimalStepHight = 10.0
 
+// MinimalMovingSpeed - The Minimal speed we count a point as moving
+const MinimalMovingSpeed = 0.3
+
 // FillDistancesTrackPoint - Adds the distance values to the basePoint.
 // The Values of Elevation, Latitude and Longitude had to be set to all points before!
 func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) {
@@ -29,18 +32,19 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 
 }
 
-// FillValuesTrackPointArray - Fills all the values of all in points in the array, but not distances.
+// FillValuesTrackPointArray - Fills all the values of all in points in the array, but not distances and basic info
+// like Elevation, Latitude and Longitude and Time (including TimeValid)
 // You may use FillDistancesTrackPoint to get the distance values
 // The Array must be soreted by the points Number!
 func FillValuesTrackPointArray(pnts []TrackPoint, correction string) error {
-	fillDistanceToThisPoint(pnts)
+
+	fillDistanceTimeAndSpeedValues(pnts)
 	err := fillCorrectedElevationTrackPoint(pnts, correction)
 	if err != nil {
 		return err
 	}
 	fillElevationGainLoseTrackPoint(pnts)
 	fillCountUpDownWards(pnts, correction)
-	fillSpeedValues(pnts)
 
 	return nil
 }
@@ -172,23 +176,42 @@ func fillElevationGainLoseTrackPoint(pnts []TrackPoint) {
 	}
 }
 
-// fillDistanceToThisPoint - Fills the DistanceToThisPoint value
-func fillDistanceToThisPoint(pnts []TrackPoint) {
+func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 	disToHere := float64(0.0)
-	for i := range pnts {
-		disToHere += pnts[i].DistanceBefore
-		pnts[i].DistanceToThisPoint = disToHere
-	}
-}
-
-func fillSpeedValues(pnts []TrackPoint) {
-	startTime := pnts[0].Time
+	var movingTime time.Duration
 	for i, pnt := range pnts {
 		if pnt.TimeValid {
-			pnts[i].MovingTime = pnt.Time.Sub(startTime)
+
+			if i > 0 {
+				pnts[i].TimeDurationBefore = pnt.Time.Sub(pnts[i-1].Time)
+				pnts[i].SpeedBefore = pnt.DistanceBefore / float64((pnts[i].TimeDurationBefore / 1000000000))
+				if pnts[i].SpeedBefore >= MinimalMovingSpeed {
+					movingTime = movingTime + pnts[i].TimeDurationBefore
+					pnts[i].CountMoving = true
+					disToHere += pnts[i].DistanceBefore
+				} else {
+					pnts[i].CountMoving = false
+				}
+			} else {
+				// Make sure the first point counts as moving
+				pnts[i].CountMoving = true
+			}
+
+			if i < (len(pnts) - 1) {
+				pnts[i].TimeDurationNext = pnts[i+1].Time.Sub(pnt.Time)
+				pnts[i].SpeedNext = pnt.DistanceNext / float64((pnts[i].TimeDurationNext / 1000000000))
+			}
+
+			pnts[i].DistanceToThisPoint = disToHere
+			pnts[i].MovingTime = movingTime
 			if pnts[i].MovingTime > 0 {
 				pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
 			}
+		} else {
+			// If we can not calc the speed because of missing time info, all points count
+			disToHere += pnts[i].DistanceBefore
+			pnts[i].DistanceToThisPoint = disToHere
+			pnts[i].CountMoving = true
 		}
 	}
 

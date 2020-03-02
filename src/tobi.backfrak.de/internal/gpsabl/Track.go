@@ -171,8 +171,13 @@ type TrackPoint struct {
 	VerticalDistanceNext     float32
 	CountUpwards             bool
 	CountDownwards           bool
+	CountMoving              bool
 	MovingTime               time.Duration
+	TimeDurationBefore       time.Duration
+	TimeDurationNext         time.Duration
 	AvarageSpeed             float64
+	SpeedBefore              float64
+	SpeedNext                float64
 }
 
 // GetDistance - Implement the TrackSummaryProvider interface for TrackPoint
@@ -197,7 +202,7 @@ func (pnt TrackPoint) GetMinimumAltitude() float32 {
 
 // GetElevationGain - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetElevationGain() float32 {
-	if pnt.VerticalDistanceNext > 0 {
+	if pnt.VerticalDistanceNext > 0 && pnt.CountMoving {
 		return pnt.VerticalDistanceNext
 	}
 	return 0
@@ -205,7 +210,7 @@ func (pnt TrackPoint) GetElevationGain() float32 {
 
 // GetElevationLose - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetElevationLose() float32 {
-	if pnt.VerticalDistanceNext < 0 {
+	if pnt.VerticalDistanceNext < 0 && pnt.CountMoving {
 		return pnt.VerticalDistanceNext
 	}
 	return 0
@@ -213,7 +218,7 @@ func (pnt TrackPoint) GetElevationLose() float32 {
 
 // GetUpwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetUpwardsDistance() float64 {
-	if pnt.CountUpwards {
+	if pnt.CountUpwards && pnt.CountMoving {
 		return pnt.DistanceNext
 	}
 	return 0
@@ -221,7 +226,7 @@ func (pnt TrackPoint) GetUpwardsDistance() float64 {
 
 // GetDownwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetDownwardsDistance() float64 {
-	if pnt.CountDownwards {
+	if pnt.CountDownwards && pnt.CountMoving {
 		return pnt.DistanceNext
 	}
 	return 0
