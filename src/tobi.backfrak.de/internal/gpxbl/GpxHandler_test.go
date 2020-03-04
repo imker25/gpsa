@@ -519,4 +519,20 @@ func TestTrackReaderAlpineSkiTrack(t *testing.T) {
 	if file.GetMovingTime() != file.Tracks[0].TrackSegments[0].GetMovingTime() {
 		t.Errorf("The track segments moving time is not the same as the files moving time")
 	}
+
+	if file.GetUpwardsTime() >= file.GetMovingTime() {
+		t.Errorf("The UpwardsTime %d is bigger than the moving time %d", file.GetUpwardsTime(), file.GetMovingTime())
+	}
+
+	if file.GetDownwardsTime() >= file.GetMovingTime() {
+		t.Errorf("The DownwardsTime %d is bigger than the moving time %d", file.GetDownwardsTime(), file.GetMovingTime())
+	}
+
+	if file.GetUpwardsSpeed() >= file.GetDownwardsSpeed() {
+		t.Errorf("The UpwardsSpeed %f is bigger than the DownwardsSpeed %f", file.GetUpwardsSpeed(), file.GetDownwardsSpeed())
+	}
+
+	//	if file.GetDownwardsTime()+file.GetUpwardsTime() > file.GetMovingTime() {
+	//		t.Errorf("The MovingTime %d is smaller than DownwardsTime + UpwardsTime %d", file.GetMovingTime(), file.GetDownwardsTime()+file.GetUpwardsTime())
+	//	}
 }

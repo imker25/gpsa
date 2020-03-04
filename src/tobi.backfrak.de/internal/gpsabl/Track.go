@@ -22,6 +22,8 @@ type TrackSummary struct {
 	StartTime         time.Time
 	EndTime           time.Time
 	MovingTime        time.Duration
+	UpwardsTime       time.Duration
+	DownwardsTime     time.Duration
 	AvarageSpeed      float64
 }
 
@@ -36,7 +38,9 @@ func (sum *TrackSummary) SetValues(distance float64,
 	timeDataValid bool,
 	startTime time.Time,
 	endTime time.Time,
-	movingTime time.Duration) {
+	movingTime time.Duration,
+	upwardsTime time.Duration,
+	downwardsTime time.Duration) {
 
 	sum.MinimumAltitude = minimumAltitude
 	sum.MaximumAltitude = maximumAltitude
@@ -52,6 +56,8 @@ func (sum *TrackSummary) SetValues(distance float64,
 	if timeDataValid && movingTime > 0 {
 		sum.AvarageSpeed = sum.Distance / float64(sum.MovingTime/1000000000)
 	}
+	sum.DownwardsTime = downwardsTime
+	sum.UpwardsTime = upwardsTime
 }
 
 // GetElevationGain - Implement the TrackSummaryProvider interface for TrackSummary
@@ -114,9 +120,37 @@ func (sum TrackSummary) GetMovingTime() time.Duration {
 	return sum.MovingTime
 }
 
+// GetUpwardsTime - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetUpwardsTime() time.Duration {
+	return sum.UpwardsTime
+}
+
+// GetDownwardsTime - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetDownwardsTime() time.Duration {
+	return sum.DownwardsTime
+}
+
 // GetAvarageSpeed - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetAvarageSpeed() float64 {
 	return sum.AvarageSpeed
+}
+
+// GetUpwardsSpeed - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetUpwardsSpeed() float64 {
+	if sum.TimeDataValid && sum.UpwardsTime > 0 {
+		return sum.UpwardsDistance / float64(sum.UpwardsTime/1000000000)
+	}
+
+	return 0
+}
+
+// GetDownwardsSpeed - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetDownwardsSpeed() float64 {
+	if sum.TimeDataValid && sum.DownwardsTime > 0 {
+		return sum.DownwardsDistance / float64(sum.DownwardsTime/1000000000)
+	}
+
+	return 0
 }
 
 // TrackFile - A struct to handle track files
@@ -175,6 +209,8 @@ type TrackPoint struct {
 	MovingTime               time.Duration
 	TimeDurationBefore       time.Duration
 	TimeDurationNext         time.Duration
+	UpwardsTime              time.Duration
+	DownwardsTime            time.Duration
 	AvarageSpeed             float64
 	SpeedBefore              float64
 	SpeedNext                float64
@@ -252,7 +288,36 @@ func (pnt TrackPoint) GetMovingTime() time.Duration {
 	return pnt.MovingTime
 }
 
+// GetUpwardsTime - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetUpwardsTime() time.Duration {
+
+	return pnt.UpwardsTime
+}
+
+// GetDownwardsTime - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetDownwardsTime() time.Duration {
+	return pnt.DownwardsTime
+}
+
 // GetAvarageSpeed - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetAvarageSpeed() float64 {
 	return pnt.AvarageSpeed
+}
+
+// GetUpwardsSpeed - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetUpwardsSpeed() float64 {
+	if pnt.CountMoving && pnt.CountUpwards {
+		return pnt.AvarageSpeed
+	}
+
+	return 0
+}
+
+// GetDownwardsSpeed - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetDownwardsSpeed() float64 {
+	if pnt.CountMoving && pnt.CountUpwards {
+		return pnt.AvarageSpeed
+	}
+
+	return 0
 }
