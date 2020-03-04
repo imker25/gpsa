@@ -532,6 +532,7 @@ func TestTrackReaderAlpineSkiTrack(t *testing.T) {
 		t.Errorf("The UpwardsSpeed %f is bigger than the DownwardsSpeed %f", file.GetUpwardsSpeed(), file.GetDownwardsSpeed())
 	}
 
+	// ToDo: Fix this! There is something wrong time summation!
 	//	if file.GetDownwardsTime()+file.GetUpwardsTime() > file.GetMovingTime() {
 	//		t.Errorf("The MovingTime %d is smaller than DownwardsTime + UpwardsTime %d", file.GetMovingTime(), file.GetDownwardsTime()+file.GetUpwardsTime())
 	//	}
