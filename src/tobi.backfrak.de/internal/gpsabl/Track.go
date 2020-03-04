@@ -36,7 +36,7 @@ func (sum *TrackSummary) SetValues(distance float64,
 	timeDataValid bool,
 	startTime time.Time,
 	endTime time.Time,
-	movigTime time.Duration) {
+	movingTime time.Duration) {
 
 	sum.MinimumAltitude = minimumAltitude
 	sum.MaximumAltitude = maximumAltitude
@@ -48,8 +48,8 @@ func (sum *TrackSummary) SetValues(distance float64,
 	sum.StartTime = startTime
 	sum.EndTime = endTime
 	sum.TimeDataValid = timeDataValid
-	sum.MovingTime = movigTime
-	if timeDataValid && movigTime > 0 {
+	sum.MovingTime = movingTime
+	if timeDataValid && movingTime > 0 {
 		sum.AvarageSpeed = sum.Distance / float64(sum.MovingTime/1000000000)
 	}
 }
