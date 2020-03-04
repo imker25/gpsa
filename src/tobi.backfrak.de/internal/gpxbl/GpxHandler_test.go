@@ -499,3 +499,24 @@ func TestReadTracksNotGPX(t *testing.T) {
 
 	fmt.Println(file.Name)
 }
+
+func TestTrackReaderAlpineSkiTrack(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValidGPX("16.gpx"))
+	file, err := gpx.ReadTracks("linear")
+
+	if err != nil {
+		t.Errorf("Something wrong when reading a valid gpx file: %s", err.Error())
+	}
+
+	if file.GetMovingTime() == file.GetEndTime().Sub(file.GetStartTime()) {
+		t.Errorf("The GetMovingTime is the same as the speed calculated from start and end time")
+	}
+
+	if file.GetMovingTime() != file.Tracks[0].GetMovingTime() {
+		t.Errorf("The tracks moving time is not the same as the files moving time")
+	}
+
+	if file.GetMovingTime() != file.Tracks[0].TrackSegments[0].GetMovingTime() {
+		t.Errorf("The track segments moving time is not the same as the files moving time")
+	}
+}

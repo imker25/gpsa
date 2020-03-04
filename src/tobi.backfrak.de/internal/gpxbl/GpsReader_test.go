@@ -148,3 +148,5 @@ func TestReadValidSimpleGPX(t *testing.T) {
 		t.Errorf("The track point 0 Longitude was not expected. Got: %f", gpx.Tracks[0].TrackSegments[0].TrackPoints[0].Longitude)
 	}
 }
+
+
