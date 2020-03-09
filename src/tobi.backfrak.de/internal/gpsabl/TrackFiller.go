@@ -205,7 +205,7 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 			pnts[i].DistanceToThisPoint = disToHere
 			pnts[i].MovingTime = movingTime
 			if pnts[i].MovingTime > 0 {
-				pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
+				pnts[i].AvarageSpeed = pnts[i].DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
 			}
 		} else {
 			// If we can not calc the speed because of missing time info, all points count
@@ -219,11 +219,14 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 
 // FillCountUpDownWards - Fills the CountUpwards and CountDownwards value
 func fillCountUpDownWards(pnts []TrackPoint, correction string) {
-	numPnts := len(pnts)
-	if correction == GetValidCorrectionParameters()[2] { // In case we do steps correction, CorectedElevation will make no sense
-		for i := range pnts {
-			if i < (numPnts - 1) { // Evaluation of the last point don't count
-				eveDiff := pnts[i+1].Elevation - pnts[i].Elevation
+	var upwardsTime time.Duration
+	var downwardsTime time.Duration
+	//numPnts := len(pnts)
+
+	for i := range pnts {
+		if correction == GetValidCorrectionParameters()[2] { // In case we do steps correction, CorectedElevation will make no sense
+			if i > 0 { // Evaluation of the last point don't count
+				eveDiff := pnts[i].Elevation - pnts[i-1].Elevation
 				if eveDiff > 0 {
 					pnts[i].CountUpwards = true
 				}
@@ -231,13 +234,11 @@ func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 				if eveDiff < 0 {
 					pnts[i].CountDownwards = true
 				}
-
 			}
-		}
-	} else {
-		for i := range pnts {
-			if i < (numPnts - 1) { // Evaluation of the last point don't count
-				eveDiff := pnts[i+1].CorectedElevation - pnts[i].CorectedElevation
+		} else {
+
+			if i > 0 { // Evaluation of the first point don't count
+				eveDiff := pnts[i].CorectedElevation - pnts[i-1].CorectedElevation
 				if eveDiff > 0 {
 					pnts[i].CountUpwards = true
 				}
@@ -245,10 +246,22 @@ func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 				if eveDiff < 0 {
 					pnts[i].CountDownwards = true
 				}
-
 			}
 		}
+		if i > 0 && pnts[i].CountMoving && pnts[i].TimeValid { // Time of the first point don't count
+			if pnts[i].CountDownwards {
+				downwardsTime = downwardsTime + pnts[i].TimeDurationBefore
+			}
+
+			if pnts[i].CountUpwards {
+				upwardsTime = upwardsTime + pnts[i].TimeDurationBefore
+			}
+		}
+
+		pnts[i].UpwardsTime = upwardsTime
+		pnts[i].DownwardsTime = downwardsTime
 	}
+
 }
 
 func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider, inputIsPoints bool) {
@@ -264,6 +277,10 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 	var endTime time.Time
 	var movingTime time.Duration
 	var movingTimeSum time.Duration
+	var upwardsTimeSum time.Duration
+	var downwarsTimeSum time.Duration
+	var upwardsTime time.Duration
+	var downwarsTime time.Duration
 
 	for i, sum := range input {
 		dist = dist + sum.GetDistance()
@@ -272,6 +289,8 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 		upwardsDistance = upwardsDistance + sum.GetUpwardsDistance()
 		downwardsDistance = downwardsDistance + sum.GetDownwardsDistance()
 		movingTimeSum = movingTimeSum + sum.GetMovingTime()
+		downwarsTimeSum = downwarsTimeSum + sum.GetDownwardsTime()
+		upwardsTimeSum = upwardsTimeSum + sum.GetUpwardsTime()
 
 		if i == 0 || sum.GetMaximumAltitude() > maximumAltitude {
 			maximumAltitude = sum.GetMaximumAltitude()
@@ -295,12 +314,16 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 		endTime = input[len(input)-1].GetEndTime()
 		if inputIsPoints {
 			movingTime = input[len(input)-1].GetMovingTime()
+			upwardsTime = input[len(input)-1].GetUpwardsTime()
+			downwarsTime = input[len(input)-1].GetDownwardsTime()
 		} else {
 			movingTime = movingTimeSum
+			downwarsTime = downwarsTimeSum
+			upwardsTime = upwardsTimeSum
 		}
 	}
 	target.SetValues(dist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance,
-		timeDataValid, startTime, endTime, movingTime)
+		timeDataValid, startTime, endTime, movingTime, upwardsTime, downwarsTime)
 }
 
 func getCorrectedElevationLinear(basePoint TrackPoint, beforePoint TrackPoint, nextPoint TrackPoint) float32 {

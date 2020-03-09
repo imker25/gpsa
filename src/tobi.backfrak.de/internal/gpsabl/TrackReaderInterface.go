@@ -26,7 +26,11 @@ type TrackSummaryProvider interface {
 	GetStartTime() time.Time
 	GetEndTime() time.Time
 	GetMovingTime() time.Duration
+	GetUpwardsTime() time.Duration
+	GetDownwardsTime() time.Duration
 	GetAvarageSpeed() float64
+	GetUpwardsSpeed() float64
+	GetDownwardsSpeed() float64
 }
 
 // TrackSummarySetter - Interface for classes that can set track summary data
@@ -41,5 +45,7 @@ type TrackSummarySetter interface {
 		timeDataValid bool,
 		startTime time.Time,
 		endTime time.Time,
-		movingTime time.Duration)
+		movingTime time.Duration,
+		upwardsTime time.Duration,
+		downwards time.Duration)
 }

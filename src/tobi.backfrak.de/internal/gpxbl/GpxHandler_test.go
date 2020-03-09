@@ -499,3 +499,76 @@ func TestReadTracksNotGPX(t *testing.T) {
 
 	fmt.Println(file.Name)
 }
+
+func TestTrackReaderAlpineSkiTrack(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValidGPX("16.gpx"))
+	file, err := gpx.ReadTracks("linear")
+
+	if err != nil {
+		t.Errorf("Something wrong when reading a valid gpx file: %s", err.Error())
+	}
+
+	if file.GetMovingTime() == file.GetEndTime().Sub(file.GetStartTime()) {
+		t.Errorf("The GetMovingTime is the same as the speed calculated from start and end time")
+	}
+
+	if file.GetMovingTime() != file.Tracks[0].GetMovingTime() {
+		t.Errorf("The tracks moving time is not the same as the files moving time")
+	}
+
+	if file.GetMovingTime() != file.Tracks[0].TrackSegments[0].GetMovingTime() {
+		t.Errorf("The track segments moving time is not the same as the files moving time")
+	}
+
+	if file.GetUpwardsTime() >= file.GetMovingTime() {
+		t.Errorf("The UpwardsTime %d is bigger than the moving time %d", file.GetUpwardsTime(), file.GetMovingTime())
+	}
+
+	if file.GetDownwardsTime() >= file.GetMovingTime() {
+		t.Errorf("The DownwardsTime %d is bigger than the moving time %d", file.GetDownwardsTime(), file.GetMovingTime())
+	}
+
+	if file.GetUpwardsSpeed() >= file.GetDownwardsSpeed() {
+		t.Errorf("The UpwardsSpeed %f is bigger than the DownwardsSpeed %f", file.GetUpwardsSpeed(), file.GetDownwardsSpeed())
+	}
+
+	if file.GetDownwardsTime()+file.GetUpwardsTime() > file.GetMovingTime() {
+		t.Errorf("The MovingTime %d is smaller than DownwardsTime + UpwardsTime %d", file.GetMovingTime(), file.GetDownwardsTime()+file.GetUpwardsTime())
+	}
+
+	if file.GetAvarageSpeed() >= file.GetDownwardsSpeed() {
+		t.Errorf("The GetAvarageSpeed %f is bigger than the DownwardsSpeed %f", file.GetAvarageSpeed(), file.GetDownwardsSpeed())
+	}
+
+	if file.GetDownwardsTime() != file.Tracks[0].GetDownwardsTime() {
+		t.Errorf("The file DownwardsTime %d is not the same the the tracks DownwardsTime %d", file.GetDownwardsTime(), file.Tracks[0].GetDownwardsTime())
+	}
+
+	if file.GetDownwardsTime() != file.Tracks[0].TrackSegments[0].GetDownwardsTime() {
+		t.Errorf("The file DownwardsTime %d is not the same the the segments DownwardsTime %d", file.GetDownwardsTime(), file.Tracks[0].GetDownwardsTime())
+	}
+
+	if file.GetUpwardsTime() != file.Tracks[0].GetUpwardsTime() {
+		t.Errorf("The file GetUpwardsTime %d is not the same the the tracks GetUpwardsTime %d", file.GetUpwardsTime(), file.Tracks[0].GetUpwardsTime())
+	}
+
+	if file.GetUpwardsTime() != file.Tracks[0].TrackSegments[0].GetUpwardsTime() {
+		t.Errorf("The file GetUpwardsTime %d is not the same the the segments GetUpwardsTime %d", file.GetUpwardsTime(), file.Tracks[0].GetUpwardsTime())
+	}
+
+	if file.GetUpwardsSpeed() != file.Tracks[0].GetUpwardsSpeed() {
+		t.Errorf("The file GetUpwardsSpeed %f is not the same the the tracks GetUpwardsSpeed %f", file.GetUpwardsSpeed(), file.Tracks[0].GetUpwardsSpeed())
+	}
+
+	if file.GetUpwardsSpeed() != file.Tracks[0].TrackSegments[0].GetUpwardsSpeed() {
+		t.Errorf("The file GetUpwardsSpeed %f is not the same the the segments GetUpwardsSpeed %f", file.GetUpwardsSpeed(), file.Tracks[0].GetUpwardsSpeed())
+	}
+
+	if file.GetDownwardsSpeed() != file.Tracks[0].GetDownwardsSpeed() {
+		t.Errorf("The file GetDownwardsSpeed %f is not the same the the tracks GetDownwardsSpeed %f", file.GetDownwardsSpeed(), file.Tracks[0].GetDownwardsSpeed())
+	}
+
+	if file.GetDownwardsSpeed() != file.Tracks[0].TrackSegments[0].GetDownwardsSpeed() {
+		t.Errorf("The file GetDownwardsSpeed %f is not the same the the segments GetDownwardsSpeed %f", file.GetDownwardsSpeed(), file.Tracks[0].GetDownwardsSpeed())
+	}
+}

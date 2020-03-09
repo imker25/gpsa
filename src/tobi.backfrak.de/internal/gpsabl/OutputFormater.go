@@ -115,7 +115,7 @@ func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader
 
 // GetHeader - Get the header line of a csv output
 func (formater *CsvOutputFormater) GetHeader() string {
-	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		"Name", formater.Separator,
 		"StartTime", formater.Separator,
 		"EndTime", formater.Separator,
@@ -128,7 +128,11 @@ func (formater *CsvOutputFormater) GetHeader() string {
 		"UpwardsDistance (km)", formater.Separator,
 		"DownwardsDistance (km)", formater.Separator,
 		"MovingTime (xxhxxmxxs)", formater.Separator,
+		"UpwardsTime (xxhxxmxxs)", formater.Separator,
+		"DownwardsTime (xxhxxmxxs)", formater.Separator,
 		"AverageSpeed (km/h)", formater.Separator,
+		"UpwardsSpeed (km/h)", formater.Separator,
+		"DownwardsSpeed (km/h)", formater.Separator,
 		GetNewLine(),
 	)
 
@@ -139,7 +143,7 @@ func (formater *CsvOutputFormater) GetHeader() string {
 func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
 	var ret string
 	if info.GetTimeDataValid() {
-		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%f%s%s",
+		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
 			info.GetStartTime().Format(time.RFC3339), formater.Separator,
 			info.GetEndTime().Format(time.RFC3339), formater.Separator,
@@ -152,11 +156,15 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider,
 			RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
 			RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
 			info.GetMovingTime().String(), formater.Separator,
+			info.GetUpwardsTime().String(), formater.Separator,
+			info.GetDownwardsTime().String(), formater.Separator,
 			RoundFloat64To2Digits(info.GetAvarageSpeed()*3.6), formater.Separator,
+			RoundFloat64To2Digits(info.GetUpwardsSpeed()*3.6), formater.Separator,
+			RoundFloat64To2Digits(info.GetDownwardsSpeed()*3.6), formater.Separator,
 			GetNewLine(),
 		)
 	} else {
-		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s",
+		ret = fmt.Sprintf("%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 			name, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
@@ -168,6 +176,10 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider,
 			RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Separator,
 			RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
 			RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			GetNewLine(),

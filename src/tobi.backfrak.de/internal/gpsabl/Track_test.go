@@ -21,7 +21,7 @@ func TestTrackSummary(t *testing.T) {
 	sum := TrackSummary{}
 	iSumSet := TrackSummarySetter(&sum)
 	// now := time.Now()
-	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now(), time.Now().Sub(time.Now()))
+	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now(), time.Now().Sub(time.Now()), time.Now().Sub(time.Now()), time.Now().Sub(time.Now()))
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {
@@ -69,7 +69,11 @@ func TestTrackSummaryWithTime(t *testing.T) {
 	movingTime := endTime.Sub(startTime)
 	distance := 100.0
 	speed := distance / float64(movingTime/1000000000)
-	iSumSet.SetValues(distance, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, true, startTime, endTime, movingTime)
+	endTimeUp, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:17Z")
+	upwardsTime := startTime.Sub(endTimeUp)
+	endTimeDown, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:23Z")
+	downwarsTime := startTime.Sub(endTimeDown)
+	iSumSet.SetValues(distance, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, true, startTime, endTime, movingTime, upwardsTime, downwarsTime)
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetTimeDataValid() == false {
@@ -90,6 +94,14 @@ func TestTrackSummaryWithTime(t *testing.T) {
 
 	if iSum.GetAvarageSpeed() != speed {
 		t.Errorf("GetAvarageSpeed() is not the expected value")
+	}
+
+	if iSum.GetDownwardsTime() != downwarsTime {
+		t.Errorf("GetDownwardsTime() is not the expected value")
+	}
+
+	if iSum.GetUpwardsTime() != upwardsTime {
+		t.Errorf("GetUpwardsTime() is not the expected value")
 	}
 
 }
@@ -167,4 +179,49 @@ func TestTrackSegmentIsTrackSummary(t *testing.T) {
 	if sum.GetMinimumAltitude() != 0.0 {
 		t.Errorf("The GetMinimumAltitude() does return %f, but %f was expected", sum.GetMinimumAltitude(), 0.0)
 	}
+}
+
+func TestTrackPointIsTrackSummary(t *testing.T) {
+	pnt := getSimpleTrackFileWithTime().Tracks[0].TrackSegments[0].TrackPoints[1]
+	sum := TrackSummaryProvider(&pnt)
+
+	if sum.GetDownwardsTime() != pnt.DownwardsTime {
+		t.Errorf("The GetDownwardsTime() is %d but %d is expected", sum.GetDownwardsTime(), pnt.DownwardsTime)
+	}
+
+	if sum.GetUpwardsTime() != pnt.UpwardsTime {
+		t.Errorf("The GetUpwardsTime() is %d but %d is expected", sum.GetUpwardsTime(), pnt.UpwardsTime)
+	}
+
+	if sum.GetUpwardsSpeed() != 0.0 {
+		t.Errorf("The GetUpwardsSpeed() is %f but %f is expected", sum.GetUpwardsSpeed(), 0.0)
+	}
+
+	if sum.GetDownwardsSpeed() != pnt.AvarageSpeed {
+		t.Errorf("The GetDownwardsSpeed() is %f but %f is expected", sum.GetDownwardsSpeed(), pnt.AvarageSpeed)
+	}
+
+	if sum.GetAvarageSpeed() != pnt.AvarageSpeed {
+		t.Errorf("The GetAvarageSpeed() is %f but %f is expected", sum.GetAvarageSpeed(), pnt.AvarageSpeed)
+	}
+
+	pnt = getSimpleTrackFileWithTime().Tracks[0].TrackSegments[0].TrackPoints[2]
+	sum = TrackSummaryProvider(&pnt)
+
+	if sum.GetDownwardsTime() != pnt.DownwardsTime {
+		t.Errorf("The GetDownwardsTime() is %d but %d is expected", sum.GetDownwardsTime(), pnt.DownwardsTime)
+	}
+
+	if sum.GetUpwardsTime() != pnt.UpwardsTime {
+		t.Errorf("The GetUpwardsTime() is %d but %d is expected", sum.GetUpwardsTime(), pnt.UpwardsTime)
+	}
+
+	if sum.GetUpwardsSpeed() != pnt.AvarageSpeed {
+		t.Errorf("The GetUpwardsSpeed() is %f but %f is expected", sum.GetUpwardsSpeed(), pnt.AvarageSpeed)
+	}
+
+	if sum.GetDownwardsSpeed() != 0.0 {
+		t.Errorf("The GetDownwardsSpeed() is %f but %f is expected", sum.GetDownwardsSpeed(), 0.0)
+	}
+
 }
