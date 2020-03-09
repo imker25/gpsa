@@ -535,4 +535,40 @@ func TestTrackReaderAlpineSkiTrack(t *testing.T) {
 	if file.GetDownwardsTime()+file.GetUpwardsTime() > file.GetMovingTime() {
 		t.Errorf("The MovingTime %d is smaller than DownwardsTime + UpwardsTime %d", file.GetMovingTime(), file.GetDownwardsTime()+file.GetUpwardsTime())
 	}
+
+	if file.GetAvarageSpeed() >= file.GetDownwardsSpeed() {
+		t.Errorf("The GetAvarageSpeed %f is bigger than the DownwardsSpeed %f", file.GetAvarageSpeed(), file.GetDownwardsSpeed())
+	}
+
+	if file.GetDownwardsTime() != file.Tracks[0].GetDownwardsTime() {
+		t.Errorf("The file DownwardsTime %d is not the same the the tracks DownwardsTime %d", file.GetDownwardsTime(), file.Tracks[0].GetDownwardsTime())
+	}
+
+	if file.GetDownwardsTime() != file.Tracks[0].TrackSegments[0].GetDownwardsTime() {
+		t.Errorf("The file DownwardsTime %d is not the same the the segments DownwardsTime %d", file.GetDownwardsTime(), file.Tracks[0].GetDownwardsTime())
+	}
+
+	if file.GetUpwardsTime() != file.Tracks[0].GetUpwardsTime() {
+		t.Errorf("The file GetUpwardsTime %d is not the same the the tracks GetUpwardsTime %d", file.GetUpwardsTime(), file.Tracks[0].GetUpwardsTime())
+	}
+
+	if file.GetUpwardsTime() != file.Tracks[0].TrackSegments[0].GetUpwardsTime() {
+		t.Errorf("The file GetUpwardsTime %d is not the same the the segments GetUpwardsTime %d", file.GetUpwardsTime(), file.Tracks[0].GetUpwardsTime())
+	}
+
+	if file.GetUpwardsSpeed() != file.Tracks[0].GetUpwardsSpeed() {
+		t.Errorf("The file GetUpwardsSpeed %f is not the same the the tracks GetUpwardsSpeed %f", file.GetUpwardsSpeed(), file.Tracks[0].GetUpwardsSpeed())
+	}
+
+	if file.GetUpwardsSpeed() != file.Tracks[0].TrackSegments[0].GetUpwardsSpeed() {
+		t.Errorf("The file GetUpwardsSpeed %f is not the same the the segments GetUpwardsSpeed %f", file.GetUpwardsSpeed(), file.Tracks[0].GetUpwardsSpeed())
+	}
+
+	if file.GetDownwardsSpeed() != file.Tracks[0].GetDownwardsSpeed() {
+		t.Errorf("The file GetDownwardsSpeed %f is not the same the the tracks GetDownwardsSpeed %f", file.GetDownwardsSpeed(), file.Tracks[0].GetDownwardsSpeed())
+	}
+
+	if file.GetDownwardsSpeed() != file.Tracks[0].TrackSegments[0].GetDownwardsSpeed() {
+		t.Errorf("The file GetDownwardsSpeed %f is not the same the the segments GetDownwardsSpeed %f", file.GetDownwardsSpeed(), file.Tracks[0].GetDownwardsSpeed())
+	}
 }
