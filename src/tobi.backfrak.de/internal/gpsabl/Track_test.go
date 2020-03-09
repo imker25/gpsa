@@ -193,8 +193,8 @@ func TestTrackPointIsTrackSummary(t *testing.T) {
 		t.Errorf("The GetUpwardsTime() is %d but %d is expected", sum.GetUpwardsTime(), pnt.UpwardsTime)
 	}
 
-	if sum.GetUpwardsSpeed() != pnt.AvarageSpeed {
-		t.Errorf("The GetUpwardsSpeed() is %f but %f is expected", sum.GetUpwardsSpeed(), pnt.AvarageSpeed)
+	if sum.GetUpwardsSpeed() != 0.0 {
+		t.Errorf("The GetUpwardsSpeed() is %f but %f is expected", sum.GetUpwardsSpeed(), 0.0)
 	}
 
 	if sum.GetDownwardsSpeed() != pnt.AvarageSpeed {
@@ -220,8 +220,8 @@ func TestTrackPointIsTrackSummary(t *testing.T) {
 		t.Errorf("The GetUpwardsSpeed() is %f but %f is expected", sum.GetUpwardsSpeed(), pnt.AvarageSpeed)
 	}
 
-	if sum.GetDownwardsSpeed() != pnt.AvarageSpeed {
-		t.Errorf("The GetDownwardsSpeed() is %f but %f is expected", sum.GetDownwardsSpeed(), pnt.AvarageSpeed)
+	if sum.GetDownwardsSpeed() != 0.0 {
+		t.Errorf("The GetDownwardsSpeed() is %f but %f is expected", sum.GetDownwardsSpeed(), 0.0)
 	}
 
 }

@@ -205,7 +205,7 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 			pnts[i].DistanceToThisPoint = disToHere
 			pnts[i].MovingTime = movingTime
 			if pnts[i].MovingTime > 0 {
-				pnts[i].AvarageSpeed = pnt.DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
+				pnts[i].AvarageSpeed = pnts[i].DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
 			}
 		} else {
 			// If we can not calc the speed because of missing time info, all points count

@@ -24,7 +24,6 @@ type TrackSummary struct {
 	MovingTime        time.Duration
 	UpwardsTime       time.Duration
 	DownwardsTime     time.Duration
-	AvarageSpeed      float64
 }
 
 // SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
@@ -53,9 +52,7 @@ func (sum *TrackSummary) SetValues(distance float64,
 	sum.EndTime = endTime
 	sum.TimeDataValid = timeDataValid
 	sum.MovingTime = movingTime
-	if timeDataValid && movingTime > 0 {
-		sum.AvarageSpeed = sum.Distance / float64(sum.MovingTime/1000000000)
-	}
+
 	sum.DownwardsTime = downwardsTime
 	sum.UpwardsTime = upwardsTime
 }
@@ -132,7 +129,11 @@ func (sum TrackSummary) GetDownwardsTime() time.Duration {
 
 // GetAvarageSpeed - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetAvarageSpeed() float64 {
-	return sum.AvarageSpeed
+	if sum.TimeDataValid && sum.MovingTime > 0 {
+		return sum.Distance / float64(sum.MovingTime/1000000000)
+	}
+
+	return 0
 }
 
 // GetUpwardsSpeed - Implement the TrackSummaryProvider interface for TrackSummary
