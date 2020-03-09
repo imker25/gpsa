@@ -255,7 +255,7 @@ func (pnt TrackPoint) GetElevationLose() float32 {
 // GetUpwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetUpwardsDistance() float64 {
 	if pnt.CountUpwards && pnt.CountMoving {
-		return pnt.DistanceNext
+		return pnt.DistanceBefore
 	}
 	return 0
 }
@@ -263,7 +263,7 @@ func (pnt TrackPoint) GetUpwardsDistance() float64 {
 // GetDownwardsDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetDownwardsDistance() float64 {
 	if pnt.CountDownwards && pnt.CountMoving {
-		return pnt.DistanceNext
+		return pnt.DistanceBefore
 	}
 	return 0
 }

@@ -221,12 +221,12 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint) {
 func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 	var upwardsTime time.Duration
 	var downwardsTime time.Duration
-	numPnts := len(pnts)
+	//numPnts := len(pnts)
 
 	for i := range pnts {
 		if correction == GetValidCorrectionParameters()[2] { // In case we do steps correction, CorectedElevation will make no sense
-			if i < (numPnts - 1) { // Evaluation of the last point don't count
-				eveDiff := pnts[i+1].Elevation - pnts[i].Elevation
+			if i > 0 { // Evaluation of the last point don't count
+				eveDiff := pnts[i].Elevation - pnts[i-1].Elevation
 				if eveDiff > 0 {
 					pnts[i].CountUpwards = true
 				}
@@ -237,8 +237,8 @@ func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 			}
 		} else {
 
-			if i < (numPnts - 1) { // Evaluation of the last point don't count
-				eveDiff := pnts[i+1].CorectedElevation - pnts[i].CorectedElevation
+			if i > 0 { // Evaluation of the first point don't count
+				eveDiff := pnts[i].CorectedElevation - pnts[i-1].CorectedElevation
 				if eveDiff > 0 {
 					pnts[i].CountUpwards = true
 				}
@@ -248,13 +248,13 @@ func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 				}
 			}
 		}
-		if i > 0 && i < (numPnts-1) { // Time of the first and last point don't count
-			if pnts[i].CountDownwards && pnts[i].CountMoving {
-				downwardsTime = downwardsTime + pnts[i].TimeDurationNext
+		if i > 0 && pnts[i].CountMoving && pnts[i].TimeValid { // Time of the first point don't count
+			if pnts[i].CountDownwards {
+				downwardsTime = downwardsTime + pnts[i].TimeDurationBefore
 			}
 
-			if pnts[i].CountUpwards && pnts[i].CountMoving {
-				upwardsTime = upwardsTime + pnts[i].TimeDurationNext
+			if pnts[i].CountUpwards {
+				upwardsTime = upwardsTime + pnts[i].TimeDurationBefore
 			}
 		}
 
