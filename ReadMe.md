@@ -35,7 +35,7 @@ You might want to call ```-help``` to find out how to use the program.
 ```txt
 ~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
-Program Version: 0.5.0+c02da77
+Program Version: 0.6.0+c02da77
 
 Usage: ./gpsa [options] [files]
   files
@@ -98,7 +98,7 @@ Get statistics for a number of files into a csv output, with verbose comandline 
 ```sh
 ~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
 Call:  ./gpsa -verbose -out-file=gps-statistics.csv my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Version: 0.3.2+94c23fc
+Version: 0.6.0+94c23fc
 Read file: my/test/01.gpx
 Read file: my/test/02.gpx
 Read file: my/test/03.gpx
