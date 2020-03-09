@@ -12,7 +12,8 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-const numberOfSemicolonExpected = 13
+const numberOfSemicolonExpected = 17
+const numberOfNotValideExpected = 8
 
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
@@ -290,7 +291,7 @@ func TestAddOutPut(t *testing.T) {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "not valid;") != 4 {
+	if strings.Count(lines[0], "not valid;") != numberOfNotValideExpected {
 		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
 	}
 }
@@ -338,7 +339,7 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "4.300000;") != 1 {
+	if strings.Count(lines[0], "4.300000;") != 3 {
 		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 }
@@ -587,12 +588,16 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "4.300000;") != 1 {
+	if strings.Count(lines[0], "4.300000;") != 3 {
 		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "not valid;") != 4 {
+	if strings.Count(lines[1], "not valid;") != numberOfNotValideExpected {
 		t.Errorf("The output does not contain the Time values as often as expected. Found it %d times in: %s", strings.Count(lines[1], "not valid;"), lines[1])
+	}
+
+	if strings.Count(lines[0], "10s") != 2 {
+		t.Errorf("The output does not contain the Time values as often as expected. Found it %d times in: %s", strings.Count(lines[0], "10s;"), lines[1])
 	}
 }
 
