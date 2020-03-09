@@ -1,6 +1,6 @@
 # gpsa - A GPX Statistic extracting tool
 
-This is a simple command line tool that helps to extract data for statistical analysis out of *.gpx files. You might want to use this program to extract data like "Distance" or "ElevationGain" from a bunch of *.gpx files and store this data in a *.csv file for further analysis.
+This is a simple command line tool that helps to extract data for statistical analysis out of *.gpx files. You might want to use this program to extract data like `Distance`, `ElevationGain` or `AverageSpeed` from a bunch of *.gpx files and store this data in a *.csv file for further analysis.
 
 - [gpsa - A GPX Statistic extracting tool](#gpsa---a-gpx-statistic-extracting-tool)
   - [User Documentation](#user-documentation)
@@ -32,7 +32,7 @@ On Windows download [gpsa.exe](https://homer.tobi.backfrak.de/jenkins/job/GPSA/j
 
 You might want to call ```-help``` to find out how to use the program.
 
-```sh
+```txt
 ~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
 Program Version: 0.5.0+c02da77
@@ -71,8 +71,8 @@ Simple call with one file:
 
 ```sh
 ~$  ./gpsa my/test/file.gpx
-Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);MovingTime (xxhxxmxxs);AverageSpeed (km/h);
-GPX name: Track name;1901-12-13T20:45:52Z;1901-12-13T21:45:52Z;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;1h00m00s;18.480000;
+Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);MovingTime (xxhxxmxxs);UpwardsTime (xxhxxmxxs);DownwardsTime (xxhxxmxxs);AverageSpeed (km/h);UpwardsSpeed (km/h);DownwardsSpeed (km/h);
+my/test/file.gpx: 2020-01-29 09:28:06;2020-01-29T08:28:10Z;2020-01-29T13:48:07Z;94.750000;1188.370000;821.610000;2009.980000;10659.340000;-10884.500000;43.470000;51.000000;4h1m44s;2h8m49s;1h52m55s;23.520000;20.250000;27.100000;
 
 ```
 
@@ -80,10 +80,9 @@ Simple call with multiple files:
 
 ```sh
 ~$  ./gpsa my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);MovingTime (xxhxxmxxs);AverageSpeed (km/h);
-GPX name: Track name;1901-12-13T20:45:52Z;1901-12-13T21:45:52Z;18.480000;104.000000;298.000000;402.000000;278.210000;-257.210000;8.040000;9.150000;1h00m00s;18.480000;
-02.gpx: 2019-08-18 11:07:40;2019-08-18T09:11:01Z;2019-08-18T15:47:34Z;37.820000;104.090000;347.020000;451.110000;263.880000;-251.430000;17.860000;19.770000;1h36m32s;23.510000;
-03.gpx: Tulln - Wien;not valid;not valid;37.640000;48.000000;158.000000;206.000000;52.000000;-26.000000;17.520000;14.060000;not valid;not valid;
+Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);MovingTime (xxhxxmxxs);UpwardsTime (xxhxxmxxs);DownwardsTime (xxhxxmxxs);AverageSpeed (km/h);UpwardsSpeed (km/h);DownwardsSpeed (km/h);
+03.gpx: Tulln - Wien;not valid;not valid;37.640000;48.000000;158.000000;206.000000;52.000000;-26.000000;17.520000;14.060000;not valid;not valid;not valid;not valid;not valid;not valid;
+02.gpx: 2019-08-18 11:07:40;2019-08-18T09:11:01Z;2019-08-18T15:47:34Z;37.820000;104.090000;347.020000;451.110000;263.880000;-251.430000;17.860000;19.760000;1h33m20s;47m54s;44m56s;24.320000;22.370000;26.390000;
 
 ```
 
