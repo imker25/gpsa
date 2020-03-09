@@ -514,6 +514,26 @@ func TestTrackTimeWithGaps(t *testing.T) {
 
 }
 
+func TestUpAndDownTime(t *testing.T) {
+	file := getTrackFileWithStandStillPoints()
+
+	if file.GetDownwardsTime() != 20000000000 {
+		t.Errorf("The GetDownwardsTime() is %d but %d is expected", file.GetDownwardsTime(), 20000000000)
+	}
+
+	if file.GetUpwardsTime() != 20000000000 {
+		t.Errorf("The GetUpwardsTime() is %d but %d is expected", file.GetUpwardsTime(), 20000000000)
+	}
+
+	if file.GetDownwardsSpeed() != 0.5971287109367064 {
+		t.Errorf("The GetDownwardsSpeed() is %f but %f  is expected", file.GetDownwardsSpeed(), 0.5971287109367064)
+	}
+
+	if file.GetUpwardsSpeed() != 0.5971287109367064 {
+		t.Errorf("The GetUpwardsSpeed() is %f but %f  is expected", file.GetUpwardsSpeed(), 0.5971287109367064)
+	}
+}
+
 func TestTrackSpeedWithGaps(t *testing.T) {
 	file := getTrackFileWithTimeGaps()
 

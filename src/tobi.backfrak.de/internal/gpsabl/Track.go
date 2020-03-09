@@ -315,7 +315,7 @@ func (pnt TrackPoint) GetUpwardsSpeed() float64 {
 
 // GetDownwardsSpeed - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetDownwardsSpeed() float64 {
-	if pnt.CountMoving && pnt.CountUpwards {
+	if pnt.CountMoving && pnt.CountDownwards {
 		return pnt.AvarageSpeed
 	}
 
