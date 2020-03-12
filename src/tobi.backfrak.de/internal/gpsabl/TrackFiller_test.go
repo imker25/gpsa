@@ -59,7 +59,7 @@ func TestFillValuesTrackPointArrayWrongCorrection(t *testing.T) {
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
 	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
-	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, "asd")
+	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, "asd", 0.3, 10.0)
 	if err != nil {
 		switch ty := err.(type) {
 		case *CorrectionParameterNotKnownError:
@@ -78,7 +78,7 @@ func TestFillValuesTrackPointArrayValidCorrection(t *testing.T) {
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
 	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
-	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, GetValidCorrectionParameters()[0])
+	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, GetValidCorrectionParameters()[0], 0.3, 10.0)
 	if err != nil {
 		t.Errorf("FillDistancesTrackPoint did return a error, but was expected to. The error is %s", err.Error())
 	}
@@ -141,7 +141,7 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "none")
+	fillCorrectedElevationTrackPoint(pnts, "none", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != -1.0 {
@@ -170,7 +170,7 @@ func TestFillDistancesThreePointWithLinearCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "linear")
+	fillCorrectedElevationTrackPoint(pnts, "linear", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 0.0 {
@@ -191,7 +191,7 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "steps")
+	fillCorrectedElevationTrackPoint(pnts, "steps", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 	fillCountUpDownWards(pnts, "steps")
 
@@ -205,7 +205,7 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 }
 func TestFillDistancesThreePointWithUnknownCorrection(t *testing.T) {
 	pnts := gerSimpleTrackPointArray()
-	err := fillCorrectedElevationTrackPoint(pnts, "asd")
+	err := fillCorrectedElevationTrackPoint(pnts, "asd", 10.0)
 	if err != nil {
 		switch ty := err.(type) {
 		case *CorrectionParameterNotKnownError:
@@ -227,7 +227,7 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "none")
+	fillCorrectedElevationTrackPoint(pnts, "none", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 108.0 {
@@ -606,7 +606,7 @@ func getTrackFileWithStandStillPoints() TrackFile {
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], points[3])
 	FillDistancesTrackPoint(&points[3], points[2], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
 	laterTrack := Track{}
 	seg := TrackSegment{}
 	seg.TrackPoints = points
@@ -637,7 +637,7 @@ func getTrackFileWithTimeGaps() TrackFile {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
 	laterTrack := Track{}
 	seg := TrackSegment{}
 	seg.TrackPoints = points
@@ -722,7 +722,7 @@ func gerSimpleTrackPointArray() []TrackPoint {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
 
 	return points
 }
@@ -739,7 +739,7 @@ func getSimpleTrackPointArrayWithTime() []TrackPoint {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
 
 	return points
 }

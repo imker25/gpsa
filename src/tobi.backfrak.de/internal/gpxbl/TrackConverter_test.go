@@ -60,7 +60,7 @@ func getTrkWithTime() Trk {
 func TestConvertTrkTimeInfo(t *testing.T) {
 	input := getTrkWithTime()
 
-	track, err := ConvertTrk(input, "none")
+	track, err := ConvertTrk(input, "none", 0.3, 10.0)
 	if err != nil {
 		t.Errorf("Got a error, but expected none. The error is: %s", err)
 	}
@@ -84,7 +84,7 @@ func TestConvertSegmentsWithNoPoints(t *testing.T) {
 
 	inPut.TrackSegments = append(inPut.TrackSegments, Trkseg{})
 
-	outSegs, err := convertSegments(inPut.TrackSegments, "none")
+	outSegs, err := convertSegments(inPut.TrackSegments, "none", 0.3, 10.0)
 	if err != nil {
 		t.Errorf("Got a error, but expected none. The error is: %s", err)
 	}
@@ -169,7 +169,7 @@ func TestConvertBasicPointValuesWithUnFormatedTime(t *testing.T) {
 func TestConvertTrkBasicInfo(t *testing.T) {
 	input := getTrk()
 
-	track, err := ConvertTrk(input, "none")
+	track, err := ConvertTrk(input, "none", 0.3, 10.0)
 	if err != nil {
 		t.Errorf("Got a error, but expected none. The error is: %s", err)
 	}

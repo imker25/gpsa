@@ -220,7 +220,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
-	file, readErr := reader.ReadTracks(CorrectionParameter)
+	file, readErr := reader.ReadTracks(CorrectionParameter, 0.3, 10.0)
 	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
