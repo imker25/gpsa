@@ -7,6 +7,7 @@ package gpsabl
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -586,6 +587,37 @@ func TestTrackTimeWithStillPoints(t *testing.T) {
 	wrongSpeed := file.GetDistance() / float64(file.GetEndTime().Sub(file.GetStartTime())/1000000000)
 	if file.GetAvarageSpeed() == wrongSpeed {
 		t.Errorf("The AvarageSpeed is the same as the speed calculated from start and end time")
+	}
+}
+
+func TestParametersLessThenZeroErrors(t *testing.T) {
+	pnts := getSimpleTrackPointArrayWithTime()
+	err := FillValuesTrackPointArray(pnts, "linear", -1.0, 0.0)
+
+	if err != nil {
+		switch err.(type) {
+		case *MinimalMovingSpeedLessThenZero:
+			fmt.Println("OK")
+		default:
+			t.Errorf("Expected a MinimalMovingSpeedLessThenZero, got a %s", reflect.TypeOf(err))
+		}
+
+	} else {
+		t.Errorf("Got no error when a MinimalMovingSpeedLessThenZero error is expected")
+	}
+
+	err = FillValuesTrackPointArray(pnts, "linear", 0.0, -1.0)
+
+	if err != nil {
+		switch err.(type) {
+		case *MinimalStepHightLessThenZero:
+			fmt.Println("OK")
+		default:
+			t.Errorf("Expected a MinimalStepHightLessThenZero, got a %s", reflect.TypeOf(err))
+		}
+
+	} else {
+		t.Errorf("Got no error when a MinimalStepHightLessThenZero error is expected")
 	}
 }
 

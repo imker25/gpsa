@@ -32,6 +32,14 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 // The Array must be soreted by the points Number!
 func FillValuesTrackPointArray(pnts []TrackPoint, correction string, minimalMovingSpeed float64, minimalStepHight float64) error {
 
+	if minimalMovingSpeed < 0.0 {
+		return NewMinimalMovingSpeedLessThenZero(minimalMovingSpeed)
+	}
+
+	if minimalStepHight < 0.0 {
+		return NewMinimalStepHightLessThenZero(minimalStepHight)
+	}
+
 	fillDistanceTimeAndSpeedValues(pnts, minimalMovingSpeed)
 	err := fillCorrectedElevationTrackPoint(pnts, correction, minimalStepHight)
 	if err != nil {
