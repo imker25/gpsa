@@ -54,6 +54,12 @@ var PrintLicenseFlag bool
 // SuppressDuplicateOutPutFlag - Tells if the program was called with the -suppressDuplicateOutPut flag
 var SuppressDuplicateOutPutFlag bool
 
+// MinimalMovingSpeedParameter - Tells the minimal moving speed for moving time and speed calculation
+var MinimalMovingSpeedParameter float64
+
+// MinimalStepHightParameter - Tells the minimal step hight, when "steps" correction is used
+var MinimalStepHightParameter float64
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -132,6 +138,8 @@ func handleComandlineOptions() {
 	outFormater := gpsabl.NewCsvOutputFormater(";")
 
 	// Setup the valid comandline flags
+	flag.Float64Var(&MinimalStepHightParameter, "minimal-step-hight", 10.0, "The minimal step hight. Only in use when \"steps\"  elevation correction is used. In [m]")
+	flag.Float64Var(&MinimalMovingSpeedParameter, "minimal-moving-speed", 0.3, "The minimal speed. Distances traveled with less speed are not counted. In [m/s]")
 	flag.BoolVar(&SuppressDuplicateOutPutFlag, "suppress-duplicate-out-put", false, "Suppress the output of duplicate lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.")
 	flag.BoolVar(&HelpFlag, "help", false, "Print help message and exit")
 	flag.BoolVar(&PrintVersionFlag, "version", false, "Print version of the program and exit")
@@ -220,7 +228,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
-	file, readErr := reader.ReadTracks(CorrectionParameter, 0.3, 10.0)
+	file, readErr := reader.ReadTracks(CorrectionParameter, MinimalMovingSpeedParameter, MinimalStepHightParameter)
 	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}

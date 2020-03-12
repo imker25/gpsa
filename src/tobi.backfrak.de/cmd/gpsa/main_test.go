@@ -69,6 +69,14 @@ func TestHandleComandlineOptions(t *testing.T) {
 	if CorrectionParameter != "steps" {
 		t.Errorf("The CorrectionParameter is \"%s\" but \"steps\" was expected", DepthParameter)
 	}
+
+	if MinimalStepHightParameter != 10.0 {
+		t.Errorf("The MinimalStepHightParameter is \"%f\" but \"10.0\" was expected", MinimalStepHightParameter)
+	}
+
+	if MinimalMovingSpeedParameter != 0.3 {
+		t.Errorf("The MinimalMovingSpeedParameter is \"%f\" but \"10.0\" was expected", MinimalMovingSpeedParameter)
+	}
 }
 
 func TestCostumHelpMessage(t *testing.T) {

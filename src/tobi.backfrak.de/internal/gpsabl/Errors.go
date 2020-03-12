@@ -42,7 +42,7 @@ type MinimalMovingSpeedLessThenZero struct {
 }
 
 func (e *MinimalMovingSpeedLessThenZero) Error() string { // Implement the Error Interface for the MinimalMovingSpeedLessThenZero struct
-	return fmt.Sprintf("Error: %s", e.err)
+	return fmt.Sprintf("%s", e.err)
 }
 
 // NewMinimalMovingSpeedLessThenZero - Get a new MinimalMovingSpeedLessThenZero struct
@@ -58,7 +58,7 @@ type MinimalStepHightLessThenZero struct {
 }
 
 func (e *MinimalStepHightLessThenZero) Error() string { // Implement the Error Interface for the MinimalMovingSpeedLessThenZero struct
-	return fmt.Sprintf("Error: %s", e.err)
+	return fmt.Sprintf("%s", e.err)
 }
 
 // NewMinimalStepHightLessThenZero - Get a new MinimalMovingSpeedLessThenZero struct
