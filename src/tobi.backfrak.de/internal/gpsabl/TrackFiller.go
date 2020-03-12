@@ -349,6 +349,8 @@ func getCorrectedElevationSteps(basePoint TrackPoint, beforePoint TrackPoint, ne
 
 	if math.Abs(float64(eveDiffBefore)) >= minimalStepHight && (sameDirection > 0 || math.Abs(float64(eveDiffAfter)) < minimalStepHight) {
 		return basePoint.Elevation
+	} else if minimalStepHight == 0.0 {
+		return basePoint.Elevation
 	}
 
 	return beforePoint.CorectedElevation

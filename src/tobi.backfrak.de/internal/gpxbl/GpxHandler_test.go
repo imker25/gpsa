@@ -572,3 +572,80 @@ func TestTrackReaderAlpineSkiTrack(t *testing.T) {
 		t.Errorf("The file GetDownwardsSpeed %f is not the same the the segments GetDownwardsSpeed %f", file.GetDownwardsSpeed(), file.Tracks[0].GetDownwardsSpeed())
 	}
 }
+
+func TestMinimalStepHightValues(t *testing.T) {
+	gpx := NewGpxFile(testhelper.GetValidGPX("02.gpx"))
+	file1, err1 := gpx.ReadTracks("none", 0.3, 10.0)
+	file2, err2 := gpx.ReadTracks("steps", 0.3, 0.0)
+	file3, err3 := gpx.ReadTracks("steps", 0.3, 20.0)
+
+	if err1 != nil || err2 != nil || err3 != nil {
+		t.Errorf("Got a error but none expected")
+	}
+
+	if file1.GetElevationGain() != file2.GetElevationGain() {
+		t.Errorf("The file1.GetElevationGain() \"%f\" is not the same as file2.GetElevationGain() \"%f\"", file1.GetElevationGain(), file2.GetElevationGain())
+	}
+
+	if file1.GetElevationLose() != file2.GetElevationLose() {
+		t.Errorf("The file1.GetElevationLose() \"%f\" is not the same as file2.GetElevationLose() \"%f\"", file1.GetElevationLose(), file2.GetElevationLose())
+	}
+
+	if file2.GetElevationGain() <= file3.GetElevationGain() {
+		t.Errorf("The file2.GetElevationGain() \"%f\" is the same as file3.GetElevationGain() \"%f\"", file2.GetElevationGain(), file3.GetElevationGain())
+	}
+
+	if file2.GetElevationLose() >= file3.GetElevationLose() {
+		t.Errorf("The file2.GetElevationLose() \"%f\" is the same as file3.GetElevationLose() \"%f\"", file2.GetElevationLose(), file3.GetElevationLose())
+	}
+}
+
+func TestMinimalMovingSpeedValues(t *testing.T) {
+
+	gpx := NewGpxFile(testhelper.GetValidGPX("16.gpx"))
+	file1, err1 := gpx.ReadTracks("none", 0.3, 10.0)
+	file2, err2 := gpx.ReadTracks("none", 0.0, 10.0)
+
+	if err1 != nil || err2 != nil {
+		t.Errorf("Got a error but none expected")
+	}
+	if file1.GetMovingTime() == file2.GetMovingTime() {
+		t.Errorf("The MovingTime is the same, no matter whats the MinimalMovingSpeed")
+	}
+
+	if file2.GetMovingTime() != file2.GetEndTime().Sub(file2.GetStartTime()) {
+		t.Errorf("The MovingTime %d is not the same as EndTime - StartTime %d when called with zero MinimalMovingSpeed", file2.GetMovingTime(), file2.GetEndTime().Sub(file2.GetStartTime()))
+	}
+
+}
+
+func TestParameterErrors(t *testing.T) {
+
+	gpx := NewGpxFile(testhelper.GetValidGPX("01.gpx"))
+	_, err1 := gpx.ReadTracks("none", -0.3, 10.0)
+
+	if err1 != nil {
+		switch err1.(type) {
+		case *gpsabl.MinimalMovingSpeedLessThenZero:
+			fmt.Println("OK")
+		default:
+			t.Errorf("Expected a MinimalMovingSpeedLessThenZero, got a %s", reflect.TypeOf(err1))
+		}
+
+	} else {
+		t.Errorf("Got no error when a MinimalMovingSpeedLessThenZero error is expected")
+	}
+
+	_, err2 := gpx.ReadTracks("none", 0.3, -10.0)
+	if err2 != nil {
+		switch err2.(type) {
+		case *gpsabl.MinimalStepHightLessThenZero:
+			fmt.Println("OK")
+		default:
+			t.Errorf("Expected a MinimalStepHightLessThenZero, got a %s", reflect.TypeOf(err2))
+		}
+
+	} else {
+		t.Errorf("Got no error when a MinimalStepHightLessThenZero error is expected")
+	}
+}

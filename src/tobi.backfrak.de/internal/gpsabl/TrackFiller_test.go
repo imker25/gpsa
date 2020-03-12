@@ -516,7 +516,7 @@ func TestTrackTimeWithGaps(t *testing.T) {
 }
 
 func TestUpAndDownTime(t *testing.T) {
-	file := getTrackFileWithStandStillPoints()
+	file := getTrackFileWithStandStillPoints("none", 0.3, 10.0)
 
 	if file.GetDownwardsTime() != 20000000000 {
 		t.Errorf("The GetDownwardsTime() is %d but %d is expected", file.GetDownwardsTime(), 20000000000)
@@ -570,7 +570,7 @@ func TestTrackSpeedWithGaps(t *testing.T) {
 }
 
 func TestTrackTimeWithStillPoints(t *testing.T) {
-	file := getTrackFileWithStandStillPoints()
+	file := getTrackFileWithStandStillPoints("none", 0.3, 10.0)
 
 	if file.Tracks[0].GetAvarageSpeed() != 0.5971287109367064 {
 		t.Errorf("The AvarageSpeed is %f, but expect 0.5971287109367064", file.Tracks[0].GetAvarageSpeed())
@@ -590,9 +590,36 @@ func TestTrackTimeWithStillPoints(t *testing.T) {
 	}
 }
 
+func TestMinimalMovingSpeedValues(t *testing.T) {
+	file1 := getTrackFileWithStandStillPoints("steps", 0.3, 10.0)
+	file2 := getTrackFileWithStandStillPoints("steps", 0.0, 10.0)
+
+	if file1.GetMovingTime() == file2.GetMovingTime() {
+		t.Errorf("The MovingTime is the same, no matter whats the MinimalMovingSpeed")
+	}
+
+	if file2.GetMovingTime() != file2.GetEndTime().Sub(file2.GetStartTime()) {
+		t.Errorf("The moving time is not the same as EndTime - StartTime when called with zero MinimalMovingSpeed")
+	}
+}
+
+func TestMinimalMovingStepHight(t *testing.T) {
+	file1 := getTrackFileWithStandStillPoints("none", 0.3, 10.0)
+	file2 := getTrackFileWithStandStillPoints("steps", 0.3, 0.0)
+	file3 := getTrackFileWithStandStillPoints("steps", 0.3, 2.0)
+
+	if file1.GetElevationLose() != file2.GetElevationLose() {
+		t.Errorf("The GetElevationLose() \"%f\" is not the same, when when steps with 0.0 hight are used as with none", file2.GetElevationLose())
+	}
+
+	if file3.GetElevationLose() == file2.GetElevationLose() {
+		t.Errorf("The file2.GetElevationLose() \"%f\" is the same as file3.GetElevationLose() \"%f\", file1.GetElevationLose() \"%f\"", file2.GetElevationLose(), file3.GetElevationLose(), file1.GetElevationLose())
+	}
+}
+
 func TestParametersLessThenZeroErrors(t *testing.T) {
 	pnts := getSimpleTrackPointArrayWithTime()
-	err := FillValuesTrackPointArray(pnts, "linear", -1.0, 0.0)
+	err := FillValuesTrackPointArray(pnts, "steps", -1.0, 0.0)
 
 	if err != nil {
 		switch err.(type) {
@@ -606,7 +633,7 @@ func TestParametersLessThenZeroErrors(t *testing.T) {
 		t.Errorf("Got no error when a MinimalMovingSpeedLessThenZero error is expected")
 	}
 
-	err = FillValuesTrackPointArray(pnts, "linear", 0.0, -1.0)
+	err = FillValuesTrackPointArray(pnts, "steps", 0.0, -1.0)
 
 	if err != nil {
 		switch err.(type) {
@@ -621,7 +648,7 @@ func TestParametersLessThenZeroErrors(t *testing.T) {
 	}
 }
 
-func getTrackFileWithStandStillPoints() TrackFile {
+func getTrackFileWithStandStillPoints(correction string, minimalMovingSpeed float64, minimalStepHight float64) TrackFile {
 	var file TrackFile
 
 	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
@@ -638,7 +665,7 @@ func getTrackFileWithStandStillPoints() TrackFile {
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], points[3])
 	FillDistancesTrackPoint(&points[3], points[2], TrackPoint{})
-	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
+	FillValuesTrackPointArray(points, correction, minimalMovingSpeed, minimalStepHight)
 	laterTrack := Track{}
 	seg := TrackSegment{}
 	seg.TrackPoints = points
