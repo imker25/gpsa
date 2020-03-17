@@ -77,15 +77,17 @@ if [ -f $tmpJSON ]; then
     rm $tmpJSON
 fi
 
-# example contend for $tmpJSON acording to https://developer.github.com/v3/repos/releases/#create-a-release 
-# {
-#   "tag_name": "v1.0.0",
-#   "target_commitish": "master",
-#   "name": "v1.0.0",
-#   "body": "Description of the release",
-#   "draft": false,
-#   "prerelease": false
-# }
+echo "Create new tmp file $tmpJSON"
+# contend for $tmpJSON acording to https://developer.github.com/v3/repos/releases/#create-a-release 
+echo "{" >> $tmpJSON
+echo "  \"tag_name\":\"$releaseName\"," >> $tmpJSON
+echo "  \"target_commitish\":\"$commitId\"," >> $tmpJSON
+echo "  \"name\":\"$releaseName\"," >> $tmpJSON
+echo "  \"body\":\"$releaseDescribtion\"," >> $tmpJSON
+echo "  \"draft\":false," >> $tmpJSON
+echo "  \"prerelease\":$preTag" >> $tmpJSON
+echo "}" >> $tmpJSON
+
 
 popd
 
