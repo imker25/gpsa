@@ -35,7 +35,7 @@ You might want to call ```-help``` to find out how to use the program.
 ```txt
 ~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
-Program Version: 0.6.0+c02da77
+Program Version: 0.7.0+7b79520
 
 Usage: ./gpsa [options] [files]
   files
@@ -51,6 +51,10 @@ Options:
         Prints this help message
   -license
         Print the license information of the program
+  -minimal-moving-speed float
+        The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
+  -minimal-step-hight float
+        The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
   -out-file string
         Define where to write the output. (default "StdOut" if not explicitly set)
   -print-csv-header
@@ -98,7 +102,7 @@ Get statistics for a number of files into a csv output, with verbose comandline 
 ```sh
 ~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
 Call:  ./gpsa -verbose -out-file=gps-statistics.csv my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Version: 0.6.0+94c23fc
+Version: 0.7.0+7b79520
 Read file: my/test/01.gpx
 Read file: my/test/02.gpx
 Read file: my/test/03.gpx
