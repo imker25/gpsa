@@ -33,3 +33,35 @@ func (e *CorrectionParameterNotKnownError) Error() string { // Implement the Err
 func NewCorrectionParameterNotKnownError(givenValue string) *CorrectionParameterNotKnownError {
 	return &CorrectionParameterNotKnownError{fmt.Sprintf("The given -correction \"%s\" is not known.", givenValue), givenValue}
 }
+
+// MinimalMovingSpeedLessThenZero - Error when the given -minimal-moving-speed is less then zero
+type MinimalMovingSpeedLessThenZero struct {
+	err string
+	// File - The path to the dir that caused this error
+	GivenValue float64
+}
+
+func (e *MinimalMovingSpeedLessThenZero) Error() string { // Implement the Error Interface for the MinimalMovingSpeedLessThenZero struct
+	return fmt.Sprintf("%s", e.err)
+}
+
+// NewMinimalMovingSpeedLessThenZero - Get a new MinimalMovingSpeedLessThenZero struct
+func NewMinimalMovingSpeedLessThenZero(givenValue float64) *MinimalMovingSpeedLessThenZero {
+	return &MinimalMovingSpeedLessThenZero{fmt.Sprintf("The given -minimal-moving-speed \"%f\" is less then 0.0.", givenValue), givenValue}
+}
+
+// MinimalStepHightLessThenZero - Error when the given -minimal-step-hight is less then zero
+type MinimalStepHightLessThenZero struct {
+	err string
+	// File - The path to the dir that caused this error
+	GivenValue float64
+}
+
+func (e *MinimalStepHightLessThenZero) Error() string { // Implement the Error Interface for the MinimalMovingSpeedLessThenZero struct
+	return fmt.Sprintf("%s", e.err)
+}
+
+// NewMinimalStepHightLessThenZero - Get a new MinimalMovingSpeedLessThenZero struct
+func NewMinimalStepHightLessThenZero(givenValue float64) *MinimalStepHightLessThenZero {
+	return &MinimalStepHightLessThenZero{fmt.Sprintf("The given -minimal-step-hight \"%f\" is less then 0.0.", givenValue), givenValue}
+}

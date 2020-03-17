@@ -9,7 +9,7 @@ import "time"
 
 // TrackReader - The interface for all functions that can read gps data files like *.gpx
 type TrackReader interface {
-	ReadTracks(correction string) (TrackFile, error)
+	ReadTracks(correction string, minimalMovingSpeed float64, minimalStepHight float64) (TrackFile, error)
 }
 
 // TrackSummaryProvider - Interface for classes that provide track summary data

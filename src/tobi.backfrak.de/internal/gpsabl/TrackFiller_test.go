@@ -7,6 +7,7 @@ package gpsabl
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -59,7 +60,7 @@ func TestFillValuesTrackPointArrayWrongCorrection(t *testing.T) {
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
 	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
-	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, "asd")
+	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, "asd", 0.3, 10.0)
 	if err != nil {
 		switch ty := err.(type) {
 		case *CorrectionParameterNotKnownError:
@@ -78,7 +79,7 @@ func TestFillValuesTrackPointArrayValidCorrection(t *testing.T) {
 	pnt3 := getTrackPoint(50.11484790, 8.684885500, 109.0)
 
 	FillDistancesTrackPoint(&pnt2, pnt1, pnt3)
-	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, GetValidCorrectionParameters()[0])
+	err := FillValuesTrackPointArray([]TrackPoint{pnt1, pnt2, pnt3}, GetValidCorrectionParameters()[0], 0.3, 10.0)
 	if err != nil {
 		t.Errorf("FillDistancesTrackPoint did return a error, but was expected to. The error is %s", err.Error())
 	}
@@ -141,7 +142,7 @@ func TestFillDistancesTwoPointBefore(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "none")
+	fillCorrectedElevationTrackPoint(pnts, "none", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != -1.0 {
@@ -170,7 +171,7 @@ func TestFillDistancesThreePointWithLinearCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "linear")
+	fillCorrectedElevationTrackPoint(pnts, "linear", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 0.0 {
@@ -191,7 +192,7 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "steps")
+	fillCorrectedElevationTrackPoint(pnts, "steps", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 	fillCountUpDownWards(pnts, "steps")
 
@@ -205,7 +206,7 @@ func TestFillDistancesThreePointWithStepsCorection(t *testing.T) {
 }
 func TestFillDistancesThreePointWithUnknownCorrection(t *testing.T) {
 	pnts := gerSimpleTrackPointArray()
-	err := fillCorrectedElevationTrackPoint(pnts, "asd")
+	err := fillCorrectedElevationTrackPoint(pnts, "asd", 10.0)
 	if err != nil {
 		switch ty := err.(type) {
 		case *CorrectionParameterNotKnownError:
@@ -227,7 +228,7 @@ func TestFillDistancesTwoPointNext(t *testing.T) {
 
 	FillDistancesTrackPoint(&pnts[1], pnts[0], pnts[2])
 
-	fillCorrectedElevationTrackPoint(pnts, "none")
+	fillCorrectedElevationTrackPoint(pnts, "none", 10.0)
 	fillElevationGainLoseTrackPoint(pnts)
 
 	if pnts[1].VerticalDistanceBefore != 108.0 {
@@ -515,7 +516,7 @@ func TestTrackTimeWithGaps(t *testing.T) {
 }
 
 func TestUpAndDownTime(t *testing.T) {
-	file := getTrackFileWithStandStillPoints()
+	file := getTrackFileWithStandStillPoints("none", 0.3, 10.0)
 
 	if file.GetDownwardsTime() != 20000000000 {
 		t.Errorf("The GetDownwardsTime() is %d but %d is expected", file.GetDownwardsTime(), 20000000000)
@@ -569,7 +570,7 @@ func TestTrackSpeedWithGaps(t *testing.T) {
 }
 
 func TestTrackTimeWithStillPoints(t *testing.T) {
-	file := getTrackFileWithStandStillPoints()
+	file := getTrackFileWithStandStillPoints("none", 0.3, 10.0)
 
 	if file.Tracks[0].GetAvarageSpeed() != 0.5971287109367064 {
 		t.Errorf("The AvarageSpeed is %f, but expect 0.5971287109367064", file.Tracks[0].GetAvarageSpeed())
@@ -589,7 +590,65 @@ func TestTrackTimeWithStillPoints(t *testing.T) {
 	}
 }
 
-func getTrackFileWithStandStillPoints() TrackFile {
+func TestMinimalMovingSpeedValues(t *testing.T) {
+	file1 := getTrackFileWithStandStillPoints("steps", 0.3, 10.0)
+	file2 := getTrackFileWithStandStillPoints("steps", 0.0, 10.0)
+
+	if file1.GetMovingTime() == file2.GetMovingTime() {
+		t.Errorf("The MovingTime is the same, no matter whats the MinimalMovingSpeed")
+	}
+
+	if file2.GetMovingTime() != file2.GetEndTime().Sub(file2.GetStartTime()) {
+		t.Errorf("The moving time is not the same as EndTime - StartTime when called with zero MinimalMovingSpeed")
+	}
+}
+
+func TestMinimalMovingStepHight(t *testing.T) {
+	file1 := getTrackFileWithStandStillPoints("none", 0.3, 10.0)
+	file2 := getTrackFileWithStandStillPoints("steps", 0.3, 0.0)
+	file3 := getTrackFileWithStandStillPoints("steps", 0.3, 2.0)
+
+	if file1.GetElevationLose() != file2.GetElevationLose() {
+		t.Errorf("The GetElevationLose() \"%f\" is not the same, when when steps with 0.0 hight are used as with none", file2.GetElevationLose())
+	}
+
+	if file3.GetElevationLose() == file2.GetElevationLose() {
+		t.Errorf("The file2.GetElevationLose() \"%f\" is the same as file3.GetElevationLose() \"%f\", file1.GetElevationLose() \"%f\"", file2.GetElevationLose(), file3.GetElevationLose(), file1.GetElevationLose())
+	}
+}
+
+func TestParametersLessThenZeroErrors(t *testing.T) {
+	pnts := getSimpleTrackPointArrayWithTime()
+	err := FillValuesTrackPointArray(pnts, "steps", -1.0, 0.0)
+
+	if err != nil {
+		switch err.(type) {
+		case *MinimalMovingSpeedLessThenZero:
+			fmt.Println("OK")
+		default:
+			t.Errorf("Expected a MinimalMovingSpeedLessThenZero, got a %s", reflect.TypeOf(err))
+		}
+
+	} else {
+		t.Errorf("Got no error when a MinimalMovingSpeedLessThenZero error is expected")
+	}
+
+	err = FillValuesTrackPointArray(pnts, "steps", 0.0, -1.0)
+
+	if err != nil {
+		switch err.(type) {
+		case *MinimalStepHightLessThenZero:
+			fmt.Println("OK")
+		default:
+			t.Errorf("Expected a MinimalStepHightLessThenZero, got a %s", reflect.TypeOf(err))
+		}
+
+	} else {
+		t.Errorf("Got no error when a MinimalStepHightLessThenZero error is expected")
+	}
+}
+
+func getTrackFileWithStandStillPoints(correction string, minimalMovingSpeed float64, minimalStepHight float64) TrackFile {
 	var file TrackFile
 
 	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
@@ -606,7 +665,7 @@ func getTrackFileWithStandStillPoints() TrackFile {
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], points[3])
 	FillDistancesTrackPoint(&points[3], points[2], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, correction, minimalMovingSpeed, minimalStepHight)
 	laterTrack := Track{}
 	seg := TrackSegment{}
 	seg.TrackPoints = points
@@ -637,7 +696,7 @@ func getTrackFileWithTimeGaps() TrackFile {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
 	laterTrack := Track{}
 	seg := TrackSegment{}
 	seg.TrackPoints = points
@@ -722,7 +781,7 @@ func gerSimpleTrackPointArray() []TrackPoint {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
 
 	return points
 }
@@ -739,7 +798,7 @@ func getSimpleTrackPointArrayWithTime() []TrackPoint {
 	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillValuesTrackPointArray(points, "none")
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
 
 	return points
 }
