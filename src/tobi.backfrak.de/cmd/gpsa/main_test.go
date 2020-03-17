@@ -297,7 +297,7 @@ func TestProcessFilesDifferentCorrection(t *testing.T) {
 	}
 
 	if len(formater2.GetLines()) != len(formater1.GetLines()) {
-		t.Errorf("The formater have a different amout of lines")
+		t.Errorf("The formater have a different amount of lines")
 	}
 
 	if formater2.GetLines()[1] == formater1.GetLines()[1] {
@@ -305,12 +305,159 @@ func TestProcessFilesDifferentCorrection(t *testing.T) {
 	}
 
 	if ErrorsHandled == true {
-		t.Errorf("Errors occured that were not expected")
+		t.Errorf("Errors occurred that were not expected")
 	}
 	ErrorsHandled = false
 	SkipErrorExitFlag = oldFlagValue
 	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
+}
+
+func TestProcessFilesDifferentMovingSpeed(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
+	oldCorrectionPAr := CorrectionParameter
+	CorrectionParameter = "none"
+	oldMinMovingSpeed := MinimalMovingSpeedParameter
+	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
+
+	MinimalMovingSpeedParameter = 0.1
+	formater1 := gpsabl.NewCsvOutputFormater(";")
+	iFormater1 := gpsabl.OutputFormater(formater1)
+	successCount1 := processFiles(files, iFormater1)
+	if successCount1 != 2 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	MinimalMovingSpeedParameter = 0.9
+	formater2 := gpsabl.NewCsvOutputFormater(";")
+	iFormater2 := gpsabl.OutputFormater(formater2)
+	successCount2 := processFiles(files, iFormater2)
+	if successCount2 != 2 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	if len(formater2.GetLines()) != len(formater1.GetLines()) {
+		t.Errorf("The formater have a different amount of lines")
+	}
+
+	if formater2.GetLines()[0] == formater1.GetLines()[0] {
+		t.Errorf("Both formaters return the same values for %s", formater1.GetLines()[0])
+	}
+
+	if formater2.GetLines()[1] == formater1.GetLines()[1] {
+		t.Errorf("Both formaters return the same values for %s", formater1.GetLines()[1])
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Errors occurred that were not expected")
+	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParameter = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
+	MinimalMovingSpeedParameter = oldMinMovingSpeed
+}
+
+func TestProcessFilesDifferentStepHight(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
+	oldCorrectionPAr := CorrectionParameter
+	CorrectionParameter = "steps"
+	oldStepHight := MinimalStepHightParameter
+	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
+
+	MinimalStepHightParameter = 20.0
+	formater1 := gpsabl.NewCsvOutputFormater(";")
+	iFormater1 := gpsabl.OutputFormater(formater1)
+	successCount1 := processFiles(files, iFormater1)
+	if successCount1 != 2 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	MinimalStepHightParameter = 0.5
+	formater2 := gpsabl.NewCsvOutputFormater(";")
+	iFormater2 := gpsabl.OutputFormater(formater2)
+	successCount2 := processFiles(files, iFormater2)
+	if successCount2 != 2 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	if len(formater2.GetLines()) != len(formater1.GetLines()) {
+		t.Errorf("The formater have a different amount of lines")
+	}
+
+	if formater2.GetLines()[0] == formater1.GetLines()[0] {
+		t.Errorf("Both formaters return the same values for %s", formater1.GetLines()[0])
+	}
+
+	if formater2.GetLines()[1] == formater1.GetLines()[1] {
+		t.Errorf("Both formaters return the same values for %s", formater1.GetLines()[1])
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Errors occurred that were not expected")
+	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParameter = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
+	MinimalStepHightParameter = oldStepHight
+}
+
+func TestProcessFilesStepHightEffectsOther(t *testing.T) {
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
+	oldCorrectionPAr := CorrectionParameter
+	CorrectionParameter = "none"
+	oldStepHight := MinimalStepHightParameter
+	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
+
+	MinimalStepHightParameter = 20.0
+	formater1 := gpsabl.NewCsvOutputFormater(";")
+	iFormater1 := gpsabl.OutputFormater(formater1)
+	successCount1 := processFiles(files, iFormater1)
+	if successCount1 != 2 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	MinimalStepHightParameter = 0.5
+	formater2 := gpsabl.NewCsvOutputFormater(";")
+	iFormater2 := gpsabl.OutputFormater(formater2)
+	successCount2 := processFiles(files, iFormater2)
+	if successCount2 != 2 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	if len(formater2.GetLines()) != len(formater1.GetLines()) {
+		t.Errorf("The formater have a different amount of lines")
+	}
+
+	if formater2.GetLines()[0] != formater1.GetLines()[0] {
+		t.Errorf("Both formaters return not the same values: %s", formater1.GetLines()[0])
+	}
+
+	if formater2.GetLines()[1] != formater1.GetLines()[1] {
+		t.Errorf("Both formaters return the not same values: %s", formater1.GetLines()[1])
+	}
+
+	if ErrorsHandled == true {
+		t.Errorf("Errors occurred that were not expected")
+	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParameter = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
+	MinimalStepHightParameter = oldStepHight
 }
 
 func TestProcessMixedFiles(t *testing.T) {
