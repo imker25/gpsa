@@ -278,6 +278,8 @@ func TestProcessFilesDifferentCorrection(t *testing.T) {
 	oldDepthValue := DepthParameter
 	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
+	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
+	PrintCsvHeaderFlag = false
 	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("12.gpx")}
 
 	CorrectionParameter = "none"
@@ -311,6 +313,7 @@ func TestProcessFilesDifferentCorrection(t *testing.T) {
 	SkipErrorExitFlag = oldFlagValue
 	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
+	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
 }
 
 func TestProcessFilesDifferentMovingSpeed(t *testing.T) {
@@ -321,6 +324,8 @@ func TestProcessFilesDifferentMovingSpeed(t *testing.T) {
 	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "none"
+	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
+	PrintCsvHeaderFlag = false
 	oldMinMovingSpeed := MinimalMovingSpeedParameter
 	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
 
@@ -360,6 +365,7 @@ func TestProcessFilesDifferentMovingSpeed(t *testing.T) {
 	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
 	MinimalMovingSpeedParameter = oldMinMovingSpeed
+	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
 }
 
 func TestProcessFilesDifferentStepHight(t *testing.T) {
@@ -370,6 +376,8 @@ func TestProcessFilesDifferentStepHight(t *testing.T) {
 	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "steps"
+	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
+	PrintCsvHeaderFlag = false
 	oldStepHight := MinimalStepHightParameter
 	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
 
@@ -409,6 +417,7 @@ func TestProcessFilesDifferentStepHight(t *testing.T) {
 	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
 	MinimalStepHightParameter = oldStepHight
+	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
 }
 
 func TestProcessFilesStepHightEffectsOther(t *testing.T) {
@@ -419,6 +428,8 @@ func TestProcessFilesStepHightEffectsOther(t *testing.T) {
 	DepthParameter = "file"
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "none"
+	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
+	PrintCsvHeaderFlag = false
 	oldStepHight := MinimalStepHightParameter
 	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
 
@@ -458,6 +469,7 @@ func TestProcessFilesStepHightEffectsOther(t *testing.T) {
 	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
 	MinimalStepHightParameter = oldStepHight
+	PrintCsvHeaderFlag = oldPrintCsvHeaderFlag
 }
 
 func TestProcessMixedFiles(t *testing.T) {
