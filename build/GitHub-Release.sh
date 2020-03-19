@@ -93,7 +93,7 @@ echo "  \"tag_name\":\"$releaseName\"," >> $requestTmpJSON
 echo "  \"target_commitish\":\"$commitId\"," >> $requestTmpJSON
 echo "  \"name\":\"$releaseName\"," >> $requestTmpJSON
 echo "  \"body\":\"$releaseDescribtion\"," >> $requestTmpJSON
-echo "  \"draft\":true," >> $requestTmpJSON
+echo "  \"draft\":false," >> $requestTmpJSON
 echo "  \"prerelease\":$preTag" >> $requestTmpJSON
 echo "}" >> $requestTmpJSON
 
@@ -120,9 +120,10 @@ if [ "$uploadURL" == "" ]; then
 	echo "No upload_url found in the response $responseTmpJSON"
 	exit 1
 fi
+realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
-echo "Upload $fileToUpload to $uploadURL"
-curl --data $fileToUpload -H "Content-Type: application/zip" -X POST "${uploadURL::-13}?access_token=$apiToken,name=Linux_bin.zip"
+echo "Upload $fileToUpload to $realUploadUrl"
+curl --verbose --data $fileToUpload -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken,name=Linux_bin.zip"
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
