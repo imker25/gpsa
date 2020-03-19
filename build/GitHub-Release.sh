@@ -122,7 +122,13 @@ if [ "$uploadURL" == "" ]; then
 fi
 echo "Release with ID $releaseID was created"
 echo "Upload $fileToUpload to $uploadURL"
-curl --data $fileToUpload -H "Content-Type: application/zip" -X POST "https://uploads.github.com/repos/imker25/gpsa/releases/$releaseID/assets?name=Linux_bin.zip,label=linux_executable,access_token=$apiToken"
+curl --data $fileToUpload -H "Content-Type: application/zip" -X POST "${uploadURL::-13}?access_token=$apiToken,name=Linux_bin.zip"
+if [ $? -eq 0 ]; then
+	echo "No error in curl"
+else
+	echo "curl reported a error code"
+	exit 1
+fi
 
 popd
 
