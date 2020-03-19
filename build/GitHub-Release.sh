@@ -61,7 +61,7 @@ BRANCH_ROOT="$SCRIPT_DIR/.."
 commitId=$(git rev-parse --verify HEAD)
 requestTmpJSON="/dev/shm/GitHub-Release-Request.json"
 responseTmpJSON="/dev/shm/GitHub-Release-Response.json"
-fileToUpload="$BRANCH_ROOT/bin/gpsa"
+fileToUpload="$BRANCH_ROOT/Linux_bin.zip"
 
 
 # ################################################################################################################
@@ -122,6 +122,7 @@ if [ "$uploadURL" == "" ]; then
 fi
 echo "Release with ID $releaseID was created"
 echo "Upload $fileToUpload to $uploadURL"
+curl --data $fileToUpload -H "Content-Type: application/zip" -X POST "https://uploads.github.com/repos/imker25/gpsa/releases/$releaseID/assets?name=Linux_bin.zip,label=linux_executable,access_token=$apiToken"
 
 popd
 
