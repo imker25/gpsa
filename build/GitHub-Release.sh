@@ -130,7 +130,7 @@ fi
 realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
 echo "Upload $fileToUpload to $realUploadUrl"
-curl --data @$fileToUpload -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken&name=Linux_bin.zip&label=linux-executabel" > $uploadTmpJSON
+curl --data @$fileToUpload -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken&name=gpsa&label=linux-executabel" > $uploadTmpJSON
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
