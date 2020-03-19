@@ -111,13 +111,13 @@ else
 	exit 1
 fi
 releaseID=$(cat $responseTmpJSON | jq -r ".id")
-if [ "$releaseID" == "" ] ||  "$releaseID" == "null" ]; then 
+if [[ "$releaseID" == "" || "$releaseID" == "null" ]]; then 
 	echo "No release ID found in the response $responseTmpJSON"
 	exit 1
 fi
 
 uploadURL=$(cat $responseTmpJSON | jq -r ".upload_url")
-if [ "$uploadURL" == "" ] ||  "$uploadURL" == "null" ]; then 
+if [[ "$uploadURL" == ""  ||  "$uploadURL" == "null" ]]; then 
 	echo "No upload_url found in the response $responseTmpJSON"
 	exit 1
 fi
@@ -140,11 +140,11 @@ fi
 
 assetID=$(cat $uploadTmpJSON | jq -r ".id")
 downloadURL=$(cat $uploadTmpJSON | jq -r ".browser_download_url")
-if [ "$assetID" == "" ] ||  "$releaseID" == "null" ]; then 
+if [[ "$assetID" == ""  ||  "$releaseID" == "null" ]]; then 
 	echo "No asset ID found in the response $uploadTmpJSON"
 	exit 1
 fi
-if [ "$downloadURL" == "" ] ||  "$releaseID" == "null" ]; then 
+if [[ "$downloadURL" == "" ||  "$releaseID" == "null" ]]; then 
 	echo "No download URL found in the response $uploadTmpJSON"
 	exit 1
 fi
