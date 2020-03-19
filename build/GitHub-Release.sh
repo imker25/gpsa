@@ -36,7 +36,7 @@ if [ "$3" = "" ]; then
 	print_usage
 	exit 1
 else 
-    if [ "$3" = "true" || "$3" = "false"  ]; then
+    if [ "$3" = "true" ] || [  "$3" = "false"  ]; then
 	    preTag=$3
     else
         echo " Error: prerelease can only be true or false"
@@ -59,7 +59,9 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 BRANCH_ROOT="$SCRIPT_DIR/.."
 commitId=$(git rev-parse --verify HEAD)
-tmpJSON="/dev/shm/GitHub-Release.json"
+requestTmpJSON="/dev/shm/GitHub-Release-Request.json"
+responseTmpJSON="/dev/shm/GitHub-Release-Response.json"
+fileToUpload="$BRANCH_ROOT/bin/gpsa"
 
 
 # ################################################################################################################
@@ -72,23 +74,55 @@ echo "name: \"$releaseName\"; describtion: \"$releaseDescribtion\"; prerelease \
 echo ""
 echo "Commit \"$commitId\" will be released"
 
-if [ -f $tmpJSON ]; then
-    echo "Delete old tmp file $tmpJSON"
-    rm $tmpJSON
+if [ -f $fileToUpload ]; then
+	echo "$fileToUpload will be uploaded"
+else 
+	echo "The file to upload: fileToUpload can not be found"
+	exit 1
 fi
 
-echo "Create new tmp file $tmpJSON"
-# contend for $tmpJSON acording to https://developer.github.com/v3/repos/releases/#create-a-release 
-echo "{" >> $tmpJSON
-echo "  \"tag_name\":\"$releaseName\"," >> $tmpJSON
-echo "  \"target_commitish\":\"$commitId\"," >> $tmpJSON
-echo "  \"name\":\"$releaseName\"," >> $tmpJSON
-echo "  \"body\":\"$releaseDescribtion\"," >> $tmpJSON
-echo "  \"draft\":true," >> $tmpJSON
-echo "  \"prerelease\":$preTag" >> $tmpJSON
-echo "}" >> $tmpJSON
+if [ -f $requestTmpJSON ]; then
+    echo "Delete old tmp file $requestTmpJSON"
+    rm $requestTmpJSON
+fi
 
-curl -X POST --data @/dev/shm/GitHub-Release.json "https://api.github.com/repos/imker25/gpsa/releases?access_token=$apiToken"
+echo "Create new tmp file $requestTmpJSON"
+# contend for $requestTmpJSON acording to https://developer.github.com/v3/repos/releases/#create-a-release 
+echo "{" >> $requestTmpJSON
+echo "  \"tag_name\":\"$releaseName\"," >> $requestTmpJSON
+echo "  \"target_commitish\":\"$commitId\"," >> $requestTmpJSON
+echo "  \"name\":\"$releaseName\"," >> $requestTmpJSON
+echo "  \"body\":\"$releaseDescribtion\"," >> $requestTmpJSON
+echo "  \"draft\":true," >> $requestTmpJSON
+echo "  \"prerelease\":$preTag" >> $requestTmpJSON
+echo "}" >> $requestTmpJSON
+
+if [ -f $responseTmpJSON ]; then
+    echo "Delete old tmp file $responseTmpJSON"
+    rm $responseTmpJSON
+fi
+
+curl -X POST --data @$requestTmpJSON "https://api.github.com/repos/imker25/gpsa/releases?access_token=$apiToken" > $responseTmpJSON
+if [ $? -eq 0 ]; then
+	echo "No error in curl"
+else
+	echo "curl reported a error code"
+	exit 1
+fi
+releaseID=$(cat $responseTmpJSON | jq -r ".id")
+if [ "$releaseID" == "" ]; then 
+	echo "No release ID found in the response $responseTmpJSON"
+	exit 1
+fi
+
+uploadURL=$(cat $responseTmpJSON | jq -r ".upload_url")
+if [ "$uploadURL" == "" ]; then 
+	echo "No upload_url found in the response $responseTmpJSON"
+	exit 1
+fi
+echo "Release with ID $releaseID was created"
+echo "Upload $fileToUpload to $uploadURL"
 
 popd
 
+exit 0
