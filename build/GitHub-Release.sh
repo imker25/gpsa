@@ -61,7 +61,8 @@ BRANCH_ROOT="$SCRIPT_DIR/.."
 commitId=$(git rev-parse --verify HEAD)
 requestTmpJSON="/dev/shm/GitHub-Release-Request.json"
 responseTmpJSON="/dev/shm/GitHub-Release-Response.json"
-fileToUpload="$BRANCH_ROOT/Linux_bin.zip"
+uploadTmpJSON="/dev/shm/GitHub-Upload-Asset-Response.json"
+fileToUpload="$BRANCH_ROOT/bin/gpsa"
 
 
 # ################################################################################################################
@@ -110,26 +111,45 @@ else
 	exit 1
 fi
 releaseID=$(cat $responseTmpJSON | jq -r ".id")
-if [ "$releaseID" == "" ]; then 
+if [ "$releaseID" == "" ] ||  "$releaseID" == "null" ]; then 
 	echo "No release ID found in the response $responseTmpJSON"
 	exit 1
 fi
 
 uploadURL=$(cat $responseTmpJSON | jq -r ".upload_url")
-if [ "$uploadURL" == "" ]; then 
+if [ "$uploadURL" == "" ] ||  "$uploadURL" == "null" ]; then 
 	echo "No upload_url found in the response $responseTmpJSON"
 	exit 1
 fi
+
+if [ -f $uploadTmpJSON ]; then
+    echo "Delete old tmp file $uploadTmpJSON"
+    rm $uploadTmpJSON
+fi
+
 realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
 echo "Upload $fileToUpload to $realUploadUrl"
-curl --verbose --data $fileToUpload -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken,name=Linux_bin.zip"
+curl --data @$fileToUpload -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken&name=Linux_bin.zip&label=linux-executabel" > $uploadTmpJSON
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
 	echo "curl reported a error code"
 	exit 1
 fi
+
+assetID=$(cat $uploadTmpJSON | jq -r ".id")
+downloadURL=$(cat $uploadTmpJSON | jq -r ".browser_download_url")
+if [ "$assetID" == "" ] ||  "$releaseID" == "null" ]; then 
+	echo "No asset ID found in the response $uploadTmpJSON"
+	exit 1
+fi
+if [ "$downloadURL" == "" ] ||  "$releaseID" == "null" ]; then 
+	echo "No download URL found in the response $uploadTmpJSON"
+	exit 1
+fi
+
+echo "The asset with ID $assetID can be downloaded from $downloadURL"
 
 popd
 
