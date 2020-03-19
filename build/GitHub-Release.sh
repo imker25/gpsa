@@ -84,10 +84,11 @@ echo "  \"tag_name\":\"$releaseName\"," >> $tmpJSON
 echo "  \"target_commitish\":\"$commitId\"," >> $tmpJSON
 echo "  \"name\":\"$releaseName\"," >> $tmpJSON
 echo "  \"body\":\"$releaseDescribtion\"," >> $tmpJSON
-echo "  \"draft\":false," >> $tmpJSON
+echo "  \"draft\":true," >> $tmpJSON
 echo "  \"prerelease\":$preTag" >> $tmpJSON
 echo "}" >> $tmpJSON
 
+curl -X POST --data @/dev/shm/GitHub-Release.json "https://api.github.com/repos/imker25/gpsa/releases?access_token=$apiToken"
 
 popd
 
