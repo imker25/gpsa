@@ -101,6 +101,10 @@ task getEnvironment {
         println "Go Packages to test: $packagesToTest"
 
     }
+
+    // ToDo:
+    // Print out ${programVersion}+${getGitHash()}-BuildCounter as build number, so jenkins will use it
+    // Research needed
 }
 
 task installTestConvert(dependsOn: 'getEnvironment') {
