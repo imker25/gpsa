@@ -25,7 +25,7 @@ pipeline {
 				checkout scm
 				sh 'gradle getBuildName'
 				script {
-					build.displayName = readFile "logs/BuildName.txt"
+					currentBuild.displayName = readFile "logs/BuildName.txt"
 				}
 			}
 		}
