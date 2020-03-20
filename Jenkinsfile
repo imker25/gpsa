@@ -18,6 +18,10 @@ pipeline {
 		label "awaiter"
 	}
 	options { skipDefaultCheckout() }
+	environment {
+        GITHUB_API_KEY = credentials('imker25')
+        
+    }
 	
     stages {
 		stage('Get Build Name') {
@@ -143,9 +147,9 @@ pipeline {
 				script {
 					programmVersion = readFile "logs/Version.txt"
 				}
-				echo "ProgrammVersion: ${programmVersion}"
-		
-				echo 'ToDo: Next steps...'
+				
+				sh "./build/GitHub-Release.sh ${programmVersion}-pre \"Pre release of ${programmVersion}\" true ${GITHUB_API_KEY}"
+				
 			}
 		}
     }
