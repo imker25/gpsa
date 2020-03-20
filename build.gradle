@@ -107,6 +107,18 @@ task getEnvironment {
     // Research needed
 }
 
+task getBuildNumber {
+    description 'Just print out the version and number of the build'
+    doLast {
+        if ("${System.env.BUILD_NUMBER}" != "null" )
+        {
+            println "${programVersion}+${getGitHash()}-${System.env.BUILD_NUMBER}"
+        } else  {
+            println "${programVersion}+${getGitHash()}"
+        }
+    }
+}
+
 task installTestConvert(dependsOn: 'getEnvironment') {
     description 'Install all dependecies needed for test result conversion'
     doFirst {
