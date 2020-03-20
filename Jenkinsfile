@@ -143,7 +143,7 @@ pipeline {
 				script {
 					programmVersion = readFile "logs/Version.txt"
 				}
-				echo 'ProgrammVersion: ' + ${programmVersion}
+				echo "ProgrammVersion: ${programmVersion}"
 		
 				echo 'ToDo: Next steps...'
 			}
