@@ -103,7 +103,7 @@ if [ -f $responseTmpJSON ]; then
     rm $responseTmpJSON
 fi
 
-curl -X POST --data @$requestTmpJSON "https://api.github.com/repos/imker25/gpsa/releases?access_token=$apiToken" > $responseTmpJSON
+curl --data @"$requestTmpJSON" -H "Authorization: $apiToken" -X POST "https://api.github.com/repos/imker25/gpsa/releases?" > $responseTmpJSON
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
@@ -130,7 +130,7 @@ fi
 realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
 echo "Upload \"$fileToUpload\" to $realUploadUrl"
-curl --data @"$fileToUpload" -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken&name=gpsa&label=linux-executabel" > $uploadTmpJSON
+curl --data @"$fileToUpload" -H "Content-Type: application/zip" -H "Authorization: $apiToken" -X POST "$realUploadUrl?name=gpsa&label=linux-executabel" > $uploadTmpJSON
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
