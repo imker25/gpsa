@@ -75,10 +75,10 @@ echo "name: \"$releaseName\"; describtion: \"$releaseDescribtion\"; prerelease \
 echo ""
 echo "Commit \"$commitId\" will be released"
 
-if [ -f $fileToUpload ]; then
-	echo "$fileToUpload will be uploaded"
+if [ -f "$fileToUpload" ]; then
+	echo "\"$fileToUpload\" will be uploaded"
 else 
-	echo "The file to upload: fileToUpload can not be found"
+	echo "The file to upload \"$fileToUpload\" can not be found"
 	exit 1
 fi
 
@@ -129,8 +129,8 @@ fi
 
 realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
-echo "Upload $fileToUpload to $realUploadUrl"
-curl --data @$fileToUpload -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken&name=gpsa&label=linux-executabel" > $uploadTmpJSON
+echo "Upload \"$fileToUpload\" to $realUploadUrl"
+curl --data @"$fileToUpload" -H "Content-Type: application/zip" -X POST "$realUploadUrl?access_token=$apiToken&name=gpsa&label=linux-executabel" > $uploadTmpJSON
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
