@@ -104,7 +104,7 @@ task getEnvironment {
     }
 }
 
-task getBuildName(dependsOn: 'getEnvironment') {
+task getBuildName(dependsOn: 'clean') {
     description 'Just print out the version and number of the build'
     doFirst {
         buildName = ""
@@ -119,6 +119,7 @@ task getBuildName(dependsOn: 'getEnvironment') {
         }
         println "Build Name: ${buildName}"
         file("${logDir}${File.separator}BuildName.txt").text = "${buildName}"
+        file("${logDir}${File.separator}Version.txt").text = "${programVersion}"
 
     }
 }

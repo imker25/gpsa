@@ -2,7 +2,7 @@
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
-
+def programmVersion
 void setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
@@ -140,7 +140,10 @@ pipeline {
             }
 			steps ('Do a pre release') { 
 				unarchive mapping: ['bin/' : '.']
-				
+				script {
+					programmVersion = readFile "logs/Version.txt"
+				}
+				echo 'ProgrammVersion: ' + $programmVersion
 				echo 'ToDo: Next steps...'
 			}
 		}
