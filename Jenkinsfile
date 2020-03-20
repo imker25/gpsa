@@ -139,7 +139,7 @@ pipeline {
                 branch 'feature/ReleaseProcess'
             }
 			steps ('Do a pre release') { 
-				unarchive mapping: ['bin/' : 'bin/']
+				unarchive mapping: ['bin/' : '.']
 				
 				echo 'ToDo: Next steps...'
 			}
