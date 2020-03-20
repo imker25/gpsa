@@ -6,6 +6,7 @@ def scriptDirectory
 def scriptFile
 def osName
 def osVersion
+def buildName
 String srcDir
 String binDir
 String pkgDir
@@ -107,15 +108,22 @@ task getEnvironment {
     // Research needed
 }
 
-task getBuildNumber {
+task getBuildName(dependsOn: 'getEnvironment') {
     description 'Just print out the version and number of the build'
+    doFirst {
+        buildName = ""
+    }
     doLast {
+        
         if ("${System.env.BUILD_NUMBER}" != "null" )
         {
-            println "${programVersion}+${getGitHash()}-${System.env.BUILD_NUMBER}"
+            buildName =  "${programVersion}+${getGitHash()}-${System.env.BUILD_NUMBER}"
         } else  {
-            println "${programVersion}+${getGitHash()}"
+            buildName = "${programVersion}+${getGitHash()}"
         }
+        println "Build Name: ${buildName}"
+        file("${logDir}${File.separator}BuildName.txt").text = "${buildName}"
+
     }
 }
 

@@ -20,8 +20,18 @@ pipeline {
 	options { skipDefaultCheckout() }
 	
     stages {
+		stage('Get Build Name') {
+			steps ('Calculate the name') {
+				checkout scm
+				sh 'gradle getBuildName'
+				script {
+					build.displayName = readFile "logs/BuildName.txt"
+				}
+			}
+		}
+		
 
-        stage('Build, test and deploy the gpsa project') {
+        stage('Build and test the gpsa project') {
             parallel {
                 stage('Run on Windows') {
                     agent {
