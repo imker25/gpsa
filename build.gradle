@@ -1,6 +1,6 @@
 // Build script for this project. May used in IDE or CI environment
 defaultTasks 'build'
-def programVersion='0.7.0'
+def programVersion='0.7.5'
 def goPath
 def scriptDirectory
 def scriptFile
@@ -102,10 +102,6 @@ task getEnvironment {
         println "Go Packages to test: $packagesToTest"
 
     }
-
-    // ToDo:
-    // Print out ${programVersion}+${getGitHash()}-BuildCounter as build number, so jenkins will use it
-    // Research needed
 }
 
 task getBuildName(dependsOn: 'getEnvironment') {
