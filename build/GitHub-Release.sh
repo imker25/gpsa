@@ -15,7 +15,7 @@ function print_usage()  {
 function upload_asset()  { 
 	fileToUpload="$1"
 	label="$2"
-	fileName=$(basename $fileToUpload)
+	fileName=$(basename "$fileToUpload")
 	upoadResponseJSON="$LOG_DIR/GitHub-Upload-Asset-Response.$fileName.json"
 
 	if [ -f "$fileToUpload" ]; then
@@ -98,8 +98,6 @@ LOG_DIR="$BRANCH_ROOT/logs"
 commitId=$(git rev-parse --verify HEAD)
 releaseRequestJSON="$LOG_DIR/GitHub-Release-Request.json"
 releaseResponseJSON="$LOG_DIR/GitHub-Release-Response.json"
-
-# fileToUpload="$BRANCH_ROOT/bin/gpsa"
 
 
 # ################################################################################################################
