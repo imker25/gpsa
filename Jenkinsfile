@@ -149,21 +149,6 @@ pipeline {
 				
 			}
 		}
-
-		stage('Publish ReleaseProcess branch') {
-			when {
-                branch 'feature/ReleaseProcess'
-            }
-			steps ('Do a pre release') { 
-				unarchive mapping: ['bin/' : '.']
-				script {
-					programmVersion = readFile "logs/Version.txt"
-				}
-				
-				sh "./build/GitHub-Release.sh ${programmVersion}-pre \"Pre release of ${programmVersion}\" true ${GITHUB_API_KEY}"
-				
-			}
-		}
     }
 	post ('Publish build result on GitHub') {
 
