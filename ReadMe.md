@@ -19,14 +19,22 @@ Some documentation and examples about gpsa usage.
 
 ### Installation
 
-On Linux do the following in a empty folder:
+Download the latest release executable from GitHub: <https://github.com/imker25/gpsa/releases/latest> according to your operation system and copy the file to a empty folder.
+
+**On Linux**, open a command line and set the file executable:
 
 ```sh
-wget https://homer.tobi.backfrak.de/jenkins/job/GPSA/job/master/lastSuccessfulBuild/artifact/bin/gpsa && chmod 770 ./gpsa
+chmod 770 ./gpsa
 
+# You may want to get the programs help
+./gpsa -help
 ```
 
-On Windows download [gpsa.exe](https://homer.tobi.backfrak.de/jenkins/job/GPSA/job/master/lastSuccessfulBuild/artifact/bin/gpsa.exe) and execute it on comandline.
+**On Windows**, open the command window in this folder and execute the program (may with the -help flag):
+
+```batch
+.\gpsa.exe -help
+```
 
 ### Usage
 
