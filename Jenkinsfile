@@ -155,6 +155,10 @@ pipeline {
     }
 	post ('Publish build result on GitHub') {
 
+		always {
+			archiveArtifacts "logs/*.json"
+		}
+		
 		success {
 			setBuildStatus("Build complete", "SUCCESS");
 		}

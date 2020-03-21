@@ -58,10 +58,11 @@ fi
 # ################################################################################################################
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 BRANCH_ROOT="$SCRIPT_DIR/.."
+LOG_DIR="$BRANCH_ROOT/logs"
 commitId=$(git rev-parse --verify HEAD)
-requestTmpJSON="/dev/shm/GitHub-Release-Request.json"
-responseTmpJSON="/dev/shm/GitHub-Release-Response.json"
-uploadTmpJSON="/dev/shm/GitHub-Upload-Asset-Response.json"
+releaseRequestJSON="$LOG_DIR/GitHub-Release-Request.json"
+releaseResponseJSON="$LOG_DIR/GitHub-Release-Response.json"
+upoadResponseJSON="$LOG_DIR/GitHub-Upload-Asset-Response.json"
 fileToUpload="$BRANCH_ROOT/bin/gpsa"
 
 
@@ -82,55 +83,55 @@ else
 	exit 1
 fi
 
-if [ -f $requestTmpJSON ]; then
-    echo "Delete old tmp file $requestTmpJSON"
-    rm $requestTmpJSON
+if [ -f "$releaseRequestJSON" ]; then
+    echo "Delete old request file \"$releaseRequestJSON\""
+    rm "$releaseRequestJSON"
 fi
 
-echo "Create new tmp file $requestTmpJSON"
-# contend for $requestTmpJSON acording to https://developer.github.com/v3/repos/releases/#create-a-release 
-echo "{" >> $requestTmpJSON
-echo "  \"tag_name\":\"$releaseName\"," >> $requestTmpJSON
-echo "  \"target_commitish\":\"$commitId\"," >> $requestTmpJSON
-echo "  \"name\":\"$releaseName\"," >> $requestTmpJSON
-echo "  \"body\":\"$releaseDescribtion\"," >> $requestTmpJSON
-echo "  \"draft\":false," >> $requestTmpJSON
-echo "  \"prerelease\":$preTag" >> $requestTmpJSON
-echo "}" >> $requestTmpJSON
+echo "Create new request file \"$releaseRequestJSON\""
+# contend for $releaseRequestJSON acording to https://developer.github.com/v3/repos/releases/#create-a-release 
+echo "{" >> "$releaseRequestJSON"
+echo "  \"tag_name\":\"$releaseName\"," >> "$releaseRequestJSON"
+echo "  \"target_commitish\":\"$commitId\"," >> "$releaseRequestJSON"
+echo "  \"name\":\"$releaseName\"," >> "$releaseRequestJSON"
+echo "  \"body\":\"$releaseDescribtion\"," >> "$releaseRequestJSON"
+echo "  \"draft\":false," >> "$releaseRequestJSON"
+echo "  \"prerelease\":$preTag" >> "$releaseRequestJSON"
+echo "}" >>"$releaseRequestJSON"
 
-if [ -f $responseTmpJSON ]; then
-    echo "Delete old tmp file $responseTmpJSON"
-    rm $responseTmpJSON
+if [ -f "$releaseResponseJSON" ]; then
+    echo "Delete old tmp file \"$releaseResponseJSON\""
+    rm "$releaseResponseJSON"
 fi
 
-curl --data @"$requestTmpJSON" -H "Authorization: token $apiToken" -X POST "https://api.github.com/repos/imker25/gpsa/releases?" > $responseTmpJSON
+curl --data @"$releaseRequestJSON" -H "Authorization: token $apiToken" -X POST "https://api.github.com/repos/imker25/gpsa/releases?" > "$releaseResponseJSON"
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
 	echo "curl reported a error code"
 	exit 1
 fi
-releaseID=$(cat $responseTmpJSON | jq -r ".id")
+releaseID=$(cat "$releaseResponseJSON" | jq -r ".id")
 if [[ "$releaseID" == "" || "$releaseID" == "null" ]]; then 
-	echo "No release ID found in the response $responseTmpJSON"
+	echo "No release ID found in the response \"$releaseResponseJSON\""
 	exit 1
 fi
 
-uploadURL=$(cat $responseTmpJSON | jq -r ".upload_url")
+uploadURL=$(cat "$releaseResponseJSON" | jq -r ".upload_url")
 if [[ "$uploadURL" == ""  ||  "$uploadURL" == "null" ]]; then 
-	echo "No upload_url found in the response $responseTmpJSON"
+	echo "No upload_url found in the response \"$releaseResponseJSON\""
 	exit 1
 fi
 
-if [ -f $uploadTmpJSON ]; then
-    echo "Delete old tmp file $uploadTmpJSON"
-    rm $uploadTmpJSON
+if [ -f "$upoadResponseJSON" ]; then
+    echo "Delete old tmp file \"$upoadResponseJSON\""
+    rm "$upoadResponseJSON"
 fi
 
 realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
 echo "Upload \"$fileToUpload\" to $realUploadUrl"
-curl --data @"$fileToUpload" -H "Content-Type: application/zip" -H "Authorization: token $apiToken" -X POST "$realUploadUrl?name=gpsa&label=linux-executabel" > $uploadTmpJSON
+curl --data @"$fileToUpload" -H "Content-Type: application/zip" -H "Authorization: token $apiToken" -X POST "$realUploadUrl?name=gpsa&label=linux-executabel" > "$upoadResponseJSON"
 if [ $? -eq 0 ]; then
 	echo "No error in curl"
 else
@@ -138,14 +139,14 @@ else
 	exit 1
 fi
 
-assetID=$(cat $uploadTmpJSON | jq -r ".id")
-downloadURL=$(cat $uploadTmpJSON | jq -r ".browser_download_url")
+assetID=$(cat "$upoadResponseJSON" | jq -r ".id")
+downloadURL=$(cat "$upoadResponseJSON" | jq -r ".browser_download_url")
 if [[ "$assetID" == ""  ||  "$releaseID" == "null" ]]; then 
-	echo "No asset ID found in the response $uploadTmpJSON"
+	echo "No asset ID found in the response \"$upoadResponseJSON\""
 	exit 1
 fi
 if [[ "$downloadURL" == "" ||  "$releaseID" == "null" ]]; then 
-	echo "No download URL found in the response $uploadTmpJSON"
+	echo "No download URL found in the response \"$upoadResponseJSON\""
 	exit 1
 fi
 
