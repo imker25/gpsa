@@ -2,7 +2,7 @@
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
-
+def programmVersion
 void setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
@@ -18,10 +18,24 @@ pipeline {
 		label "awaiter"
 	}
 	options { skipDefaultCheckout() }
+	environment {
+        GITHUB_API_KEY = credentials('imker25')
+        
+    }
 	
     stages {
+		stage('Get Build Name') {
+			steps ('Calculate the name') {
+				checkout scm
+				sh 'gradle getBuildName'
+				script {
+					currentBuild.displayName = readFile "logs/BuildName.txt"
+				}
+			}
+		}
+		
 
-        stage('Build, test and deploy the gpsa project') {
+        stage('Build and test the gpsa project') {
             parallel {
                 stage('Run on Windows') {
                     agent {
@@ -93,8 +107,54 @@ pipeline {
                 }
             }
         }
+
+			// ToDo:
+	// Write new stages that get the artifacts back
+	// https://jenkins.io/doc/pipeline/steps/workflow-basic-steps/#-unarchive-copy-archived-artifacts-into-the-workspace
+	// and uploads them
+	//
+	// use the when expression
+	// https://jenkins.io/doc/book/pipeline/syntax/#when
+	// to figure out what branch
+	// do a pre release on master
+	// do a release on feture braches
+
+
+		stage('Publish master') {
+			when {
+                branch 'master'
+            }
+			steps ('Do a pre release') { 
+				unarchive mapping: ['bin/' : '.']
+				script {
+					programmVersion = readFile "logs/Version.txt"
+				}
+				
+				sh "./build/GitHub-Release.sh ${programmVersion}-pre \"Pre release of ${programmVersion}\" true ${GITHUB_API_KEY}"
+				
+			}
+		}
+
+		stage('Publish release') {
+			when {
+                branch 'release/**'
+            }
+			steps ('Do a release') { 
+				unarchive mapping: ['bin/' : '.']
+				script {
+					programmVersion = readFile "logs/Version.txt"
+				}
+				
+				sh "./build/GitHub-Release.sh ${programmVersion} \"Release of ${programmVersion}\" false ${GITHUB_API_KEY}"
+				
+			}
+		}
     }
 	post ('Publish build result on GitHub') {
+
+		always {
+			archiveArtifacts "logs/*.json"
+		}
 
 		success {
 			setBuildStatus("Build complete", "SUCCESS");
@@ -108,4 +168,5 @@ pipeline {
 			setBuildStatus("Build complete", "UNSTABLE");
 		}
 	}
+	
 }
