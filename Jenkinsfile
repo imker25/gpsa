@@ -130,7 +130,7 @@ pipeline {
 					programmVersion = readFile "logs/Version.txt"
 				}
 				
-				sh "./build/GitHub-Release.sh ${programmVersion}-pre \"Pre release of ${programmVersion}\" true ${GITHUB_API_KEY}"
+				sh "./build/GitHub-Release.sh V${programmVersion}-pre \"Pre release of version ${programmVersion}\" true ${GITHUB_API_KEY}"
 				
 			}
 		}
@@ -145,7 +145,7 @@ pipeline {
 					programmVersion = readFile "logs/Version.txt"
 				}
 				
-				sh "./build/GitHub-Release.sh ${programmVersion} \"Release of ${programmVersion}\" false ${GITHUB_API_KEY}"
+				sh "./build/GitHub-Release.sh V${programmVersion} \"Release of version ${programmVersion}\" false ${GITHUB_API_KEY}"
 				
 			}
 		}
