@@ -125,7 +125,13 @@ pipeline {
                 branch 'master'
             }
 			steps ('Do a pre release') { 
-				echo '...'
+				unarchive mapping: ['bin/' : '.']
+				script {
+					programmVersion = readFile "logs/Version.txt"
+				}
+				
+				sh "./build/GitHub-Release.sh ${programmVersion}-pre \"Pre release of ${programmVersion}\" true ${GITHUB_API_KEY}"
+				
 			}
 		}
 
@@ -134,7 +140,13 @@ pipeline {
                 branch 'release/**'
             }
 			steps ('Do a release') { 
-				echo '...'
+				unarchive mapping: ['bin/' : '.']
+				script {
+					programmVersion = readFile "logs/Version.txt"
+				}
+				
+				sh "./build/GitHub-Release.sh ${programmVersion} \"Release of ${programmVersion}\" false ${GITHUB_API_KEY}"
+				
 			}
 		}
 
@@ -158,7 +170,7 @@ pipeline {
 		always {
 			archiveArtifacts "logs/*.json"
 		}
-		
+
 		success {
 			setBuildStatus("Build complete", "SUCCESS");
 		}

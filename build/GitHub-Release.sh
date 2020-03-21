@@ -159,7 +159,7 @@ realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
 
 upload_asset "$BRANCH_ROOT/bin/gpsa" "linux-executable"
-# upload_asset "$BRANCH_ROOT/bin/gpsa.exe" "windows-executable"
+upload_asset "$BRANCH_ROOT/bin/gpsa.exe" "windows-executable"
 
 
 
