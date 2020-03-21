@@ -98,7 +98,7 @@ LOG_DIR="$BRANCH_ROOT/logs"
 commitId=$(git rev-parse --verify HEAD)
 releaseRequestJSON="$LOG_DIR/GitHub-Release-Request.json"
 releaseResponseJSON="$LOG_DIR/GitHub-Release-Response.json"
-
+dummyJSON="$LOG_DIR/dummy.json"
 
 # ################################################################################################################
 # functional code
@@ -109,6 +109,10 @@ echo "Call arguments"
 echo "name: \"$releaseName\"; describtion: \"$releaseDescribtion\"; prerelease \"$preTag\"; api-token: \"${apiToken:0:3}...\";"
 echo ""
 echo "Commit \"$commitId\" will be released"
+
+if [ -f "$dummyJSON" ]; then
+    rm "$dummyJSON"
+fi
 
 if [ -f "$releaseRequestJSON" ]; then
     echo "Delete old request file \"$releaseRequestJSON\""

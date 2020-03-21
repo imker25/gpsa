@@ -120,6 +120,7 @@ task getBuildName(dependsOn: 'clean') {
         println "Build Name: ${buildName}"
         file("${logDir}${File.separator}BuildName.txt").text = "${buildName}"
         file("${logDir}${File.separator}Version.txt").text = "${programVersion}"
+        file("${logDir}${File.separator}dummy.json").text = "{\"key\":\"value\"}"
 
     }
 }
