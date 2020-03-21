@@ -12,6 +12,42 @@ function print_usage()  {
     echo "    api-token       GitHub API token used for authentification"
 }
 
+function upload_asset()  { 
+	fileToUpload="$1"
+	label="$2"
+	fileName=$(basename $fileToUpload)
+	upoadResponseJSON="$LOG_DIR/GitHub-Upload-Asset-Response.$fileName.json"
+
+	if [ -f "$fileToUpload" ]; then
+		echo "Upload \"$fileToUpload\" to $realUploadUrl"
+	else 
+		echo "The file to upload \"$fileToUpload\" can not be found"
+		exit 1
+	fi
+	
+	curl --data @"$fileToUpload" -H "Content-Type: application/zip" -H "Authorization: token $apiToken" -X POST "$realUploadUrl?name=$fileName&label=$label" > "$upoadResponseJSON"
+	if [ $? -eq 0 ]; then
+		echo "No error in curl"
+	else
+		echo "curl reported a error code"
+		exit 1
+	fi
+
+	assetID=$(cat "$upoadResponseJSON" | jq -r ".id")
+	downloadURL=$(cat "$upoadResponseJSON" | jq -r ".browser_download_url")
+	if [[ "$assetID" == ""  ||  "$releaseID" == "null" ]]; then 
+		echo "No asset ID found in the response \"$upoadResponseJSON\""
+		exit 1
+	fi
+	if [[ "$downloadURL" == "" ||  "$releaseID" == "null" ]]; then 
+		echo "No download URL found in the response \"$upoadResponseJSON\""
+		exit 1
+	fi
+
+	echo "The asset with ID $assetID can be downloaded from $downloadURL"
+
+}
+
 # ################################################################################################################
 # prameter check
 # ################################################################################################################
@@ -62,8 +98,8 @@ LOG_DIR="$BRANCH_ROOT/logs"
 commitId=$(git rev-parse --verify HEAD)
 releaseRequestJSON="$LOG_DIR/GitHub-Release-Request.json"
 releaseResponseJSON="$LOG_DIR/GitHub-Release-Response.json"
-upoadResponseJSON="$LOG_DIR/GitHub-Upload-Asset-Response.json"
-fileToUpload="$BRANCH_ROOT/bin/gpsa"
+
+# fileToUpload="$BRANCH_ROOT/bin/gpsa"
 
 
 # ################################################################################################################
@@ -75,13 +111,6 @@ echo "Call arguments"
 echo "name: \"$releaseName\"; describtion: \"$releaseDescribtion\"; prerelease \"$preTag\"; api-token: \"${apiToken:0:3}...\";"
 echo ""
 echo "Commit \"$commitId\" will be released"
-
-if [ -f "$fileToUpload" ]; then
-	echo "\"$fileToUpload\" will be uploaded"
-else 
-	echo "The file to upload \"$fileToUpload\" can not be found"
-	exit 1
-fi
 
 if [ -f "$releaseRequestJSON" ]; then
     echo "Delete old request file \"$releaseRequestJSON\""
@@ -130,27 +159,11 @@ fi
 
 realUploadUrl="${uploadURL::-13}"
 echo "Release with ID $releaseID was created"
-echo "Upload \"$fileToUpload\" to $realUploadUrl"
-curl --data @"$fileToUpload" -H "Content-Type: application/zip" -H "Authorization: token $apiToken" -X POST "$realUploadUrl?name=gpsa&label=linux-executabel" > "$upoadResponseJSON"
-if [ $? -eq 0 ]; then
-	echo "No error in curl"
-else
-	echo "curl reported a error code"
-	exit 1
-fi
 
-assetID=$(cat "$upoadResponseJSON" | jq -r ".id")
-downloadURL=$(cat "$upoadResponseJSON" | jq -r ".browser_download_url")
-if [[ "$assetID" == ""  ||  "$releaseID" == "null" ]]; then 
-	echo "No asset ID found in the response \"$upoadResponseJSON\""
-	exit 1
-fi
-if [[ "$downloadURL" == "" ||  "$releaseID" == "null" ]]; then 
-	echo "No download URL found in the response \"$upoadResponseJSON\""
-	exit 1
-fi
+upload_asset "$BRANCH_ROOT/bin/gpsa" "linux-executable"
+# upload_asset "$BRANCH_ROOT/bin/gpsa.exe" "windows-executable"
 
-echo "The asset with ID $assetID can be downloaded from $downloadURL"
+
 
 popd
 
