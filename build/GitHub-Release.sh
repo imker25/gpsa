@@ -72,7 +72,7 @@ if [ "$3" = "" ]; then
 	print_usage
 	exit 1
 else 
-    if [ "$3" = "true" ] || [  "$3" = "false"  ]; then
+    if [[ "$3" == "true"  ||  "$3" == "false"  ]]; then
 	    preTag=$3
     else
         echo " Error: prerelease can only be true or false"
