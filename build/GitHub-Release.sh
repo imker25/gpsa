@@ -25,7 +25,7 @@ function upload_asset()  {
 		exit 1
 	fi
 	
-	curl --data @"$fileToUpload" -H "Content-Type: application/octet-stream" -H "Authorization: token $apiToken" -X POST "$realUploadUrl?name=$fileName&label=$label" > "$upoadResponseJSON"
+	curl --data-binary @"$fileToUpload" -H "Content-Type: application/octet-stream" -H "Authorization: token $apiToken" -X POST "$realUploadUrl?name=$fileName&label=$label" > "$upoadResponseJSON"
 	if [ $? -eq 0 ]; then
 		echo "No error in curl"
 	else
