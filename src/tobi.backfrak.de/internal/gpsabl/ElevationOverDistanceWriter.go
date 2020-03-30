@@ -5,6 +5,12 @@ import (
 	"os"
 )
 
+type printElevationPoint struct {
+	DistanceToThisPoint float64
+	Elevation           float32
+	CorectedElevation   float32
+}
+
 // WriteElevationOverDistance - Write out a Elevation over Distance table
 func WriteElevationOverDistance(trackFile TrackFile, outFile *os.File) error {
 
@@ -21,7 +27,7 @@ func WriteElevationOverDistance(trackFile TrackFile, outFile *os.File) error {
 	return nil
 }
 
-func getOutPutLines(trackPoints []TrackPoint) []string {
+func getOutPutLines(trackPoints []printElevationPoint) []string {
 	lines := []string{"Distance [km];Elevation [m];CorrectedElevation [m];"}
 
 	for _, pnt := range trackPoints {
@@ -38,13 +44,25 @@ func getOutPutLines(trackPoints []TrackPoint) []string {
 	return lines
 }
 
-func getTrackPoints(trackFile TrackFile) []TrackPoint {
+func getTrackPoints(trackFile TrackFile) []printElevationPoint {
 
-	pnts := []TrackPoint{}
+	pnts := []printElevationPoint{}
+	startDist := 0.0
 
 	for _, track := range trackFile.Tracks {
 		for _, seg := range track.TrackSegments {
-			pnts = append(pnts, seg.TrackPoints...)
+			pntCount := len(seg.TrackPoints)
+			for i, tPnt := range seg.TrackPoints {
+				pnt := printElevationPoint{}
+				pnt.DistanceToThisPoint = startDist + tPnt.DistanceToThisPoint
+				pnt.Elevation = tPnt.Elevation
+				pnt.CorectedElevation = tPnt.CorectedElevation
+				pnts = append(pnts, pnt)
+
+				if i == pntCount-1 {
+					startDist = startDist + tPnt.DistanceToThisPoint
+				}
+			}
 		}
 	}
 
