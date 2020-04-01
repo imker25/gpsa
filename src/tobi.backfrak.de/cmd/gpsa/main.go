@@ -18,6 +18,9 @@ import (
 // Authors - Information about the authors of the program. You might want to add your name here when contributing to this software
 const Authors = "tobi@backfrak.de"
 
+// OutputSeperator - The seperator string for csv output files
+const OutputSeperator = "; "
+
 // The version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
 
@@ -135,7 +138,7 @@ func main() {
 // Defines the usage function as well
 func handleComandlineOptions() {
 
-	outFormater := gpsabl.NewCsvOutputFormater(";")
+	outFormater := gpsabl.NewCsvOutputFormater(OutputSeperator)
 
 	// Setup the valid comandline flags
 	flag.Float64Var(&MinimalStepHightParameter, "minimal-step-hight", 10.0, "The minimal step hight. Only in use when \"steps\"  elevation correction is used. In [m]")
@@ -244,7 +247,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(OutputSeperator)
 	if !formater.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(DepthParameter), "", false, DontPanicFlag)
 	}
