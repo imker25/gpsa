@@ -19,7 +19,7 @@ Some documentation and examples about gpsa usage.
 
 ### Installation
 
-Download the latest release executable from GitHub: <https://github.com/imker25/gpsa/releases/latest> according to your operation system and copy the file to a empty folder.
+Download the latest release executable from [GitHub Release](https://github.com/imker25/gpsa/releases/latest) according to your operation system and copy the file to a empty folder.
 
 **On Linux**, open a command line and set the file executable:
 
@@ -66,7 +66,9 @@ Options:
   -out-file string
         Define where to write the output. (default "StdOut" if not explicitly set)
   -print-csv-header
-        Print out a csv header line. Possible values are [true false] (default true). 
+        Print out a csv header line. Possible values are [true false] (default true).
+  -print-elevation-over-distance
+        Tell if "ElevationOverDistance.csv" should be created for each track. The files will be locate in tmp dir.
   -skip-error-exit
         Use this flag if you don't want to abort the program during track file processing errors
  -suppress-duplicate-out-put
