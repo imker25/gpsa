@@ -108,18 +108,6 @@ pipeline {
             }
         }
 
-			// ToDo:
-	// Write new stages that get the artifacts back
-	// https://jenkins.io/doc/pipeline/steps/workflow-basic-steps/#-unarchive-copy-archived-artifacts-into-the-workspace
-	// and uploads them
-	//
-	// use the when expression
-	// https://jenkins.io/doc/book/pipeline/syntax/#when
-	// to figure out what branch
-	// do a pre release on master
-	// do a release on feture braches
-
-
 		stage('Publish master') {
 			when {
                 branch 'master'

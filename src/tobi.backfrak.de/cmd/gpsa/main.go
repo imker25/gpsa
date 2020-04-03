@@ -9,6 +9,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 
 	"tobi.backfrak.de/internal/gpsabl"
@@ -17,6 +19,9 @@ import (
 
 // Authors - Information about the authors of the program. You might want to add your name here when contributing to this software
 const Authors = "tobi@backfrak.de"
+
+// OutputSeperator - The seperator string for csv output files
+const OutputSeperator = "; "
 
 // The version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
@@ -59,6 +64,9 @@ var MinimalMovingSpeedParameter float64
 
 // MinimalStepHightParameter - Tells the minimal step hight, when "steps" correction is used
 var MinimalStepHightParameter float64
+
+// PrintElevationOverDistanceFlag - Tell if the program was called with the -print-elevation-over-distance flag
+var PrintElevationOverDistanceFlag bool
 
 func main() {
 
@@ -135,7 +143,7 @@ func main() {
 // Defines the usage function as well
 func handleComandlineOptions() {
 
-	outFormater := gpsabl.NewCsvOutputFormater(";")
+	outFormater := gpsabl.NewCsvOutputFormater(OutputSeperator)
 
 	// Setup the valid comandline flags
 	flag.Float64Var(&MinimalStepHightParameter, "minimal-step-hight", 10.0, "The minimal step hight. Only in use when \"steps\"  elevation correction is used. In [m]")
@@ -153,6 +161,7 @@ func handleComandlineOptions() {
 		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetValidDepthArgsString()))
 	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValidCorrectionParameters()[2],
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
+	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
 
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
@@ -239,12 +248,39 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 		return false
 	}
 
+	if PrintElevationOverDistanceFlag {
+
+		// Get the path of the ElevationOverDistance.csv
+		outPath := getElevationOverDistanceFileName(file)
+		out, createErr := os.Create(outPath)
+		if HandleError(createErr, outPath, SkipErrorExitFlag, DontPanicFlag) == true {
+			return false
+		}
+
+		// Write the ElevationOverDistance.csv
+		fmt.Println(fmt.Sprintf("Create %s", outPath))
+		printErr := gpsabl.WriteElevationOverDistance(file, out, OutputSeperator)
+		if HandleError(printErr, outPath, SkipErrorExitFlag, DontPanicFlag) == true {
+			return false
+		}
+	}
+
 	return true
+}
+
+func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
+
+	dir := os.TempDir()
+	_, oldName := filepath.Split(file.FilePath)
+
+	fileName := oldName + ".ElevationOverDistance.csv"
+
+	return path.Join(dir, fileName)
 }
 
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(OutputSeperator)
 	if !formater.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(DepthParameter), "", false, DontPanicFlag)
 	}
