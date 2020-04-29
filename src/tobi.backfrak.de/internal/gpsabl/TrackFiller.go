@@ -268,6 +268,7 @@ func fillCountUpDownWards(pnts []TrackPoint, correction string) {
 
 func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvider, inputIsPoints bool) {
 	var dist float64
+	var horizontalDist float64
 	var minimumAltitude float32
 	var maximumAltitude float32
 	var elevationGain float32
@@ -286,6 +287,7 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 
 	for i, sum := range input {
 		dist = dist + sum.GetDistance()
+		horizontalDist = horizontalDist + sum.GetHorizontalDistance()
 		elevationGain = elevationGain + sum.GetElevationGain()
 		elevationLose = elevationLose + sum.GetElevationLose()
 		upwardsDistance = upwardsDistance + sum.GetUpwardsDistance()
@@ -324,7 +326,7 @@ func fillTrackSummaryValues(target TrackSummarySetter, input []TrackSummaryProvi
 			upwardsTime = upwardsTimeSum
 		}
 	}
-	target.SetValues(dist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance,
+	target.SetValues(dist, horizontalDist, minimumAltitude, maximumAltitude, elevationGain, elevationLose, upwardsDistance, downwardsDistance,
 		timeDataValid, startTime, endTime, movingTime, upwardsTime, downwarsTime)
 }
 

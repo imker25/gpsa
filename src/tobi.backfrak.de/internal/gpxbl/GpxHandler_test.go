@@ -45,6 +45,24 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 								}
 							}
 						}
+						if seg.Distance > 0 {
+							if seg.Distance < seg.HorizontalDistance {
+								t.Errorf("The Segments distance %f is shorter than the Segments  HorizontalDistance %f", seg.Distance, seg.HorizontalDistance)
+							}
+						} else {
+							if seg.Distance < 0 {
+								t.Errorf("The Segments  Distance %f is smaller then 0", seg.Distance)
+							}
+						}
+					}
+					if track.Distance > 0 {
+						if track.Distance < track.HorizontalDistance {
+							t.Errorf("The Track distance %f is shorter than the Track  HorizontalDistance %f", track.Distance, track.HorizontalDistance)
+						}
+					} else {
+						if track.Distance < 0 {
+							t.Errorf("The Track  Distance %f is smaller then 0", track.Distance)
+						}
 					}
 				}
 
@@ -57,7 +75,70 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 								}
 							}
 						}
+
+						if seg.Distance > 0 {
+							if seg.Distance < seg.HorizontalDistance {
+								t.Errorf("The Segments distance %f is shorter than the Segments  HorizontalDistance %f", seg.Distance, seg.HorizontalDistance)
+							}
+
+							if seg.Distance > 1000 && (seg.ElevationGain > 0 || seg.ElevationLose < 0) {
+								if seg.Distance < seg.UpwardsDistance+seg.DownwardsDistance {
+									t.Errorf("The Segments Distance %f is smaller than the sum of seg.UpwardsDistance and seg.DownwardsDistance", seg.Distance)
+								}
+							}
+						} else {
+							if seg.Distance < 0 {
+								t.Errorf("The Segments  Distance %f is smaller then 0", seg.Distance)
+							}
+						}
 					}
+					if track.Distance > 0 {
+						if track.Distance < track.HorizontalDistance {
+							t.Errorf("The Track distance %f is shorter than the Track  HorizontalDistance %f", track.Distance, track.HorizontalDistance)
+						}
+						if track.Distance > 1000 && (track.ElevationGain > 0 || track.ElevationLose < 0) {
+							if track.Distance < track.UpwardsDistance+track.DownwardsDistance {
+								t.Errorf("The Track Distance %f is smaller than the sum of seg.UpwardsDistance and seg.DownwardsDistance", track.Distance)
+							}
+						}
+					} else {
+						if track.Distance < 0 {
+							t.Errorf("The Track  Distance %f is smaller then 0", track.Distance)
+						}
+					}
+				}
+
+				if trackFile.Distance > 0 {
+					if trackFile.Distance < trackFile.HorizontalDistance {
+						t.Errorf("The TrackFile distance %f is shorter than the TrackFile  HorizontalDistance %f", trackFile.Distance, trackFile.HorizontalDistance)
+					}
+					if trackFile.Distance > 1000 && (trackFile.ElevationGain > 0 || trackFile.ElevationLose < 0) {
+						if trackFile.Distance < trackFile.UpwardsDistance+trackFile.DownwardsDistance {
+							t.Errorf("The trackFile Distance %f is smaller than the sum of seg.UpwardsDistance and seg.DownwardsDistance", trackFile.Distance)
+						}
+					}
+				} else {
+					if trackFile.Distance < 0 {
+						t.Errorf("The TrackFile  Distance %f is smaller then 0", trackFile.Distance)
+					}
+				}
+
+				if gpxFile.Distance > 0 {
+					if gpxFile.Distance < gpxFile.HorizontalDistance {
+						t.Errorf("The GpxFile distance %f is shorter than the GpxFile  HorizontalDistance %f", gpxFile.Distance, gpxFile.HorizontalDistance)
+					}
+				} else {
+					if gpxFile.Distance < 0 {
+						t.Errorf("The GpxFile  Distance %f is smaller then 0", gpxFile.Distance)
+					}
+				}
+
+				if gpxFile.Distance != trackFile.Distance {
+					t.Errorf("The gpxFile.Distance %f is not the same the  trackFile.Distance %f", gpxFile.Distance, trackFile.Distance)
+				}
+
+				if gpxFile.HorizontalDistance != trackFile.HorizontalDistance {
+					t.Errorf("The gpxFile.HorizontalDistance %f is not the same the  trackFile.HorizontalDistance %f", gpxFile.HorizontalDistance, trackFile.HorizontalDistance)
 				}
 			}
 		}

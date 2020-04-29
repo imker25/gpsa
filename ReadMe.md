@@ -6,7 +6,9 @@ This is a simple command line tool that helps to extract data for statistical an
   - [User Documentation](#user-documentation)
     - [Installation](#installation)
     - [Usage](#usage)
+      - [Help Command](#help-command)
       - [Examples](#examples)
+      - [Output Values explained](#output-values-explained)
   - [Development](#development)
     - [Build](#build)
     - [Hints for VSCode Users](#hints-for-vscode-users)
@@ -38,12 +40,16 @@ chmod 770 ./gpsa
 
 ### Usage
 
+Below you can find some kind of user manual for this program.
+
+#### Help Command
+
 You might want to call ```-help``` to find out how to use the program.
 
 ```txt
 ~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
-Program Version: 0.8.0+7b79520
+Program Version: 0.8.2+7b79520
 
 Usage: ./gpsa [options] [files]
   files
@@ -85,8 +91,8 @@ Simple call with one file:
 
 ```sh
 ~$  ./gpsa my/test/file.gpx
-Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);MovingTime (xxhxxmxxs);UpwardsTime (xxhxxmxxs);DownwardsTime (xxhxxmxxs);AverageSpeed (km/h);UpwardsSpeed (km/h);DownwardsSpeed (km/h);
-my/test/file.gpx: 2020-01-29 09:28:06;2020-01-29T08:28:10Z;2020-01-29T13:48:07Z;94.750000;1188.370000;821.610000;2009.980000;10659.340000;-10884.500000;43.470000;51.000000;4h1m44s;2h8m49s;1h52m55s;23.520000;20.250000;27.100000;
+Name; StartTime; EndTime; TrackTime (xxhxxmxxs); Distance (km); HorizontalDistance (km); AltitudeRange (m); MinimumAltitude (m); MaximumAltitude (m); ElevationGain (m); ElevationLose (m); UpwardsDistance (km); DownwardsDistance (km); MovingTime (xxhxxmxxs); UpwardsTime (xxhxxmxxs); DownwardsTime (xxhxxmxxs); AverageSpeed (km/h); UpwardsSpeed (km/h); DownwardsSpeed (km/h);
+my/test/file.gpx: 2020-01-29 09:28:06;2020-01-29T08:28:10Z; 2020-01-29T13:48:07Z; 5h19m53s; 94.750000; 90.250000; 1188.370000; 821.610000; 2009.980000; 10659.340000; -10884.500000; 43.470000; 51.000000; 4h1m44s; 2h8m49s; 1h52m55s; 23.520000; 20.250000; 27.100000; 
 
 ```
 
@@ -94,9 +100,9 @@ Simple call with multiple files:
 
 ```sh
 ~$  ./gpsa my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Name;StartTime;EndTime;Distance (km);AltitudeRange (m);MinimumAltitude (m);MaximumAltitude (m);ElevationGain (m);ElevationLose (m);UpwardsDistance (km);DownwardsDistance (km);MovingTime (xxhxxmxxs);UpwardsTime (xxhxxmxxs);DownwardsTime (xxhxxmxxs);AverageSpeed (km/h);UpwardsSpeed (km/h);DownwardsSpeed (km/h);
-03.gpx: Tulln - Wien;not valid;not valid;37.640000;48.000000;158.000000;206.000000;52.000000;-26.000000;17.520000;14.060000;not valid;not valid;not valid;not valid;not valid;not valid;
-02.gpx: 2019-08-18 11:07:40;2019-08-18T09:11:01Z;2019-08-18T15:47:34Z;37.820000;104.090000;347.020000;451.110000;263.880000;-251.430000;17.860000;19.760000;1h33m20s;47m54s;44m56s;24.320000;22.370000;26.390000;
+Name; StartTime; EndTime; TrackTime (xxhxxmxxs); Distance (km); HorizontalDistance (km); AltitudeRange (m); MinimumAltitude (m); MaximumAltitude (m); ElevationGain (m); ElevationLose (m); UpwardsDistance (km); DownwardsDistance (km); MovingTime (xxhxxmxxs); UpwardsTime (xxhxxmxxs); DownwardsTime (xxhxxmxxs); AverageSpeed (km/h); UpwardsSpeed (km/h); DownwardsSpeed (km/h);
+03.gpx: Tulln - Wien; not valid; not valid; not valid; 37.640000; 36.120000; 48.000000; 158.000000; 206.000000; 52.000000; -26.000000; 17.520000; 14.060000; not valid; not valid; not valid; not valid; not valid; not valid;
+02.gpx: 2019-08-18 11:07:40; 2019-08-18T09:11:01Z; 2019-08-18T15:47:34Z; 1h35m40s; 37.820000; 37.230000; 104.090000; 347.020000; 451.110000; 263.880000; -251.430000;17.860000; 19.760000; 1h33m20s; 47m54s; 44m56s; 24.320000; 22.370000; 26.390000; 
 
 ```
 
@@ -112,13 +118,37 @@ Get statistics for a number of files into a csv output, with verbose comandline 
 ```sh
 ~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
 Call:  ./gpsa -verbose -out-file=gps-statistics.csv my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Version: 0.8.0+7b79520
+Version: 0.8.2+7b79520
 Read file: my/test/01.gpx
 Read file: my/test/02.gpx
 Read file: my/test/03.gpx
 3 of 3 files process successfull
 
 ```
+
+#### Output Values explained
+
+Below is a list of the output values and what they mean:
+
+- `Name`: The name of the output line. Either read from the file, or if no name tag is set in the file it will be calculated out of the filename and the file hierarchy.
+- `StartTime`: The time the track started. *not valid* in case we detect no or invalid time data.
+- `EndTime`: The time the track ended. *not valid* in case we detect no or invalid time data.
+- `TrackTime`: The time between `StartTime` and `EndTime`. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
+- `Distance`: The distance of the track measured in `km`.
+- `HorizontalDistance`: The horizontal distance of the track measured in `km`. This value ignores the vertical component of the distance like most GPS tools do.
+- `AltitudeRange`: The range between the highest and the lowest point. Measured in `m`.
+- `MinimumAltitude`: The altitude of the lowest point. Measured in `m`.
+- `MaximumAltitude`: The altitude of the highest point. Measured in `m`.
+- `ElevationGain`: The total sum of all upwards vertical distance.  Measured in `m`.
+- `ElevationLose`: The total sum of all downwards vertical distance.  Measured in `m`.
+- `UpwardsDistance`: The total sum of all distance moved upwards.  Measured in `km`.
+- `DownwardsDistance`: The total sum of all distance moved downwards.  Measured in `km`.
+- `MovingTime`: The time spend moving. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
+- `UpwardsTime`: The time spend moving upwards. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
+- `DownwardsTime`: The time spend downwards. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
+- `AverageSpeed`: The average speed. Calculated from `Distance` and `MovingTime`. Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
+- `UpwardsSpeed`: The average speed during upwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
+- `DownwardsSpeed`: The average speed during downwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
 
 ## Development
 

@@ -263,6 +263,10 @@ func TestFillTrackSegmentValuesSimple(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f expected.", seg.Distance, 23.885148437468256)
 	}
 
+	if seg.HorizontalDistance != 23.801267106603635 {
+		t.Errorf("The HorizontalDistance is %f, but %f expected.", seg.HorizontalDistance, 23.801267106603635)
+	}
+
 	if seg.MaximumAltitude != 109.0 {
 		t.Errorf("The MaximumAltitude is %f, but %f expected.", seg.MaximumAltitude, 109.0)
 	}
@@ -374,6 +378,10 @@ func TestFillTrackValuesSimple(t *testing.T) {
 	track.TrackSegments = []TrackSegment{segs}
 	FillTrackValues(&track)
 
+	if track.HorizontalDistance != 23.801267106603635 {
+		t.Errorf("The HorizontalDistance is %f, but %f expected.", track.HorizontalDistance, 23.801267106603635)
+	}
+
 	if track.Distance != 23.885148437468256 {
 		t.Errorf("The Distance is %f, but %f expected.", track.Distance, 23.885148437468256)
 	}
@@ -391,6 +399,10 @@ func TestFillTrackFileValuesSimple(t *testing.T) {
 	file := TrackFile{}
 	file.Tracks = []Track{getSimpleTrack()}
 	FillTrackFileValues(&file)
+
+	if file.HorizontalDistance != 23.801267106603635 {
+		t.Errorf("The HorizontalDistance is %f, but %f expected.", file.HorizontalDistance, 23.801267106603635)
+	}
 
 	if file.Distance != 23.885148437468256 {
 		t.Errorf("The Distance is %f, but %f expected.", file.Distance, 23.885148437468256)
@@ -648,6 +660,21 @@ func TestParametersLessThenZeroErrors(t *testing.T) {
 	}
 }
 
+func TestHorizontalDistance(t *testing.T) {
+	file := getTrackFileWithTimeGaps()
+
+	if file.GetDistance() == file.GetHorizontalDistance() {
+		t.Errorf("The Distance %f is the same the as the HorizontalDistance %f", file.GetDistance(), file.GetHorizontalDistance())
+	}
+	if file.GetDistance() != 47.77029687493651 {
+		t.Errorf("The Distance is %f but expect %f", file.GetDistance(), 47.77029687493651)
+	}
+
+	if file.GetHorizontalDistance() != 47.60253421320727 {
+		t.Errorf("The HorizontalDistance is %f but expect %f", file.GetHorizontalDistance(), 47.60253421320727)
+	}
+}
+
 func getTrackFileWithStandStillPoints(correction string, minimalMovingSpeed float64, minimalStepHight float64) TrackFile {
 	var file TrackFile
 
@@ -677,6 +704,36 @@ func getTrackFileWithStandStillPoints(correction string, minimalMovingSpeed floa
 	file.Tracks = append(file.Tracks, laterTrack)
 
 	file.NumberOfTracks = 1
+	FillTrackFileValues(&file)
+
+	return file
+}
+
+func getTrackFileWithBigVerticalDistance() TrackFile {
+	file := getSimpleTrackFileWithTime()
+
+	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
+	t2, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	t3, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:53Z")
+	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
+	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 142.0, t2)
+	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 151.0, t3)
+	points := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
+	FillDistancesTrackPoint(&points[1], points[0], points[2])
+	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
+	laterTrack := Track{}
+	seg := TrackSegment{}
+	seg.TrackPoints = points
+	FillTrackSegmentValues(&seg)
+	laterTrack.TrackSegments = append(laterTrack.TrackSegments, seg)
+	FillTrackValues(&laterTrack)
+	laterTrack.NumberOfSegments = 1
+
+	file.Tracks = append(file.Tracks, laterTrack)
+	file.NumberOfTracks = 2
 	FillTrackFileValues(&file)
 
 	return file

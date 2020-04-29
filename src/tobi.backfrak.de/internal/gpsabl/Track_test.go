@@ -21,11 +21,15 @@ func TestTrackSummary(t *testing.T) {
 	sum := TrackSummary{}
 	iSumSet := TrackSummarySetter(&sum)
 	// now := time.Now()
-	iSumSet.SetValues(100.1, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now(), time.Now().Sub(time.Now()), time.Now().Sub(time.Now()), time.Now().Sub(time.Now()))
+	iSumSet.SetValues(100.1, 88.6, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, false, time.Now(), time.Now(), time.Now().Sub(time.Now()), time.Now().Sub(time.Now()), time.Now().Sub(time.Now()))
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetDistance() != 100.1 {
 		t.Errorf("The GetDistance() returns %f, but %f was expected", iSum.GetDistance(), 100.1)
+	}
+
+	if iSum.GetHorizontalDistance() != 88.6 {
+		t.Errorf("The GetDistance() returns %f, but %f was expected", iSum.GetHorizontalDistance(), 88.6)
 	}
 
 	if !CompareFloat64With4Digits(float64(iSum.GetAltitudeRange()), 30.2) {
@@ -73,7 +77,7 @@ func TestTrackSummaryWithTime(t *testing.T) {
 	upwardsTime := startTime.Sub(endTimeUp)
 	endTimeDown, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:23Z")
 	downwarsTime := startTime.Sub(endTimeDown)
-	iSumSet.SetValues(distance, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, true, startTime, endTime, movingTime, upwardsTime, downwarsTime)
+	iSumSet.SetValues(distance, 88.6, 10.4, 40.6, 40.2, 10.0, 70.1, 30.0, true, startTime, endTime, movingTime, upwardsTime, downwarsTime)
 	iSum := TrackSummaryProvider(sum)
 
 	if iSum.GetTimeDataValid() == false {
