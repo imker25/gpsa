@@ -80,6 +80,12 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 							if seg.Distance < seg.HorizontalDistance {
 								t.Errorf("The Segments distance %f is shorter than the Segments  HorizontalDistance %f", seg.Distance, seg.HorizontalDistance)
 							}
+
+							if seg.Distance > 1000 && (seg.ElevationGain > 0 || seg.ElevationLose > 0) {
+								if seg.Distance < seg.UpwardsDistance+seg.DownwardsDistance {
+									t.Errorf("The Segments Distance %f is smaller than the sum of seg.UpwardsDistance and seg.DownwardsDistance", seg.Distance)
+								}
+							}
 						} else {
 							if seg.Distance < 0 {
 								t.Errorf("The Segments  Distance %f is smaller then 0", seg.Distance)
@@ -89,6 +95,11 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 					if track.Distance > 0 {
 						if track.Distance < track.HorizontalDistance {
 							t.Errorf("The Track distance %f is shorter than the Track  HorizontalDistance %f", track.Distance, track.HorizontalDistance)
+						}
+						if track.Distance > 1000 && (track.ElevationGain > 0 || track.ElevationLose > 0) {
+							if track.Distance < track.UpwardsDistance+track.DownwardsDistance {
+								t.Errorf("The Track Distance %f is smaller than the sum of seg.UpwardsDistance and seg.DownwardsDistance", track.Distance)
+							}
 						}
 					} else {
 						if track.Distance < 0 {
@@ -100,6 +111,11 @@ func TestTrackReaderAllValidGPX(t *testing.T) {
 				if trackFile.Distance > 0 {
 					if trackFile.Distance < trackFile.HorizontalDistance {
 						t.Errorf("The TrackFile distance %f is shorter than the TrackFile  HorizontalDistance %f", trackFile.Distance, trackFile.HorizontalDistance)
+					}
+					if trackFile.Distance > 1000 && (trackFile.ElevationGain > 0 || trackFile.ElevationLose > 0) {
+						if trackFile.Distance < trackFile.UpwardsDistance+trackFile.DownwardsDistance {
+							t.Errorf("The trackFile Distance %f is smaller than the sum of seg.UpwardsDistance and seg.DownwardsDistance", trackFile.Distance)
+						}
 					}
 				} else {
 					if trackFile.Distance < 0 {
