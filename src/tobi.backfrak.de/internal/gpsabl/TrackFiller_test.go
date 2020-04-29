@@ -709,6 +709,36 @@ func getTrackFileWithStandStillPoints(correction string, minimalMovingSpeed floa
 	return file
 }
 
+func getTrackFileWithBigVerticalDistance() TrackFile {
+	file := getSimpleTrackFileWithTime()
+
+	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
+	t2, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
+	t3, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:53Z")
+	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
+	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 142.0, t2)
+	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 151.0, t3)
+	points := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
+	FillDistancesTrackPoint(&points[1], points[0], points[2])
+	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
+	laterTrack := Track{}
+	seg := TrackSegment{}
+	seg.TrackPoints = points
+	FillTrackSegmentValues(&seg)
+	laterTrack.TrackSegments = append(laterTrack.TrackSegments, seg)
+	FillTrackValues(&laterTrack)
+	laterTrack.NumberOfSegments = 1
+
+	file.Tracks = append(file.Tracks, laterTrack)
+	file.NumberOfTracks = 2
+	FillTrackFileValues(&file)
+
+	return file
+}
+
 func getTrackFileWithTimeGaps() TrackFile {
 	file := getSimpleTrackFileWithTime()
 

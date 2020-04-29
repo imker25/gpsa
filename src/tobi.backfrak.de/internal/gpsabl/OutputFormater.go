@@ -115,12 +115,13 @@ func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader
 
 // GetHeader - Get the header line of a csv output
 func (formater *CsvOutputFormater) GetHeader() string {
-	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		"Name", formater.Separator,
 		"StartTime", formater.Separator,
 		"EndTime", formater.Separator,
 		"TrackTime (xxhxxmxxs)", formater.Separator,
 		"Distance (km)", formater.Separator,
+		"HorizontalDistance (km)", formater.Separator,
 		"AltitudeRange (m)", formater.Separator,
 		"MinimumAltitude (m)", formater.Separator,
 		"MaximumAltitude (m)", formater.Separator,
@@ -144,12 +145,13 @@ func (formater *CsvOutputFormater) GetHeader() string {
 func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
 	var ret string
 	if info.GetTimeDataValid() {
-		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
 			info.GetStartTime().Format(time.RFC3339), formater.Separator,
 			info.GetEndTime().Format(time.RFC3339), formater.Separator,
 			info.GetEndTime().Sub(info.GetStartTime()).String(), formater.Separator,
 			RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
+			RoundFloat64To2Digits(info.GetHorizontalDistance()/1000), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetMaximumAltitude())), formater.Separator,
@@ -166,12 +168,13 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider,
 			GetNewLine(),
 		)
 	} else {
-		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 			name, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
+			RoundFloat64To2Digits(info.GetHorizontalDistance()/1000), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetMinimumAltitude())), formater.Separator,
 			RoundFloat64To2Digits(float64(info.GetMaximumAltitude())), formater.Separator,
