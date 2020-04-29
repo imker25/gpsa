@@ -12,8 +12,8 @@ import (
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-const numberOfSemicolonExpected = 17
-const numberOfNotValideExpected = 8
+const numberOfSemicolonExpected = 18
+const numberOfNotValideExpected = 9
 
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";")
@@ -335,7 +335,7 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "20s;") != 1 {
+	if strings.Count(lines[0], "20s;") != 2 {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
@@ -584,7 +584,7 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "20s;") != 1 {
+	if strings.Count(lines[0], "20s;") != 2 {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
@@ -608,6 +608,30 @@ func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
 
 	if outPutContainsLineByTimeStamps(outPut, line) == false {
 		t.Errorf("Got false, but expect true")
+	}
+}
+
+func TestOutPutTrackTimeAndMovingTimeIsDifferent(t *testing.T) {
+	frt := NewCsvOutputFormater(";")
+	trackFile := getTrackFileWithTimeGaps()
+
+	err := frt.AddOutPut(trackFile, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+
+	lines := frt.GetLines()
+
+	if strings.Count(lines[0], "2h0m20s;") != 1 {
+		t.Errorf("The output does not contain the TrackTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "1m0s;") != 1 {
+		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
+	}
+
+	if strings.Count(lines[0], "30s;") != 2 {
+		t.Errorf("The output does not contain the Upwards / Downwards Time as expected. It is: %s", lines[0])
 	}
 }
 
