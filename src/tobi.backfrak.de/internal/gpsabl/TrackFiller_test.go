@@ -263,6 +263,10 @@ func TestFillTrackSegmentValuesSimple(t *testing.T) {
 		t.Errorf("The Distance is %f, but %f expected.", seg.Distance, 23.885148437468256)
 	}
 
+	if seg.HorizontalDistance != 23.801267106603635 {
+		t.Errorf("The HorizontalDistance is %f, but %f expected.", seg.HorizontalDistance, 23.801267106603635)
+	}
+
 	if seg.MaximumAltitude != 109.0 {
 		t.Errorf("The MaximumAltitude is %f, but %f expected.", seg.MaximumAltitude, 109.0)
 	}
@@ -374,6 +378,10 @@ func TestFillTrackValuesSimple(t *testing.T) {
 	track.TrackSegments = []TrackSegment{segs}
 	FillTrackValues(&track)
 
+	if track.HorizontalDistance != 23.801267106603635 {
+		t.Errorf("The HorizontalDistance is %f, but %f expected.", track.HorizontalDistance, 23.801267106603635)
+	}
+
 	if track.Distance != 23.885148437468256 {
 		t.Errorf("The Distance is %f, but %f expected.", track.Distance, 23.885148437468256)
 	}
@@ -391,6 +399,10 @@ func TestFillTrackFileValuesSimple(t *testing.T) {
 	file := TrackFile{}
 	file.Tracks = []Track{getSimpleTrack()}
 	FillTrackFileValues(&file)
+
+	if file.HorizontalDistance != 23.801267106603635 {
+		t.Errorf("The HorizontalDistance is %f, but %f expected.", file.HorizontalDistance, 23.801267106603635)
+	}
 
 	if file.Distance != 23.885148437468256 {
 		t.Errorf("The Distance is %f, but %f expected.", file.Distance, 23.885148437468256)
@@ -645,6 +657,21 @@ func TestParametersLessThenZeroErrors(t *testing.T) {
 
 	} else {
 		t.Errorf("Got no error when a MinimalStepHightLessThenZero error is expected")
+	}
+}
+
+func TestHorizontalDistance(t *testing.T) {
+	file := getTrackFileWithTimeGaps()
+
+	if file.GetDistance() == file.GetHorizontalDistance() {
+		t.Errorf("The Distance %f is the same the as the HorizontalDistance %f", file.GetDistance(), file.GetHorizontalDistance())
+	}
+	if file.GetDistance() != 47.77029687493651 {
+		t.Errorf("The Distance is %f but expect %f", file.GetDistance(), 47.77029687493651)
+	}
+
+	if file.GetHorizontalDistance() != 47.60253421320727 {
+		t.Errorf("The HorizontalDistance is %f but expect %f", file.GetHorizontalDistance(), 47.60253421320727)
 	}
 }
 

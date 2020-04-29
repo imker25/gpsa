@@ -11,23 +11,25 @@ import (
 
 // TrackSummary - the struct to store track statistic data
 type TrackSummary struct {
-	Distance          float64
-	MinimumAltitude   float32
-	MaximumAltitude   float32
-	ElevationGain     float32
-	ElevationLose     float32
-	UpwardsDistance   float64
-	DownwardsDistance float64
-	TimeDataValid     bool
-	StartTime         time.Time
-	EndTime           time.Time
-	MovingTime        time.Duration
-	UpwardsTime       time.Duration
-	DownwardsTime     time.Duration
+	Distance           float64
+	HorizontalDistance float64
+	MinimumAltitude    float32
+	MaximumAltitude    float32
+	ElevationGain      float32
+	ElevationLose      float32
+	UpwardsDistance    float64
+	DownwardsDistance  float64
+	TimeDataValid      bool
+	StartTime          time.Time
+	EndTime            time.Time
+	MovingTime         time.Duration
+	UpwardsTime        time.Duration
+	DownwardsTime      time.Duration
 }
 
 // SetValues - Set the Values of a TrackSummary (Implement the TrackSummaryProvider )
 func (sum *TrackSummary) SetValues(distance float64,
+	horizontalDistance float64,
 	minimumAltitude float32,
 	maximumAltitude float32,
 	elevationGain float32,
@@ -44,15 +46,16 @@ func (sum *TrackSummary) SetValues(distance float64,
 	sum.MinimumAltitude = minimumAltitude
 	sum.MaximumAltitude = maximumAltitude
 	sum.Distance = distance
+	sum.HorizontalDistance = horizontalDistance
 	sum.DownwardsDistance = downwardsDistance
 	sum.UpwardsDistance = upwardsDistance
 	sum.ElevationGain = elevationGain
 	sum.ElevationLose = elevationLose
+
+	sum.TimeDataValid = timeDataValid
 	sum.StartTime = startTime
 	sum.EndTime = endTime
-	sum.TimeDataValid = timeDataValid
 	sum.MovingTime = movingTime
-
 	sum.DownwardsTime = downwardsTime
 	sum.UpwardsTime = upwardsTime
 }
@@ -70,6 +73,11 @@ func (sum TrackSummary) GetElevationLose() float32 {
 // GetUpwardsDistance - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetUpwardsDistance() float64 {
 	return sum.UpwardsDistance
+}
+
+// GetHorizontalDistance - Implement the TrackSummaryProvider interface for TrackSummary
+func (sum TrackSummary) GetHorizontalDistance() float64 {
+	return sum.HorizontalDistance
 }
 
 // GetDownwardsDistance - Implement the TrackSummaryProvider interface for TrackSummary
@@ -220,6 +228,11 @@ type TrackPoint struct {
 // GetDistance - Implement the TrackSummaryProvider interface for TrackPoint
 func (pnt TrackPoint) GetDistance() float64 {
 	return pnt.DistanceBefore
+}
+
+// GetHorizontalDistance - Implement the TrackSummaryProvider interface for TrackPoint
+func (pnt TrackPoint) GetHorizontalDistance() float64 {
+	return pnt.HorizontalDistanceBefore
 }
 
 // GetAltitudeRange - Implement the TrackSummaryProvider interface for TrackPoint
