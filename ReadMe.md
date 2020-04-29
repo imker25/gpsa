@@ -6,6 +6,7 @@ This is a simple command line tool that helps to extract data for statistical an
   - [User Documentation](#user-documentation)
     - [Installation](#installation)
     - [Usage](#usage)
+      - [Help Command](#help-command)
       - [Examples](#examples)
       - [Output Values explained](#output-values-explained)
   - [Development](#development)
@@ -38,6 +39,10 @@ chmod 770 ./gpsa
 ```
 
 ### Usage
+
+Below you can find some kind of user manual for this program.
+
+#### Help Command
 
 You might want to call ```-help``` to find out how to use the program.
 
