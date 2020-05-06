@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestGpxFileErrorStruct(t *testing.T) {
+func TestTcxFileErrorStruct(t *testing.T) {
 
 	path := "/some/sample/path"
 	err := newTcxFileError(path)
