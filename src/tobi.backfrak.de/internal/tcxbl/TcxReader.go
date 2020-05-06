@@ -30,6 +30,8 @@ type Lap struct {
 	DistanceMeters   string  `xml:"DistanceMeters"`
 	TotalTimeSeconds string  `xml:"TotalTimeSeconds"`
 	Tracks           []Track `xml:"Track"`
+
+	// ToDo: Read TotalTimeSeconds, DistanceMeters and StartTime
 }
 
 // Track - Represents one Track in a TCX file

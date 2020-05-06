@@ -51,6 +51,9 @@ func convertActivity(activity Activity, correction string, minimalMovingSpeed fl
 
 func convertLap(lap Lap, correction string, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackSegment, error) {
 	res := gpsabl.TrackSegment{}
+
+	// ToDo: Handle Laps with no track data since this is valide
+
 	trackPoints := []Trackpoint{}
 	for _, track := range lap.Tracks {
 		for _, trackPoint := range track.Trackpoints {
