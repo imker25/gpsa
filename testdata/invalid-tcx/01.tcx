@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
+  <Activities>
+    <Activity Sport="Biking">
+      <Id>2016-06-23T20:48:36Z</Id>
+      <Lap StartTime="2016-06-05T10:45:18Z">
+        <TotalTimeSeconds>188.9</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <Calories>74</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Track>
+          <Trackpoint>
+            <Time>2016-06-05T10:45:59Z</Time>
+            <Position>
+              <LatitudeDegrees>49.516803938895464</LatitudeDegrees>
+              <LongitudeDegrees>11.374258445575833</LongitudeDegrees>
+            </Position>
+            <AltitudeMeters>349.0</AltitudeMeters>
+            <DistanceMeters>11.529999785125256</DistanceMeters>
+          </Trackpoint>
+        
+          </Trackpoint>
+        </Track>
+      </Lap>
+    </Activity>
+  </Activities>
+</TrainingCenterDatabase>
