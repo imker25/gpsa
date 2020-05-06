@@ -39,14 +39,15 @@ type Track struct {
 
 // Trackpoint - Represents one Trackpoint in a TCX file
 type Trackpoint struct {
-	Time     string          `xml:"Time"`
-	Position PositionWrapper `xml:"Position"`
+	Time           string          `xml:"Time"`
+	AltitudeMeters float32         `xml:"AltitudeMeters"`
+	Position       PositionWrapper `xml:"Position"`
 }
 
 // PositionWrapper - Represents the Position in a TCX file
 type PositionWrapper struct {
-	LatitudeDegrees  string `xml:"LatitudeDegrees"`
-	LongitudeDegrees string `xml:"LongitudeDegrees"`
+	LatitudeDegrees  float32 `xml:"LatitudeDegrees"`
+	LongitudeDegrees float32 `xml:"LongitudeDegrees"`
 }
 
 // ReadTcx - Read a Tcx file

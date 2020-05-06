@@ -110,12 +110,16 @@ func TestReadValidTcx01(t *testing.T) {
 		t.Errorf("The firsts Points time is \"%s\" but should be \"2016-06-05T10:45:59Z\"", tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Time)
 	}
 
-	if tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LatitudeDegrees != "49.516803938895464" {
-		t.Errorf("The firsts Points time is \"%s\" but should be \"49.516803938895464\"", tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LatitudeDegrees)
+	if tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LatitudeDegrees != 49.516803938895464 {
+		t.Errorf("The firsts Points LatitudeDegrees is \"%f\" but should be \"49.516803938895464\"", tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LatitudeDegrees)
 	}
 
-	if tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LongitudeDegrees != "11.374258445575833" {
-		t.Errorf("The firsts Points time is \"%s\" but should be \"11.374258445575833\"", tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LongitudeDegrees)
+	if tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LongitudeDegrees != 11.374258445575833 {
+		t.Errorf("The firsts Points LongitudeDegrees is \"%f\" but should be \"11.374258445575833\"", tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Position.LongitudeDegrees)
+	}
+
+	if tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].AltitudeMeters != 349.000000 {
+		t.Errorf("The firsts Points AltitudeMeters is \"%f\" but should be \"349.000000\"", tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].AltitudeMeters)
 	}
 
 }
