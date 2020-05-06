@@ -58,6 +58,20 @@ func GetInvalidGPX(name string) string {
 	return filepath.Join(rootDir, "testdata", "invalid-gpx", name)
 }
 
+// GetValidTcx - Get the file path to a valid gpx file with the given name
+func GetValidTcx(name string) string {
+	rootDir := GetProjectRoot()
+
+	return filepath.Join(rootDir, "testdata", "valid-tcx", name)
+}
+
+// GetInvalidTcx - Get the file path to a valid gpx file with the given name
+func GetInvalidTcx(name string) string {
+	rootDir := GetProjectRoot()
+
+	return filepath.Join(rootDir, "testdata", "invalid-tcx", name)
+}
+
 func fileExists(filename string) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
