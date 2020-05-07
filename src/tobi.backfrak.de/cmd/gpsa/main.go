@@ -177,7 +177,7 @@ func customHelpMessage() {
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 	fmt.Fprintln(os.Stdout, "  files")
-	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx) supported at the moment")
+	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx) supported at the moment")
 	fmt.Fprintln(os.Stdout, "Options:")
 	flag.PrintDefaults()
 }

@@ -1,6 +1,6 @@
 # gpsa - A GPX Statistic extracting tool
 
-This is a simple command line tool that helps to extract data for statistical analysis out of *.gpx files. You might want to use this program to extract data like `Distance`, `ElevationGain` or `AverageSpeed` from a bunch of *.gpx files and store this data in a *.csv file for further analysis.
+This is a simple command line tool that helps to extract data for statistical analysis out of `*.gpx` and `*.tcx` files. You might want to use this program to extract data like `Distance`, `ElevationGain` or `AverageSpeed` from a bunch of `*.gpx` or `*.tcx` files and store this data in a *.csv file for further analysis.
 
 - [gpsa - A GPX Statistic extracting tool](#gpsa---a-gpx-statistic-extracting-tool)
   - [User Documentation](#user-documentation)
@@ -49,11 +49,11 @@ You might want to call ```-help``` to find out how to use the program.
 ```txt
 ~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
-Program Version: 0.8.2+7b79520
+Program Version: 0.9.0+7b79520
 
 Usage: ./gpsa [options] [files]
   files
-        One or more track files (only *.gpx) supported at the moment
+        One or more track files (only  *.gpx and *.tcx) supported at the moment
 Options:
   -correction string
         Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
@@ -99,7 +99,7 @@ my/test/file.gpx: 2020-01-29 09:28:06;2020-01-29T08:28:10Z; 2020-01-29T13:48:07Z
 Simple call with multiple files:
 
 ```sh
-~$  ./gpsa my/test/01.gpx my/test/02.gpx my/test/03.gpx
+~$  ./gpsa my/test/01.gpx my/test/02.tcx my/test/03.gpx
 Name; StartTime; EndTime; TrackTime (xxhxxmxxs); Distance (km); HorizontalDistance (km); AltitudeRange (m); MinimumAltitude (m); MaximumAltitude (m); ElevationGain (m); ElevationLose (m); UpwardsDistance (km); DownwardsDistance (km); MovingTime (xxhxxmxxs); UpwardsTime (xxhxxmxxs); DownwardsTime (xxhxxmxxs); AverageSpeed (km/h); UpwardsSpeed (km/h); DownwardsSpeed (km/h);
 03.gpx: Tulln - Wien; not valid; not valid; not valid; 37.640000; 36.120000; 48.000000; 158.000000; 206.000000; 52.000000; -26.000000; 17.520000; 14.060000; not valid; not valid; not valid; not valid; not valid; not valid;
 02.gpx: 2019-08-18 11:07:40; 2019-08-18T09:11:01Z; 2019-08-18T15:47:34Z; 1h35m40s; 37.820000; 37.230000; 104.090000; 347.020000; 451.110000; 263.880000; -251.430000;17.860000; 19.760000; 1h33m20s; 47m54s; 44m56s; 24.320000; 22.370000; 26.390000; 
@@ -118,7 +118,7 @@ Get statistics for a number of files into a csv output, with verbose comandline 
 ```sh
 ~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
 Call:  ./gpsa -verbose -out-file=gps-statistics.csv my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Version: 0.8.2+7b79520
+Version: 0.9.0+7b79520
 Read file: my/test/01.gpx
 Read file: my/test/02.gpx
 Read file: my/test/03.gpx

@@ -8,6 +8,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -22,6 +23,19 @@ func TestReadInValidTcx(t *testing.T) {
 	case nil:
 		t.Errorf("No error, when reading an invalid tcx file")
 	case *xml.SyntaxError:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Expected a *xml.SyntaxError, got a %s", reflect.TypeOf(v))
+	}
+
+}
+
+func TestReadNotExistTcx(t *testing.T) {
+	_, err := ReadTcx(testhelper.GetInvalidTcx("not-exist.tcx"))
+	switch v := err.(type) {
+	case nil:
+		t.Errorf("No error, when reading an not existing tcx file")
+	case *os.PathError:
 		fmt.Println("OK")
 	default:
 		t.Errorf("Expected a *xml.SyntaxError, got a %s", reflect.TypeOf(v))

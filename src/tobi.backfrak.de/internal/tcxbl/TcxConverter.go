@@ -78,6 +78,7 @@ func convertLap(lap Lap, correction string, minimalMovingSpeed float64, minimalS
 			return gpsabl.TrackSegment{}, tErr
 		}
 		res.Distance = d
+		res.HorizontalDistance = d
 		m, mErr := strconv.ParseFloat(lap.TotalTimeSeconds, 64)
 		if mErr != nil {
 			return gpsabl.TrackSegment{}, tErr

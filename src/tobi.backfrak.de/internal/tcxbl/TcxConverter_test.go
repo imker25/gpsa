@@ -52,6 +52,9 @@ func TestConvertValidTcx03(t *testing.T) {
 	if trackFile.GetDistance() != 1250.000000 {
 		t.Errorf("The Distance is %f, but should be %f", trackFile.GetDistance(), 1250.000000)
 	}
+	if trackFile.GetHorizontalDistance() != 1250.000000 {
+		t.Errorf("The Distance is %f, but should be %f", trackFile.GetHorizontalDistance(), 1250.000000)
+	}
 	if trackFile.GetMovingTime() != 3000*time.Second {
 		t.Errorf("The MovingTime is %s, but should be %s", trackFile.GetMovingTime(), 3000*time.Second)
 	}
@@ -69,6 +72,6 @@ func TestConvertValidTcx03(t *testing.T) {
 	}
 
 	if trackFile.GetDownwardsSpeed() != 0.0 {
-		t.Errorf("The UpwardsSpeed is %f, but should be %f", trackFile.GetDownwardsSpeed(), 0.0)
+		t.Errorf("The UpwardsSpeed is %f, but should be %f", trackFile.GetDownwardsSpeed(), 7.683785)
 	}
 }
