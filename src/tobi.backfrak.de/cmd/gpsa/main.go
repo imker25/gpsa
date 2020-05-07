@@ -15,6 +15,7 @@ import (
 
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
+	"tobi.backfrak.de/internal/tcxbl"
 )
 
 // Authors - Information about the authors of the program. You might want to add your name here when contributing to this software
@@ -176,7 +177,7 @@ func customHelpMessage() {
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 	fmt.Fprintln(os.Stdout, "  files")
-	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx) supported at the moment")
+	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx) supported at the moment")
 	fmt.Fprintln(os.Stdout, "Options:")
 	flag.PrintDefaults()
 }
@@ -323,6 +324,10 @@ func getReader(file string) (gpsabl.TrackReader, error) {
 		return getGpxReader(file), nil
 	}
 
+	if strings.HasSuffix(file, "tcx") == true { // If the file is a *.tcx, we can read it
+		return getTcxReader(file), nil
+	}
+
 	// We dont know the file type
 	return nil, newUnKnownFileTypeError(file)
 }
@@ -334,6 +339,15 @@ func getGpxReader(file string) gpsabl.TrackReader {
 
 	// Convert the GpxFile to the TrackReader interface
 	return gpsabl.TrackReader(&gpx)
+}
+
+// Get the interface that can read a *.tcx file
+func getTcxReader(file string) gpsabl.TrackReader {
+	// Get the TcxFile type
+	tcx := tcxbl.NewTcxFile(file)
+
+	// Convert the TcxFile to the TrackReader interface
+	return gpsabl.TrackReader(&tcx)
 }
 
 // outFileExists checks if a file exists and is not a directory before we

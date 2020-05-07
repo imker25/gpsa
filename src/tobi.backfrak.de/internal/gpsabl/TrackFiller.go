@@ -186,7 +186,7 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint, minimalMovingSpeed float6
 
 			if i > 0 {
 				pnts[i].TimeDurationBefore = pnt.Time.Sub(pnts[i-1].Time)
-				pnts[i].SpeedBefore = pnt.DistanceBefore / float64((pnts[i].TimeDurationBefore / 1000000000))
+				pnts[i].SpeedBefore = pnt.DistanceBefore / float64((pnts[i].TimeDurationBefore / time.Second))
 				if pnts[i].SpeedBefore >= minimalMovingSpeed {
 					movingTime = movingTime + pnts[i].TimeDurationBefore
 					pnts[i].CountMoving = true
@@ -201,13 +201,13 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint, minimalMovingSpeed float6
 
 			if i < (len(pnts) - 1) {
 				pnts[i].TimeDurationNext = pnts[i+1].Time.Sub(pnt.Time)
-				pnts[i].SpeedNext = pnt.DistanceNext / float64((pnts[i].TimeDurationNext / 1000000000))
+				pnts[i].SpeedNext = pnt.DistanceNext / float64((pnts[i].TimeDurationNext / time.Second))
 			}
 
 			pnts[i].DistanceToThisPoint = disToHere
 			pnts[i].MovingTime = movingTime
 			if pnts[i].MovingTime > 0 {
-				pnts[i].AvarageSpeed = pnts[i].DistanceToThisPoint / float64((pnts[i].MovingTime / 1000000000))
+				pnts[i].AvarageSpeed = pnts[i].DistanceToThisPoint / float64((pnts[i].MovingTime / time.Second))
 			}
 		} else {
 			// If we can not calc the speed because of missing time info, all points count

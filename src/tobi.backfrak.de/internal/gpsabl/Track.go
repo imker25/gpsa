@@ -138,7 +138,7 @@ func (sum TrackSummary) GetDownwardsTime() time.Duration {
 // GetAvarageSpeed - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetAvarageSpeed() float64 {
 	if sum.TimeDataValid && sum.MovingTime > 0 {
-		return sum.Distance / float64(sum.MovingTime/1000000000)
+		return sum.Distance / float64(sum.MovingTime/time.Second)
 	}
 
 	return 0
@@ -147,7 +147,7 @@ func (sum TrackSummary) GetAvarageSpeed() float64 {
 // GetUpwardsSpeed - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetUpwardsSpeed() float64 {
 	if sum.TimeDataValid && sum.UpwardsTime > 0 {
-		return sum.UpwardsDistance / float64(sum.UpwardsTime/1000000000)
+		return sum.UpwardsDistance / float64(sum.UpwardsTime/time.Second)
 	}
 
 	return 0
@@ -156,7 +156,7 @@ func (sum TrackSummary) GetUpwardsSpeed() float64 {
 // GetDownwardsSpeed - Implement the TrackSummaryProvider interface for TrackSummary
 func (sum TrackSummary) GetDownwardsSpeed() float64 {
 	if sum.TimeDataValid && sum.DownwardsTime > 0 {
-		return sum.DownwardsDistance / float64(sum.DownwardsTime/1000000000)
+		return sum.DownwardsDistance / float64(sum.DownwardsTime/time.Second)
 	}
 
 	return 0

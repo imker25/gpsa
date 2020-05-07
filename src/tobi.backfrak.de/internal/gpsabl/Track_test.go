@@ -72,7 +72,7 @@ func TestTrackSummaryWithTime(t *testing.T) {
 	startTime, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
 	movingTime := endTime.Sub(startTime)
 	distance := 100.0
-	speed := distance / float64(movingTime/1000000000)
+	speed := distance / float64(movingTime/time.Second)
 	endTimeUp, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:17Z")
 	upwardsTime := startTime.Sub(endTimeUp)
 	endTimeDown, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:23Z")

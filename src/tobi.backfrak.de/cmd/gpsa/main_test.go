@@ -145,9 +145,9 @@ func TestProcessValidFiles(t *testing.T) {
 	formater := gpsabl.NewCsvOutputFormater(";")
 	iFormater := gpsabl.OutputFormater(formater)
 
-	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx")}
+	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx"), testhelper.GetValidTcx("02.tcx")}
 	successCount := processFiles(files, iFormater)
-	if successCount != 2 {
+	if successCount != 3 {
 		t.Errorf("Not all files were processed successfully as expected")
 	}
 
