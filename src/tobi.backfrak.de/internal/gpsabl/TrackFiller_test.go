@@ -574,7 +574,7 @@ func TestTrackSpeedWithGaps(t *testing.T) {
 		t.Errorf("The AvarageSpeed is %f, but expect 0.7961716145822753", file.GetAvarageSpeed())
 	}
 
-	wrongSpeed := file.GetDistance() / float64(file.GetEndTime().Sub(file.GetStartTime())/1000000000)
+	wrongSpeed := file.GetDistance() / float64(file.GetEndTime().Sub(file.GetStartTime())/time.Second)
 	if file.GetAvarageSpeed() == wrongSpeed {
 		t.Errorf("The AvarageSpeed is the same as the speed calculated from start and end time")
 	}
@@ -596,7 +596,7 @@ func TestTrackTimeWithStillPoints(t *testing.T) {
 		t.Errorf("The GetMovingTime is the same as the speed calculated from start and end time")
 	}
 
-	wrongSpeed := file.GetDistance() / float64(file.GetEndTime().Sub(file.GetStartTime())/1000000000)
+	wrongSpeed := file.GetDistance() / float64(file.GetEndTime().Sub(file.GetStartTime())/time.Second)
 	if file.GetAvarageSpeed() == wrongSpeed {
 		t.Errorf("The AvarageSpeed is the same as the speed calculated from start and end time")
 	}

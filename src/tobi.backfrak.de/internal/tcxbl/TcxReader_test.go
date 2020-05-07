@@ -106,6 +106,19 @@ func TestReadValidTcx01(t *testing.T) {
 	if tcx.ActivityArray[0].Activities[0].ID != "2016-06-23T20:48:36Z" {
 		t.Errorf("The Activity.ID \"is\" %s but should be \"2016-06-23T20:48:36Z\"", tcx.ActivityArray[0].Activities[0].ID)
 	}
+
+	if tcx.ActivityArray[0].Activities[0].Laps[0].DistanceMeters != "1000.0" {
+		t.Errorf("The Laps[0].DistanceMeters \"is\" %s but should be \"1000.0\"", tcx.ActivityArray[0].Activities[0].Laps[0].DistanceMeters)
+	}
+
+	if tcx.ActivityArray[0].Activities[0].Laps[0].TotalTimeSeconds != "188.9" {
+		t.Errorf("The Laps[0].TotalTimeSeconds is \"%s\" but should be \"188.9\"", tcx.ActivityArray[0].Activities[0].Laps[0].TotalTimeSeconds)
+	}
+
+	if tcx.ActivityArray[0].Activities[0].Laps[0].StartTime != "2016-06-05T10:45:18Z" {
+		t.Errorf("The Laps[0].StartTime is \"%s\" but should be \"2016-06-05T10:45:18Z", tcx.ActivityArray[0].Activities[0].Laps[0].StartTime)
+	}
+
 	if tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Time != "2016-06-05T10:45:59Z" {
 		t.Errorf("The firsts Points time is \"%s\" but should be \"2016-06-05T10:45:59Z\"", tcx.ActivityArray[0].Activities[0].Laps[0].Tracks[0].Trackpoints[0].Time)
 	}

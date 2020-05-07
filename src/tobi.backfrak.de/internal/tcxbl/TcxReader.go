@@ -29,9 +29,8 @@ type Activity struct {
 type Lap struct {
 	DistanceMeters   string  `xml:"DistanceMeters"`
 	TotalTimeSeconds string  `xml:"TotalTimeSeconds"`
+	StartTime        string  `xml:"StartTime,attr"`
 	Tracks           []Track `xml:"Track"`
-
-	// ToDo: Read TotalTimeSeconds, DistanceMeters and StartTime
 }
 
 // Track - Represents one Track in a TCX file

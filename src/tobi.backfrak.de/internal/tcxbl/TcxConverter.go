@@ -2,6 +2,7 @@ package tcxbl
 
 import (
 	"sort"
+	"strconv"
 	"time"
 
 	"tobi.backfrak.de/internal/gpsabl"
@@ -52,20 +53,40 @@ func convertActivity(activity Activity, correction string, minimalMovingSpeed fl
 func convertLap(lap Lap, correction string, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackSegment, error) {
 	res := gpsabl.TrackSegment{}
 
-	// ToDo: Handle Laps with no track data since this is valide
-
-	trackPoints := []Trackpoint{}
-	for _, track := range lap.Tracks {
-		for _, trackPoint := range track.Trackpoints {
-			trackPoints = append(trackPoints, trackPoint)
+	if len(lap.Tracks) > 0 && len(lap.Tracks[0].Trackpoints) > 1 {
+		trackPoints := []Trackpoint{}
+		for _, track := range lap.Tracks {
+			for _, trackPoint := range track.Trackpoints {
+				trackPoints = append(trackPoints, trackPoint)
+			}
 		}
+		retArr, err := convertTrackpoints(trackPoints, correction, minimalMovingSpeed, minimalStepHight)
+		if err != nil {
+			return gpsabl.TrackSegment{}, err
+		}
+		res.TrackPoints = retArr
+		gpsabl.FillTrackSegmentValues(&res)
+	} else {
+		t, tErr := time.Parse(time.RFC3339, lap.StartTime)
+		if tErr != nil {
+			return gpsabl.TrackSegment{}, tErr
+
+		}
+		res.StartTime = t
+		d, dErr := strconv.ParseFloat(lap.DistanceMeters, 64)
+		if dErr != nil {
+			return gpsabl.TrackSegment{}, tErr
+		}
+		res.Distance = d
+		m, mErr := strconv.ParseFloat(lap.TotalTimeSeconds, 64)
+		if mErr != nil {
+			return gpsabl.TrackSegment{}, tErr
+		}
+		res.MovingTime = time.Duration(m * float64(time.Second))
+		res.EndTime = res.StartTime.Add(res.MovingTime)
+		res.TimeDataValid = true
 	}
-	retArr, err := convertTrackpoints(trackPoints, correction, minimalMovingSpeed, minimalStepHight)
-	if err != nil {
-		return gpsabl.TrackSegment{}, err
-	}
-	res.TrackPoints = retArr
-	gpsabl.FillTrackSegmentValues(&res)
+
 	return res, nil
 }
 
