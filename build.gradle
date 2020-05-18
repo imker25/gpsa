@@ -1,6 +1,6 @@
 // Build script for this project. May used in IDE or CI environment
 defaultTasks 'build'
-def programVersion='0.9.0'
+def programVersion=''
 def goPath
 def scriptDirectory
 def scriptFile
@@ -11,6 +11,7 @@ String srcDir
 String binDir
 String pkgDir
 String logDir
+String versionFile
 String packagesToBuild = ''
 String packagesToTest = ''
 def raceParameter
@@ -43,6 +44,7 @@ task getEnvironment {
         binDir = "$scriptDirectory" + File.separator + "bin" + File.separator
         pkgDir = "$scriptDirectory" + File.separator + "pkg" + File.separator
         logDir = "$scriptDirectory" + File.separator + "logs" + File.separator
+        versionFile = "$scriptDirectory" + File.separator + "Version.txt"
 
         def logDirBase = new File(logDir)
         logDirBase.mkdirs()
@@ -73,7 +75,7 @@ task getEnvironment {
         } else {
             raceParameter = '-race'
         }
-
+        programVersion=new File(versionFile).text
         println "GOPATH=$goPath"
 
         // Find all directories within src/ that contains *.go files
