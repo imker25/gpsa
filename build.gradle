@@ -1,6 +1,7 @@
 // Build script for this project. May used in IDE or CI environment
 defaultTasks 'build'
 def programVersion=''
+def programVersionNumber=''
 def goPath
 def scriptDirectory
 def scriptFile
@@ -110,7 +111,8 @@ task getEnvironment {
             raceParameter = '-race'
         }
         programVersion=new File(versionFile).text
-        programVersion= programVersion + "." + getGitHight()
+        programVersionNumber = programVersion + "." + getGitHight()
+        programVersion= programVersionNumber + "-" + getGitHash()
         println "Program version: ${programVersion}"
         println "GOPATH=$goPath"
 
@@ -151,13 +153,13 @@ task getBuildName(dependsOn: 'clean') {
         
         if ("${System.env.BUILD_NUMBER}" != "null" )
         {
-            buildName =  "${programVersion}+${getGitHash()}-${System.env.BUILD_NUMBER}"
+            buildName =  "${programVersion}-${System.env.BUILD_NUMBER}"
         } else  {
-            buildName = "${programVersion}+${getGitHash()}"
+            buildName = "${programVersion}"
         }
         println "Build Name: ${buildName}"
         file("${logDir}${File.separator}BuildName.txt").text = "${buildName}"
-        file("${logDir}${File.separator}Version.txt").text = "${programVersion}"
+        file("${logDir}${File.separator}Version.txt").text = "${programVersionNumber}"
         file("${logDir}${File.separator}dummy.json").text = "{\"key\":\"value\"}"
 
     }
@@ -300,8 +302,8 @@ task build(dependsOn: 'clean') {
         println '##################################################################################'
     }
     doLast {
-        println "go install -v -ldflags=\"-X main.version=${programVersion}+${getGitHash()}\" $packagesToBuild"
-        def versionArg ='-X main.version=' + "${programVersion}+${getGitHash()}" +''
+        println "go install -v -ldflags=\"-X main.version=${programVersion}\" $packagesToBuild"
+        def versionArg ='-X main.version=' + "${programVersion}" +''
         def packageArray = packagesToBuild.split(' ');
         def callArgs = new String[packageArray.length + 4]
         callArgs[0] = 'install'
