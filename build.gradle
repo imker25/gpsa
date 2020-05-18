@@ -78,7 +78,7 @@ task getEnvironment {
         binDir = "$scriptDirectory" + File.separator + "bin" + File.separator
         pkgDir = "$scriptDirectory" + File.separator + "pkg" + File.separator
         logDir = "$scriptDirectory" + File.separator + "logs" + File.separator
-        versionFile = "$scriptDirectory" + File.separator + "Version.txt"
+        versionFile = "$scriptDirectory" + File.separator + "VersionMaster.txt"
 
         def logDirBase = new File(logDir)
         logDirBase.mkdirs()
