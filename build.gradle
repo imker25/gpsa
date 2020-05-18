@@ -25,6 +25,40 @@ def getGitHash = { ->
     return stdout.toString().trim()
 }
 
+def getGitHight = { ->
+
+    // Get the last commit in Version.txt
+    def stdout = new ByteArrayOutputStream()
+    def lastVersionChange 
+    exec {
+        commandLine 'git', 'log', '--pretty=format:"%H"', '-n 1', '--follow', versionFile
+        standardOutput = stdout
+    }
+    lastVersionChange = stdout.toString().trim()
+    lastVersionChange = lastVersionChange.replaceAll (/"/, '') 
+
+    // Get the last commit in the repo
+    stdout = new ByteArrayOutputStream()
+    def head 
+    exec {
+        commandLine 'git', 'log', '--pretty=format:"%H"', '-n 1'
+        standardOutput = stdout
+    }
+    head = stdout.toString().trim()
+    head = head.replaceAll (/"/, '') 
+
+    // Count commits between lastVersionChange and head (this is the hight)
+    stdout = new ByteArrayOutputStream()
+    def hight 
+    exec {
+        commandLine 'git', 'rev-list', '--count', lastVersionChange + '..' + head
+        standardOutput = stdout
+    }
+    hight = stdout.toString().trim() 
+
+    return hight
+}
+
 task getEnvironment {
     description 'Setup the environment for the build'
     doFirst{
@@ -76,6 +110,8 @@ task getEnvironment {
             raceParameter = '-race'
         }
         programVersion=new File(versionFile).text
+        programVersion= programVersion + "." + getGitHight()
+        println "Program version: ${programVersion}"
         println "GOPATH=$goPath"
 
         // Find all directories within src/ that contains *.go files
