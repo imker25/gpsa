@@ -28,7 +28,9 @@ fi
 
 pushd "$BRANCH_ROOT"
 
+actualBranch=$(git status -b -s)
 
+echo "Branch: \" $actualBranch \""
 
 popd
 exit 0
