@@ -50,7 +50,7 @@ statusLines=$(echo "$actualBranch" | wc -l)
 # fi 
 
 echo "Branch Status: \"$actualBranch\" "
-expectedStatus="## $RELEASE_BASE_BRANCH...origin/$RELEASE_BASE_BRANCH [ahead 4]"
+expectedStatus="## $RELEASE_BASE_BRANCH...origin/$RELEASE_BASE_BRANCH [ahead 6]"
 if [ "$expectedStatus" != "$actualBranch" ]; then
     echo "Error: Not running on $RELEASE_BASE_BRANCH branch"
     popd
