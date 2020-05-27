@@ -16,7 +16,7 @@ function print_usage()  {
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 BRANCH_ROOT="$SCRIPT_DIR/.."
 LOG_DIR="$BRANCH_ROOT/logs"
-RELEASE_BASE_BRANCH="master"
+RELEASE_BASE_BRANCH="feature/BetterVersioning"
 
 # ################################################################################################################
 # functional code
@@ -43,7 +43,19 @@ statusLines=$(echo "$actualBranch" | wc -l)
 #     exit -1
 # fi 
 
+# if [[ $actualBranch == *"[ahead"* ]]; then 
+#     echo "Error: Local repository is ahead of remote"
+#     popd
+#     exit -1
+# fi 
+
 echo "Branch Status: \"$actualBranch\" "
+expectedStatus="## $RELEASE_BASE_BRANCH...origin/$RELEASE_BASE_BRANCH"
+if [ "$expectedStatus" != "$actualBranch" ]; then
+    echo "Error: Not running on $RELEASE_BASE_BRANCH branch"
+    popd
+    exit -1
+fi 
 
 popd
 exit 0
