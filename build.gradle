@@ -1,6 +1,7 @@
 // Build script for this project. May used in IDE or CI environment
 defaultTasks 'build'
-def programVersion='0.9.0'
+def programVersion=''
+def programVersionNumber=''
 def goPath
 def scriptDirectory
 def scriptFile
@@ -11,6 +12,7 @@ String srcDir
 String binDir
 String pkgDir
 String logDir
+String versionFile
 String packagesToBuild = ''
 String packagesToTest = ''
 def raceParameter
@@ -22,6 +24,40 @@ def getGitHash = { ->
         standardOutput = stdout
     }
     return stdout.toString().trim()
+}
+
+def getGitHight = { ->
+
+    // Get the last commit in Version.txt
+    def stdout = new ByteArrayOutputStream()
+    def lastVersionChange 
+    exec {
+        commandLine 'git', 'log', '--pretty=format:"%H"', '-n 1', '--follow', versionFile
+        standardOutput = stdout
+    }
+    lastVersionChange = stdout.toString().trim()
+    lastVersionChange = lastVersionChange.replaceAll (/"/, '') 
+
+    // Get the last commit in the repo
+    stdout = new ByteArrayOutputStream()
+    def head 
+    exec {
+        commandLine 'git', 'log', '--pretty=format:"%H"', '-n 1'
+        standardOutput = stdout
+    }
+    head = stdout.toString().trim()
+    head = head.replaceAll (/"/, '') 
+
+    // Count commits between lastVersionChange and head (this is the hight)
+    stdout = new ByteArrayOutputStream()
+    def hight 
+    exec {
+        commandLine 'git', 'rev-list', '--count', lastVersionChange + '..' + head
+        standardOutput = stdout
+    }
+    hight = stdout.toString().trim() 
+
+    return hight
 }
 
 task getEnvironment {
@@ -43,6 +79,7 @@ task getEnvironment {
         binDir = "$scriptDirectory" + File.separator + "bin" + File.separator
         pkgDir = "$scriptDirectory" + File.separator + "pkg" + File.separator
         logDir = "$scriptDirectory" + File.separator + "logs" + File.separator
+        versionFile = "$scriptDirectory" + File.separator + "VersionMaster.txt"
 
         def logDirBase = new File(logDir)
         logDirBase.mkdirs()
@@ -73,7 +110,10 @@ task getEnvironment {
         } else {
             raceParameter = '-race'
         }
-
+        programVersion=new File(versionFile).text
+        programVersionNumber = programVersion + "." + getGitHight()
+        programVersion= programVersionNumber + "-" + getGitHash()
+        println "Program version: ${programVersion}"
         println "GOPATH=$goPath"
 
         // Find all directories within src/ that contains *.go files
@@ -113,13 +153,13 @@ task getBuildName(dependsOn: 'clean') {
         
         if ("${System.env.BUILD_NUMBER}" != "null" )
         {
-            buildName =  "${programVersion}+${getGitHash()}-${System.env.BUILD_NUMBER}"
+            buildName =  "${programVersion}-${System.env.BUILD_NUMBER}"
         } else  {
-            buildName = "${programVersion}+${getGitHash()}"
+            buildName = "${programVersion}"
         }
         println "Build Name: ${buildName}"
         file("${logDir}${File.separator}BuildName.txt").text = "${buildName}"
-        file("${logDir}${File.separator}Version.txt").text = "${programVersion}"
+        file("${logDir}${File.separator}Version.txt").text = "${programVersionNumber}"
         file("${logDir}${File.separator}dummy.json").text = "{\"key\":\"value\"}"
 
     }
@@ -262,8 +302,8 @@ task build(dependsOn: 'clean') {
         println '##################################################################################'
     }
     doLast {
-        println "go install -v -ldflags=\"-X main.version=${programVersion}+${getGitHash()}\" $packagesToBuild"
-        def versionArg ='-X main.version=' + "${programVersion}+${getGitHash()}" +''
+        println "go install -v -ldflags=\"-X main.version=${programVersion}\" $packagesToBuild"
+        def versionArg ='-X main.version=' + "${programVersion}" +''
         def packageArray = packagesToBuild.split(' ');
         def callArgs = new String[packageArray.length + 4]
         callArgs[0] = 'install'
