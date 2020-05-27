@@ -30,6 +30,11 @@ pushd "$BRANCH_ROOT"
 
 actualBranch=$(git status -b -s)
 statusLines=$(echo "$actualBranch" | wc -l)
+if [ "$statusLines" != "1" ]; then
+    echo "Error: There are change files that are not checked in."
+    popd
+    exit -1
+fi 
 
 echo "Branch Status has $statusLines lines"
 
