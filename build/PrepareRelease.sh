@@ -29,8 +29,9 @@ fi
 pushd "$BRANCH_ROOT"
 
 actualBranch=$(git status -b -s)
+statusLines=$(echo "$actualBranch" | wc -l)
 
-echo "Branch: \" $actualBranch \""
+echo "Branch Status has $statusLines lines"
 
 popd
 exit 0
