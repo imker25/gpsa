@@ -83,7 +83,7 @@ echo "Actual version is: Major ${versionNumbersArray[0]}, Minor $actualMinorNumb
 echo "Next version is: Major ${versionNumbersArray[0]}, Minor $nextMinorNumber,"
 nextVersionInfo="${versionNumbersArray[0]}.$nextMinorNumber"
 echo "Set new version $nextVersionInfo"
-echo $nextVersionInfo > $VERSION_MASTER_PATH
+echo -n "$nextVersionInfo" > $VERSION_MASTER_PATH
 
 echo "Commit the changed version master"
 git commit -a -m "Update version number master to $nextVersionInfo"
