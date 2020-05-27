@@ -96,7 +96,7 @@ git status
 
 echo "You want to push this changes now? (yes|no)"
 read answer
-if [ "answer" != "yes" ]; then 
+if [ "$answer" != "yes" ]; then 
     echo "Push aborted"
     popd
     exit 0
