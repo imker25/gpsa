@@ -26,8 +26,8 @@ pipeline {
     stages {
 		stage('Get Build Name') {
 			steps ('Calculate the name') {
-				sh 'git clean -fdx'
 				checkout scm
+				sh 'git clean -fdx'
 				sh 'gradle getBuildName'
 				script {
 					currentBuild.displayName = readFile "logs/BuildName.txt"
@@ -45,8 +45,8 @@ pipeline {
 					stages{
 						stage('Prepare windows workspace'){
 							steps ('Checkout') {
-								bat 'git clean -fdx'
 								checkout scm
+								bat 'git clean -fdx'
 							}
 						}
 						stage('Create windows binaries') {
@@ -82,8 +82,8 @@ pipeline {
 					stages{
 						stage('Prepare linux workspace'){
 							steps ('Checkout') {
-								sh 'git clean -fdx'
 								checkout scm
+								sh 'git clean -fdx'
 							}
 						}
 						stage('Create linux binaries') {
