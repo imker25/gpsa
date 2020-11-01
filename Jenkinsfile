@@ -26,6 +26,7 @@ pipeline {
     stages {
 		stage('Get Build Name') {
 			steps ('Calculate the name') {
+				sh 'git clean -fdx'
 				checkout scm
 				sh 'gradle getBuildName'
 				script {
@@ -44,6 +45,7 @@ pipeline {
 					stages{
 						stage('Prepare windows workspace'){
 							steps ('Checkout') {
+								bat 'git clean -fdx'
 								checkout scm
 							}
 						}
@@ -80,6 +82,7 @@ pipeline {
 					stages{
 						stage('Prepare linux workspace'){
 							steps ('Checkout') {
+								sh 'git clean -fdx'
 								checkout scm
 							}
 						}
