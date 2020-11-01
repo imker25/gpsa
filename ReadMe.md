@@ -235,3 +235,5 @@ The Geografic calculations are done with the  ```haversine formula```  as descri
 
 gpsa is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 May got some testfiles and ideas from [gpxgo](https://github.com/tkrajina/gpxgo/tree/master/test_files)
+
+
