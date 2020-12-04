@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Copyright 2019 by tobi@backfrak.de. All
@@ -39,11 +40,11 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 	formater := NewCsvOutputFormater(";", true)
 	trackFile := getSimpleTrackFile()
 
-	ret, err := formater.FormatOutPut(trackFile, formater.AddHeader, "file")
+	err := formater.AddOutPut(trackFile, "track", false)
 	if err != nil {
 		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
-
+	ret := formater.GetLines()
 	if len(ret) != 2 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -66,11 +67,11 @@ func TestFormatOutPutWithHeaderAndSetName(t *testing.T) {
 	trackFile := getSimpleTrackFile()
 	trackFile.Name = "My Track File"
 
-	ret, err := formater.FormatOutPut(trackFile, formater.AddHeader, "file")
+	err := formater.AddOutPut(trackFile, "track", false)
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-
+	ret := formater.GetLines()
 	if len(ret) != 2 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -96,11 +97,11 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
 
-	ret, err := formater.FormatOutPut(trackFile, formater.AddHeader, "file")
+	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "file")
 	if err != nil {
 		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
-
+	ret := getLinesFormOutputLines(entries)
 	if len(ret) != 1 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -118,11 +119,11 @@ func TestFormatOutPutWithOutHeaderTrackDepth(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
 
-	ret, err := formater.FormatOutPut(trackFile, formater.AddHeader, "track")
+	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-
+	ret := getLinesFormOutputLines(entries)
 	if len(ret) != 1 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -141,11 +142,11 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackName(t *testing.T) {
 	trackFile := getSimpleTrackFile()
 	trackFile.Tracks[0].Name = "My Track"
 
-	ret, err := formater.FormatOutPut(trackFile, formater.AddHeader, "track")
+	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-
+	ret := getLinesFormOutputLines(entries)
 	if len(ret) != 1 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -169,11 +170,11 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackFileNameSetTrackName(t *test
 	trackFile.Tracks[0].Name = "My Track"
 	trackFile.Name = "My track file"
 
-	ret, err := formater.FormatOutPut(trackFile, formater.AddHeader, "track")
+	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-
+	ret := getLinesFormOutputLines(entries)
 	if len(ret) != 1 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -201,11 +202,11 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 	trackFile.Tracks[0].Name = "My Track"
 	trackFile.Name = "My track file"
 
-	ret, err := formater.FormatOutPut(trackFile, formater.AddHeader, "segment")
+	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "segment")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-
+	ret := getLinesFormOutputLines(entries)
 	if len(ret) != 1 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -230,7 +231,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 func TestFormatOutPutWithOutHeaderInvalidDepth(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
-	_, err := formater.FormatOutPut(trackFile, formater.AddHeader, "abc")
+	_, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "abc")
 
 	if err == nil {
 		t.Errorf("Did not get an error as expected")
@@ -584,16 +585,6 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 	}
 }
 
-func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
-
-	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
-	line := "b;789,101;fgh"
-
-	if outPutContainsLineByTimeStamps(outPut, line) == false {
-		t.Errorf("Got false, but expect true")
-	}
-}
-
 func TestOutPutTrackTimeAndMovingTimeIsDifferent(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
 	trackFile := getTrackFileWithTimeGaps()
@@ -638,24 +629,69 @@ func TestOutPutDistanceAndHorizontalDistanceIsDifferent(t *testing.T) {
 	}
 }
 
-func TestOutPutContainsLineByTimeStamps2(t *testing.T) {
+func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	trackFile := getTrackFileTwoTracksWithThreeSegmentsWithTime()
+	entries, err := frt.GetOutPutEntries(trackFile, false, "track")
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
 
-	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
-	line := "b;789,100;fgh"
+	if outPutContainsLineByTimeStamps(entries, entries[0]) == false {
+		t.Errorf("Got false, but expect true")
+	}
 
-	if outPutContainsLineByTimeStamps(outPut, line) == true {
+	if outPutContainsLineByTimeStamps(entries, *newOutputLine("bla", getTrackWithDifferentTime())) == true {
 		t.Errorf("Got true, but expect false")
 	}
 }
 
-func TestOutPutContainsLineByTimeStamps3(t *testing.T) {
+func TestOutPutContainsLineByTimeStamps2(t *testing.T) {
 
-	outPut := []string{"a;123;456;asd;", "b;789,101;fgh;"}
-	line := "b;780,101;fgh"
+	frt := NewCsvOutputFormater(";", false)
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+	entries, err := frt.GetOutPutEntries(trackFile, false, "track")
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
 
-	if outPutContainsLineByTimeStamps(outPut, line) == true {
+	if outPutContainsLineByTimeStamps(entries, entries[0]) == true {
 		t.Errorf("Got true, but expect false")
 	}
+}
+
+func getLinesFormOutputLines(lines []OutputLine) []string {
+	ret := []string{}
+	formater := NewCsvOutputFormater(";", true)
+	for _, line := range lines {
+		ret = append(ret, formater.FormatTrackSummary(line.Data, line.Name))
+	}
+
+	return ret
+}
+
+func getTrackWithDifferentTime() Track {
+	t1, _ := time.Parse(time.RFC3339, "2015-08-22T17:19:33Z")
+	t2, _ := time.Parse(time.RFC3339, "2015-08-22T17:19:43Z")
+	t3, _ := time.Parse(time.RFC3339, "2015-08-22T17:19:53Z")
+	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
+	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 108.0, t2)
+	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t3)
+	points := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
+	FillDistancesTrackPoint(&points[1], points[0], points[2])
+	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
+	seg := TrackSegment{}
+	seg.TrackPoints = points
+	ret := Track{}
+	FillTrackSegmentValues(&seg)
+	ret.TrackSegments = []TrackSegment{seg}
+	FillTrackValues(&ret)
+	ret.NumberOfSegments = 1
+
+	return ret
 }
 
 func getTrackFileTwoTracksWithThreeSegments() TrackFile {
