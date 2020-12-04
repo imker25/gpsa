@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -16,24 +17,42 @@ import (
 // NotValidValue - The value set when values are not valid
 const NotValidValue = "not valid"
 
+// OutputLine - Represents one line in the output
+type OutputLine struct {
+	Name string
+	Data TrackSummaryProvider
+}
+
+func newOutputLine(name string, data TrackSummaryProvider) *OutputLine {
+	ret := OutputLine{}
+	ret.Data = data
+	ret.Name = name
+
+	return &ret
+}
+
 // CsvOutputFormater - type that formats TrackSummary into csv style
 type CsvOutputFormater struct {
 	// Separator - The separator used to separate values in csv
 	Separator string
 
+	// Tell if the CSV header should be added to the output
+	AddHeader bool
+
 	// ValidDepthArgs - The valid args values for the -depth parameter
 	ValidDepthArgs []string
 
-	lineBuffer []string
+	lineBuffer []OutputLine
 	mux        sync.Mutex
 }
 
 // NewCsvOutputFormater - Get a new CsvOutputFormater
-func NewCsvOutputFormater(separator string) *CsvOutputFormater {
+func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
+	ret.AddHeader = addHeader
 	ret.ValidDepthArgs = []string{"track", "file", "segment"}
-	ret.lineBuffer = []string{}
+	ret.lineBuffer = []OutputLine{}
 
 	return &ret
 }
@@ -41,14 +60,14 @@ func NewCsvOutputFormater(separator string) *CsvOutputFormater {
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
 func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, filterDuplicate bool) error {
 
-	var lines []string
-	linesFromFile, err := formater.FormatOutPut(trackFile, false, depth)
+	var lines []OutputLine
+	linesFromFile, err := formater.GetOutPutEntries(trackFile, false, depth)
 	if err != nil {
 		return err
 	}
 	if filterDuplicate {
 		for _, line := range linesFromFile {
-			if outPutContainsLineByTimeStamps(lines, line) == false && outPutContainsLineByTimeStamps(formater.GetLines(), line) == false {
+			if outPutContainsLineByTimeStamps(lines, line) == false && outPutContainsLineByTimeStamps(formater.lineBuffer, line) == false {
 				lines = append(lines, line)
 			}
 		}
@@ -65,23 +84,27 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, 
 	return nil
 }
 
-// AddHeader - Add the formated header line to the internal buffer, so it can be written out later
-func (formater *CsvOutputFormater) AddHeader() {
-	formater.mux.Lock()
-	defer formater.mux.Unlock()
-	formater.lineBuffer = append(formater.lineBuffer, formater.GetHeader())
-}
-
 // GetLines - Get the lines stored in the internal buffer
 func (formater *CsvOutputFormater) GetLines() []string {
-	return formater.lineBuffer
+	ret := []string{}
+	if formater.AddHeader {
+		ret = append(ret, formater.GetHeader())
+	}
+	formater.mux.Lock()
+	defer formater.mux.Unlock()
+	sort.Slice(formater.lineBuffer, func(i, j int) bool {
+		return formater.lineBuffer[i].Data.GetStartTime().Before(formater.lineBuffer[j].Data.GetStartTime())
+	})
+	for _, line := range formater.lineBuffer {
+		ret = append(ret, formater.FormatTrackSummary(line.Data, line.Name))
+	}
+	return ret
 }
 
 // WriteOutput - Write the output to a given file handle object. Make sure the file exists before you call this method!
 func (formater *CsvOutputFormater) WriteOutput(outFile *os.File) error {
-	formater.mux.Lock()
-	defer formater.mux.Unlock()
-	for _, line := range formater.lineBuffer {
+	lines := formater.GetLines()
+	for _, line := range lines {
 		_, errWrite := outFile.WriteString(line)
 		if errWrite != nil {
 			return errWrite
@@ -91,23 +114,19 @@ func (formater *CsvOutputFormater) WriteOutput(outFile *os.File) error {
 	return nil
 }
 
-// FormatOutPut - Create the output for a TrackFile
-func (formater *CsvOutputFormater) FormatOutPut(trackFile TrackFile, printHeader bool, depth string) ([]string, error) {
-	ret := []string{}
-	if printHeader {
-		header := formater.GetHeader()
-		ret = append(ret, header)
-	}
+// GetOutPutEntries - Add the output of a TrackFile
+func (formater *CsvOutputFormater) GetOutPutEntries(trackFile TrackFile, printHeader bool, depth string) ([]OutputLine, error) {
+	ret := []OutputLine{}
 
 	switch depth {
 	case formater.ValidDepthArgs[1]:
-		ret = append(ret, formater.FormatTrackSummary(TrackSummaryProvider(trackFile), getLineNameFromTrackFile(trackFile)))
+		ret = append(ret, *newOutputLine(getLineNameFromTrackFile(trackFile), TrackSummaryProvider(trackFile)))
 	case formater.ValidDepthArgs[0]:
-		addLinesFromTracks(formater, trackFile, &ret)
+		ret = append(ret, getLinesFromTracks(formater, trackFile)...)
 	case formater.ValidDepthArgs[2]:
-		addLinesFromTrackSegments(formater, trackFile, &ret)
+		ret = append(ret, getLinesFromTrackSegments(formater, trackFile)...)
 	default:
-		return ret, NewDepthParameterNotKnownError(depth)
+		return nil, NewDepthParameterNotKnownError(depth)
 	}
 
 	return ret, nil
@@ -141,7 +160,7 @@ func (formater *CsvOutputFormater) GetHeader() string {
 	return ret
 }
 
-// FormatTrackSummary - Create the outputline for a TrackSummaryProvider
+// FormatTrackSummary - Create the OutputLine for a TrackSummaryProvider
 func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider, name string) string {
 	var ret string
 	if info.GetTimeDataValid() {
@@ -218,19 +237,18 @@ func GetNewLine() string {
 
 }
 
-func outPutContainsLineByTimeStamps(output []string, newLine string) bool {
-
-	newLineStartTime := getStartTimeFormOutPutLine(newLine)
-	newLineEndTime := getEndTimeFormOutPutLine(newLine)
+func outPutContainsLineByTimeStamps(output []OutputLine, newLine OutputLine) bool {
 
 	// Don't tread all lines with no valid time values as duplicates
-	if newLineStartTime == NotValidValue {
+	if newLine.Data.GetTimeDataValid() == false {
 		return false
 	}
+	newLineStartTime := newLine.Data.GetStartTime()
+	newLineEndTime := newLine.Data.GetEndTime()
 
 	for _, outLine := range output {
-		outLineStartTime := getStartTimeFormOutPutLine(outLine)
-		outLineEndTime := getEndTimeFormOutPutLine(outLine)
+		outLineStartTime := outLine.Data.GetStartTime()
+		outLineEndTime := outLine.Data.GetEndTime()
 
 		if outLineStartTime == newLineStartTime && outLineEndTime == newLineEndTime {
 			return true
@@ -240,38 +258,30 @@ func outPutContainsLineByTimeStamps(output []string, newLine string) bool {
 	return false
 }
 
-func getStartTimeFormOutPutLine(line string) string {
-	lineFields := strings.Split(line, ";")
-
-	return lineFields[1]
-}
-
-func getEndTimeFormOutPutLine(line string) string {
-	lineFields := strings.Split(line, ";")
-
-	return lineFields[2]
-}
-
-func addLinesFromTrackSegments(formater *CsvOutputFormater, trackFile TrackFile, lines *[]string) {
+func getLinesFromTrackSegments(formater *CsvOutputFormater, trackFile TrackFile) []OutputLine {
+	ret := []OutputLine{}
 	for iTrack, track := range trackFile.Tracks {
 		for iSeg, seg := range track.TrackSegments {
 			info := TrackSummaryProvider(seg)
 			name := fmt.Sprintf("%s: Segment #%d", getLineNameFromTrack(track, trackFile, iTrack), iSeg+1)
-			ret := formater.FormatTrackSummary(info, name)
-			*lines = append(*lines, ret)
+			entry := newOutputLine(name, info)
+			ret = append(ret, *entry)
 		}
 	}
+
+	return ret
 }
 
-func addLinesFromTracks(formater *CsvOutputFormater, trackFile TrackFile, lines *[]string) {
-
+func getLinesFromTracks(formater *CsvOutputFormater, trackFile TrackFile) []OutputLine {
+	ret := []OutputLine{}
 	for i, track := range trackFile.Tracks {
 		info := TrackSummaryProvider(track)
 		name := getLineNameFromTrack(track, trackFile, i)
-		ret := formater.FormatTrackSummary(info, name)
-		*lines = append(*lines, ret)
+		entry := newOutputLine(name, info)
+		ret = append(ret, *entry)
 	}
 
+	return ret
 }
 
 func getLineNameFromTrack(track Track, parent TrackFile, index int) string {

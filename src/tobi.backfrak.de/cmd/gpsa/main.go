@@ -144,7 +144,7 @@ func main() {
 // Defines the usage function as well
 func handleComandlineOptions() {
 
-	outFormater := gpsabl.NewCsvOutputFormater(OutputSeperator)
+	outFormater := gpsabl.NewCsvOutputFormater(OutputSeperator, false)
 
 	// Setup the valid comandline flags
 	flag.Float64Var(&MinimalStepHightParameter, "minimal-step-hight", 10.0, "The minimal step hight. Only in use when \"steps\"  elevation correction is used. In [m]")
@@ -193,11 +193,6 @@ func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 	successCount := 0
 	c := make(chan bool, allFiles)
 	countFiles := 0
-
-	// Add the header to the output, when needed
-	if PrintCsvHeaderFlag {
-		iFormater.AddHeader()
-	}
 
 	// Process the files in a go routine
 	for _, filePath := range files {
@@ -281,7 +276,7 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
-	formater := gpsabl.NewCsvOutputFormater(OutputSeperator)
+	formater := gpsabl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
 	if !formater.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(DepthParameter), "", false, DontPanicFlag)
 	}
