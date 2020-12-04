@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -91,6 +92,9 @@ func (formater *CsvOutputFormater) GetLines() []string {
 	}
 	formater.mux.Lock()
 	defer formater.mux.Unlock()
+	sort.Slice(formater.lineBuffer, func(i, j int) bool {
+		return formater.lineBuffer[i].Data.GetStartTime().Before(formater.lineBuffer[j].Data.GetStartTime())
+	})
 	for _, line := range formater.lineBuffer {
 		ret = append(ret, formater.FormatTrackSummary(line.Data, line.Name))
 	}
