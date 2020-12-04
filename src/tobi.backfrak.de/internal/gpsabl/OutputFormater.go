@@ -21,6 +21,9 @@ type CsvOutputFormater struct {
 	// Separator - The separator used to separate values in csv
 	Separator string
 
+	// Tell if the CSV header should be added to the output
+	AddHeader bool
+
 	// ValidDepthArgs - The valid args values for the -depth parameter
 	ValidDepthArgs []string
 
@@ -29,9 +32,10 @@ type CsvOutputFormater struct {
 }
 
 // NewCsvOutputFormater - Get a new CsvOutputFormater
-func NewCsvOutputFormater(separator string) *CsvOutputFormater {
+func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
+	ret.AddHeader = addHeader
 	ret.ValidDepthArgs = []string{"track", "file", "segment"}
 	ret.lineBuffer = []string{}
 
@@ -65,13 +69,6 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, 
 	return nil
 }
 
-// AddHeader - Add the formated header line to the internal buffer, so it can be written out later
-func (formater *CsvOutputFormater) AddHeader() {
-	formater.mux.Lock()
-	defer formater.mux.Unlock()
-	formater.lineBuffer = append(formater.lineBuffer, formater.GetHeader())
-}
-
 // GetLines - Get the lines stored in the internal buffer
 func (formater *CsvOutputFormater) GetLines() []string {
 	return formater.lineBuffer
@@ -79,6 +76,12 @@ func (formater *CsvOutputFormater) GetLines() []string {
 
 // WriteOutput - Write the output to a given file handle object. Make sure the file exists before you call this method!
 func (formater *CsvOutputFormater) WriteOutput(outFile *os.File) error {
+	if formater.AddHeader {
+		_, errWrite := outFile.WriteString(formater.GetHeader())
+		if errWrite != nil {
+			return errWrite
+		}
+	}
 	formater.mux.Lock()
 	defer formater.mux.Unlock()
 	for _, line := range formater.lineBuffer {

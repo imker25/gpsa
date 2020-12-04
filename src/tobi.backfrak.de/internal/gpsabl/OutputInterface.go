@@ -8,9 +8,6 @@ type OutputFormater interface {
 	// AddOutPut - Add the output values of a TrackFile to the out file buffer
 	AddOutPut(trackFile TrackFile, depth string, filterDuplicate bool) error
 
-	// AddHeader- Add a AddHeader line to the out file buffer
-	AddHeader()
-
 	// WriteOutput - Write the output to the output file
 	WriteOutput(outFile *os.File) error
 }

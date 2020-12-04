@@ -142,7 +142,7 @@ func TestProcessValidFiles(t *testing.T) {
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "linear"
 
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater := gpsabl.OutputFormater(formater)
 
 	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx"), testhelper.GetValidTcx("02.tcx")}
@@ -171,7 +171,7 @@ func TestProcessValidFilesWithEmpyElements(t *testing.T) {
 	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
 	PrintCsvHeaderFlag = false
 
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater := gpsabl.OutputFormater(formater)
 
 	files := []string{testhelper.GetValidGPX("13.gpx"), testhelper.GetValidGPX("14.gpx")}
@@ -208,7 +208,7 @@ func TestProcessValidFilesWithDuplicateElementsDetectionenabeled(t *testing.T) {
 	oldSuppressDuplicateOutPutFlag := SuppressDuplicateOutPutFlag
 	SuppressDuplicateOutPutFlag = true
 
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater := gpsabl.OutputFormater(formater)
 
 	files := []string{testhelper.GetValidGPX("15.gpx")}
@@ -246,7 +246,7 @@ func TestProcessValidFilesWithDuplicateElementsDetectionDisabeled(t *testing.T) 
 	oldSuppressDuplicateOutPutFlag := SuppressDuplicateOutPutFlag
 	SuppressDuplicateOutPutFlag = false
 
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater := gpsabl.OutputFormater(formater)
 
 	files := []string{testhelper.GetValidGPX("15.gpx")}
@@ -283,7 +283,7 @@ func TestProcessFilesDifferentCorrection(t *testing.T) {
 	files := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("12.gpx")}
 
 	CorrectionParameter = "none"
-	formater1 := gpsabl.NewCsvOutputFormater(";")
+	formater1 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater1 := gpsabl.OutputFormater(formater1)
 	successCount1 := processFiles(files, iFormater1)
 	if successCount1 != 2 {
@@ -291,7 +291,7 @@ func TestProcessFilesDifferentCorrection(t *testing.T) {
 	}
 
 	CorrectionParameter = "linear"
-	formater2 := gpsabl.NewCsvOutputFormater(";")
+	formater2 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater2 := gpsabl.OutputFormater(formater2)
 	successCount2 := processFiles(files, iFormater2)
 	if successCount2 != 2 {
@@ -330,7 +330,7 @@ func TestProcessFilesDifferentMovingSpeed(t *testing.T) {
 	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
 
 	MinimalMovingSpeedParameter = 0.1
-	formater1 := gpsabl.NewCsvOutputFormater(";")
+	formater1 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater1 := gpsabl.OutputFormater(formater1)
 	successCount1 := processFiles(files, iFormater1)
 	if successCount1 != 2 {
@@ -338,7 +338,7 @@ func TestProcessFilesDifferentMovingSpeed(t *testing.T) {
 	}
 
 	MinimalMovingSpeedParameter = 0.9
-	formater2 := gpsabl.NewCsvOutputFormater(";")
+	formater2 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater2 := gpsabl.OutputFormater(formater2)
 	successCount2 := processFiles(files, iFormater2)
 	if successCount2 != 2 {
@@ -382,7 +382,7 @@ func TestProcessFilesDifferentStepHight(t *testing.T) {
 	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
 
 	MinimalStepHightParameter = 20.0
-	formater1 := gpsabl.NewCsvOutputFormater(";")
+	formater1 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater1 := gpsabl.OutputFormater(formater1)
 	successCount1 := processFiles(files, iFormater1)
 	if successCount1 != 2 {
@@ -390,7 +390,7 @@ func TestProcessFilesDifferentStepHight(t *testing.T) {
 	}
 
 	MinimalStepHightParameter = 0.5
-	formater2 := gpsabl.NewCsvOutputFormater(";")
+	formater2 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater2 := gpsabl.OutputFormater(formater2)
 	successCount2 := processFiles(files, iFormater2)
 	if successCount2 != 2 {
@@ -434,7 +434,7 @@ func TestProcessFilesStepHightEffectsOther(t *testing.T) {
 	files := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
 
 	MinimalStepHightParameter = 20.0
-	formater1 := gpsabl.NewCsvOutputFormater(";")
+	formater1 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater1 := gpsabl.OutputFormater(formater1)
 	successCount1 := processFiles(files, iFormater1)
 	if successCount1 != 2 {
@@ -442,7 +442,7 @@ func TestProcessFilesStepHightEffectsOther(t *testing.T) {
 	}
 
 	MinimalStepHightParameter = 0.5
-	formater2 := gpsabl.NewCsvOutputFormater(";")
+	formater2 := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater2 := gpsabl.OutputFormater(formater2)
 	successCount2 := processFiles(files, iFormater2)
 	if successCount2 != 2 {
@@ -481,7 +481,7 @@ func TestProcessMixedFiles(t *testing.T) {
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "linear"
 
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater := gpsabl.OutputFormater(formater)
 
 	files := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetValidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx"), testhelper.GetInvalidGPX("03.gpx")}
@@ -510,7 +510,7 @@ func TestProcessInValidFiles(t *testing.T) {
 	oldCorrectionPAr := CorrectionParameter
 	CorrectionParameter = "linear"
 
-	formater := gpsabl.NewCsvOutputFormater(";")
+	formater := gpsabl.NewCsvOutputFormater(";", false)
 	iFormater := gpsabl.OutputFormater(formater)
 
 	files := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx")}
