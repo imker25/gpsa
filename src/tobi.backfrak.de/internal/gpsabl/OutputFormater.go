@@ -84,6 +84,13 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, 
 	return nil
 }
 
+// GetStatisticSummary - Get a summary of statistic data
+func (formater *CsvOutputFormater) GetStatisticSummary() []OutputLine {
+	ret := []OutputLine{}
+
+	return ret
+}
+
 // GetLines - Get the lines stored in the internal buffer
 func (formater *CsvOutputFormater) GetLines() []string {
 	ret := []string{}
