@@ -579,6 +579,64 @@ func TestOutputIsSorted(t *testing.T) {
 
 }
 
+func TestGetStatisticSummaryLinesWithTime(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	trackFile1 := getTrackFileWithDifferentTime()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	lines := frt.GetStatisticSummaryLines()
+
+	if strings.Count(lines[0], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[0], strings.Count(lines[0], ";"), numberOfSemicolonExpected)
+	}
+
+	if strings.Count(lines[1], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[1], strings.Count(lines[1], ";"), numberOfSemicolonExpected)
+	}
+	if strings.Count(lines[2], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[2], strings.Count(lines[2], ";"), numberOfSemicolonExpected)
+	}
+	if strings.Count(lines[3], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], ";"), numberOfSemicolonExpected)
+	}
+}
+
+func TestGetStatisticSummaryLinesWithoutTime(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	trackFile1 := getTrackFileTwoTracks()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	lines := frt.GetStatisticSummaryLines()
+
+	if strings.Count(lines[0], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[0], strings.Count(lines[0], ";"), numberOfSemicolonExpected)
+	}
+
+	if strings.Count(lines[1], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[1], strings.Count(lines[1], ";"), numberOfSemicolonExpected)
+	}
+	if strings.Count(lines[2], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[2], strings.Count(lines[2], ";"), numberOfSemicolonExpected)
+	}
+	if strings.Count(lines[3], ";") != numberOfSemicolonExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], ";"), numberOfSemicolonExpected)
+	}
+}
+
 func getLinesFormOutputLines(lines []OutputLine) []string {
 	ret := []string{}
 	formater := NewCsvOutputFormater(";", true)

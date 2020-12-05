@@ -49,6 +49,26 @@ type TrackDataArrays struct {
 	DownwardsSpeeds     []float64
 }
 
+// TrackStatisticSummaryData - Contains statistic data from a bunch of tracks
+type TrackStatisticSummaryData struct {
+	AllTimeDataValid bool
+	InputTackCount   int
+	Sum              ExtendedTrackSummary
+	Average          ExtendedTrackSummary
+	Minimum          ExtendedTrackSummary
+	Maximum          ExtendedTrackSummary
+}
+
+// ExtendedTrackSummary - The TrackSummary extended by the duration
+type ExtendedTrackSummary struct {
+	TrackSummary
+	Duration       time.Duration
+	AverageSpeed   float64
+	UpwardsSpeed   float64
+	DownwardsSpeed float64
+	AltitudeRange  float64
+}
+
 // GetTrackDataArrays - Get the tracks data in arrays, sorted by values not the line
 func GetTrackDataArrays(lines []OutputLine) TrackDataArrays {
 	ret := TrackDataArrays{}
@@ -81,6 +101,106 @@ func GetTrackDataArrays(lines []OutputLine) TrackDataArrays {
 	return ret
 }
 
+// GetStatisticSummaryData - Get the TrackStatisticSummaryData of the input tracks
+func GetStatisticSummaryData(lines []OutputLine) TrackStatisticSummaryData {
+	ret := TrackStatisticSummaryData{}
+	arrays := GetTrackDataArrays(lines)
+	ret.AllTimeDataValid = arrays.AllTimeDataValid
+	ret.InputTackCount = len(lines)
+
+	ret.Sum.Distance = sumFloat64Array(arrays.Distances)
+	ret.Average.Distance = ret.Sum.Distance / float64(ret.InputTackCount)
+	ret.Minimum.Distance = minFloat64Array(arrays.Distances)
+	ret.Maximum.Distance = maxFloat64Array(arrays.Distances)
+
+	ret.Sum.DownwardsDistance = sumFloat64Array(arrays.DownwardsDistances)
+	ret.Average.DownwardsDistance = ret.Sum.DownwardsDistance / float64(ret.InputTackCount)
+	ret.Minimum.DownwardsDistance = minFloat64Array(arrays.DownwardsDistances)
+	ret.Maximum.DownwardsDistance = maxFloat64Array(arrays.DownwardsDistances)
+
+	ret.Sum.ElevationGain = float32(sumFloat64Array(arrays.ElevationGains))
+	ret.Average.ElevationGain = ret.Sum.ElevationGain / float32(ret.InputTackCount)
+	ret.Minimum.ElevationGain = float32(minFloat64Array(arrays.ElevationGains))
+	ret.Maximum.ElevationGain = float32(maxFloat64Array(arrays.ElevationGains))
+
+	ret.Sum.ElevationLose = float32(sumFloat64Array(arrays.ElevationLoses))
+	ret.Average.ElevationLose = ret.Sum.ElevationLose / float32(ret.InputTackCount)
+	ret.Minimum.ElevationLose = float32(minFloat64Array(arrays.ElevationLoses))
+	ret.Maximum.ElevationLose = float32(maxFloat64Array(arrays.ElevationLoses))
+
+	ret.Sum.HorizontalDistance = sumFloat64Array(arrays.HorizontalDistances)
+	ret.Average.HorizontalDistance = ret.Sum.HorizontalDistance / float64(ret.InputTackCount)
+	ret.Minimum.HorizontalDistance = minFloat64Array(arrays.HorizontalDistances)
+	ret.Maximum.HorizontalDistance = maxFloat64Array(arrays.HorizontalDistances)
+
+	ret.Sum.UpwardsDistance = sumFloat64Array(arrays.UpwardsDistances)
+	ret.Average.UpwardsDistance = ret.Sum.UpwardsDistance / float64(ret.InputTackCount)
+	ret.Minimum.UpwardsDistance = minFloat64Array(arrays.UpwardsDistances)
+	ret.Maximum.UpwardsDistance = maxFloat64Array(arrays.UpwardsDistances)
+
+	sumRange := sumFloat64Array(arrays.AltitudeRanges)
+	ret.Average.AltitudeRange = sumRange / float64(ret.InputTackCount)
+	ret.Minimum.AltitudeRange = minFloat64Array(arrays.AltitudeRanges)
+	ret.Maximum.AltitudeRange = maxFloat64Array(arrays.AltitudeRanges)
+
+	ret.Minimum.MinimumAltitude = float32(minFloat64Array(arrays.MinimumAltitudes))
+	ret.Minimum.MaximumAltitude = float32(minFloat64Array(arrays.MaximumAltitudes))
+	ret.Maximum.MinimumAltitude = float32(maxFloat64Array(arrays.MinimumAltitudes))
+	ret.Maximum.MaximumAltitude = float32(maxFloat64Array(arrays.MaximumAltitudes))
+
+	if ret.AllTimeDataValid {
+		ret.Sum.DownwardsTime = sumTimeDurationArray(arrays.DownwardsTimes)
+		ret.Average.DownwardsTime = averageDuration(ret.Sum.DownwardsTime, ret.InputTackCount)
+		ret.Minimum.DownwardsTime = minTimeDurationArray(arrays.DownwardsTimes)
+		ret.Maximum.DownwardsTime = maxTimeDurationArray(arrays.DownwardsTimes)
+
+		ret.Sum.Duration = sumTimeDurationArray(arrays.Durations)
+		ret.Average.Duration = averageDuration(ret.Sum.Duration, ret.InputTackCount)
+		ret.Minimum.Duration = minTimeDurationArray(arrays.Durations)
+		ret.Maximum.Duration = maxTimeDurationArray(arrays.Durations)
+
+		ret.Sum.MovingTime = sumTimeDurationArray(arrays.MovingTimes)
+		ret.Average.MovingTime = averageDuration(ret.Sum.MovingTime, ret.InputTackCount)
+		ret.Minimum.MovingTime = minTimeDurationArray(arrays.MovingTimes)
+		ret.Maximum.MovingTime = maxTimeDurationArray(arrays.MovingTimes)
+
+		ret.Sum.UpwardsTime = sumTimeDurationArray(arrays.UpwardsTimes)
+		ret.Average.UpwardsTime = averageDuration(ret.Sum.UpwardsTime, ret.InputTackCount)
+		ret.Minimum.UpwardsTime = minTimeDurationArray(arrays.UpwardsTimes)
+		ret.Maximum.UpwardsTime = maxTimeDurationArray(arrays.UpwardsTimes)
+
+		speedSum := sumFloat64Array(arrays.AverageSpeeds)
+		ret.Average.AverageSpeed = speedSum / float64(ret.InputTackCount)
+		ret.Maximum.AverageSpeed = maxFloat64Array(arrays.AverageSpeeds)
+		ret.Minimum.AverageSpeed = minFloat64Array(arrays.AverageSpeeds)
+
+		speedSum = sumFloat64Array(arrays.UpwardsSpeeds)
+		ret.Average.UpwardsSpeed = speedSum / float64(ret.InputTackCount)
+		ret.Maximum.UpwardsSpeed = maxFloat64Array(arrays.UpwardsSpeeds)
+		ret.Minimum.UpwardsSpeed = minFloat64Array(arrays.UpwardsSpeeds)
+
+		speedSum = sumFloat64Array(arrays.DownwardsSpeeds)
+		ret.Average.DownwardsSpeed = speedSum / float64(ret.InputTackCount)
+		ret.Minimum.DownwardsSpeed = minFloat64Array(arrays.DownwardsSpeeds)
+		ret.Maximum.DownwardsSpeed = maxFloat64Array(arrays.DownwardsSpeeds)
+
+		ret.Maximum.StartTime = maxTimeArray(arrays.StartTimes)
+		ret.Maximum.EndTime = maxTimeArray(arrays.EndTimes)
+
+		ret.Minimum.StartTime = minTimeArray(arrays.StartTimes)
+		ret.Minimum.EndTime = minTimeArray(arrays.EndTimes)
+	}
+
+	return ret
+}
+
+func averageDuration(sum time.Duration, count int) time.Duration {
+	timeSumNanoSec := int64(sum)
+	avrDurationNanoSec := timeSumNanoSec / int64(count)
+
+	return time.Duration(avrDurationNanoSec) * time.Nanosecond
+}
+
 func allTimeDataValid(lines []OutputLine) bool {
 	for _, line := range lines {
 		if line.Data.GetTimeDataValid() == false {
@@ -100,6 +220,28 @@ func sumFloat64Array(data []float64) float64 {
 	return ret
 }
 
+func minFloat64Array(data []float64) float64 {
+	min := data[0]
+	for _, value := range data {
+		if value < min {
+			min = value
+		}
+	}
+
+	return min
+}
+
+func maxFloat64Array(data []float64) float64 {
+	max := data[0]
+	for _, value := range data {
+		if value > max {
+			max = value
+		}
+	}
+
+	return max
+}
+
 func sumTimeDurationArray(data []time.Duration) time.Duration {
 	var ret time.Duration
 	for _, value := range data {
@@ -107,4 +249,48 @@ func sumTimeDurationArray(data []time.Duration) time.Duration {
 	}
 
 	return ret
+}
+
+func minTimeDurationArray(data []time.Duration) time.Duration {
+	min := data[0]
+	for _, value := range data {
+		if value < min {
+			min = value
+		}
+	}
+
+	return min
+}
+
+func maxTimeDurationArray(data []time.Duration) time.Duration {
+	max := data[0]
+	for _, value := range data {
+		if value > max {
+			max = value
+		}
+	}
+
+	return max
+}
+
+func minTimeArray(data []time.Time) time.Time {
+	min := data[0]
+	for _, value := range data {
+		if value.Before(min) {
+			min = value
+		}
+	}
+
+	return min
+}
+
+func maxTimeArray(data []time.Time) time.Time {
+	max := data[0]
+	for _, value := range data {
+		if max.Before(value) {
+			max = value
+		}
+	}
+
+	return max
 }

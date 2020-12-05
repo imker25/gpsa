@@ -84,9 +84,15 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, 
 	return nil
 }
 
-// GetStatisticSummary - Get a summary of statistic data
-func (formater *CsvOutputFormater) GetStatisticSummary() []OutputLine {
-	ret := []OutputLine{}
+// GetStatisticSummaryLines - Get a summary of statistic data
+func (formater *CsvOutputFormater) GetStatisticSummaryLines() []string {
+	ret := []string{}
+	summary := GetStatisticSummaryData(formater.lineBuffer)
+
+	ret = append(ret, formater.formatSumSummary(summary.Sum, summary.AllTimeDataValid))
+	ret = append(ret, formater.formatAverageSummary(summary.Average, summary.AllTimeDataValid))
+	ret = append(ret, formater.formatMinMaxSummary(summary.Minimum, summary.AllTimeDataValid, "Minimum:"))
+	ret = append(ret, formater.formatMinMaxSummary(summary.Maximum, summary.AllTimeDataValid, "Maximum:"))
 
 	return ret
 }
@@ -208,6 +214,166 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info TrackSummaryProvider,
 			RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Separator,
 			RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
 			RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			GetNewLine(),
+		)
+	}
+
+	return ret
+}
+
+func (formater *CsvOutputFormater) formatMinMaxSummary(info ExtendedTrackSummary, timeValid bool, name string) string {
+	var ret string
+	if timeValid {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
+			name, formater.Separator,
+			info.StartTime.Format(time.RFC3339), formater.Separator,
+			info.EndTime.Format(time.RFC3339), formater.Separator,
+			info.Duration.String(), formater.Separator,
+			RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(float64(info.AltitudeRange)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.MinimumAltitude)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.MaximumAltitude)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationGain)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
+			info.MovingTime.String(), formater.Separator,
+			info.UpwardsTime.String(), formater.Separator,
+			info.DownwardsTime.String(), formater.Separator,
+			RoundFloat64To2Digits(info.AverageSpeed*3.6), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsSpeed*3.6), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsSpeed*3.6), formater.Separator,
+			GetNewLine(),
+		)
+	} else {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+			name, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(float64(info.AltitudeRange)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.MinimumAltitude)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.MaximumAltitude)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationGain)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			GetNewLine(),
+		)
+	}
+
+	return ret
+}
+
+// FormatTrackSummary - Create the OutputLine for a TrackSummaryProvider
+func (formater *CsvOutputFormater) formatAverageSummary(info ExtendedTrackSummary, timeValid bool) string {
+	var ret string
+	if timeValid {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%s%s%s%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
+			"Average:", formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			info.Duration.String(), formater.Separator,
+			RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(float64(info.AltitudeRange)), formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationGain)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
+			info.MovingTime.String(), formater.Separator,
+			info.UpwardsTime.String(), formater.Separator,
+			info.DownwardsTime.String(), formater.Separator,
+			RoundFloat64To2Digits(info.AverageSpeed*3.6), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsSpeed*3.6), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsSpeed*3.6), formater.Separator,
+			GetNewLine(),
+		)
+	} else {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%s%s%s%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+			"Average:", formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(float64(info.AltitudeRange)), formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationGain)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			GetNewLine(),
+		)
+	}
+
+	return ret
+}
+
+func (formater *CsvOutputFormater) formatSumSummary(info ExtendedTrackSummary, timeValid bool) string {
+	var ret string
+	if timeValid {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+			"Sum:", formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			info.Duration.String(), formater.Separator,
+			RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationGain)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
+			info.MovingTime.String(), formater.Separator,
+			info.UpwardsTime.String(), formater.Separator,
+			info.DownwardsTime.String(), formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			GetNewLine(),
+		)
+	} else {
+		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+			"Sum:", formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			NotValidValue, formater.Separator,
+			RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			"-", formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationGain)), formater.Separator,
+			RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
+			RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
+			RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
