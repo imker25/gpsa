@@ -125,8 +125,10 @@ func GetStatisticSummaryData(lines []OutputLine) TrackStatisticSummaryData {
 
 	ret.Sum.ElevationLose = float32(sumFloat64Array(arrays.ElevationLoses))
 	ret.Average.ElevationLose = ret.Sum.ElevationLose / float32(ret.InputTackCount)
-	ret.Minimum.ElevationLose = float32(minFloat64Array(arrays.ElevationLoses))
-	ret.Maximum.ElevationLose = float32(maxFloat64Array(arrays.ElevationLoses))
+	// Since ElevationLose is negative, the  absolute biggest number is the minimum
+	ret.Minimum.ElevationLose = float32(maxFloat64Array(arrays.ElevationLoses))
+	// Since ElevationLose is negative, the  absolute smallest number is the maximum
+	ret.Maximum.ElevationLose = float32(minFloat64Array(arrays.ElevationLoses))
 
 	ret.Sum.HorizontalDistance = sumFloat64Array(arrays.HorizontalDistances)
 	ret.Average.HorizontalDistance = ret.Sum.HorizontalDistance / float64(ret.InputTackCount)
