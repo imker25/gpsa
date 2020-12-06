@@ -27,12 +27,98 @@ func TestNewCsvOutputFormater(t *testing.T) {
 		t.Errorf("The ValidDepthArgs array does not contain the expected number of values")
 	}
 
+	if len(sut.ValidSummaryArgs) != 3 {
+		t.Errorf("The ValidSummaryArgs array does not contain the expected number of values")
+	}
+
 	if len(sut.lineBuffer) != 0 {
 		t.Errorf("The line buffer is not empty on a new CsvOutputFormater")
 	}
 
 	if len(sut.GetLines()) != 0 {
 		t.Errorf("The line buffer is not empty on a new CsvOutputFormater")
+	}
+}
+
+func TestGetValidDepthArgsString(t *testing.T) {
+	sut := NewCsvOutputFormater(";", false)
+	str := sut.GetValidDepthArgsString()
+
+	if strings.Contains(str, "blabla") {
+		t.Errorf("The GetValidDepthArgsString contains \"blabla\"")
+	}
+
+	if !strings.Contains(str, "file") {
+		t.Errorf("The GetValidDepthArgsString not contains \"file\"")
+	}
+
+	if !strings.Contains(str, "track") {
+		t.Errorf("The GetValidDepthArgsString not contains \"track\"")
+	}
+
+	if !strings.Contains(str, "segment") {
+		t.Errorf("The GetValidDepthArgsString not contains \"segment\"")
+	}
+}
+
+func TestCheckValidDepthArg(t *testing.T) {
+	sut := NewCsvOutputFormater(";", false)
+
+	if sut.CheckValidDepthArg("blabla") {
+		t.Errorf("The CheckValidDepthArg contains \"blabla\"")
+	}
+
+	if !sut.CheckValidDepthArg("file") {
+		t.Errorf("The CheckValidDepthArg not contains \"file\"")
+	}
+
+	if !sut.CheckValidDepthArg("track") {
+		t.Errorf("The CheckValidDepthArg not contains \"track\"")
+	}
+
+	if !sut.CheckValidDepthArg("segment") {
+		t.Errorf("The CheckValidDepthArg not contains \"segment\"")
+	}
+}
+
+func TestGetValidSummaryArgsString(t *testing.T) {
+	sut := NewCsvOutputFormater(";", false)
+	str := sut.GetValidSummaryArgsString()
+
+	if strings.Contains(str, "blabla") {
+		t.Errorf("The GetValidDepthArgsString contains \"blabla\"")
+	}
+
+	if !strings.Contains(str, "none") {
+		t.Errorf("The GetValidDepthArgsString not contains \"none\"")
+	}
+
+	if !strings.Contains(str, "additional") {
+		t.Errorf("The GetValidDepthArgsString not contains \"additional\"")
+	}
+
+	if !strings.Contains(str, "only") {
+		t.Errorf("The GetValidDepthArgsString not contains \"only\"")
+	}
+}
+
+func TestCheckValidSummaryArg(t *testing.T) {
+	sut := NewCsvOutputFormater(";", false)
+
+	if sut.CheckValidSummaryArg("blabla") {
+		t.Errorf("The CheckValidDepthArg contains \"blabla\"")
+	}
+
+	if !sut.CheckValidSummaryArg("none") {
+		t.Errorf("The CheckValidDepthArg not contains \"none\"")
+	}
+
+	if !sut.CheckValidSummaryArg("only") {
+		t.Errorf("The CheckValidDepthArg not contains \"only\"")
+	}
+
+	if !sut.CheckValidSummaryArg("additional") {
+		t.Errorf("The CheckValidDepthArg not contains \"additional\"")
 	}
 }
 
@@ -338,22 +424,31 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
 
-	errWrite := frt.WriteOutput(os.Stdout)
+	errWrite := frt.WriteOutput(os.Stdout, "none")
 
 	if errWrite != nil {
 		t.Errorf("Error while writing the output: %s", errWrite.Error())
 	}
 }
 
-func TestCheckValidDepthArg(t *testing.T) {
-	frt := NewCsvOutputFormater(";", false)
+func TestWriteOutputSummaryUnknown(t *testing.T) {
+	frt := NewCsvOutputFormater(";", true)
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
 
-	if frt.CheckValidDepthArg("asfd") == true {
-		t.Errorf("The CheckValidDepthArg returns true for \"asfd\"")
+	errAdd := frt.AddOutPut(trackFile, "segment", false)
+	if errAdd != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
 
-	if frt.CheckValidDepthArg("file") == false {
-		t.Errorf("The CheckValidDepthArg returns false for \"file\"")
+	errOut := frt.WriteOutput(os.Stdout, "bla")
+	if errOut == nil {
+		t.Errorf("Got no error, but was expected")
+	}
+	switch errOut.(type) {
+	case *SummaryParamaterNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not of the expected type.")
 	}
 }
 
@@ -367,7 +462,7 @@ func TestCsvOutputFormaterIsOutputFormater(t *testing.T) {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
 
-	errWrite := iFrt.WriteOutput(os.Stdout)
+	errWrite := iFrt.WriteOutput(os.Stdout, "none")
 
 	if errWrite != nil {
 		t.Errorf("Error while writing the output: %s", errWrite.Error())
@@ -606,6 +701,94 @@ func TestGetStatisticSummaryLinesWithTime(t *testing.T) {
 	if strings.Count(lines[3], ";") != numberOfSemicolonExpected {
 		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], ";"), numberOfSemicolonExpected)
 	}
+}
+
+func TestGetOutputLinesSummaryNone(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	trackFile1 := getTrackFileWithDifferentTime()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	lines, errOut := frt.GetOutputLines("none")
+	if errOut != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	if len(lines) != 2 {
+		t.Errorf("Got an unexpected number of lines")
+	}
+}
+
+func TestGetOutputLinesSummaryOnly(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	trackFile1 := getTrackFileWithDifferentTime()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	lines, errOut := frt.GetOutputLines("only")
+	if errOut != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	if len(lines) != 4 {
+		t.Errorf("Got an unexpected number of lines")
+	}
+}
+
+func TestGetOutputLinesSummaryAdditional(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	trackFile1 := getTrackFileWithDifferentTime()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	lines, errOut := frt.GetOutputLines("additional")
+	if errOut != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	if len(lines) != 7 {
+		t.Errorf("Got an unexpected number of lines")
+	}
+}
+
+func TestGetOutputLinesSummaryUnValid(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	trackFile1 := getTrackFileWithDifferentTime()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	_, errOut := frt.GetOutputLines("bla")
+	if errOut == nil {
+		t.Errorf("Got no error, but was expected")
+	}
+	switch errOut.(type) {
+	case *SummaryParamaterNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not of the expected type.")
+	}
+
 }
 
 func TestGetStatisticSummaryLinesWithoutTime(t *testing.T) {

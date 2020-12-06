@@ -9,5 +9,5 @@ type OutputFormater interface {
 	AddOutPut(trackFile TrackFile, depth string, filterDuplicate bool) error
 
 	// WriteOutput - Write the output to the output file
-	WriteOutput(outFile *os.File) error
+	WriteOutput(outFile *os.File, summary string) error
 }

@@ -14,6 +14,18 @@ import (
 	"time"
 )
 
+const (
+	track   = "track"
+	file    = "file"
+	segment = "segment"
+)
+
+const (
+	none       = "none"
+	additional = "additional"
+	only       = "only"
+)
+
 // NotValidValue - The value set when values are not valid
 const NotValidValue = "not valid"
 
@@ -42,6 +54,9 @@ type CsvOutputFormater struct {
 	// ValidDepthArgs - The valid args values for the -depth parameter
 	ValidDepthArgs []string
 
+	// ValidSummaryArgs - The valid args values for the -summary parameter
+	ValidSummaryArgs []string
+
 	lineBuffer []OutputLine
 	mux        sync.Mutex
 }
@@ -51,7 +66,8 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
 	ret.AddHeader = addHeader
-	ret.ValidDepthArgs = []string{"track", "file", "segment"}
+	ret.ValidDepthArgs = []string{track, file, segment}
+	ret.ValidSummaryArgs = []string{none, additional, only}
 	ret.lineBuffer = []OutputLine{}
 
 	return &ret
@@ -115,8 +131,12 @@ func (formater *CsvOutputFormater) GetLines() []string {
 }
 
 // WriteOutput - Write the output to a given file handle object. Make sure the file exists before you call this method!
-func (formater *CsvOutputFormater) WriteOutput(outFile *os.File) error {
-	lines := formater.GetLines()
+func (formater *CsvOutputFormater) WriteOutput(outFile *os.File, summary string) error {
+	lines, getErr := formater.GetOutputLines(summary)
+	if getErr != nil {
+		return getErr
+	}
+
 	for _, line := range lines {
 		_, errWrite := outFile.WriteString(line)
 		if errWrite != nil {
@@ -127,16 +147,36 @@ func (formater *CsvOutputFormater) WriteOutput(outFile *os.File) error {
 	return nil
 }
 
+// GetOutputLines - Get all lines of the output
+func (formater *CsvOutputFormater) GetOutputLines(summary string) ([]string, error) {
+	var lines []string
+	switch summary {
+	case none:
+		lines = formater.GetLines()
+	case only:
+		lines = formater.GetStatisticSummaryLines()
+	case additional:
+		lines = formater.GetLines()
+		sepaeratorLine := fmt.Sprintf("%s%s%s", "Statistics:", formater.Separator, GetNewLine())
+		lines = append(lines, sepaeratorLine)
+		lines = append(lines, formater.GetStatisticSummaryLines()...)
+	default:
+		return nil, NewSummaryParamaterNotKnown(summary)
+	}
+
+	return lines, nil
+}
+
 // GetOutPutEntries - Add the output of a TrackFile
 func (formater *CsvOutputFormater) GetOutPutEntries(trackFile TrackFile, printHeader bool, depth string) ([]OutputLine, error) {
 	ret := []OutputLine{}
 
 	switch depth {
-	case formater.ValidDepthArgs[1]:
+	case file:
 		ret = append(ret, *newOutputLine(getLineNameFromTrackFile(trackFile), TrackSummaryProvider(trackFile)))
-	case formater.ValidDepthArgs[0]:
+	case track:
 		ret = append(ret, getLinesFromTracks(formater, trackFile)...)
-	case formater.ValidDepthArgs[2]:
+	case segment:
 		ret = append(ret, getLinesFromTrackSegments(formater, trackFile)...)
 	default:
 		return nil, NewDepthParameterNotKnownError(depth)
@@ -399,6 +439,20 @@ func (formater *CsvOutputFormater) GetValidDepthArgsString() string {
 // CheckValidDepthArg -Check if a string is a valid depth arg
 func (formater *CsvOutputFormater) CheckValidDepthArg(agr string) bool {
 	return strings.Contains(formater.GetValidDepthArgsString(), agr)
+}
+
+// GetValidSummaryArgsString - Get the ValidSummaryArgs in one string
+func (formater *CsvOutputFormater) GetValidSummaryArgsString() string {
+	ret := ""
+	for _, arg := range formater.ValidSummaryArgs {
+		ret = fmt.Sprintf("%s %s", arg, ret)
+	}
+	return ret
+}
+
+// CheckValidSummaryArg -Check if a string is a valid summary arg
+func (formater *CsvOutputFormater) CheckValidSummaryArg(agr string) bool {
+	return strings.Contains(formater.GetValidSummaryArgsString(), agr)
 }
 
 // GetNewLine - Get the new line string depending on the OS

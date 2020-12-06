@@ -198,7 +198,7 @@ func averageDuration(sum time.Duration, count int) time.Duration {
 	timeSumNanoSec := int64(sum)
 	avrDurationNanoSec := timeSumNanoSec / int64(count)
 
-	return time.Duration(avrDurationNanoSec) * time.Nanosecond
+	return time.Duration(avrDurationNanoSec)
 }
 
 func allTimeDataValid(lines []OutputLine) bool {

@@ -65,3 +65,19 @@ func (e *MinimalStepHightLessThenZero) Error() string { // Implement the Error I
 func NewMinimalStepHightLessThenZero(givenValue float64) *MinimalStepHightLessThenZero {
 	return &MinimalStepHightLessThenZero{fmt.Sprintf("The given -minimal-step-hight \"%f\" is less then 0.0.", givenValue), givenValue}
 }
+
+// SummaryParamaterNotKnown - Error when the given -summary is not known
+type SummaryParamaterNotKnown struct {
+	err string
+	// File - The path to the dir that caused this error
+	GivenValue string
+}
+
+func (e *SummaryParamaterNotKnown) Error() string { // Implement the Error Interface for the SummaryParamaterNotKnown struct
+	return fmt.Sprintf("%s", e.err)
+}
+
+// NewSummaryParamaterNotKnown - Get a new SummaryParamaterNotKnown struct
+func NewSummaryParamaterNotKnown(givenValue string) *SummaryParamaterNotKnown {
+	return &SummaryParamaterNotKnown{fmt.Sprintf("The given -summary \"%s\" is not known.", givenValue), givenValue}
+}
