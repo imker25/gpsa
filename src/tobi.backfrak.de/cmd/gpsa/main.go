@@ -167,7 +167,7 @@ func handleComandlineOptions() {
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
 	flag.StringVar(&SummaryParameter, "summary", outFormater.ValidSummaryArgs[0],
-		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetValidSummaryArgsString()))
+		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", outFormater.GetValidSummaryArgsString()))
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
 

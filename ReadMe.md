@@ -64,7 +64,7 @@ Options:
   -help
         Prints this help message
   -license
-        Print the license information of the program
+        Print the license information of the program 
   -minimal-moving-speed float
         The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
   -minimal-step-hight float
@@ -77,6 +77,8 @@ Options:
         Tell if "ElevationOverDistance.csv" should be created for each track. The files will be locate in tmp dir.
   -skip-error-exit
         Use this flag if you don't want to abort the program during track file processing errors
+  -summary string
+        Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
  -suppress-duplicate-out-put
         Suppress the output of duplicate output lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
   -verbose
