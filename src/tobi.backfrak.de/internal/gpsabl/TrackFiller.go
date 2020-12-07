@@ -1,6 +1,7 @@
 package gpsabl
 
 import (
+	"fmt"
 	"math"
 	"time"
 )
@@ -9,6 +10,18 @@ import (
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
+
+// CorrectionParameter - The "Enum" type the represents the correction mode
+type CorrectionParameter string
+
+const (
+	// NO - No correction will be done
+	NO CorrectionParameter = "none"
+	// LINEAR - The linear correction algorithm will be used
+	LINEAR CorrectionParameter = "linear"
+	// STEPS - The steps correction algorithm will be used
+	STEPS CorrectionParameter = "steps"
+)
 
 // FillDistancesTrackPoint - Adds the distance values to the basePoint.
 // The Values of Elevation, Latitude and Longitude had to be set to all points before!
@@ -30,7 +43,7 @@ func FillDistancesTrackPoint(basePoint *TrackPoint, beforePoint TrackPoint, next
 // like Elevation, Latitude and Longitude and Time (including TimeValid)
 // You may use FillDistancesTrackPoint to get the distance values
 // The Array must be soreted by the points Number!
-func FillValuesTrackPointArray(pnts []TrackPoint, correction string, minimalMovingSpeed float64, minimalStepHight float64) error {
+func FillValuesTrackPointArray(pnts []TrackPoint, correction CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) error {
 
 	if minimalMovingSpeed < 0.0 {
 		return NewMinimalMovingSpeedLessThenZero(minimalMovingSpeed)
@@ -88,22 +101,22 @@ func FillTrackFileValues(file *TrackFile) {
 }
 
 // GetValidCorrectionParameters - Get the valid parameters for fillCorrectedElevationTrackPoint correction parameter
-func GetValidCorrectionParameters() []string {
-	return []string{"none", "linear", "steps"}
+func GetValidCorrectionParameters() []CorrectionParameter {
+	return []CorrectionParameter{NO, LINEAR, STEPS}
 }
 
 // GetValidCorrectionParametersString - Get the valid parameters for fillCorrectedElevationTrackPoint correction parameter as one string
 func GetValidCorrectionParametersString() string {
 	ret := ""
 	for _, str := range GetValidCorrectionParameters() {
-		ret = str + " " + ret
+		ret = fmt.Sprintf("%s %s", str, ret)
 	}
 
 	return ret
 }
 
 // CheckValidCorrectionParameters - Check if a string is a valid parameter for fillCorrectedElevationTrackPoint correction parameter
-func CheckValidCorrectionParameters(given string) bool {
+func CheckValidCorrectionParameters(given CorrectionParameter) bool {
 	for _, str := range GetValidCorrectionParameters() {
 		if str == given {
 			return true
@@ -115,14 +128,14 @@ func CheckValidCorrectionParameters(given string) bool {
 
 // fillCorrectedElevationTrackPoint - Set the CorrectedElevation value in a list of TrackPoints
 // Basically this will run a somthing algorithm over the Elevation
-func fillCorrectedElevationTrackPoint(pnts []TrackPoint, correction string, minimalStepHight float64) error {
+func fillCorrectedElevationTrackPoint(pnts []TrackPoint, correction CorrectionParameter, minimalStepHight float64) error {
 
 	switch correction {
-	case GetValidCorrectionParameters()[1]:
+	case LINEAR:
 		fillCorrectedElevationTrackPointLinear(pnts)
-	case GetValidCorrectionParameters()[0]:
+	case NO:
 		fillCorrectedElevationTrackPointNone(pnts)
-	case GetValidCorrectionParameters()[2]:
+	case STEPS:
 		fillCorrectedElevationTrackPointSteps(pnts, minimalStepHight)
 	default:
 		return NewCorrectionParameterNotKnownError(correction)
@@ -220,13 +233,13 @@ func fillDistanceTimeAndSpeedValues(pnts []TrackPoint, minimalMovingSpeed float6
 }
 
 // FillCountUpDownWards - Fills the CountUpwards and CountDownwards value
-func fillCountUpDownWards(pnts []TrackPoint, correction string) {
+func fillCountUpDownWards(pnts []TrackPoint, correction CorrectionParameter) {
 	var upwardsTime time.Duration
 	var downwardsTime time.Duration
 	//numPnts := len(pnts)
 
 	for i := range pnts {
-		if correction == GetValidCorrectionParameters()[2] { // In case we do steps correction, CorectedElevation will make no sense
+		if correction == STEPS { // In case we do steps correction, CorectedElevation will make no sense
 			if i > 0 { // Evaluation of the last point don't count
 				eveDiff := pnts[i].Elevation - pnts[i-1].Elevation
 				if eveDiff > 0 {

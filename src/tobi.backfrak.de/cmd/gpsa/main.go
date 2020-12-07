@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"tobi.backfrak.de/internal/csvbl"
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
 	"tobi.backfrak.de/internal/tcxbl"
@@ -47,6 +48,9 @@ var DontPanicFlag bool
 
 // DepthParameter - Tells for which depth we should perform the analyses ( -depth )
 var DepthParameter string
+
+// SummaryParameter - Tells if we should add summary to the output ( -summary )
+var SummaryParameter string
 
 // CorrectionParameter - Tells how we should correct Elevation data from the track ( -correction )
 var CorrectionParameter string
@@ -116,7 +120,7 @@ func main() {
 			successCount := processFiles(flag.Args(), iFormater)
 
 			// Write the output
-			errWrite := iFormater.WriteOutput(out)
+			errWrite := iFormater.WriteOutput(out, gpsabl.SummaryArg(SummaryParameter))
 			if errWrite != nil {
 				HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
 			}
@@ -144,8 +148,6 @@ func main() {
 // Defines the usage function as well
 func handleComandlineOptions() {
 
-	outFormater := gpsabl.NewCsvOutputFormater(OutputSeperator, false)
-
 	// Setup the valid comandline flags
 	flag.Float64Var(&MinimalStepHightParameter, "minimal-step-hight", 10.0, "The minimal step hight. Only in use when \"steps\"  elevation correction is used. In [m]")
 	flag.Float64Var(&MinimalMovingSpeedParameter, "minimal-moving-speed", 0.3, "The minimal speed. Distances traveled with less speed are not counted. In [m/s]")
@@ -158,12 +160,13 @@ func handleComandlineOptions() {
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line. Possible values are [true false]")
 	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set")
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false]")
-	flag.StringVar(&DepthParameter, "depth", outFormater.ValidDepthArgs[0],
-		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetValidDepthArgsString()))
-	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValidCorrectionParameters()[2],
+	flag.StringVar(&DepthParameter, "depth", string(gpsabl.TRACK),
+		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", gpsabl.GetValidDepthArgsString()))
+	flag.StringVar(&CorrectionParameter, "correction", string(gpsabl.STEPS),
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
-
+	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
+		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
 
@@ -185,8 +188,8 @@ func customHelpMessage() {
 // processFiles - processes the input files and adds the found content to the output buffer
 func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 
-	if !gpsabl.CheckValidCorrectionParameters(CorrectionParameter) {
-		HandleError(gpsabl.NewCorrectionParameterNotKnownError(CorrectionParameter), "", false, DontPanicFlag)
+	if !gpsabl.CheckValidCorrectionParameters(gpsabl.CorrectionParameter(CorrectionParameter)) {
+		HandleError(gpsabl.NewCorrectionParameterNotKnownError(gpsabl.CorrectionParameter(CorrectionParameter)), "", false, DontPanicFlag)
 	}
 
 	allFiles := len(files)
@@ -233,13 +236,13 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
-	file, readErr := reader.ReadTracks(CorrectionParameter, MinimalMovingSpeedParameter, MinimalStepHightParameter)
+	file, readErr := reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
 	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
 
 	// Add the file to the out buffer of the formater
-	addErr := formater.AddOutPut(file, DepthParameter, SuppressDuplicateOutPutFlag)
+	addErr := formater.AddOutPut(file, gpsabl.DepthArg(DepthParameter), SuppressDuplicateOutPutFlag)
 	if HandleError(addErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
@@ -255,7 +258,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 
 		// Write the ElevationOverDistance.csv
 		fmt.Println(fmt.Sprintf("Create %s", outPath))
-		printErr := gpsabl.WriteElevationOverDistance(file, out, OutputSeperator)
+		printErr := csvbl.WriteElevationOverDistance(file, out, OutputSeperator)
 		if HandleError(printErr, outPath, SkipErrorExitFlag, DontPanicFlag) == true {
 			return false
 		}
@@ -276,9 +279,12 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
-	formater := gpsabl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
-	if !formater.CheckValidDepthArg(DepthParameter) {
-		HandleError(gpsabl.NewDepthParameterNotKnownError(DepthParameter), "", false, DontPanicFlag)
+	formater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
+	if !gpsabl.CheckValidDepthArg(DepthParameter) {
+		HandleError(gpsabl.NewDepthParameterNotKnownError(gpsabl.DepthArg(DepthParameter)), "", false, DontPanicFlag)
+	}
+	if !gpsabl.CheckValidSummaryArg(SummaryParameter) {
+		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
 	}
 	iFormater := gpsabl.OutputFormater(formater)
 

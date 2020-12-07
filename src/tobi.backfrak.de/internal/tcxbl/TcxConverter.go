@@ -14,7 +14,7 @@ import (
 // LICENSE file.
 
 // ConvertTcx - Convert a tcxbl.Tcx to a gpsabl.TrackFile
-func ConvertTcx(tcx Tcx, filePath string, correction string, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
+func ConvertTcx(tcx Tcx, filePath string, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
 
 	res := gpsabl.NewTrackFile(filePath)
 
@@ -33,7 +33,7 @@ func ConvertTcx(tcx Tcx, filePath string, correction string, minimalMovingSpeed 
 	return res, nil
 }
 
-func convertActivity(activity Activity, correction string, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.Track, error) {
+func convertActivity(activity Activity, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.Track, error) {
 
 	res := gpsabl.Track{}
 	for _, lap := range activity.Laps {
@@ -50,7 +50,7 @@ func convertActivity(activity Activity, correction string, minimalMovingSpeed fl
 	return res, nil
 }
 
-func convertLap(lap Lap, correction string, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackSegment, error) {
+func convertLap(lap Lap, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackSegment, error) {
 	res := gpsabl.TrackSegment{}
 
 	if len(lap.Tracks) > 0 && len(lap.Tracks[0].Trackpoints) > 1 {
@@ -91,7 +91,7 @@ func convertLap(lap Lap, correction string, minimalMovingSpeed float64, minimalS
 	return res, nil
 }
 
-func convertTrackpoints(points []Trackpoint, correction string, minimalMovingSpeed float64, minimalStepHight float64) ([]gpsabl.TrackPoint, error) {
+func convertTrackpoints(points []Trackpoint, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) ([]gpsabl.TrackPoint, error) {
 	var ret []gpsabl.TrackPoint
 
 	pointCount := len(points)

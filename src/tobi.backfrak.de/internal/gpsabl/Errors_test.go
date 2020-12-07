@@ -8,9 +8,9 @@ import (
 
 func TestDepthParameterNotKnownErrorStruct(t *testing.T) {
 	val := "asdgfg"
-	err := NewDepthParameterNotKnownError(val)
+	err := NewDepthParameterNotKnownError(DepthArg(val))
 
-	if err.GivenValue != val {
+	if err.GivenValue != DepthArg(val) {
 		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
 	}
 
@@ -19,11 +19,24 @@ func TestDepthParameterNotKnownErrorStruct(t *testing.T) {
 	}
 }
 
+func TestSummaryParameterNotKnownErrorStruct(t *testing.T) {
+	val := "asdgfg"
+	err := NewSummaryParamaterNotKnown(SummaryArg(val))
+
+	if err.GivenValue != SummaryArg(val) {
+		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
+	}
+
+	if strings.Contains(err.Error(), val) == false {
+		t.Errorf("The error message of SummaryParameterNotKnownError does not contain the expected GivenValue")
+	}
+}
+
 func TestCorrectionParameterNotKnownError(t *testing.T) {
 	val := "asdgfg"
-	err := NewCorrectionParameterNotKnownError(val)
+	err := NewCorrectionParameterNotKnownError(CorrectionParameter(val))
 
-	if err.GivenValue != val {
+	if err.GivenValue != CorrectionParameter(val) {
 		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
 	}
 
