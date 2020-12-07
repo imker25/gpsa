@@ -21,7 +21,7 @@ func NewTcxFile(filePath string) TcxFile {
 
 // ReadTracks - Read the *.tcx from the inputs GpxFile.FilePath, and return a GpxFile struct that contains all information
 // Implement the gpsabl.TrackReader interface for *.tcx files
-func (gpx *TcxFile) ReadTracks(correction string, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
+func (gpx *TcxFile) ReadTracks(correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
 	ret, err := ReadTcxFile(gpx.FilePath, correction, minimalMovingSpeed, minimalStepHight)
 
 	if err == nil {
@@ -32,7 +32,7 @@ func (gpx *TcxFile) ReadTracks(correction string, minimalMovingSpeed float64, mi
 }
 
 // ReadTcxFile - Reads a *.gpx file
-func ReadTcxFile(filePath string, correction string, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
+func ReadTcxFile(filePath string, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
 	ret := gpsabl.TrackFile{}
 	tcx, fileError := ReadTcx(filePath)
 

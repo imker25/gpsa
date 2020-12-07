@@ -692,7 +692,7 @@ func getTrackFileWithStandStillPoints(correction string, minimalMovingSpeed floa
 	FillDistancesTrackPoint(&points[1], points[0], points[2])
 	FillDistancesTrackPoint(&points[2], points[1], points[3])
 	FillDistancesTrackPoint(&points[3], points[2], TrackPoint{})
-	FillValuesTrackPointArray(points, correction, minimalMovingSpeed, minimalStepHight)
+	FillValuesTrackPointArray(points, CorrectionParameter(correction), minimalMovingSpeed, minimalStepHight)
 	laterTrack := Track{}
 	seg := TrackSegment{}
 	seg.TrackPoints = points

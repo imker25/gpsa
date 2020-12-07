@@ -6,8 +6,8 @@ import "os"
 type OutputFormater interface {
 
 	// AddOutPut - Add the output values of a TrackFile to the out file buffer
-	AddOutPut(trackFile TrackFile, depth string, filterDuplicate bool) error
+	AddOutPut(trackFile TrackFile, depth DepthArg, filterDuplicate bool) error
 
 	// WriteOutput - Write the output to the output file
-	WriteOutput(outFile *os.File, summary string) error
+	WriteOutput(outFile *os.File, summary SummaryArg) error
 }

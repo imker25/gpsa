@@ -14,16 +14,28 @@ import (
 	"time"
 )
 
+// DepthArg -  "Enum" Type that represents the different depth modes
+type DepthArg string
+
+// SummaryArg - "Enum" Type that represents the different summary modes
+type SummaryArg string
+
 const (
-	track   = "track"
-	file    = "file"
-	segment = "segment"
+	// TRACK - analyse into track depth
+	TRACK DepthArg = "track"
+	// FILE - analyse into file depth
+	FILE DepthArg = "file"
+	// SEGMENT -  analyse into segment depth
+	SEGMENT DepthArg = "segment"
 )
 
 const (
-	none       = "none"
-	additional = "additional"
-	only       = "only"
+	// NONE - add no summary to the output
+	NONE SummaryArg = "none"
+	// ADDITIONAL - add the summary to the output
+	ADDITIONAL SummaryArg = "additional"
+	// ONLY - write only the summara as output
+	ONLY SummaryArg = "only"
 )
 
 // NotValidValue - The value set when values are not valid
@@ -52,10 +64,10 @@ type CsvOutputFormater struct {
 	AddHeader bool
 
 	// ValidDepthArgs - The valid args values for the -depth parameter
-	ValidDepthArgs []string
+	ValidDepthArgs []DepthArg
 
 	// ValidSummaryArgs - The valid args values for the -summary parameter
-	ValidSummaryArgs []string
+	ValidSummaryArgs []SummaryArg
 
 	lineBuffer []OutputLine
 	mux        sync.Mutex
@@ -66,15 +78,15 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
 	ret.AddHeader = addHeader
-	ret.ValidDepthArgs = []string{track, file, segment}
-	ret.ValidSummaryArgs = []string{none, additional, only}
+	ret.ValidDepthArgs = []DepthArg{TRACK, FILE, SEGMENT}
+	ret.ValidSummaryArgs = []SummaryArg{NONE, ADDITIONAL, ONLY}
 	ret.lineBuffer = []OutputLine{}
 
 	return &ret
 }
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
-func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth string, filterDuplicate bool) error {
+func (formater *CsvOutputFormater) AddOutPut(trackFile TrackFile, depth DepthArg, filterDuplicate bool) error {
 
 	var lines []OutputLine
 	linesFromFile, err := formater.GetOutPutEntries(trackFile, false, depth)
@@ -131,7 +143,7 @@ func (formater *CsvOutputFormater) GetLines() []string {
 }
 
 // WriteOutput - Write the output to a given file handle object. Make sure the file exists before you call this method!
-func (formater *CsvOutputFormater) WriteOutput(outFile *os.File, summary string) error {
+func (formater *CsvOutputFormater) WriteOutput(outFile *os.File, summary SummaryArg) error {
 	lines, getErr := formater.GetOutputLines(summary)
 	if getErr != nil {
 		return getErr
@@ -148,14 +160,14 @@ func (formater *CsvOutputFormater) WriteOutput(outFile *os.File, summary string)
 }
 
 // GetOutputLines - Get all lines of the output
-func (formater *CsvOutputFormater) GetOutputLines(summary string) ([]string, error) {
+func (formater *CsvOutputFormater) GetOutputLines(summary SummaryArg) ([]string, error) {
 	var lines []string
 	switch summary {
-	case none:
+	case NONE:
 		lines = formater.GetLines()
-	case only:
+	case ONLY:
 		lines = formater.GetStatisticSummaryLines()
-	case additional:
+	case ADDITIONAL:
 		lines = formater.GetLines()
 		sepaeratorLine := fmt.Sprintf("%s%s%s", "Statistics:", formater.Separator, GetNewLine())
 		lines = append(lines, sepaeratorLine)
@@ -168,15 +180,15 @@ func (formater *CsvOutputFormater) GetOutputLines(summary string) ([]string, err
 }
 
 // GetOutPutEntries - Add the output of a TrackFile
-func (formater *CsvOutputFormater) GetOutPutEntries(trackFile TrackFile, printHeader bool, depth string) ([]OutputLine, error) {
+func (formater *CsvOutputFormater) GetOutPutEntries(trackFile TrackFile, printHeader bool, depth DepthArg) ([]OutputLine, error) {
 	ret := []OutputLine{}
 
 	switch depth {
-	case file:
+	case FILE:
 		ret = append(ret, *newOutputLine(getLineNameFromTrackFile(trackFile), TrackSummaryProvider(trackFile)))
-	case track:
+	case TRACK:
 		ret = append(ret, getLinesFromTracks(formater, trackFile)...)
-	case segment:
+	case SEGMENT:
 		ret = append(ret, getLinesFromTrackSegments(formater, trackFile)...)
 	default:
 		return nil, NewDepthParameterNotKnownError(depth)

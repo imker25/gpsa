@@ -6,7 +6,7 @@ import "fmt"
 type DepthParameterNotKnownError struct {
 	err string
 	// File - The path to the dir that caused this error
-	GivenValue string
+	GivenValue DepthArg
 }
 
 func (e *DepthParameterNotKnownError) Error() string { // Implement the Error Interface for the DepthParameterNotKnownError struct
@@ -14,7 +14,7 @@ func (e *DepthParameterNotKnownError) Error() string { // Implement the Error In
 }
 
 // NewDepthParameterNotKnownError - Get a new DepthParameterNotKnownError struct
-func NewDepthParameterNotKnownError(givenValue string) *DepthParameterNotKnownError {
+func NewDepthParameterNotKnownError(givenValue DepthArg) *DepthParameterNotKnownError {
 	return &DepthParameterNotKnownError{fmt.Sprintf("The given -depth \"%s\" is not known.", givenValue), givenValue}
 }
 
@@ -22,15 +22,15 @@ func NewDepthParameterNotKnownError(givenValue string) *DepthParameterNotKnownEr
 type CorrectionParameterNotKnownError struct {
 	err string
 	// File - The path to the dir that caused this error
-	GivenValue string
+	GivenValue CorrectionParameter
 }
 
-func (e *CorrectionParameterNotKnownError) Error() string { // Implement the Error Interface for the DepthParameterNotKnownError struct
+func (e *CorrectionParameterNotKnownError) Error() string { // Implement the Error Interface for the CorrectionParameterNotKnownError struct
 	return fmt.Sprintf("Error: %s", e.err)
 }
 
-// NewCorrectionParameterNotKnownError - Get a new DepthParameterNotKnownError struct
-func NewCorrectionParameterNotKnownError(givenValue string) *CorrectionParameterNotKnownError {
+// NewCorrectionParameterNotKnownError - Get a new CorrectionParameterNotKnownError struct
+func NewCorrectionParameterNotKnownError(givenValue CorrectionParameter) *CorrectionParameterNotKnownError {
 	return &CorrectionParameterNotKnownError{fmt.Sprintf("The given -correction \"%s\" is not known.", givenValue), givenValue}
 }
 
@@ -70,7 +70,7 @@ func NewMinimalStepHightLessThenZero(givenValue float64) *MinimalStepHightLessTh
 type SummaryParamaterNotKnown struct {
 	err string
 	// File - The path to the dir that caused this error
-	GivenValue string
+	GivenValue SummaryArg
 }
 
 func (e *SummaryParamaterNotKnown) Error() string { // Implement the Error Interface for the SummaryParamaterNotKnown struct
@@ -78,6 +78,6 @@ func (e *SummaryParamaterNotKnown) Error() string { // Implement the Error Inter
 }
 
 // NewSummaryParamaterNotKnown - Get a new SummaryParamaterNotKnown struct
-func NewSummaryParamaterNotKnown(givenValue string) *SummaryParamaterNotKnown {
+func NewSummaryParamaterNotKnown(givenValue SummaryArg) *SummaryParamaterNotKnown {
 	return &SummaryParamaterNotKnown{fmt.Sprintf("The given -summary \"%s\" is not known.", givenValue), givenValue}
 }

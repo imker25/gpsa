@@ -119,7 +119,7 @@ func main() {
 			successCount := processFiles(flag.Args(), iFormater)
 
 			// Write the output
-			errWrite := iFormater.WriteOutput(out, SummaryParameter)
+			errWrite := iFormater.WriteOutput(out, gpsabl.SummaryArg(SummaryParameter))
 			if errWrite != nil {
 				HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
 			}
@@ -161,12 +161,12 @@ func handleComandlineOptions() {
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line. Possible values are [true false]")
 	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set")
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false]")
-	flag.StringVar(&DepthParameter, "depth", outFormater.ValidDepthArgs[0],
+	flag.StringVar(&DepthParameter, "depth", string(gpsabl.TRACK),
 		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetValidDepthArgsString()))
-	flag.StringVar(&CorrectionParameter, "correction", gpsabl.GetValidCorrectionParameters()[2],
+	flag.StringVar(&CorrectionParameter, "correction", string(gpsabl.STEPS),
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
-	flag.StringVar(&SummaryParameter, "summary", outFormater.ValidSummaryArgs[0],
+	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
 		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", outFormater.GetValidSummaryArgsString()))
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
@@ -189,8 +189,8 @@ func customHelpMessage() {
 // processFiles - processes the input files and adds the found content to the output buffer
 func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 
-	if !gpsabl.CheckValidCorrectionParameters(CorrectionParameter) {
-		HandleError(gpsabl.NewCorrectionParameterNotKnownError(CorrectionParameter), "", false, DontPanicFlag)
+	if !gpsabl.CheckValidCorrectionParameters(gpsabl.CorrectionParameter(CorrectionParameter)) {
+		HandleError(gpsabl.NewCorrectionParameterNotKnownError(gpsabl.CorrectionParameter(CorrectionParameter)), "", false, DontPanicFlag)
 	}
 
 	allFiles := len(files)
@@ -237,13 +237,13 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Read the *.gpx into a TrackFile type, using the interface
-	file, readErr := reader.ReadTracks(CorrectionParameter, MinimalMovingSpeedParameter, MinimalStepHightParameter)
+	file, readErr := reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
 	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
 
 	// Add the file to the out buffer of the formater
-	addErr := formater.AddOutPut(file, DepthParameter, SuppressDuplicateOutPutFlag)
+	addErr := formater.AddOutPut(file, gpsabl.DepthArg(DepthParameter), SuppressDuplicateOutPutFlag)
 	if HandleError(addErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
@@ -282,10 +282,10 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 func getOutPutFormater() gpsabl.OutputFormater {
 	formater := gpsabl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
 	if !formater.CheckValidDepthArg(DepthParameter) {
-		HandleError(gpsabl.NewDepthParameterNotKnownError(DepthParameter), "", false, DontPanicFlag)
+		HandleError(gpsabl.NewDepthParameterNotKnownError(gpsabl.DepthArg(DepthParameter)), "", false, DontPanicFlag)
 	}
 	if !formater.CheckValidSummaryArg(SummaryParameter) {
-		HandleError(gpsabl.NewSummaryParamaterNotKnown(SummaryParameter), "", false, DontPanicFlag)
+		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
 	}
 	iFormater := gpsabl.OutputFormater(formater)
 
