@@ -147,8 +147,6 @@ func main() {
 // Defines the usage function as well
 func handleComandlineOptions() {
 
-	outFormater := gpsabl.NewCsvOutputFormater(OutputSeperator, false)
-
 	// Setup the valid comandline flags
 	flag.Float64Var(&MinimalStepHightParameter, "minimal-step-hight", 10.0, "The minimal step hight. Only in use when \"steps\"  elevation correction is used. In [m]")
 	flag.Float64Var(&MinimalMovingSpeedParameter, "minimal-moving-speed", 0.3, "The minimal speed. Distances traveled with less speed are not counted. In [m/s]")
@@ -162,12 +160,12 @@ func handleComandlineOptions() {
 	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set")
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false]")
 	flag.StringVar(&DepthParameter, "depth", string(gpsabl.TRACK),
-		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", outFormater.GetValidDepthArgsString()))
+		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", gpsabl.GetValidDepthArgsString()))
 	flag.StringVar(&CorrectionParameter, "correction", string(gpsabl.STEPS),
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
 	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
-		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", outFormater.GetValidSummaryArgsString()))
+		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
 
@@ -281,10 +279,10 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
 	formater := gpsabl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
-	if !formater.CheckValidDepthArg(DepthParameter) {
+	if !gpsabl.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(gpsabl.DepthArg(DepthParameter)), "", false, DontPanicFlag)
 	}
-	if !formater.CheckValidSummaryArg(SummaryParameter) {
+	if !gpsabl.CheckValidSummaryArg(SummaryParameter) {
 		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
 	}
 	iFormater := gpsabl.OutputFormater(formater)

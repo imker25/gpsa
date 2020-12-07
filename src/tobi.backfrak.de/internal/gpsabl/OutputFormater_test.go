@@ -23,14 +23,6 @@ func TestNewCsvOutputFormater(t *testing.T) {
 		t.Errorf("The Separator was \"%s\", but \";\" was expected", sut.Separator)
 	}
 
-	if len(sut.ValidDepthArgs) != 3 {
-		t.Errorf("The ValidDepthArgs array does not contain the expected number of values")
-	}
-
-	if len(sut.ValidSummaryArgs) != 3 {
-		t.Errorf("The ValidSummaryArgs array does not contain the expected number of values")
-	}
-
 	if len(sut.lineBuffer) != 0 {
 		t.Errorf("The line buffer is not empty on a new CsvOutputFormater")
 	}
@@ -40,87 +32,7 @@ func TestNewCsvOutputFormater(t *testing.T) {
 	}
 }
 
-func TestGetValidDepthArgsString(t *testing.T) {
-	sut := NewCsvOutputFormater(";", false)
-	str := sut.GetValidDepthArgsString()
 
-	if strings.Contains(str, "blabla") {
-		t.Errorf("The GetValidDepthArgsString contains \"blabla\"")
-	}
-
-	if !strings.Contains(str, "file") {
-		t.Errorf("The GetValidDepthArgsString not contains \"file\"")
-	}
-
-	if !strings.Contains(str, "track") {
-		t.Errorf("The GetValidDepthArgsString not contains \"track\"")
-	}
-
-	if !strings.Contains(str, "segment") {
-		t.Errorf("The GetValidDepthArgsString not contains \"segment\"")
-	}
-}
-
-func TestCheckValidDepthArg(t *testing.T) {
-	sut := NewCsvOutputFormater(";", false)
-
-	if sut.CheckValidDepthArg("blabla") {
-		t.Errorf("The CheckValidDepthArg contains \"blabla\"")
-	}
-
-	if !sut.CheckValidDepthArg("file") {
-		t.Errorf("The CheckValidDepthArg not contains \"file\"")
-	}
-
-	if !sut.CheckValidDepthArg("track") {
-		t.Errorf("The CheckValidDepthArg not contains \"track\"")
-	}
-
-	if !sut.CheckValidDepthArg("segment") {
-		t.Errorf("The CheckValidDepthArg not contains \"segment\"")
-	}
-}
-
-func TestGetValidSummaryArgsString(t *testing.T) {
-	sut := NewCsvOutputFormater(";", false)
-	str := sut.GetValidSummaryArgsString()
-
-	if strings.Contains(str, "blabla") {
-		t.Errorf("The GetValidDepthArgsString contains \"blabla\"")
-	}
-
-	if !strings.Contains(str, "none") {
-		t.Errorf("The GetValidDepthArgsString not contains \"none\"")
-	}
-
-	if !strings.Contains(str, "additional") {
-		t.Errorf("The GetValidDepthArgsString not contains \"additional\"")
-	}
-
-	if !strings.Contains(str, "only") {
-		t.Errorf("The GetValidDepthArgsString not contains \"only\"")
-	}
-}
-
-func TestCheckValidSummaryArg(t *testing.T) {
-	sut := NewCsvOutputFormater(";", false)
-
-	if sut.CheckValidSummaryArg("blabla") {
-		t.Errorf("The CheckValidDepthArg contains \"blabla\"")
-	}
-
-	if !sut.CheckValidSummaryArg("none") {
-		t.Errorf("The CheckValidDepthArg not contains \"none\"")
-	}
-
-	if !sut.CheckValidSummaryArg("only") {
-		t.Errorf("The CheckValidDepthArg not contains \"only\"")
-	}
-
-	if !sut.CheckValidSummaryArg("additional") {
-		t.Errorf("The CheckValidDepthArg not contains \"additional\"")
-	}
-}
 
 func TestFormatOutPutWithHeader(t *testing.T) {
 	formater := NewCsvOutputFormater(";", true)

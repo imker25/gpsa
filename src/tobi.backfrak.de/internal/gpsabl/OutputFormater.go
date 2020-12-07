@@ -9,33 +9,8 @@ import (
 	"os"
 	"runtime"
 	"sort"
-	"strings"
 	"sync"
 	"time"
-)
-
-// DepthArg -  "Enum" Type that represents the different depth modes
-type DepthArg string
-
-// SummaryArg - "Enum" Type that represents the different summary modes
-type SummaryArg string
-
-const (
-	// TRACK - analyse into track depth
-	TRACK DepthArg = "track"
-	// FILE - analyse into file depth
-	FILE DepthArg = "file"
-	// SEGMENT -  analyse into segment depth
-	SEGMENT DepthArg = "segment"
-)
-
-const (
-	// NONE - add no summary to the output
-	NONE SummaryArg = "none"
-	// ADDITIONAL - add the summary to the output
-	ADDITIONAL SummaryArg = "additional"
-	// ONLY - write only the summara as output
-	ONLY SummaryArg = "only"
 )
 
 // NotValidValue - The value set when values are not valid
@@ -63,12 +38,6 @@ type CsvOutputFormater struct {
 	// Tell if the CSV header should be added to the output
 	AddHeader bool
 
-	// ValidDepthArgs - The valid args values for the -depth parameter
-	ValidDepthArgs []DepthArg
-
-	// ValidSummaryArgs - The valid args values for the -summary parameter
-	ValidSummaryArgs []SummaryArg
-
 	lineBuffer []OutputLine
 	mux        sync.Mutex
 }
@@ -78,8 +47,6 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
 	ret.AddHeader = addHeader
-	ret.ValidDepthArgs = []DepthArg{TRACK, FILE, SEGMENT}
-	ret.ValidSummaryArgs = []SummaryArg{NONE, ADDITIONAL, ONLY}
 	ret.lineBuffer = []OutputLine{}
 
 	return &ret
@@ -437,34 +404,6 @@ func (formater *CsvOutputFormater) formatSumSummary(info ExtendedTrackSummary, t
 	}
 
 	return ret
-}
-
-// GetValidDepthArgsString - Get the ValidDepthArgs in one string
-func (formater *CsvOutputFormater) GetValidDepthArgsString() string {
-	ret := ""
-	for _, arg := range formater.ValidDepthArgs {
-		ret = fmt.Sprintf("%s %s", arg, ret)
-	}
-	return ret
-}
-
-// CheckValidDepthArg -Check if a string is a valid depth arg
-func (formater *CsvOutputFormater) CheckValidDepthArg(agr string) bool {
-	return strings.Contains(formater.GetValidDepthArgsString(), agr)
-}
-
-// GetValidSummaryArgsString - Get the ValidSummaryArgs in one string
-func (formater *CsvOutputFormater) GetValidSummaryArgsString() string {
-	ret := ""
-	for _, arg := range formater.ValidSummaryArgs {
-		ret = fmt.Sprintf("%s %s", arg, ret)
-	}
-	return ret
-}
-
-// CheckValidSummaryArg -Check if a string is a valid summary arg
-func (formater *CsvOutputFormater) CheckValidSummaryArg(agr string) bool {
-	return strings.Contains(formater.GetValidSummaryArgsString(), agr)
 }
 
 // GetNewLine - Get the new line string depending on the OS
