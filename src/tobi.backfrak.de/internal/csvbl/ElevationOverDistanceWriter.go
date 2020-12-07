@@ -1,8 +1,10 @@
-package gpsabl
+package csvbl
 
 import (
 	"fmt"
 	"os"
+
+	"tobi.backfrak.de/internal/gpsabl"
 )
 
 type printElevationPoint struct {
@@ -12,7 +14,7 @@ type printElevationPoint struct {
 }
 
 // WriteElevationOverDistance - Write out a Elevation over Distance table
-func WriteElevationOverDistance(trackFile TrackFile, outFile *os.File, outputSeperator string) error {
+func WriteElevationOverDistance(trackFile gpsabl.TrackFile, outFile *os.File, outputSeperator string) error {
 
 	pnts := getTrackPoints(trackFile)
 	lines := getOutPutLines(pnts, outputSeperator)
@@ -33,9 +35,9 @@ func getOutPutLines(trackPoints []printElevationPoint, outputSeperator string) [
 	for _, pnt := range trackPoints {
 
 		line := fmt.Sprintf("%f%s%f%s%f%s%s",
-			RoundFloat64To2Digits(pnt.DistanceToThisPoint/1000), outputSeperator,
-			RoundFloat64To2Digits(float64(pnt.Elevation)), outputSeperator,
-			RoundFloat64To2Digits(float64(pnt.CorectedElevation)), outputSeperator,
+			gpsabl.RoundFloat64To2Digits(pnt.DistanceToThisPoint/1000), outputSeperator,
+			gpsabl.RoundFloat64To2Digits(float64(pnt.Elevation)), outputSeperator,
+			gpsabl.RoundFloat64To2Digits(float64(pnt.CorectedElevation)), outputSeperator,
 			GetNewLine())
 
 		lines = append(lines, line)
@@ -44,7 +46,7 @@ func getOutPutLines(trackPoints []printElevationPoint, outputSeperator string) [
 	return lines
 }
 
-func getTrackPoints(trackFile TrackFile) []printElevationPoint {
+func getTrackPoints(trackFile gpsabl.TrackFile) []printElevationPoint {
 
 	pnts := []printElevationPoint{}
 	startDist := 0.0

@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"tobi.backfrak.de/internal/csvbl"
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
 	"tobi.backfrak.de/internal/tcxbl"
@@ -257,7 +258,7 @@ func processFile(filePath string, formater gpsabl.OutputFormater) bool {
 
 		// Write the ElevationOverDistance.csv
 		fmt.Println(fmt.Sprintf("Create %s", outPath))
-		printErr := gpsabl.WriteElevationOverDistance(file, out, OutputSeperator)
+		printErr := csvbl.WriteElevationOverDistance(file, out, OutputSeperator)
 		if HandleError(printErr, outPath, SkipErrorExitFlag, DontPanicFlag) == true {
 			return false
 		}
@@ -278,7 +279,7 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 
 // Get the Interface to format the output
 func getOutPutFormater() gpsabl.OutputFormater {
-	formater := gpsabl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
+	formater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
 	if !gpsabl.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(gpsabl.DepthArg(DepthParameter)), "", false, DontPanicFlag)
 	}

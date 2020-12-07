@@ -25,6 +25,21 @@ func RoundFloat64To2Digits(in float64) float64 {
 	return math.Round(in*100) / 100
 }
 
+// OutputLine - Represents one line in the output
+type OutputLine struct {
+	Name string
+	Data TrackSummaryProvider
+}
+
+// NewOutputLine - Get a new OutputLine struct
+func NewOutputLine(name string, data TrackSummaryProvider) *OutputLine {
+	ret := OutputLine{}
+	ret.Data = data
+	ret.Name = name
+
+	return &ret
+}
+
 // TrackDataArrays - The tracks data in arrays, sorted by values not the line
 type TrackDataArrays struct {
 	AllTimeDataValid bool
@@ -194,6 +209,28 @@ func GetStatisticSummaryData(lines []OutputLine) TrackStatisticSummaryData {
 	}
 
 	return ret
+}
+
+// OutputContainsLineByTimeStamps - tell if a track with the same start and endtime already is in the output buffer
+func OutputContainsLineByTimeStamps(output []OutputLine, newLine OutputLine) bool {
+
+	// Don't tread all lines with no valid time values as duplicates
+	if newLine.Data.GetTimeDataValid() == false {
+		return false
+	}
+	newLineStartTime := newLine.Data.GetStartTime()
+	newLineEndTime := newLine.Data.GetEndTime()
+
+	for _, outLine := range output {
+		outLineStartTime := outLine.Data.GetStartTime()
+		outLineEndTime := outLine.Data.GetEndTime()
+
+		if outLineStartTime == newLineStartTime && outLineEndTime == newLineEndTime {
+			return true
+		}
+	}
+
+	return false
 }
 
 func averageDuration(sum time.Duration, count int) time.Duration {

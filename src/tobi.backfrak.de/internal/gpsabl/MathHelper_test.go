@@ -1,6 +1,7 @@
 package gpsabl
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -161,10 +162,15 @@ func TestAverageDuration(t *testing.T) {
 
 func TestGetTrackDataArraysWithTime(t *testing.T) {
 	file := getTrackFileTwoTracksWithThreeSegmentsWithTime()
-	formater := NewCsvOutputFormater(";", false)
-	formater.AddOutPut(file, "segment", false)
 
-	arrays := GetTrackDataArrays(formater.lineBuffer)
+	lineBuffer := []OutputLine{}
+	for i, track := range file.Tracks {
+		for j, seg := range track.TrackSegments {
+			lineBuffer = append(lineBuffer, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
+
+	arrays := GetTrackDataArrays(lineBuffer)
 
 	if arrays.AllTimeDataValid == false {
 		t.Errorf("Not all time data is valid, but should")
@@ -225,10 +231,14 @@ func TestGetTrackDataArraysWithTime(t *testing.T) {
 
 func TestGetTrackDataArraysWithOutTime(t *testing.T) {
 	file := getTrackFileTwoTracksWithThreeSegments()
-	formater := NewCsvOutputFormater(";", false)
-	formater.AddOutPut(file, "segment", false)
+	lineBuffer := []OutputLine{}
+	for i, track := range file.Tracks {
+		for j, seg := range track.TrackSegments {
+			lineBuffer = append(lineBuffer, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
 
-	arrays := GetTrackDataArrays(formater.lineBuffer)
+	arrays := GetTrackDataArrays(lineBuffer)
 
 	if arrays.AllTimeDataValid == true {
 		t.Errorf("All time data is valid, but should not")
@@ -290,11 +300,19 @@ func TestGetTrackDataArraysWithOutTime(t *testing.T) {
 func TestGetTrackDataArraysWithMixedTime(t *testing.T) {
 	file1 := getTrackFileTwoTracksWithThreeSegments()
 	file2 := getTrackFileTwoTracksWithThreeSegmentsWithTime()
-	formater := NewCsvOutputFormater(";", false)
-	formater.AddOutPut(file1, "segment", false)
-	formater.AddOutPut(file2, "segment", false)
+	lineBuffer := []OutputLine{}
+	for i, track := range file1.Tracks {
+		for j, seg := range track.TrackSegments {
+			lineBuffer = append(lineBuffer, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
+	for i, track := range file2.Tracks {
+		for j, seg := range track.TrackSegments {
+			lineBuffer = append(lineBuffer, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
 
-	arrays := GetTrackDataArrays(formater.lineBuffer)
+	arrays := GetTrackDataArrays(lineBuffer)
 
 	if arrays.AllTimeDataValid == true {
 		t.Errorf("All time data is valid, but should not")
@@ -355,22 +373,63 @@ func TestGetTrackDataArraysWithMixedTime(t *testing.T) {
 
 func TestGetStatisticSummaryDataWithoutTime(t *testing.T) {
 	file := getTrackFileTwoTracksWithThreeSegments()
-	formater := NewCsvOutputFormater(";", false)
-	formater.AddOutPut(file, "segment", false)
+	lineBuffer := []OutputLine{}
+	for i, track := range file.Tracks {
+		for j, seg := range track.TrackSegments {
+			lineBuffer = append(lineBuffer, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
 
-	summaries := GetStatisticSummaryData(formater.lineBuffer)
+	summaries := GetStatisticSummaryData(lineBuffer)
 
 	if summaries.AllTimeDataValid == true {
 		t.Errorf("All time data is valid, but should not")
 	}
 }
 
+func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
+	trackFile := getTrackFileTwoTracksWithThreeSegmentsWithTime()
+	entries := []OutputLine{}
+	for i, track := range trackFile.Tracks {
+		for j, seg := range track.TrackSegments {
+			entries = append(entries, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
+
+	if OutputContainsLineByTimeStamps(entries, entries[0]) == false {
+		t.Errorf("Got false, but expect true")
+	}
+
+	if OutputContainsLineByTimeStamps(entries, *NewOutputLine("bla", getTrackWithDifferentTime())) == true {
+		t.Errorf("Got true, but expect false")
+	}
+}
+
+func TestOutPutContainsLineByTimeStamps2(t *testing.T) {
+
+	trackFile := getTrackFileTwoTracksWithThreeSegments()
+	entries := []OutputLine{}
+	for i, track := range trackFile.Tracks {
+		for j, seg := range track.TrackSegments {
+			entries = append(entries, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
+
+	if OutputContainsLineByTimeStamps(entries, entries[0]) == true {
+		t.Errorf("Got true, but expect false")
+	}
+}
+
 func TestGetStatisticSummaryDataWithTime(t *testing.T) {
 	file := getTrackFileTwoTracksWithThreeSegmentsWithTime()
-	formater := NewCsvOutputFormater(";", false)
-	formater.AddOutPut(file, "segment", false)
+	lineBuffer := []OutputLine{}
+	for i, track := range file.Tracks {
+		for j, seg := range track.TrackSegments {
+			lineBuffer = append(lineBuffer, *NewOutputLine(fmt.Sprintf("%d-%d", i, j), seg))
+		}
+	}
 
-	summaries := GetStatisticSummaryData(formater.lineBuffer)
+	summaries := GetStatisticSummaryData(lineBuffer)
 
 	if summaries.AllTimeDataValid == false {
 		t.Errorf("Not all time data is valid, but should")
@@ -388,4 +447,60 @@ func TestGetStatisticSummaryDataWithTime(t *testing.T) {
 	if summaries.Minimum.Duration.String() != "20s" {
 		t.Errorf("The value is %s, but expected was %s", summaries.Average.Duration.String(), "20s")
 	}
+}
+
+func getTrackWithDifferentTime() Track {
+	t1, _ := time.Parse(time.RFC3339, "2015-08-22T17:19:33Z")
+	t2, _ := time.Parse(time.RFC3339, "2015-08-22T17:19:43Z")
+	t3, _ := time.Parse(time.RFC3339, "2015-08-22T17:19:53Z")
+	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
+	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 108.0, t2)
+	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t3)
+	points := []TrackPoint{pnt1, pnt2, pnt3}
+
+	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
+	FillDistancesTrackPoint(&points[1], points[0], points[2])
+	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
+	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
+	seg := TrackSegment{}
+	seg.TrackPoints = points
+	ret := Track{}
+	FillTrackSegmentValues(&seg)
+	ret.TrackSegments = []TrackSegment{seg}
+	FillTrackValues(&ret)
+	ret.NumberOfSegments = 1
+
+	return ret
+}
+
+func getTrackFileTwoTracksWithThreeSegmentsWithTime() TrackFile {
+	trackFile := getTrackFileTwoTracksWithTime()
+	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFileWithTime().Tracks[0].TrackSegments[0])
+	FillTrackValues(&trackFile.Tracks[0])
+
+	return trackFile
+}
+
+func getTrackFileTwoTracksWithTime() TrackFile {
+	trackFile := getSimpleTrackFileWithTime()
+	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFileWithTime().Tracks...)
+	FillTrackFileValues(&trackFile)
+
+	return trackFile
+}
+
+func getTrackFileTwoTracksWithThreeSegments() TrackFile {
+	trackFile := getTrackFileTwoTracks()
+	trackFile.Tracks[0].TrackSegments = append(trackFile.Tracks[0].TrackSegments, getSimpleTrackFile().Tracks[0].TrackSegments[0])
+	FillTrackValues(&trackFile.Tracks[0])
+
+	return trackFile
+}
+
+func getTrackFileTwoTracks() TrackFile {
+	trackFile := getSimpleTrackFile()
+	trackFile.Tracks = append(trackFile.Tracks, getSimpleTrackFile().Tracks...)
+	FillTrackFileValues(&trackFile)
+
+	return trackFile
 }
