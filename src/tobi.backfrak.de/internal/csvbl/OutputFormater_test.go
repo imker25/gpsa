@@ -95,7 +95,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "file")
+	entries, err := formater.getOutPutEntries(trackFile, "file")
 	if err != nil {
 		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
@@ -117,7 +117,7 @@ func TestFormatOutPutWithOutHeaderTrackDepth(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
+	entries, err := formater.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -140,7 +140,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackName(t *testing.T) {
 	trackFile := getSimpleTrackFile()
 	trackFile.Tracks[0].Name = "My Track"
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
+	entries, err := formater.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -168,7 +168,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackFileNameSetTrackName(t *test
 	trackFile.Tracks[0].Name = "My Track"
 	trackFile.Name = "My track file"
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
+	entries, err := formater.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -200,7 +200,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 	trackFile.Tracks[0].Name = "My Track"
 	trackFile.Name = "My track file"
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "segment")
+	entries, err := formater.getOutPutEntries(trackFile, "segment")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -229,7 +229,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 func TestFormatOutPutWithOutHeaderInvalidDepth(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
-	_, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "abc")
+	_, err := formater.getOutPutEntries(trackFile, "abc")
 
 	if err == nil {
 		t.Errorf("Did not get an error as expected")
@@ -533,7 +533,7 @@ func TestOutPutDistanceAndHorizontalDistanceIsDifferent(t *testing.T) {
 func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
 	trackFile := getTrackFileTwoTracksWithThreeSegmentsWithTime()
-	entries, err := frt.GetOutPutEntries(trackFile, false, "track")
+	entries, err := frt.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -551,7 +551,7 @@ func TestOutPutContainsLineByTimeStamps2(t *testing.T) {
 
 	frt := NewCsvOutputFormater(";", false)
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
-	entries, err := frt.GetOutPutEntries(trackFile, false, "track")
+	entries, err := frt.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}

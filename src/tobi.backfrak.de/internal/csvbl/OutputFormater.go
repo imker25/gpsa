@@ -44,7 +44,7 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 func (formater *CsvOutputFormater) AddOutPut(trackFile gpsabl.TrackFile, depth gpsabl.DepthArg, filterDuplicate bool) error {
 
 	var lines []gpsabl.OutputLine
-	linesFromFile, err := formater.GetOutPutEntries(trackFile, false, depth)
+	linesFromFile, err := formater.getOutPutEntries(trackFile, depth)
 	if err != nil {
 		return err
 	}
@@ -134,22 +134,10 @@ func (formater *CsvOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]
 	return lines, nil
 }
 
-// GetOutPutEntries - Add the output of a TrackFile
-func (formater *CsvOutputFormater) GetOutPutEntries(trackFile gpsabl.TrackFile, printHeader bool, depth gpsabl.DepthArg) ([]gpsabl.OutputLine, error) {
-	ret := []gpsabl.OutputLine{}
+// getOutPutEntries - Add the output of a TrackFile
+func (formater *CsvOutputFormater) getOutPutEntries(trackFile gpsabl.TrackFile, depth gpsabl.DepthArg) ([]gpsabl.OutputLine, error) {
 
-	switch depth {
-	case gpsabl.FILE:
-		ret = append(ret, *gpsabl.NewOutputLine(getLineNameFromTrackFile(trackFile), gpsabl.TrackSummaryProvider(trackFile)))
-	case gpsabl.TRACK:
-		ret = append(ret, getLinesFromTracks(formater, trackFile)...)
-	case gpsabl.SEGMENT:
-		ret = append(ret, getLinesFromTrackSegments(formater, trackFile)...)
-	default:
-		return nil, gpsabl.NewDepthParameterNotKnownError(depth)
-	}
-
-	return ret, nil
+	return gpsabl.GetOutlines(trackFile, depth)
 }
 
 // GetHeader - Get the header line of a csv output
@@ -401,47 +389,4 @@ func GetNewLine() string {
 	}
 	return "\n"
 
-}
-
-func getLinesFromTrackSegments(formater *CsvOutputFormater, trackFile gpsabl.TrackFile) []gpsabl.OutputLine {
-	ret := []gpsabl.OutputLine{}
-	for iTrack, track := range trackFile.Tracks {
-		for iSeg, seg := range track.TrackSegments {
-			info := gpsabl.TrackSummaryProvider(seg)
-			name := fmt.Sprintf("%s: Segment #%d", getLineNameFromTrack(track, trackFile, iTrack), iSeg+1)
-			entry := gpsabl.NewOutputLine(name, info)
-			ret = append(ret, *entry)
-		}
-	}
-
-	return ret
-}
-
-func getLinesFromTracks(formater *CsvOutputFormater, trackFile gpsabl.TrackFile) []gpsabl.OutputLine {
-	ret := []gpsabl.OutputLine{}
-	for i, track := range trackFile.Tracks {
-		info := gpsabl.TrackSummaryProvider(track)
-		name := getLineNameFromTrack(track, trackFile, i)
-		entry := gpsabl.NewOutputLine(name, info)
-		ret = append(ret, *entry)
-	}
-
-	return ret
-}
-
-func getLineNameFromTrack(track gpsabl.Track, parent gpsabl.TrackFile, index int) string {
-	if track.Name != "" {
-		return fmt.Sprintf("%s: %s", getLineNameFromTrackFile(parent), track.Name)
-	}
-
-	return fmt.Sprintf("%s: Track #%d", getLineNameFromTrackFile(parent), index+1)
-
-}
-
-func getLineNameFromTrackFile(trackFile gpsabl.TrackFile) string {
-	if trackFile.Name != "" {
-		return trackFile.Name
-	}
-
-	return trackFile.FilePath
 }
