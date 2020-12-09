@@ -9,6 +9,7 @@ import (
 	"os"
 	"runtime"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,6 +19,55 @@ import (
 // NotValidValue - The value set when values are not valid
 const NotValidValue = "not valid"
 
+// TimeFormat - Represents a go Time format string for the enum pattern
+type TimeFormat string
+
+const (
+	// RFC3339 - Internal representation of gos time.RFC3339
+	RFC3339 TimeFormat = time.RFC3339
+
+	// ANSIC -  Internal representation of gos time.ANSIC
+	ANSIC TimeFormat = time.ANSIC
+
+	// UnixDate -  Internal representation of gos time.UnixDate
+	UnixDate TimeFormat = time.UnixDate
+)
+
+// GetValidTimeFormats -  Get the valid TimeFormat values
+func GetValidTimeFormats() []TimeFormat {
+	return []TimeFormat{RFC3339, ANSIC, UnixDate}
+}
+
+// GetValidTimeFormatsString - Get a string that contains all valid TimeFormat values
+func GetValidTimeFormatsString() string {
+	ret := ""
+	for _, arg := range GetValidTimeFormats() {
+		ret = fmt.Sprintf("\"%s\" %s", arg, ret)
+	}
+	return ret
+}
+
+// TimeFormatNotKnown - Error when the given -summary is not known
+type TimeFormatNotKnown struct {
+	err string
+	// File - The path to the dir that caused this error
+	GivenValue TimeFormat
+}
+
+func (e *TimeFormatNotKnown) Error() string { // Implement the Error Interface for the TimeFormatNotKnown struct
+	return fmt.Sprintf("%s", e.err)
+}
+
+// NewTimeFormatNotKnown - Get a new TimeFormatNotKnown struct
+func NewTimeFormatNotKnown(givenValue TimeFormat) *TimeFormatNotKnown {
+	return &TimeFormatNotKnown{fmt.Sprintf("The given -summary \"%s\" is not known.", givenValue), givenValue}
+}
+
+// CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
+func CheckTimeFormatIsValid(format string) bool {
+	return strings.Contains(GetValidTimeFormatsString(), format)
+}
+
 // CsvOutputFormater - type that formats TrackSummary into csv style
 type CsvOutputFormater struct {
 	// Separator - The separator used to separate values in csv
@@ -25,6 +75,8 @@ type CsvOutputFormater struct {
 
 	// Tell if the CSV header should be added to the output
 	AddHeader bool
+
+	timeFormater TimeFormat
 
 	lineBuffer []gpsabl.OutputLine
 	mux        sync.Mutex
@@ -35,9 +87,24 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
 	ret.AddHeader = addHeader
+	ret.timeFormater = RFC3339
 	ret.lineBuffer = []gpsabl.OutputLine{}
 
 	return &ret
+}
+
+// GetTimeFormat - Get the time format string used by this CsvOutputFormater
+func (formater *CsvOutputFormater) GetTimeFormat() string {
+	return string(formater.timeFormater)
+}
+
+// SetTimeFormat - Set the time format string used by this CsvOutputFormater. Will return an error if you want to set an unknown format
+func (formater *CsvOutputFormater) SetTimeFormat(timeFormat string) error {
+	if CheckTimeFormatIsValid(timeFormat) == false {
+		return NewTimeFormatNotKnown(TimeFormat(timeFormat))
+	}
+	formater.timeFormater = TimeFormat(timeFormat)
+	return nil
 }
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
@@ -174,8 +241,8 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info gpsabl.TrackSummaryPr
 	if info.GetTimeDataValid() {
 		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
-			info.GetStartTime().Format(time.RFC3339), formater.Separator,
-			info.GetEndTime().Format(time.RFC3339), formater.Separator,
+			info.GetStartTime().Format(string(formater.timeFormater)), formater.Separator,
+			info.GetEndTime().Format(string(formater.timeFormater)), formater.Separator,
 			info.GetEndTime().Sub(info.GetStartTime()).String(), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetHorizontalDistance()/1000), formater.Separator,
@@ -227,8 +294,8 @@ func (formater *CsvOutputFormater) formatMinMaxSummary(info gpsabl.ExtendedTrack
 	if timeValid {
 		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
-			info.StartTime.Format(time.RFC3339), formater.Separator,
-			info.EndTime.Format(time.RFC3339), formater.Separator,
+			info.StartTime.Format(string(formater.timeFormater)), formater.Separator,
+			info.EndTime.Format(string(formater.timeFormater)), formater.Separator,
 			info.Duration.String(), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,

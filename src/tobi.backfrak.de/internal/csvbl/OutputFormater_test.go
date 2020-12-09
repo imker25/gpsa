@@ -18,6 +18,60 @@ import (
 const numberOfSemicolonExpected = 19
 const numberOfNotValideExpected = 9
 
+func TestNewTimeFormatNotKnown(t *testing.T) {
+	val := "asdgfg"
+	err := NewTimeFormatNotKnown(TimeFormat(val))
+
+	if err.GivenValue != TimeFormat(val) {
+		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
+	}
+
+	if strings.Contains(err.Error(), val) == false {
+		t.Errorf("The error message of DepthParameterNotKnownError does not contain the expected GivenValue")
+	}
+}
+
+func TestSetTimeFormat(t *testing.T) {
+	sut := NewCsvOutputFormater(";", false)
+
+	if sut.GetTimeFormat() != time.RFC3339 {
+		t.Errorf("The TimeFormat does not have the expected default value")
+	}
+
+	err1 := sut.SetTimeFormat(time.UnixDate)
+	if err1 != nil {
+		t.Errorf("Got an error but expected none")
+	}
+
+	if sut.GetTimeFormat() != time.UnixDate {
+		t.Errorf("The TimeFormat does not have the expected default value")
+	}
+
+	str := "blablub"
+	err2 := sut.SetTimeFormat(str)
+	if err2 == nil {
+		t.Errorf("Got no error but expected one")
+	}
+
+	if err2 == nil {
+		t.Errorf("Got no errorbut expected one")
+	}
+	switch err2.(type) {
+	case *TimeFormatNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not from the expected type")
+	}
+}
+
+func TestGetValidTimeFormatsString(t *testing.T) {
+	str := GetValidTimeFormatsString()
+	res := fmt.Sprintf("\"%s\" \"%s\" \"%s\" ", time.UnixDate, time.ANSIC, time.RFC3339)
+	if str != res {
+		t.Errorf("Got \"%s\", but expected \"%s \"", str, res)
+	}
+}
+
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";", false)
 
@@ -31,6 +85,14 @@ func TestNewCsvOutputFormater(t *testing.T) {
 
 	if len(sut.GetLines()) != 0 {
 		t.Errorf("The line buffer is not empty on a new CsvOutputFormater")
+	}
+
+	if sut.GetTimeFormat() != string(sut.timeFormater) {
+		t.Errorf("GetTimeFormat does not have the expected value")
+	}
+
+	if sut.timeFormater != time.RFC3339 {
+		t.Errorf("The TimeFormat does not have the expected default value")
 	}
 }
 
