@@ -66,7 +66,7 @@ func TestSetTimeFormat(t *testing.T) {
 
 func TestGetValidTimeFormatsString(t *testing.T) {
 	str := GetValidTimeFormatsString()
-	res := fmt.Sprintf("\"%s\" \"%s\" \"%s\" ", time.UnixDate, time.ANSIC, time.RFC3339)
+	res := fmt.Sprintf("\"%s\" \"%s\" \"%s\" ", time.UnixDate, time.RFC850, time.RFC3339)
 	if str != res {
 		t.Errorf("Got \"%s\", but expected \"%s \"", str, res)
 	}
@@ -791,6 +791,184 @@ func TestGetStatisticSummaryLinesWithoutTime(t *testing.T) {
 	}
 	if strings.Count(lines[3], ";") != numberOfSemicolonExpected {
 		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], ";"), numberOfSemicolonExpected)
+	}
+}
+
+func TestFormatTimeDurationUnknownFormat(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	frt.timeFormater = TimeFormat("blabla")
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	_, err := frt.formatTimeDuration(dur)
+
+	if err == nil {
+		t.Errorf("Got no error, but expected one")
+	}
+	switch err.(type) {
+	case *TimeFormatNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not from the expected type")
+	}
+}
+
+func TestFormatTimeDurationRFC3339Format(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	err := frt.SetTimeFormat(string(RFC3339))
+	if err != nil {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	str, _ := frt.formatTimeDuration(dur)
+	res := dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-48 * time.Hour))
+	str, _ = frt.formatTimeDuration(dur)
+	res = dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-37*time.Hour + -2*time.Minute + -20*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-3*time.Minute + -21*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+}
+
+func TestFormatTimeDurationRFC850Format(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	err := frt.SetTimeFormat(string(RFC850))
+	if err != nil {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	str, _ := frt.formatTimeDuration(dur)
+	res := "2:0:0"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-48 * time.Hour))
+	str, _ = frt.formatTimeDuration(dur)
+	res = "48:0:0"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-37*time.Hour + -2*time.Minute + -20*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = "37:2:20"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-3*time.Minute + -21*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = "3:21"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+}
+
+func TestFormatTimeDurationUnixFormat(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	err := frt.SetTimeFormat(string(UnixDate))
+	if err != nil {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	str, _ := frt.formatTimeDuration(dur)
+	res := fmt.Sprintf("%f", float64(2*3600))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-48 * time.Hour))
+	str, _ = frt.formatTimeDuration(dur)
+	res = fmt.Sprintf("%f", float64(48*3600))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-37*time.Hour + -2*time.Minute + -20*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = fmt.Sprintf("%f", float64(37*3600+140))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-3*time.Minute + -21*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = fmt.Sprintf("%f", float64(201))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+}
+
+func TestGetTimeHeader(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	frt.timeFormater = TimeFormat("blabla")
+	_, err := frt.getTimeDurationHeader("bla")
+
+	if err == nil {
+		t.Errorf("Got no error, but expected one")
+	}
+	switch err.(type) {
+	case *TimeFormatNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not from the expected type")
+	}
+
+	frt.timeFormater = RFC3339
+	str, _ := frt.getTimeDurationHeader("bla")
+	res := "bla (xxhxxmxxs)"
+	if str != res {
+		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
+	}
+
+	frt.timeFormater = UnixDate
+	str, _ = frt.getTimeDurationHeader("bla")
+	res = "bla (s)"
+	if str != res {
+		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
+	}
+
+	frt.timeFormater = RFC850
+	str, _ = frt.getTimeDurationHeader("bla")
+	res = "bla (hh:mm:ss)"
+	if str != res {
+		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
 	}
 }
 

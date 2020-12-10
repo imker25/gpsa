@@ -26,8 +26,8 @@ const (
 	// RFC3339 - Internal representation of gos time.RFC3339
 	RFC3339 TimeFormat = time.RFC3339
 
-	// ANSIC -  Internal representation of gos time.ANSIC
-	ANSIC TimeFormat = time.ANSIC
+	// RFC850 -  Internal representation of gos time.RFC850
+	RFC850 TimeFormat = time.RFC850
 
 	// UnixDate -  Internal representation of gos time.UnixDate
 	UnixDate TimeFormat = time.UnixDate
@@ -35,7 +35,7 @@ const (
 
 // GetValidTimeFormats -  Get the valid TimeFormat values
 func GetValidTimeFormats() []TimeFormat {
-	return []TimeFormat{RFC3339, ANSIC, UnixDate}
+	return []TimeFormat{RFC3339, RFC850, UnixDate}
 }
 
 // GetValidTimeFormatsString - Get a string that contains all valid TimeFormat values
@@ -209,11 +209,15 @@ func (formater *CsvOutputFormater) getOutPutEntries(trackFile gpsabl.TrackFile, 
 
 // GetHeader - Get the header line of a csv output
 func (formater *CsvOutputFormater) GetHeader() string {
+	trackTimeHeader, _ := formater.getTimeDurationHeader("TrackTime")
+	movingTimeHeader, _ := formater.getTimeDurationHeader("MovingTime")
+	upwardsTimeHeader, _ := formater.getTimeDurationHeader("UpwardsTime")
+	downwardsTimeHeader, _ := formater.getTimeDurationHeader("DownwardsTime")
 	ret := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		"Name", formater.Separator,
 		"StartTime", formater.Separator,
 		"EndTime", formater.Separator,
-		"TrackTime (xxhxxmxxs)", formater.Separator,
+		trackTimeHeader, formater.Separator,
 		"Distance (km)", formater.Separator,
 		"HorizontalDistance (km)", formater.Separator,
 		"AltitudeRange (m)", formater.Separator,
@@ -223,9 +227,9 @@ func (formater *CsvOutputFormater) GetHeader() string {
 		"ElevationLose (m)", formater.Separator,
 		"UpwardsDistance (km)", formater.Separator,
 		"DownwardsDistance (km)", formater.Separator,
-		"MovingTime (xxhxxmxxs)", formater.Separator,
-		"UpwardsTime (xxhxxmxxs)", formater.Separator,
-		"DownwardsTime (xxhxxmxxs)", formater.Separator,
+		movingTimeHeader, formater.Separator,
+		upwardsTimeHeader, formater.Separator,
+		downwardsTimeHeader, formater.Separator,
 		"AverageSpeed (km/h)", formater.Separator,
 		"UpwardsSpeed (km/h)", formater.Separator,
 		"DownwardsSpeed (km/h)", formater.Separator,
@@ -239,11 +243,15 @@ func (formater *CsvOutputFormater) GetHeader() string {
 func (formater *CsvOutputFormater) FormatTrackSummary(info gpsabl.TrackSummaryProvider, name string) string {
 	var ret string
 	if info.GetTimeDataValid() {
+		duration, _ := formater.formatTimeDuration(info.GetEndTime().Sub(info.GetStartTime()))
+		moveTime, _ := formater.formatTimeDuration(info.GetMovingTime())
+		upTime, _ := formater.formatTimeDuration(info.GetUpwardsTime())
+		downTime, _ := formater.formatTimeDuration(info.GetDownwardsTime())
 		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
 			info.GetStartTime().Format(string(formater.timeFormater)), formater.Separator,
 			info.GetEndTime().Format(string(formater.timeFormater)), formater.Separator,
-			info.GetEndTime().Sub(info.GetStartTime()).String(), formater.Separator,
+			duration, formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetDistance()/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetHorizontalDistance()/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(float64(info.GetAltitudeRange())), formater.Separator,
@@ -253,9 +261,9 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info gpsabl.TrackSummaryPr
 			gpsabl.RoundFloat64To2Digits(float64(info.GetElevationLose())), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetUpwardsDistance()/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetDownwardsDistance()/1000), formater.Separator,
-			info.GetMovingTime().String(), formater.Separator,
-			info.GetUpwardsTime().String(), formater.Separator,
-			info.GetDownwardsTime().String(), formater.Separator,
+			moveTime, formater.Separator,
+			upTime, formater.Separator,
+			downTime, formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetAvarageSpeed()*3.6), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetUpwardsSpeed()*3.6), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.GetDownwardsSpeed()*3.6), formater.Separator,
@@ -292,11 +300,15 @@ func (formater *CsvOutputFormater) FormatTrackSummary(info gpsabl.TrackSummaryPr
 func (formater *CsvOutputFormater) formatMinMaxSummary(info gpsabl.ExtendedTrackSummary, timeValid bool, name string) string {
 	var ret string
 	if timeValid {
+		duration, _ := formater.formatTimeDuration(info.Duration)
+		moveTime, _ := formater.formatTimeDuration(info.MovingTime)
+		upTime, _ := formater.formatTimeDuration(info.UpwardsTime)
+		downTime, _ := formater.formatTimeDuration(info.DownwardsTime)
 		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
 			name, formater.Separator,
 			info.StartTime.Format(string(formater.timeFormater)), formater.Separator,
 			info.EndTime.Format(string(formater.timeFormater)), formater.Separator,
-			info.Duration.String(), formater.Separator,
+			duration, formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(float64(info.AltitudeRange)), formater.Separator,
@@ -306,9 +318,9 @@ func (formater *CsvOutputFormater) formatMinMaxSummary(info gpsabl.ExtendedTrack
 			gpsabl.RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
-			info.MovingTime.String(), formater.Separator,
-			info.UpwardsTime.String(), formater.Separator,
-			info.DownwardsTime.String(), formater.Separator,
+			moveTime, formater.Separator,
+			upTime, formater.Separator,
+			downTime, formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.AverageSpeed*3.6), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.UpwardsSpeed*3.6), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.DownwardsSpeed*3.6), formater.Separator,
@@ -346,11 +358,15 @@ func (formater *CsvOutputFormater) formatMinMaxSummary(info gpsabl.ExtendedTrack
 func (formater *CsvOutputFormater) formatAverageSummary(info gpsabl.ExtendedTrackSummary, timeValid bool) string {
 	var ret string
 	if timeValid {
+		duration, _ := formater.formatTimeDuration(info.Duration)
+		moveTime, _ := formater.formatTimeDuration(info.MovingTime)
+		upTime, _ := formater.formatTimeDuration(info.UpwardsTime)
+		downTime, _ := formater.formatTimeDuration(info.DownwardsTime)
 		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%f%s%s%s%s%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%s",
 			"Average:", formater.Separator,
 			"-", formater.Separator,
 			"-", formater.Separator,
-			info.Duration.String(), formater.Separator,
+			duration, formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(float64(info.AltitudeRange)), formater.Separator,
@@ -360,9 +376,9 @@ func (formater *CsvOutputFormater) formatAverageSummary(info gpsabl.ExtendedTrac
 			gpsabl.RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
-			info.MovingTime.String(), formater.Separator,
-			info.UpwardsTime.String(), formater.Separator,
-			info.DownwardsTime.String(), formater.Separator,
+			moveTime, formater.Separator,
+			upTime, formater.Separator,
+			downTime, formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.AverageSpeed*3.6), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.UpwardsSpeed*3.6), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.DownwardsSpeed*3.6), formater.Separator,
@@ -399,11 +415,15 @@ func (formater *CsvOutputFormater) formatAverageSummary(info gpsabl.ExtendedTrac
 func (formater *CsvOutputFormater) formatSumSummary(info gpsabl.ExtendedTrackSummary, timeValid bool) string {
 	var ret string
 	if timeValid {
+		duration, _ := formater.formatTimeDuration(info.Duration)
+		moveTime, _ := formater.formatTimeDuration(info.MovingTime)
+		upTime, _ := formater.formatTimeDuration(info.UpwardsTime)
+		downTime, _ := formater.formatTimeDuration(info.DownwardsTime)
 		ret = fmt.Sprintf("%s%s%s%s%s%s%s%s%f%s%f%s%s%s%s%s%s%s%f%s%f%s%f%s%f%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 			"Sum:", formater.Separator,
 			"-", formater.Separator,
 			"-", formater.Separator,
-			info.Duration.String(), formater.Separator,
+			duration, formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.Distance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.HorizontalDistance/1000), formater.Separator,
 			"-", formater.Separator,
@@ -413,9 +433,9 @@ func (formater *CsvOutputFormater) formatSumSummary(info gpsabl.ExtendedTrackSum
 			gpsabl.RoundFloat64To2Digits(float64(info.ElevationLose)), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.UpwardsDistance/1000), formater.Separator,
 			gpsabl.RoundFloat64To2Digits(info.DownwardsDistance/1000), formater.Separator,
-			info.MovingTime.String(), formater.Separator,
-			info.UpwardsTime.String(), formater.Separator,
-			info.DownwardsTime.String(), formater.Separator,
+			moveTime, formater.Separator,
+			upTime, formater.Separator,
+			downTime, formater.Separator,
 			"-", formater.Separator,
 			"-", formater.Separator,
 			"-", formater.Separator,
@@ -456,4 +476,33 @@ func GetNewLine() string {
 	}
 	return "\n"
 
+}
+
+func (formater *CsvOutputFormater) formatTimeDuration(duration time.Duration) (string, error) {
+	switch formater.timeFormater {
+	case RFC850:
+		str := strings.ReplaceAll(duration.String(), "s", "")
+		str = strings.ReplaceAll(str, "m", ":")
+		str = strings.ReplaceAll(str, "h", ":")
+		return str, nil
+	case RFC3339:
+		return duration.String(), nil
+	case UnixDate:
+		return fmt.Sprintf("%f", duration.Seconds()), nil
+	default:
+		return "", NewTimeFormatNotKnown(formater.timeFormater)
+	}
+}
+
+func (formater *CsvOutputFormater) getTimeDurationHeader(prefix string) (string, error) {
+	switch formater.timeFormater {
+	case RFC850:
+		return fmt.Sprintf("%s (%s)", prefix, "hh:mm:ss"), nil
+	case RFC3339:
+		return fmt.Sprintf("%s (%s)", prefix, "xxhxxmxxs"), nil
+	case UnixDate:
+		return fmt.Sprintf("%s (%s)", prefix, "s"), nil
+	default:
+		return "", NewTimeFormatNotKnown(formater.timeFormater)
+	}
 }
