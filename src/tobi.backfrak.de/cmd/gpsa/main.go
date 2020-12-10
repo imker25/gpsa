@@ -52,6 +52,9 @@ var DepthParameter string
 // SummaryParameter - Tells if we should add summary to the output ( -summary )
 var SummaryParameter string
 
+// TimeFormatParameter - Tells if we should add summary to the output ( -time-format )
+var TimeFormatParameter string
+
 // CorrectionParameter - Tells how we should correct Elevation data from the track ( -correction )
 var CorrectionParameter string
 
@@ -167,6 +170,8 @@ func handleComandlineOptions() {
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
 	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
 		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
+	flag.StringVar(&TimeFormatParameter, "time-format", string(csvbl.RFC850),
+		fmt.Sprintf("Tell how the csv output formater should format times. Possible values are [%s]", csvbl.GetValidTimeFormatsString()))
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
 
@@ -180,7 +185,7 @@ func customHelpMessage() {
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 	fmt.Fprintln(os.Stdout, "  files")
-	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx) supported at the moment")
+	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx supported at the moment)")
 	fmt.Fprintln(os.Stdout, "Options:")
 	flag.PrintDefaults()
 }
@@ -285,6 +290,11 @@ func getOutPutFormater() gpsabl.OutputFormater {
 	}
 	if !gpsabl.CheckValidSummaryArg(SummaryParameter) {
 		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
+	}
+	if !csvbl.CheckTimeFormatIsValid(TimeFormatParameter) {
+		HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
+	} else {
+		formater.SetTimeFormat(TimeFormatParameter)
 	}
 	iFormater := gpsabl.OutputFormater(formater)
 

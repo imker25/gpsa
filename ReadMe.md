@@ -53,7 +53,7 @@ Program Version: 0.9.0+7b79520
 
 Usage: ./gpsa [options] [files]
   files
-        One or more track files (only  *.gpx and *.tcx) supported at the moment
+        One or more track files (only  *.gpx and *.tcx supported at the moment)
 Options:
   -correction string
         Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
@@ -81,6 +81,8 @@ Options:
         Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
  -suppress-duplicate-out-put
         Suppress the output of duplicate output lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
+  -time-format string
+        Tell how the csv output formater should format times. Possible values are ["Mon Jan _2 15:04:05 MST 2006" "Monday, 02-Jan-06 15:04:05 MST" "2006-01-02T15:04:05Z07:00" ] (default "Monday, 02-Jan-06 15:04:05 MST")        
   -verbose
         Run the program with verbose output
   -version
