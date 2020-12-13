@@ -113,7 +113,7 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
-	if strings.Contains(ret[1], "0.0200") == false {
+	if strings.Contains(ret[1], "0.02") == false {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
 	}
 
@@ -140,7 +140,7 @@ func TestFormatOutPutWithHeaderAndSetName(t *testing.T) {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
-	if strings.Contains(ret[1], "0.0200") == false {
+	if strings.Contains(ret[1], "0.02") == false {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
 	}
 
@@ -170,7 +170,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(ret[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Contains(ret[0], "0.0200") == false {
+	if strings.Contains(ret[0], "0.02") == false {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[0])
 	}
 }
@@ -324,15 +324,15 @@ func TestAddOutPut(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Count(lines[0], "0.020000;") != 2 {
+	if strings.Count(lines[0], "0.02;") != 2 {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "1.000000;") != 3 {
+	if strings.Count(lines[0], "1.00;") != 3 {
 		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "0.010000;") != 2 {
+	if strings.Count(lines[0], "0.01;") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
@@ -360,15 +360,15 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Count(lines[0], "0.020000;") != 2 {
+	if strings.Count(lines[0], "0.02;") != 2 {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "1.000000;") != 3 {
+	if strings.Count(lines[0], "1.00;") != 3 {
 		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "0.010000;") != 2 {
+	if strings.Count(lines[0], "0.01;") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
@@ -384,7 +384,7 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "4.300000;") != 3 {
+	if strings.Count(lines[0], "4.30;") != 3 {
 		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 }
@@ -511,15 +511,15 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Count(lines[1], "0.020000;") != 2 {
+	if strings.Count(lines[1], "0.02;") != 2 {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "1.000000;") != 3 {
+	if strings.Count(lines[1], "1.00;") != 3 {
 		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "0.010000;") != 2 {
+	if strings.Count(lines[1], "0.01;") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
@@ -535,7 +535,7 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "4.300000;") != 3 {
+	if strings.Count(lines[1], "4.30;") != 3 {
 		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 
@@ -583,11 +583,11 @@ func TestOutPutDistanceAndHorizontalDistanceIsDifferent(t *testing.T) {
 
 	lines := frt.GetLines()
 
-	if strings.Count(lines[0], "0.070000;") != 1 {
+	if strings.Count(lines[0], "0.07;") != 1 {
 		t.Errorf("The output does not contain the Distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "0.050000;") != 1 {
+	if strings.Count(lines[0], "0.05;") != 1 {
 		t.Errorf("The output does not contain the HorizontalDistance as expected. It is: %s", lines[0])
 	}
 }
@@ -904,7 +904,7 @@ func TestFormatTimeDurationUnixFormat(t *testing.T) {
 	now := time.Now()
 	dur := now.Sub(now.Add(-2 * time.Hour))
 	str, _ := frt.formatTimeDuration(dur)
-	res := fmt.Sprintf("%f", float64(2*3600))
+	res := fmt.Sprintf("%.2f", float64(2*3600))
 	if res != str {
 		t.Errorf("Expected %s, but got %s", res, str)
 	}
@@ -912,7 +912,7 @@ func TestFormatTimeDurationUnixFormat(t *testing.T) {
 	now = time.Now()
 	dur = now.Sub(now.Add(-48 * time.Hour))
 	str, _ = frt.formatTimeDuration(dur)
-	res = fmt.Sprintf("%f", float64(48*3600))
+	res = fmt.Sprintf("%.2f", float64(48*3600))
 	if res != str {
 		t.Errorf("Expected %s, but got %s", res, str)
 	}
@@ -920,7 +920,7 @@ func TestFormatTimeDurationUnixFormat(t *testing.T) {
 	now = time.Now()
 	dur = now.Sub(now.Add(-37*time.Hour + -2*time.Minute + -20*time.Second))
 	str, _ = frt.formatTimeDuration(dur)
-	res = fmt.Sprintf("%f", float64(37*3600+140))
+	res = fmt.Sprintf("%.2f", float64(37*3600+140))
 	if res != str {
 		t.Errorf("Expected %s, but got %s", res, str)
 	}
@@ -928,7 +928,7 @@ func TestFormatTimeDurationUnixFormat(t *testing.T) {
 	now = time.Now()
 	dur = now.Sub(now.Add(-3*time.Minute + -21*time.Second))
 	str, _ = frt.formatTimeDuration(dur)
-	res = fmt.Sprintf("%f", float64(201))
+	res = fmt.Sprintf("%.2f", float64(201))
 	if res != str {
 		t.Errorf("Expected %s, but got %s", res, str)
 	}
