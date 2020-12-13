@@ -53,7 +53,7 @@ Program Version: 0.9.0+7b79520
 
 Usage: ./gpsa [options] [files]
   files
-        One or more track files (only  *.gpx and *.tcx) supported at the moment
+        One or more track files (only  *.gpx and *.tcx supported at the moment)
 Options:
   -correction string
         Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
@@ -81,6 +81,8 @@ Options:
         Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
  -suppress-duplicate-out-put
         Suppress the output of duplicate output lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
+  -time-format string
+        Tell how the csv output formater should format times. Possible values are ["Mon Jan _2 15:04:05 MST 2006" "Monday, 02-Jan-06 15:04:05 MST" "2006-01-02T15:04:05Z07:00" ] (default "Monday, 02-Jan-06 15:04:05 MST")        
   -verbose
         Run the program with verbose output
   -version
@@ -94,7 +96,7 @@ Simple call with one file:
 ```sh
 ~$  ./gpsa my/test/file.gpx
 Name; StartTime; EndTime; TrackTime (xxhxxmxxs); Distance (km); HorizontalDistance (km); AltitudeRange (m); MinimumAltitude (m); MaximumAltitude (m); ElevationGain (m); ElevationLose (m); UpwardsDistance (km); DownwardsDistance (km); MovingTime (xxhxxmxxs); UpwardsTime (xxhxxmxxs); DownwardsTime (xxhxxmxxs); AverageSpeed (km/h); UpwardsSpeed (km/h); DownwardsSpeed (km/h);
-my/test/file.gpx: 2020-01-29 09:28:06;2020-01-29T08:28:10Z; 2020-01-29T13:48:07Z; 5h19m53s; 94.750000; 90.250000; 1188.370000; 821.610000; 2009.980000; 10659.340000; -10884.500000; 43.470000; 51.000000; 4h1m44s; 2h8m49s; 1h52m55s; 23.520000; 20.250000; 27.100000; 
+my/test/file.gpx: 2020-01-29 09:28:06;2020-01-29T08:28:10Z; 2020-01-29T13:48:07Z; 5h19m53s; 94.75; 90.25; 1188.37; 821.61; 2009.98; 10659.34; -10884.50; 43.47; 51.00; 4h1m44s; 2h8m49s; 1h52m55s; 23.52; 20.25; 27.10; 
 
 ```
 
@@ -103,8 +105,8 @@ Simple call with multiple files:
 ```sh
 ~$  ./gpsa my/test/01.gpx my/test/02.tcx my/test/03.gpx
 Name; StartTime; EndTime; TrackTime (xxhxxmxxs); Distance (km); HorizontalDistance (km); AltitudeRange (m); MinimumAltitude (m); MaximumAltitude (m); ElevationGain (m); ElevationLose (m); UpwardsDistance (km); DownwardsDistance (km); MovingTime (xxhxxmxxs); UpwardsTime (xxhxxmxxs); DownwardsTime (xxhxxmxxs); AverageSpeed (km/h); UpwardsSpeed (km/h); DownwardsSpeed (km/h);
-03.gpx: Tulln - Wien; not valid; not valid; not valid; 37.640000; 36.120000; 48.000000; 158.000000; 206.000000; 52.000000; -26.000000; 17.520000; 14.060000; not valid; not valid; not valid; not valid; not valid; not valid;
-02.gpx: 2019-08-18 11:07:40; 2019-08-18T09:11:01Z; 2019-08-18T15:47:34Z; 1h35m40s; 37.820000; 37.230000; 104.090000; 347.020000; 451.110000; 263.880000; -251.430000;17.860000; 19.760000; 1h33m20s; 47m54s; 44m56s; 24.320000; 22.370000; 26.390000; 
+03.gpx: Tulln - Wien; not valid; not valid; not valid; 37.64; 36.12; 48.00; 158.00; 206.00; 52.00; -26.00; 17.52; 14.06; not valid; not valid; not valid; not valid; not valid; not valid;
+02.gpx: 2019-08-18 11:07:40; 2019-08-18T09:11:01Z; 2019-08-18T15:47:34Z; 1h35m40s; 37.82; 37.23; 104.09; 347.02; 451.11; 263.88; -251.43;17.86; 19.76; 1h33m20s; 47m54s; 44m56s; 24.32; 22.37; 26.39; 
 
 ```
 

@@ -18,6 +18,60 @@ import (
 const numberOfSemicolonExpected = 19
 const numberOfNotValideExpected = 9
 
+func TestNewTimeFormatNotKnown(t *testing.T) {
+	val := "asdgfg"
+	err := NewTimeFormatNotKnown(TimeFormat(val))
+
+	if err.GivenValue != TimeFormat(val) {
+		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
+	}
+
+	if strings.Contains(err.Error(), val) == false {
+		t.Errorf("The error message of DepthParameterNotKnownError does not contain the expected GivenValue")
+	}
+}
+
+func TestSetTimeFormat(t *testing.T) {
+	sut := NewCsvOutputFormater(";", false)
+
+	if sut.GetTimeFormat() != time.RFC3339 {
+		t.Errorf("The TimeFormat does not have the expected default value")
+	}
+
+	err1 := sut.SetTimeFormat(time.UnixDate)
+	if err1 != nil {
+		t.Errorf("Got an error but expected none")
+	}
+
+	if sut.GetTimeFormat() != time.UnixDate {
+		t.Errorf("The TimeFormat does not have the expected default value")
+	}
+
+	str := "blablub"
+	err2 := sut.SetTimeFormat(str)
+	if err2 == nil {
+		t.Errorf("Got no error but expected one")
+	}
+
+	if err2 == nil {
+		t.Errorf("Got no errorbut expected one")
+	}
+	switch err2.(type) {
+	case *TimeFormatNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not from the expected type")
+	}
+}
+
+func TestGetValidTimeFormatsString(t *testing.T) {
+	str := GetValidTimeFormatsString()
+	res := fmt.Sprintf("\"%s\" \"%s\" \"%s\" ", time.UnixDate, time.RFC850, time.RFC3339)
+	if str != res {
+		t.Errorf("Got \"%s\", but expected \"%s \"", str, res)
+	}
+}
+
 func TestNewCsvOutputFormater(t *testing.T) {
 	sut := NewCsvOutputFormater(";", false)
 
@@ -31,6 +85,14 @@ func TestNewCsvOutputFormater(t *testing.T) {
 
 	if len(sut.GetLines()) != 0 {
 		t.Errorf("The line buffer is not empty on a new CsvOutputFormater")
+	}
+
+	if sut.GetTimeFormat() != string(sut.timeFormater) {
+		t.Errorf("GetTimeFormat does not have the expected value")
+	}
+
+	if sut.timeFormater != time.RFC3339 {
+		t.Errorf("The TimeFormat does not have the expected default value")
 	}
 }
 
@@ -51,7 +113,7 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
-	if strings.Contains(ret[1], "0.0200") == false {
+	if strings.Contains(ret[1], "0.02") == false {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
 	}
 
@@ -78,7 +140,7 @@ func TestFormatOutPutWithHeaderAndSetName(t *testing.T) {
 		t.Errorf("The Number of semicolons is not the same in each line")
 	}
 
-	if strings.Contains(ret[1], "0.0200") == false {
+	if strings.Contains(ret[1], "0.02") == false {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
 	}
 
@@ -95,7 +157,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "file")
+	entries, err := formater.getOutPutEntries(trackFile, "file")
 	if err != nil {
 		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
@@ -108,7 +170,7 @@ func TestFormatOutPutWithOutHeader(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(ret[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Contains(ret[0], "0.0200") == false {
+	if strings.Contains(ret[0], "0.02") == false {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[0])
 	}
 }
@@ -117,7 +179,7 @@ func TestFormatOutPutWithOutHeaderTrackDepth(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
+	entries, err := formater.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -140,7 +202,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackName(t *testing.T) {
 	trackFile := getSimpleTrackFile()
 	trackFile.Tracks[0].Name = "My Track"
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
+	entries, err := formater.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -168,7 +230,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSetTrackFileNameSetTrackName(t *test
 	trackFile.Tracks[0].Name = "My Track"
 	trackFile.Name = "My track file"
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "track")
+	entries, err := formater.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -200,7 +262,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 	trackFile.Tracks[0].Name = "My Track"
 	trackFile.Name = "My track file"
 
-	entries, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "segment")
+	entries, err := formater.getOutPutEntries(trackFile, "segment")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -229,7 +291,7 @@ func TestFormatOutPutWithOutHeaderTrackDepthSegmentSetTrackFileNameSetTrackName(
 func TestFormatOutPutWithOutHeaderInvalidDepth(t *testing.T) {
 	formater := NewCsvOutputFormater(";", false)
 	trackFile := getSimpleTrackFile()
-	_, err := formater.GetOutPutEntries(trackFile, formater.AddHeader, "abc")
+	_, err := formater.getOutPutEntries(trackFile, "abc")
 
 	if err == nil {
 		t.Errorf("Did not get an error as expected")
@@ -262,15 +324,15 @@ func TestAddOutPut(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Count(lines[0], "0.020000;") != 2 {
+	if strings.Count(lines[0], "0.02;") != 2 {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "1.000000;") != 3 {
+	if strings.Count(lines[0], "1.00;") != 3 {
 		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "0.010000;") != 2 {
+	if strings.Count(lines[0], "0.01;") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
@@ -298,15 +360,15 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Count(lines[0], "0.020000;") != 2 {
+	if strings.Count(lines[0], "0.02;") != 2 {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "1.000000;") != 3 {
+	if strings.Count(lines[0], "1.00;") != 3 {
 		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "0.010000;") != 2 {
+	if strings.Count(lines[0], "0.01;") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
@@ -322,7 +384,7 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "4.300000;") != 3 {
+	if strings.Count(lines[0], "4.30;") != 3 {
 		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 }
@@ -449,15 +511,15 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfSemicolonExpected)
 	}
 
-	if strings.Count(lines[1], "0.020000;") != 2 {
+	if strings.Count(lines[1], "0.02;") != 2 {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "1.000000;") != 3 {
+	if strings.Count(lines[1], "1.00;") != 3 {
 		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "0.010000;") != 2 {
+	if strings.Count(lines[1], "0.01;") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
@@ -473,7 +535,7 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "4.300000;") != 3 {
+	if strings.Count(lines[1], "4.30;") != 3 {
 		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 
@@ -521,11 +583,11 @@ func TestOutPutDistanceAndHorizontalDistanceIsDifferent(t *testing.T) {
 
 	lines := frt.GetLines()
 
-	if strings.Count(lines[0], "0.070000;") != 1 {
+	if strings.Count(lines[0], "0.07;") != 1 {
 		t.Errorf("The output does not contain the Distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "0.050000;") != 1 {
+	if strings.Count(lines[0], "0.05;") != 1 {
 		t.Errorf("The output does not contain the HorizontalDistance as expected. It is: %s", lines[0])
 	}
 }
@@ -533,7 +595,7 @@ func TestOutPutDistanceAndHorizontalDistanceIsDifferent(t *testing.T) {
 func TestOutPutContainsLineByTimeStamps1(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
 	trackFile := getTrackFileTwoTracksWithThreeSegmentsWithTime()
-	entries, err := frt.GetOutPutEntries(trackFile, false, "track")
+	entries, err := frt.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -551,7 +613,7 @@ func TestOutPutContainsLineByTimeStamps2(t *testing.T) {
 
 	frt := NewCsvOutputFormater(";", false)
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
-	entries, err := frt.GetOutPutEntries(trackFile, false, "track")
+	entries, err := frt.getOutPutEntries(trackFile, "track")
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
@@ -729,6 +791,184 @@ func TestGetStatisticSummaryLinesWithoutTime(t *testing.T) {
 	}
 	if strings.Count(lines[3], ";") != numberOfSemicolonExpected {
 		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], ";"), numberOfSemicolonExpected)
+	}
+}
+
+func TestFormatTimeDurationUnknownFormat(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	frt.timeFormater = TimeFormat("blabla")
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	_, err := frt.formatTimeDuration(dur)
+
+	if err == nil {
+		t.Errorf("Got no error, but expected one")
+	}
+	switch err.(type) {
+	case *TimeFormatNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not from the expected type")
+	}
+}
+
+func TestFormatTimeDurationRFC3339Format(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	err := frt.SetTimeFormat(string(RFC3339))
+	if err != nil {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	str, _ := frt.formatTimeDuration(dur)
+	res := dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-48 * time.Hour))
+	str, _ = frt.formatTimeDuration(dur)
+	res = dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-37*time.Hour + -2*time.Minute + -20*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-3*time.Minute + -21*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = dur.String()
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+}
+
+func TestFormatTimeDurationRFC850Format(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	err := frt.SetTimeFormat(string(RFC850))
+	if err != nil {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	str, _ := frt.formatTimeDuration(dur)
+	res := "2:0:0"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-48 * time.Hour))
+	str, _ = frt.formatTimeDuration(dur)
+	res = "48:0:0"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-37*time.Hour + -2*time.Minute + -20*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = "37:2:20"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-3*time.Minute + -21*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = "3:21"
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+}
+
+func TestFormatTimeDurationUnixFormat(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	err := frt.SetTimeFormat(string(UnixDate))
+	if err != nil {
+		t.Errorf("Got an error, but expected none")
+	}
+
+	now := time.Now()
+	dur := now.Sub(now.Add(-2 * time.Hour))
+	str, _ := frt.formatTimeDuration(dur)
+	res := fmt.Sprintf("%.2f", float64(2*3600))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-48 * time.Hour))
+	str, _ = frt.formatTimeDuration(dur)
+	res = fmt.Sprintf("%.2f", float64(48*3600))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-37*time.Hour + -2*time.Minute + -20*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = fmt.Sprintf("%.2f", float64(37*3600+140))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+	now = time.Now()
+	dur = now.Sub(now.Add(-3*time.Minute + -21*time.Second))
+	str, _ = frt.formatTimeDuration(dur)
+	res = fmt.Sprintf("%.2f", float64(201))
+	if res != str {
+		t.Errorf("Expected %s, but got %s", res, str)
+	}
+
+}
+
+func TestGetTimeHeader(t *testing.T) {
+	frt := NewCsvOutputFormater(";", false)
+	frt.timeFormater = TimeFormat("blabla")
+	_, err := frt.getTimeDurationHeader("bla")
+
+	if err == nil {
+		t.Errorf("Got no error, but expected one")
+	}
+	switch err.(type) {
+	case *TimeFormatNotKnown:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The error is not from the expected type")
+	}
+
+	frt.timeFormater = RFC3339
+	str, _ := frt.getTimeDurationHeader("bla")
+	res := "bla (xxhxxmxxs)"
+	if str != res {
+		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
+	}
+
+	frt.timeFormater = UnixDate
+	str, _ = frt.getTimeDurationHeader("bla")
+	res = "bla (s)"
+	if str != res {
+		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
+	}
+
+	frt.timeFormater = RFC850
+	str, _ = frt.getTimeDurationHeader("bla")
+	res = "bla (hh:mm:ss)"
+	if str != res {
+		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
 	}
 }
 
