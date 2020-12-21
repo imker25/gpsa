@@ -25,6 +25,46 @@ func GetOutlines(trackFile TrackFile, depth DepthArg) ([]OutputLine, error) {
 	return ret, nil
 }
 
+// StripOutlines - Get the input outlines stripped of from inner data, so serialization will work fine
+func StripOutlines(lines []OutputLine) []OutputLine {
+	ret := []OutputLine{}
+	// segs := []gpsabl.TrackSegment{}
+
+	for _, line := range lines {
+		data := ExtendedTrackSummary{}
+		data.Distance = line.Data.GetDistance()
+		data.HorizontalDistance = line.Data.GetHorizontalDistance()
+		data.MaximumAltitude = line.Data.GetMaximumAltitude()
+		data.MinimumAltitude = line.Data.GetMinimumAltitude()
+		data.ElevationGain = line.Data.GetElevationGain()
+		data.ElevationLose = line.Data.GetElevationLose()
+		data.AltitudeRange = float64(line.Data.GetAltitudeRange())
+		data.UpwardsDistance = line.Data.GetUpwardsDistance()
+		data.DownwardsDistance = line.Data.GetDownwardsDistance()
+
+		data.TimeDataValid = line.Data.GetTimeDataValid()
+		if data.TimeDataValid {
+			data.StartTime = line.Data.GetStartTime()
+			data.EndTime = line.Data.GetEndTime()
+			data.Duration = data.EndTime.Sub(data.StartTime)
+			data.MovingTime = line.Data.GetMovingTime()
+			data.UpwardsTime = line.Data.GetUpwardsTime()
+			data.UpwardsSpeed = line.Data.GetUpwardsSpeed()
+			data.DownwardsTime = line.Data.GetDownwardsTime()
+			data.DownwardsSpeed = line.Data.GetDownwardsSpeed()
+			data.AverageSpeed = line.Data.GetAvarageSpeed()
+		}
+
+		newLine := OutputLine{}
+		newLine.Name = line.Name
+		newLine.Data = data
+
+		ret = append(ret, newLine)
+	}
+
+	return ret
+}
+
 // getOutlineFromTrackFile - Get the Outline for File depth analisis
 func getOutlineFromTrackFile(trackFile TrackFile) OutputLine {
 	return *NewOutputLine(getLineNameFromTrackFile(trackFile), TrackSummaryProvider(trackFile))
