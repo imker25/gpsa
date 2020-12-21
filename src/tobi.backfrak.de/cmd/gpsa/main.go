@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"tobi.backfrak.de/internal/jsonbl"
+
 	"tobi.backfrak.de/internal/csvbl"
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/gpxbl"
@@ -116,7 +118,7 @@ func main() {
 			out := getOutPutStream()
 
 			// Get the type that handles the output
-			iFormater := getOutPutFormater()
+			iFormater := getOutPutFormater(*out)
 			defer out.Close()
 
 			// Process the files, this will fill the buffer of the output type
@@ -283,21 +285,32 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 }
 
 // Get the Interface to format the output
-func getOutPutFormater() gpsabl.OutputFormater {
-	formater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
+func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
+	var iFormater gpsabl.OutputFormater
 	if !gpsabl.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(gpsabl.DepthArg(DepthParameter)), "", false, DontPanicFlag)
 	}
 	if !gpsabl.CheckValidSummaryArg(SummaryParameter) {
 		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
 	}
-	if !csvbl.CheckTimeFormatIsValid(TimeFormatParameter) {
-		HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
-	} else {
-		formater.SetTimeFormat(TimeFormatParameter)
+	if outFile == *os.Stdout || strings.HasSuffix(outFile.Name(), "csv") {
+		csvFormater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
+		if !csvbl.CheckTimeFormatIsValid(TimeFormatParameter) {
+			HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
+		} else {
+			csvFormater.SetTimeFormat(TimeFormatParameter)
+		}
+		iFormater = gpsabl.OutputFormater(csvFormater)
 	}
-	iFormater := gpsabl.OutputFormater(formater)
 
+	if strings.HasSuffix(outFile.Name(), "json") {
+		jsonFormater := jsonbl.NewJSONOutputFormater()
+		iFormater = gpsabl.OutputFormater(jsonFormater)
+	}
+
+	if iFormater == nil {
+		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
+	}
 	return iFormater
 }
 

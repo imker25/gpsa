@@ -10,6 +10,8 @@ import (
 	"sync"
 	"testing"
 
+	"tobi.backfrak.de/internal/jsonbl"
+
 	"tobi.backfrak.de/internal/csvbl"
 	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/testhelper"
@@ -647,11 +649,73 @@ func TestGetOutPutStream_AExistingFile(t *testing.T) {
 	}
 }
 
-func TestGetOutPutFormater(t *testing.T) {
-	frt := getOutPutFormater()
+func TestGetOutPutFormaterStdOut(t *testing.T) {
+	frt := getOutPutFormater(*os.Stdout)
 
 	switch frt.(type) {
 	case *csvbl.CsvOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Did not receive the expected formater")
+	}
+}
+
+func TestGetOutPutFormaterCSV(t *testing.T) {
+	var out *os.File
+	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out.csv"))
+	out, errCreate := os.Create(filePath)
+	if errCreate != nil {
+		t.Errorf("%s", errCreate)
+	}
+	out, errOpen := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0600)
+	if errOpen != nil {
+		t.Errorf("%s", errOpen)
+	}
+
+	frt := getOutPutFormater(*out)
+
+	if outFileExists(filePath) {
+		err := os.Remove(filePath)
+		if err != nil {
+			t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
+		}
+	} else {
+		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+		return
+	}
+	switch frt.(type) {
+	case *csvbl.CsvOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Did not receive the expected formater")
+	}
+}
+
+func TestGetOutPutFormaterJSON(t *testing.T) {
+	var out *os.File
+	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out.json"))
+	out, errCreate := os.Create(filePath)
+	if errCreate != nil {
+		t.Errorf("%s", errCreate)
+	}
+	out, errOpen := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0600)
+	if errOpen != nil {
+		t.Errorf("%s", errOpen)
+	}
+
+	frt := getOutPutFormater(*out)
+
+	if outFileExists(filePath) {
+		err := os.Remove(filePath)
+		if err != nil {
+			t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
+		}
+	} else {
+		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+		return
+	}
+	switch frt.(type) {
+	case *jsonbl.JSONOutputFormater:
 		fmt.Println("OK")
 	default:
 		t.Errorf("Did not receive the expected formater")
