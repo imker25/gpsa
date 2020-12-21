@@ -661,6 +661,9 @@ func TestGetOutPutFormaterStdOut(t *testing.T) {
 }
 
 func TestGetOutPutFormaterCSV(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
+	}
 	var out *os.File
 	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out.csv"))
 	out, errCreate := os.Create(filePath)
@@ -673,7 +676,8 @@ func TestGetOutPutFormaterCSV(t *testing.T) {
 	}
 
 	frt := getOutPutFormater(*out)
-
+	out.Sync()
+	out.Close()
 	if outFileExists(filePath) {
 		err := os.Remove(filePath)
 		if err != nil {
@@ -692,6 +696,9 @@ func TestGetOutPutFormaterCSV(t *testing.T) {
 }
 
 func TestGetOutPutFormaterJSON(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
+	}
 	var out *os.File
 	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out.json"))
 	out, errCreate := os.Create(filePath)
@@ -704,7 +711,8 @@ func TestGetOutPutFormaterJSON(t *testing.T) {
 	}
 
 	frt := getOutPutFormater(*out)
-
+	out.Sync()
+	out.Close()
 	if outFileExists(filePath) {
 		err := os.Remove(filePath)
 		if err != nil {
