@@ -48,45 +48,47 @@ You might want to call ```-help``` to find out how to use the program.
 
 ```txt
 ~$ ./gpsa -help
-./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
-Program Version: 0.9.0+7b79520
+./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report
+Program Version: 1.2.6
 
-Usage: ./gpsa [options] [files]
+Usage: ./bin/gpsa [options] [files]
   files
-        One or more track files (only  *.gpx and *.tcx supported at the moment)
+        One or more track files (only *.gpx and *.tcx supported at the moment)
 Options:
   -correction string
-        Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
+    	Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
   -depth string
-        Define the way the program should analyse the files. Possible values are [segment file track ] (default "track")
+    	Define the way the program should analyse the files. Possible values are [segment file track ] (default "track")
   -dont-panic
-        Define if the programm will exit with panic or with a negativ exit code in error cases. Possible values are [true false] (default true).
+    	Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false] (default true)
   -help
-        Prints this help message
+    	Print help message and exit
   -license
-        Print the license information of the program 
+    	Print license information of the program and exit
   -minimal-moving-speed float
-        The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
+    	The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
   -minimal-step-hight float
-        The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
+    	The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
   -out-file string
-        Define where to write the output. (default "StdOut" if not explicitly set)
+    	Decide where to write the output. StdOut is used when not explicitly set. *.csv and *.json are supported file endings, the format will be set according the given ending.
   -print-csv-header
-        Print out a csv header line. Possible values are [true false] (default true).
+    	Print out a csv header line. Possible values are [true false] (default true)
   -print-elevation-over-distance
-        Tell if "ElevationOverDistance.csv" should be created for each track. The files will be locate in tmp dir.
+    	Tell if "ElevationOverDistance.csv" should be created for each track. The files will be locate in tmp dir.
   -skip-error-exit
-        Use this flag if you don't want to abort the program during track file processing errors
+    	Don't exit the program on track file processing errors
+  -std-out-format string
+    	The output format when stdout is the used output. Ignored when out-file is given. Possible values are ["JSON" "CSV" ] (default "CSV")
   -summary string
-        Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
- -suppress-duplicate-out-put
-        Suppress the output of duplicate output lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
+    	Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
+  -suppress-duplicate-out-put
+    	Suppress the output of duplicate lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
   -time-format string
-        Tell how the csv output formater should format times. Possible values are ["Mon Jan _2 15:04:05 MST 2006" "Monday, 02-Jan-06 15:04:05 MST" "2006-01-02T15:04:05Z07:00" ] (default "Monday, 02-Jan-06 15:04:05 MST")        
+    	Tell how the csv output formater should format times. Possible values are ["Mon Jan _2 15:04:05 MST 2006" "Monday, 02-Jan-06 15:04:05 MST" "2006-01-02T15:04:05Z07:00" ] (default "Monday, 02-Jan-06 15:04:05 MST")
   -verbose
-        Run the program with verbose output
+    	Run the program with verbose output
   -version
-        Print the version of the program
+    	Print version of the program and exit
 ```
 
 #### Examples
@@ -128,6 +130,38 @@ Read file: my/test/02.gpx
 Read file: my/test/03.gpx
 3 of 3 files process successfull
 
+```
+
+```sh
+Call: ./bin/gpsa  -std-out-format=json my/test/02.gpx 
+{
+ "Statistics": [
+  {
+   "Name": "my/test/02.gpx: 2019-08-18 11:07:40",
+   "Data": {
+    "Distance": 37823.344979382266,
+    "HorizontalDistance": 37741.53944560436,
+    "MinimumAltitude": 347.02,
+    "MaximumAltitude": 451.11,
+    "ElevationGain": 263.88007,
+    "ElevationLose": -251.43008,
+    "UpwardsDistance": 17858.070360985712,
+    "DownwardsDistance": 19761.009730234404,
+    "TimeDataValid": true,
+    "StartTime": "2019-08-18T09:11:01Z",
+    "EndTime": "2019-08-18T15:47:34Z",
+    "MovingTime": 5600000000000,
+    "UpwardsTime": 2874000000000,
+    "DownwardsTime": 2696000000000,
+    "Duration": 23793000000000,
+    "AverageSpeed": 6.754168746318261,
+    "UpwardsSpeed": 6.213664008693707,
+    "DownwardsSpeed": 7.3297513836181025,
+    "AltitudeRange": 104.08999633789062
+   }
+  }
+ ],
+ "Summary": null
 ```
 
 #### Output Values explained

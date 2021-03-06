@@ -189,7 +189,7 @@ func handleComandlineOptions() {
 }
 
 func customHelpMessage() {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report", os.Args[0]))
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report", os.Args[0]))
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
