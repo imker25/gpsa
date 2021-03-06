@@ -695,6 +695,34 @@ func TestGetOutPutFormaterCSV(t *testing.T) {
 	}
 }
 
+func TestGetOutPutFormaterCSVStdOut(t *testing.T) {
+	oldStdOutFormatParameter := StdOutFormatParameter
+	StdOutFormatParameter = stdOutFormatParameterValues[0]
+	frt := getOutPutFormater(*os.Stdout)
+
+	switch frt.(type) {
+	case *csvbl.CsvOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Did not receive the expected formater")
+	}
+	StdOutFormatParameter = oldStdOutFormatParameter
+}
+
+func TestGetOutPutFormaterJSONStdOut(t *testing.T) {
+	oldStdOutFormatParameter := StdOutFormatParameter
+	StdOutFormatParameter = stdOutFormatParameterValues[1]
+	frt := getOutPutFormater(*os.Stdout)
+
+	switch frt.(type) {
+	case *jsonbl.JSONOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Did not receive the expected formater")
+	}
+	StdOutFormatParameter = oldStdOutFormatParameter
+}
+
 func TestGetOutPutFormaterJSON(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("Skip this test on windows")

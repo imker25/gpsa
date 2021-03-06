@@ -78,6 +78,11 @@ var MinimalStepHightParameter float64
 // PrintElevationOverDistanceFlag - Tell if the program was called with the -print-elevation-over-distance flag
 var PrintElevationOverDistanceFlag bool
 
+// StdOutFormatParameter - Tells the formant when StdOut is the output stream -std-out-format
+var StdOutFormatParameter string
+
+var stdOutFormatParameterValues = []string{"CSV", "JSON"}
+
 func main() {
 
 	if cap(os.Args) > 1 {
@@ -163,13 +168,15 @@ func handleComandlineOptions() {
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line. Possible values are [true false]")
-	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set")
+	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set. *.csv and *.json are supported file endings, the format will be set according the given ending.")
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false]")
 	flag.StringVar(&DepthParameter, "depth", string(gpsabl.TRACK),
 		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", gpsabl.GetValidDepthArgsString()))
 	flag.StringVar(&CorrectionParameter, "correction", string(gpsabl.STEPS),
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
+	flag.StringVar(&StdOutFormatParameter, "std-out-format", "CSV",
+		fmt.Sprintf("The output format when stdout is the used output. Ignored when out-file is given. Possible values are [%s]", getStdOutFormatParameterValuesStr()))
 	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
 		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
 	flag.StringVar(&TimeFormatParameter, "time-format", string(csvbl.RFC850),
@@ -190,6 +197,14 @@ func customHelpMessage() {
 	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx supported at the moment)")
 	fmt.Fprintln(os.Stdout, "Options:")
 	flag.PrintDefaults()
+}
+
+func getStdOutFormatParameterValuesStr() string {
+	ret := ""
+	for _, arg := range stdOutFormatParameterValues {
+		ret = fmt.Sprintf("\"%s\" %s", arg, ret)
+	}
+	return ret
 }
 
 // processFiles - processes the input files and adds the found content to the output buffer
@@ -293,14 +308,23 @@ func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
 	if !gpsabl.CheckValidSummaryArg(SummaryParameter) {
 		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
 	}
-	if outFile == *os.Stdout || strings.HasSuffix(outFile.Name(), "csv") {
-		csvFormater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
-		if !csvbl.CheckTimeFormatIsValid(TimeFormatParameter) {
-			HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
-		} else {
-			csvFormater.SetTimeFormat(TimeFormatParameter)
+
+	if outFile == *os.Stdout {
+		if checkStdOutFormatParameterValue(StdOutFormatParameter) == false {
+			HandleError(newUnKnownFileTypeError(StdOutFormatParameter), "", false, DontPanicFlag)
 		}
-		iFormater = gpsabl.OutputFormater(csvFormater)
+
+		if strings.ToLower(StdOutFormatParameter) == strings.ToLower(stdOutFormatParameterValues[0]) {
+			iFormater = getCsvOutputFormater()
+		}
+		if strings.ToLower(StdOutFormatParameter) == strings.ToLower(stdOutFormatParameterValues[1]) {
+			jsonFormater := jsonbl.NewJSONOutputFormater()
+			iFormater = gpsabl.OutputFormater(jsonFormater)
+		}
+	}
+
+	if strings.HasSuffix(outFile.Name(), "csv") {
+		iFormater = getCsvOutputFormater()
 	}
 
 	if strings.HasSuffix(outFile.Name(), "json") {
@@ -312,6 +336,26 @@ func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
 		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
 	}
 	return iFormater
+}
+
+func getCsvOutputFormater() *csvbl.CsvOutputFormater {
+	csvFormater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
+	if !csvbl.CheckTimeFormatIsValid(TimeFormatParameter) {
+		HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
+	} else {
+		csvFormater.SetTimeFormat(TimeFormatParameter)
+	}
+	return csvFormater
+}
+
+func checkStdOutFormatParameterValue(val string) bool {
+	for _, arg := range stdOutFormatParameterValues {
+		if strings.ToLower(arg) == strings.ToLower(val) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Get the file interface we are using as output. Maybe a file or STDOUT
