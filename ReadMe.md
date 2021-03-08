@@ -185,7 +185,9 @@ Below is a list of the output values and what they mean:
 - `Name`: The name of the output line. Either read from the file, or if no name tag is set in the file it will be calculated out of the filename and the file hierarchy.
 - `StartTime`: The time the track started. *not valid* in case we detect no or invalid time data.
 - `EndTime`: The time the track ended. *not valid* in case we detect no or invalid time data.
-- `TrackTime`: The time between `StartTime` and `EndTime`. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
+- `TrackTime`: The time between `StartTime` and `EndTime`. *not valid* in case we detect no or invalid time data.
+  - Formatted as `hh:mm:ss` in case of csv output
+  - Measured in `ns` (nano seconds) in case of json output
 - `Distance`: The distance of the track measured in `km`.
 - `HorizontalDistance`: The horizontal distance of the track measured in `km`. This value ignores the vertical component of the distance like most GPS tools do.
 - `AltitudeRange`: The range between the highest and the lowest point. Measured in `m`.
@@ -195,12 +197,24 @@ Below is a list of the output values and what they mean:
 - `ElevationLose`: The total sum of all downwards vertical distance.  Measured in `m`.
 - `UpwardsDistance`: The total sum of all distance moved upwards.  Measured in `km`.
 - `DownwardsDistance`: The total sum of all distance moved downwards.  Measured in `km`.
-- `MovingTime`: The time spend moving. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
-- `UpwardsTime`: The time spend moving upwards. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
-- `DownwardsTime`: The time spend downwards. Formatted as `xxhxxmxxs`. *not valid* in case we detect no or invalid time data.
-- `AverageSpeed`: The average speed. Calculated from `Distance` and `MovingTime`. Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
-- `UpwardsSpeed`: The average speed during upwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
-- `DownwardsSpeed`: The average speed during downwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
+- `MovingTime`: The time spend moving. *not valid* in case we detect no or invalid time data.
+  - Formatted as `hh:mm:ss` in case of csv output
+  - Measured in `ns` (nano seconds) in case of json output
+- `UpwardsTime`: The time spend moving upwards. *not valid* in case we detect no or invalid time data.
+  - Formatted as `hh:mm:ss` in case of csv output
+  - Measured in `ns` (nano seconds) in case of json output
+- `DownwardsTime`: The time spend downwards. *not valid* in case we detect no or invalid time data.
+  - Formatted as `hh:mm:ss` in case of csv output
+  - Measured in `ns` (nano seconds) in case of json output
+- `AverageSpeed`: The average speed. Calculated from `Distance` and `MovingTime`.  *not valid* in case we detect no or invalid time data.
+  - Measured in  `km/h`in case of csv output
+  - Measured in  `m/s`in case of json output  
+- `UpwardsSpeed`: The average speed during upwards movement . *not valid* in case we detect no or invalid time data.
+  - Measured in  `km/h`in case of csv output
+  - Measured in  `m/s`in case of json output  
+- `DownwardsSpeed`: The average speed during downwards movement . *not valid* in case we detect no or invalid time data.
+  - Measured in  `km/h`in case of csv output
+  - Measured in  `m/s`in case of json output  
 
 The statistic summary report will include `-` (in case of csv output) or `0.0000` (in case of json output) for statistic values that make no sense. For example it will not calculate a sum out of speed values or the average out of time stamps.
 
