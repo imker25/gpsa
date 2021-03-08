@@ -719,6 +719,27 @@ func TestGetOutputLinesSummaryOnly(t *testing.T) {
 	}
 }
 
+func TestGetOutputLinesSummaryOnlyWithHeader(t *testing.T) {
+	frt := NewCsvOutputFormater(";", true)
+	trackFile1 := getTrackFileWithDifferentTime()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	lines, errOut := frt.GetOutputLines("only")
+	if errOut != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	if len(lines) != 5 {
+		t.Errorf("Got an unexpected number of lines")
+	}
+}
+
 func TestGetOutputLinesSummaryAdditional(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
 	trackFile1 := getTrackFileWithDifferentTime()

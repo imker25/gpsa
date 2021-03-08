@@ -188,7 +188,10 @@ func (formater *CsvOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]
 	case gpsabl.NONE:
 		lines = formater.GetLines()
 	case gpsabl.ONLY:
-		lines = formater.GetStatisticSummaryLines()
+		if formater.AddHeader {
+			lines = append(lines, formater.GetHeader())
+		}
+		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	case gpsabl.ADDITIONAL:
 		lines = formater.GetLines()
 		sepaeratorLine := fmt.Sprintf("%s%s%s", "Statistics:", formater.Separator, GetNewLine())
