@@ -106,6 +106,58 @@ func TestGetOutlinesSegmentDepth(t *testing.T) {
 	}
 }
 
+func TestStripOutlines(t *testing.T) {
+	file := getTrackFileTwoTracksWithThreeSegmentsWithTime()
+	outlines, err := GetOutlines(file, SEGMENT)
+	if err != nil {
+		t.Errorf("Got error  \"%s\", but expected none", err.Error())
+	}
+
+	stripped := StripOutlines(outlines)
+
+	if len(stripped) != len(outlines) {
+		t.Errorf("The stripped outliens are not the right amount")
+	}
+
+	for i := range outlines {
+		if stripped[i].Name != outlines[i].Name {
+			t.Errorf("The stripped line name does not match")
+		}
+
+		if stripped[i].Data.GetAltitudeRange() != outlines[i].Data.GetAltitudeRange() {
+			t.Errorf("The stripped line GetAltitudeRange does not match")
+		}
+
+		if stripped[i].Data.GetDistance() != outlines[i].Data.GetDistance() {
+			t.Errorf("The stripped line GetDistance does not match")
+		}
+
+		if stripped[i].Data.GetHorizontalDistance() != outlines[i].Data.GetHorizontalDistance() {
+			t.Errorf("The stripped line GetHorizontalDistance does not match")
+		}
+
+		if stripped[i].Data.GetMaximumAltitude() != outlines[i].Data.GetMaximumAltitude() {
+			t.Errorf("The stripped line GetMaximumAltitude does not match")
+		}
+
+		if stripped[i].Data.GetMinimumAltitude() != outlines[i].Data.GetMinimumAltitude() {
+			t.Errorf("The stripped line GetMinimumAltitude does not match")
+		}
+
+		if stripped[i].Data.GetUpwardsDistance() != outlines[i].Data.GetUpwardsDistance() {
+			t.Errorf("The stripped line GetUpwardsDistance does not match")
+		}
+
+		if stripped[i].Data.GetAvarageSpeed() != outlines[i].Data.GetAvarageSpeed() {
+			t.Errorf("The stripped line GetAvarageSpeed does not match")
+		}
+
+		if stripped[i].Data.GetMovingTime() != outlines[i].Data.GetMovingTime() {
+			t.Errorf("The stripped line GetMovingTime does not match")
+		}
+	}
+}
+
 func TestGetOutlinesUnkownDepth(t *testing.T) {
 	file := getTrackFileTwoTracksWithThreeSegmentsWithTime()
 	_, err := GetOutlines(file, "blabla")

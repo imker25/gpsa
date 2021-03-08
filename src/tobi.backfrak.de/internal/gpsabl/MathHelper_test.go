@@ -431,7 +431,7 @@ func TestGetStatisticSummaryDataWithTime(t *testing.T) {
 
 	summaries := GetStatisticSummaryData(lineBuffer)
 
-	if summaries.AllTimeDataValid == false {
+	if summaries.AllTimeDataValid && summaries.Sum.TimeDataValid && summaries.Average.TimeDataValid && summaries.Maximum.TimeDataValid && summaries.Minimum.TimeDataValid == false {
 		t.Errorf("Not all time data is valid, but should")
 	}
 

@@ -1,6 +1,6 @@
 # gpsa - A GPX Statistic extracting tool
 
-This is a simple command line tool that helps to extract data for statistical analysis out of `*.gpx` and `*.tcx` files. You might want to use this program to extract data like `Distance`, `ElevationGain` or `AverageSpeed` from a bunch of `*.gpx` or `*.tcx` files and store this data in a *.csv file for further analysis.
+This is a simple command line tool that helps to extract data for statistical analysis out of `*.gpx` and `*.tcx` files. You might want to use this program to extract data like `Distance`, `ElevationGain` or `AverageSpeed` from a bunch of `*.gpx` or `*.tcx` files and store this data in a *.csv or *.json file for further analysis.
 
 - [gpsa - A GPX Statistic extracting tool](#gpsa---a-gpx-statistic-extracting-tool)
   - [User Documentation](#user-documentation)
@@ -48,45 +48,47 @@ You might want to call ```-help``` to find out how to use the program.
 
 ```txt
 ~$ ./gpsa -help
-./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV style report
-Program Version: 0.9.0+7b79520
+./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report
+Program Version: 1.2.6
 
-Usage: ./gpsa [options] [files]
+Usage: ./bin/gpsa [options] [files]
   files
-        One or more track files (only  *.gpx and *.tcx supported at the moment)
+        One or more track files (only *.gpx and *.tcx supported at the moment)
 Options:
   -correction string
-        Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
+    	Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
   -depth string
-        Define the way the program should analyse the files. Possible values are [segment file track ] (default "track")
+    	Define the way the program should analyse the files. Possible values are [segment file track ] (default "track")
   -dont-panic
-        Define if the programm will exit with panic or with a negativ exit code in error cases. Possible values are [true false] (default true).
+    	Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false] (default true)
   -help
-        Prints this help message
+    	Print help message and exit
   -license
-        Print the license information of the program 
+    	Print license information of the program and exit
   -minimal-moving-speed float
-        The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
+    	The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
   -minimal-step-hight float
-        The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
+    	The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
   -out-file string
-        Define where to write the output. (default "StdOut" if not explicitly set)
+    	Decide where to write the output. StdOut is used when not explicitly set. *.csv and *.json are supported file endings, the format will be set according the given ending.
   -print-csv-header
-        Print out a csv header line. Possible values are [true false] (default true).
+    	Print out a csv header line. Possible values are [true false] (default true)
   -print-elevation-over-distance
-        Tell if "ElevationOverDistance.csv" should be created for each track. The files will be locate in tmp dir.
+    	Tell if "ElevationOverDistance.csv" should be created for each track. The files will be locate in tmp dir.
   -skip-error-exit
-        Use this flag if you don't want to abort the program during track file processing errors
+    	Don't exit the program on track file processing errors
+  -std-out-format string
+    	The output format when stdout is the used output. Ignored when out-file is given. Possible values are [JSON CSV ] (default "CSV")
   -summary string
-        Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
- -suppress-duplicate-out-put
-        Suppress the output of duplicate output lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
+    	Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
+  -suppress-duplicate-out-put
+    	Suppress the output of duplicate lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.
   -time-format string
-        Tell how the csv output formater should format times. Possible values are ["Mon Jan _2 15:04:05 MST 2006" "Monday, 02-Jan-06 15:04:05 MST" "2006-01-02T15:04:05Z07:00" ] (default "Monday, 02-Jan-06 15:04:05 MST")        
+    	Tell how the csv output formater should format times. Possible values are ["Mon Jan _2 15:04:05 MST 2006" "Monday, 02-Jan-06 15:04:05 MST" "2006-01-02T15:04:05Z07:00" ] (default "Monday, 02-Jan-06 15:04:05 MST")
   -verbose
-        Run the program with verbose output
+    	Run the program with verbose output
   -version
-        Print the version of the program
+    	Print version of the program and exit
 ```
 
 #### Examples
@@ -130,6 +132,52 @@ Read file: my/test/03.gpx
 
 ```
 
+Get only the summary report out of a bunch of files
+
+```sh
+./bin/gpsa -summary=only my/test/*.gpx
+Name; StartTime; EndTime; TrackTime (hh:mm:ss); Distance (km); HorizontalDistance (km); AltitudeRange (m); MinimumAltitude (m); MaximumAltitude (m); ElevationGain (m); ElevationLose (m); UpwardsDistance (km); DownwardsDistance (km); MovingTime (hh:mm:ss); UpwardsTime (hh:mm:ss); DownwardsTime (hh:mm:ss); AverageSpeed (km/h); UpwardsSpeed (km/h); DownwardsSpeed (km/h); 
+Sum:; -; -; 54:8:43.442; 775.00; 770.48; -; -; -; 7033.35; -6989.57; 309.34; 359.75; 32:47:16.514; 14:19:21.328; 13:33:19.262; -; -; -; 
+Average:; -; -; 2:15:21.810083333; 32.29; 32.10; 134.81; -; -; 293.06; -291.23; 12.89; 14.99; 1:21:58.188083333; 35:48.388666666; 33:53.302583333; 23.78; 21.86; 26.65; 
+Minimum:; Sunday, 01-Mar-20 09:27:27 UTC; Sunday, 01-Mar-20 15:11:19 UTC; 53:3; 21.13; 21.07; 63.72; 287.46; 359.73; 159.59; -141.38; 7.92; 8.79; 51:18.444; 21:56.828; 18:22.126; 21.28; 17.73; 23.75; 
+Maximum:; Saturday, 31-Oct-20 13:01:16 UTC; Saturday, 31-Oct-20 14:31:42 UTC; 6:4:25; 68.74; 66.54; 801.99; 486.48; 1288.47; 1747.38; -1754.86; 26.45; 34.71; 3:13:47.838; 1:29:31.416; 1:20:40.686; 25.58; 23.78; 28.73;
+
+```
+
+Get statistics from a file as json on stdout
+
+```sh
+Call: ./bin/gpsa  -std-out-format=json my/test/02.gpx 
+{
+ "Statistics": [
+  {
+   "Name": "my/test/02.gpx: 2019-08-18 11:07:40",
+   "Data": {
+    "Distance": 37823.344979382266,
+    "HorizontalDistance": 37741.53944560436,
+    "MinimumAltitude": 347.02,
+    "MaximumAltitude": 451.11,
+    "ElevationGain": 263.88007,
+    "ElevationLose": -251.43008,
+    "UpwardsDistance": 17858.070360985712,
+    "DownwardsDistance": 19761.009730234404,
+    "TimeDataValid": true,
+    "StartTime": "2019-08-18T09:11:01Z",
+    "EndTime": "2019-08-18T15:47:34Z",
+    "MovingTime": 5600000000000,
+    "UpwardsTime": 2874000000000,
+    "DownwardsTime": 2696000000000,
+    "Duration": 23793000000000,
+    "AverageSpeed": 6.754168746318261,
+    "UpwardsSpeed": 6.213664008693707,
+    "DownwardsSpeed": 7.3297513836181025,
+    "AltitudeRange": 104.08999633789062
+   }
+  }
+ ],
+ "Summary": null
+```
+
 #### Output Values explained
 
 Below is a list of the output values and what they mean:
@@ -153,6 +201,8 @@ Below is a list of the output values and what they mean:
 - `AverageSpeed`: The average speed. Calculated from `Distance` and `MovingTime`. Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
 - `UpwardsSpeed`: The average speed during upwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
 - `DownwardsSpeed`: The average speed during downwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
+
+The statistic summary report will include `-` (in case of csv output) or `0.0000` (in case of json output) for statistic values that make no sense. For example it will not calculate a sum out of speed values or the average out of time stamps.
 
 ## Development
 

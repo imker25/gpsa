@@ -165,6 +165,11 @@ func GetStatisticSummaryData(lines []OutputLine) TrackStatisticSummaryData {
 	ret.Maximum.MinimumAltitude = float32(maxFloat64Array(arrays.MinimumAltitudes))
 	ret.Maximum.MaximumAltitude = float32(maxFloat64Array(arrays.MaximumAltitudes))
 
+	ret.Maximum.TimeDataValid = ret.AllTimeDataValid
+	ret.Minimum.TimeDataValid = ret.AllTimeDataValid
+	ret.Average.TimeDataValid = ret.AllTimeDataValid
+	ret.Sum.TimeDataValid = ret.AllTimeDataValid
+
 	if ret.AllTimeDataValid {
 		ret.Sum.DownwardsTime = sumTimeDurationArray(arrays.DownwardsTimes)
 		ret.Average.DownwardsTime = averageDuration(ret.Sum.DownwardsTime, ret.InputTackCount)
