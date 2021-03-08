@@ -323,11 +323,11 @@ func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
 		}
 	}
 
-	if strings.HasSuffix(outFile.Name(), "csv") {
+	if strings.HasSuffix(strings.ToLower(outFile.Name()), ".csv") {
 		iFormater = getCsvOutputFormater()
 	}
 
-	if strings.HasSuffix(outFile.Name(), "json") {
+	if strings.HasSuffix(strings.ToLower(outFile.Name()), ".json") {
 		jsonFormater := jsonbl.NewJSONOutputFormater()
 		iFormater = gpsabl.OutputFormater(jsonFormater)
 	}
