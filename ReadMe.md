@@ -132,6 +132,20 @@ Read file: my/test/03.gpx
 
 ```
 
+Get only the summary report out of a bunch of files
+
+```sh
+./bin/gpsa -summary=only my/test/*.gpx
+Name; StartTime; EndTime; TrackTime (hh:mm:ss); Distance (km); HorizontalDistance (km); AltitudeRange (m); MinimumAltitude (m); MaximumAltitude (m); ElevationGain (m); ElevationLose (m); UpwardsDistance (km); DownwardsDistance (km); MovingTime (hh:mm:ss); UpwardsTime (hh:mm:ss); DownwardsTime (hh:mm:ss); AverageSpeed (km/h); UpwardsSpeed (km/h); DownwardsSpeed (km/h); 
+Sum:; -; -; 54:8:43.442; 775.00; 770.48; -; -; -; 7033.35; -6989.57; 309.34; 359.75; 32:47:16.514; 14:19:21.328; 13:33:19.262; -; -; -; 
+Average:; -; -; 2:15:21.810083333; 32.29; 32.10; 134.81; -; -; 293.06; -291.23; 12.89; 14.99; 1:21:58.188083333; 35:48.388666666; 33:53.302583333; 23.78; 21.86; 26.65; 
+Minimum:; Sunday, 01-Mar-20 09:27:27 UTC; Sunday, 01-Mar-20 15:11:19 UTC; 53:3; 21.13; 21.07; 63.72; 287.46; 359.73; 159.59; -141.38; 7.92; 8.79; 51:18.444; 21:56.828; 18:22.126; 21.28; 17.73; 23.75; 
+Maximum:; Saturday, 31-Oct-20 13:01:16 UTC; Saturday, 31-Oct-20 14:31:42 UTC; 6:4:25; 68.74; 66.54; 801.99; 486.48; 1288.47; 1747.38; -1754.86; 26.45; 34.71; 3:13:47.838; 1:29:31.416; 1:20:40.686; 25.58; 23.78; 28.73;
+
+```
+
+Get statistics from a file as json on stdout
+
 ```sh
 Call: ./bin/gpsa  -std-out-format=json my/test/02.gpx 
 {
@@ -187,6 +201,8 @@ Below is a list of the output values and what they mean:
 - `AverageSpeed`: The average speed. Calculated from `Distance` and `MovingTime`. Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
 - `UpwardsSpeed`: The average speed during upwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
 - `DownwardsSpeed`: The average speed during downwards movement . Measured in  `km/h`. *not valid* in case we detect no or invalid time data.
+
+The statistic summary report will include `-` (in case of csv output) or `0.0000` (in case of json output) for statistic values that make no sense. For example it will not calculate a sum out of speed values or the average out of time stamps.
 
 ## Development
 
