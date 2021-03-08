@@ -218,8 +218,6 @@ Below is a list of the output values and what they mean:
 
 The statistic summary report will include `-` (in case of csv output) or `0.0000` (in case of json output) for statistic values that make no sense. For example it will not calculate a sum out of speed values or the average out of time stamps.
 
-The statistic summary report will include `-` (in case of csv output) or `0.0000` (in case of json output) for statistic values that make no sense. For example it will not calculate a sum out of speed values or the average out of time stamps.
-
 ## Development
 
 To develop this software install [Go](https://golang.org/) and [Gradle](https://gradle.org/) on your machine.
