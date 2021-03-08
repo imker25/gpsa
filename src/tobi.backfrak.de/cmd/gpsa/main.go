@@ -202,7 +202,7 @@ func customHelpMessage() {
 func getStdOutFormatParameterValuesStr() string {
 	ret := ""
 	for _, arg := range stdOutFormatParameterValues {
-		ret = fmt.Sprintf("\"%s\" %s", arg, ret)
+		ret = fmt.Sprintf("%s %s", arg, ret)
 	}
 	return ret
 }

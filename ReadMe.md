@@ -1,6 +1,6 @@
 # gpsa - A GPX Statistic extracting tool
 
-This is a simple command line tool that helps to extract data for statistical analysis out of `*.gpx` and `*.tcx` files. You might want to use this program to extract data like `Distance`, `ElevationGain` or `AverageSpeed` from a bunch of `*.gpx` or `*.tcx` files and store this data in a *.csv file for further analysis.
+This is a simple command line tool that helps to extract data for statistical analysis out of `*.gpx` and `*.tcx` files. You might want to use this program to extract data like `Distance`, `ElevationGain` or `AverageSpeed` from a bunch of `*.gpx` or `*.tcx` files and store this data in a *.csv or *.json file for further analysis.
 
 - [gpsa - A GPX Statistic extracting tool](#gpsa---a-gpx-statistic-extracting-tool)
   - [User Documentation](#user-documentation)
@@ -78,7 +78,7 @@ Options:
   -skip-error-exit
     	Don't exit the program on track file processing errors
   -std-out-format string
-    	The output format when stdout is the used output. Ignored when out-file is given. Possible values are ["JSON" "CSV" ] (default "CSV")
+    	The output format when stdout is the used output. Ignored when out-file is given. Possible values are [JSON CSV ] (default "CSV")
   -summary string
     	Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
   -suppress-duplicate-out-put
