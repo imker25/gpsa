@@ -6,8 +6,10 @@ package main
 // LICENSE file.
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -117,7 +119,7 @@ func main() {
 			os.Exit(0)
 		}
 
-		// If we don't have input files, we do nothing
+		// If we don't have input files, we might run with stream input
 		if len(flag.Args()) != 0 {
 			// Find out where to write the output. May be a file or STDOUT
 			out := getOutPutStream()
@@ -139,11 +141,12 @@ func main() {
 				fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(flag.Args())))
 			}
 		} else {
-			if VerboseFlag == true {
-				fmt.Fprintln(os.Stdout, "No input files given")
-			}
+			// No file input, but might a stream
+			processInputStream()
 		}
-
+	} else {
+		// No call paramters was given, we may have input as stream
+		processInputStream()
 	}
 
 	if ErrorsHandled == false {
@@ -151,6 +154,40 @@ func main() {
 	} else {
 		fmt.Fprintln(os.Stderr, "At least one error occurred")
 		os.Exit(-1)
+	}
+}
+
+func processInputStream() {
+	// Get stdin stream
+	info, errStat := os.Stdin.Stat()
+	if errStat != nil {
+		HandleError(errStat, "", false, DontPanicFlag)
+	}
+
+	// Check if stdin gets data in a pipe
+	if info.Mode()&os.ModeNamedPipe != 0 {
+		// pipe
+		if VerboseFlag == true {
+			fmt.Fprintln(os.Stdout, "Input is given as a stream")
+		}
+
+		reader := bufio.NewReader(os.Stdin)
+		var inputContend []rune
+		for {
+			input, _, err := reader.ReadRune()
+			if err != nil && err == io.EOF {
+				break
+			}
+			inputContend = append(inputContend, input)
+		}
+		for _, r := range inputContend {
+			fmt.Printf("%c", r)
+		}
+	} else {
+		// No pipe
+		if VerboseFlag == true {
+			fmt.Fprintln(os.Stdout, "No input files given")
+		}
 	}
 }
 
