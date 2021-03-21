@@ -87,10 +87,12 @@ var stdOutFormatParameterValues = []string{"CSV", "JSON"}
 
 func main() {
 
-	if cap(os.Args) > 1 {
+	var fileArgs []string
 
-		// Setup and read-in comandline flags
-		handleComandlineOptions()
+	// Setup and read-in comandline flags
+	handleComandlineOptions()
+
+	if cap(os.Args) > 1 {
 
 		// Check flags, that will not process files
 		if VerboseFlag {
@@ -121,32 +123,41 @@ func main() {
 
 		// If we don't have input files, we might run with stream input
 		if len(flag.Args()) != 0 {
-			// Find out where to write the output. May be a file or STDOUT
-			out := getOutPutStream()
-
-			// Get the type that handles the output
-			iFormater := getOutPutFormater(*out)
-			defer out.Close()
-
-			// Process the files, this will fill the buffer of the output type
-			successCount := processFiles(flag.Args(), iFormater)
-
-			// Write the output
-			errWrite := iFormater.WriteOutput(out, gpsabl.SummaryArg(SummaryParameter))
-			if errWrite != nil {
-				HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
-			}
-
-			if VerboseFlag == true {
-				fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(flag.Args())))
-			}
+			fileArgs = flag.Args()
 		} else {
 			// No file input, but might a stream
-			processInputStream()
+			fileArgs = processInputStream()
 		}
 	} else {
 		// No call paramters was given, we may have input as stream
-		processInputStream()
+		fileArgs = processInputStream()
+	}
+
+	if len(fileArgs) != 0 {
+		// Find out where to write the output. May be a file or STDOUT
+		out := getOutPutStream()
+
+		// Get the type that handles the output
+		iFormater := getOutPutFormater(*out)
+		defer out.Close()
+
+		// Process the files, this will fill the buffer of the output type
+		successCount := processFiles(fileArgs, iFormater)
+
+		// Write the output
+		errWrite := iFormater.WriteOutput(out, gpsabl.SummaryArg(SummaryParameter))
+		if errWrite != nil {
+			HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
+		}
+
+		if VerboseFlag == true {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(flag.Args())))
+		}
+	} else {
+		// No pipe
+		if VerboseFlag == true {
+			fmt.Fprintln(os.Stdout, "No input files given")
+		}
 	}
 
 	if ErrorsHandled == false {
@@ -157,7 +168,9 @@ func main() {
 	}
 }
 
-func processInputStream() {
+func processInputStream() []string {
+
+	var fileArgs []string
 	// Get stdin stream
 	info, errStat := os.Stdin.Stat()
 	if errStat != nil {
@@ -172,23 +185,20 @@ func processInputStream() {
 		}
 
 		reader := bufio.NewReader(os.Stdin)
-		var inputContend []rune
+
 		for {
-			input, _, err := reader.ReadRune()
+			input, _, err := reader.ReadLine()
 			if err != nil && err == io.EOF {
 				break
 			}
-			inputContend = append(inputContend, input)
+			if string(input) != "" {
+				fileArgs = append(fileArgs, string(input))
+			}
 		}
-		for _, r := range inputContend {
-			fmt.Printf("%c", r)
-		}
-	} else {
-		// No pipe
-		if VerboseFlag == true {
-			fmt.Fprintln(os.Stdout, "No input files given")
-		}
+
 	}
+
+	return fileArgs
 }
 
 // handleComandlineOptions - Setup and parse the commandline options.
