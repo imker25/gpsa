@@ -127,6 +127,7 @@ func main() {
 		fileArgs = processInputStream()
 	}
 
+	// There might be files to process
 	if len(fileArgs) != 0 {
 		// Find out where to write the output. May be a file or STDOUT
 		out := getOutPutStream()
@@ -148,7 +149,7 @@ func main() {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(fileArgs)))
 		}
 	} else {
-		// No pipe
+		// No files to process
 		if VerboseFlag == true {
 			fmt.Fprintln(os.Stdout, "No input files given")
 		}
