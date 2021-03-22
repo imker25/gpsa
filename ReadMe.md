@@ -178,6 +178,12 @@ Call: ./bin/gpsa  -std-out-format=json my/test/02.gpx
  "Summary": null
 ```
 
+It is also possible to pipe in some file names instead of using the file names as input parameter
+
+```sh
+find ./testdata/valid-gpx -name "*.gpx" | ./bin/gpsa -summary=additional -out-file=./test.json
+```
+
 #### Output Values explained
 
 Below is a list of the output values and what they mean:
