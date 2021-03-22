@@ -92,44 +92,38 @@ func main() {
 	// Setup and read-in comandline flags
 	handleComandlineOptions()
 
-	if cap(os.Args) > 1 {
-
-		// Check flags, that will not process files
-		if VerboseFlag {
-			args := ""
-			for _, arg := range os.Args {
-				args = fmt.Sprintf("%s %s", args, arg)
-			}
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Call: %s", args))
-			if !PrintVersionFlag {
-				printVersion()
-			}
+	// Check flags, that will not process files
+	if VerboseFlag {
+		args := ""
+		for _, arg := range os.Args {
+			args = fmt.Sprintf("%s %s", args, arg)
 		}
-
-		if HelpFlag {
-			flag.Usage()
-			os.Exit(0)
-		}
-
-		if PrintVersionFlag {
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("Call: %s", args))
+		if !PrintVersionFlag {
 			printVersion()
-			os.Exit(0)
 		}
+	}
 
-		if PrintLicenseFlag {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("(c) %s - Apache License, Version 2.0( http://www.apache.org/licenses/LICENSE-2.0 )", Authors))
-			os.Exit(0)
-		}
+	if HelpFlag {
+		flag.Usage()
+		os.Exit(0)
+	}
 
-		// If we don't have input files, we might run with stream input
-		if len(flag.Args()) != 0 {
-			fileArgs = flag.Args()
-		} else {
-			// No file input, but might a stream
-			fileArgs = processInputStream()
-		}
+	if PrintVersionFlag {
+		printVersion()
+		os.Exit(0)
+	}
+
+	if PrintLicenseFlag {
+		fmt.Fprintln(os.Stdout, fmt.Sprintf("(c) %s - Apache License, Version 2.0( http://www.apache.org/licenses/LICENSE-2.0 )", Authors))
+		os.Exit(0)
+	}
+
+	// If we don't have input files, we might run with stream input
+	if len(flag.Args()) != 0 {
+		fileArgs = flag.Args()
 	} else {
-		// No call paramters was given, we may have input as stream
+		// No file input, but might a stream
 		fileArgs = processInputStream()
 	}
 
@@ -151,7 +145,7 @@ func main() {
 		}
 
 		if VerboseFlag == true {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(flag.Args())))
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(fileArgs)))
 		}
 	} else {
 		// No pipe
