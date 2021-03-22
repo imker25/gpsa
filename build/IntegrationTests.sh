@@ -93,8 +93,7 @@ if [ ! -f "$csv_out" ]; then
 fi
 assert_raises "find $testdata/valid-gpx -name \"*.gpx\" | $gpsa " 0
 
-assert "echo fail" ""
-
+popd
 assert_end gpsa_IntegrationTests
 
-popd
+
