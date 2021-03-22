@@ -2,6 +2,7 @@
 **\.vscode\
 **/.gradle/
 **\.gradle\
+build/assert.sh
 
 debug
 debug.test
