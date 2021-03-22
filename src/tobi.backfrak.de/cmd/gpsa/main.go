@@ -186,8 +186,13 @@ func processInputStream() []string {
 			if err != nil && err == io.EOF {
 				break
 			}
-			if string(input) != "" {
-				fileArgs = append(fileArgs, string(input))
+			line := string(input)
+			if line != "" {
+				if strings.Contains(line, string(os.PathSeparator)) && fileExists(line) {
+					fileArgs = append(fileArgs, line)
+				} else {
+					HandleError(newUnKnownInputStreamError(line), "", false, DontPanicFlag)
+				}
 			}
 		}
 
@@ -471,6 +476,14 @@ func outFileExists(filename string) bool {
 	if info.IsDir() {
 		err := newOutFileIsDirError(filename)
 		HandleError(err, filename, false, DontPanicFlag)
+	}
+	return true
+}
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
 	}
 	return true
 }

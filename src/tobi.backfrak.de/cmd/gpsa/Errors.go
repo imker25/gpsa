@@ -38,3 +38,19 @@ func (e *UnKnownFileTypeError) Error() string { // Implement the Error Interface
 func newUnKnownFileTypeError(fileName string) *UnKnownFileTypeError {
 	return &UnKnownFileTypeError{fmt.Sprintf("The type of the file \"%s\" is not known.", fileName), fileName}
 }
+
+// UnKnownInputStreamError - Error when getting a unknown inpput steam
+type UnKnownInputStreamError struct {
+	err string
+	// File - The path to the file that caused this error
+	Line string
+}
+
+func (e *UnKnownInputStreamError) Error() string { // Implement the Error Interface for the UnKnownInputStreamError struct
+	return fmt.Sprintf("%s", e.err)
+}
+
+// newUnKnownInputStreamError - Get a new UnKnownFileTypeError struct
+func newUnKnownInputStreamError(line string) *UnKnownInputStreamError {
+	return &UnKnownInputStreamError{fmt.Sprintf("Can not process line \"%s\" of the input stream.", line), line}
+}
