@@ -757,3 +757,36 @@ func TestGetOutPutFormaterJSON(t *testing.T) {
 		t.Errorf("Did not receive the expected formater")
 	}
 }
+
+func TestProcessInputStream(t *testing.T) {
+	file1 := testhelper.GetValidGPX("12.gpx")
+	file2 := testhelper.GetValidGPX("10.gpx")
+	input := []byte(fmt.Sprintf("%s%s%s", file1, csvbl.GetNewLine(), file2))
+	read, write, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = write.Write(input)
+	if err != nil {
+		t.Error(err)
+	}
+	write.Close()
+
+	stdin := os.Stdin
+	// Restore stdin right after the test.
+	defer func() { os.Stdin = stdin }()
+	os.Stdin = read
+
+	inFiles := processInputStream()
+
+	if len(inFiles) != 2 {
+		t.Errorf("The number %d of input files is not expected", len(inFiles))
+	}
+	if inFiles[0] != file1 {
+		t.Errorf("processInputStream does not return the expected string")
+	}
+	if inFiles[1] != file2 {
+		t.Errorf("processInputStream does not return the expected string")
+	}
+}
