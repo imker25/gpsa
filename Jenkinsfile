@@ -91,12 +91,8 @@ pipeline {
 							}
 						}
 						stage('Test linux binaries') {
-							steps('Unit test') {
+							steps('Run test') {
 								sh 'gradle test'
-							}
-						}
-						stage('Test cli') {
-							steps('Integration test') {
 								sh 'build/IntegrationTests.sh'
 							}
 						}
@@ -108,13 +104,6 @@ pipeline {
 							sh 'gradle createBuildZip'
 							archiveArtifacts "*.zip"
 							archiveArtifacts "bin/gpsa"
-						}
-					}
-					stages {
-						stage('Test cli') {
-							steps('Integration test') {
-								sh 'build/IntegrationTests.sh'
-							}
 						}
 					}
                 }
