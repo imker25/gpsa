@@ -31,59 +31,6 @@ const OutputSeperator = "; "
 // The version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
 
-// HelpFlag - Tells if the program was called with -help
-var HelpFlag bool
-
-// VerboseFlag - Tells if the program was called with -verbose
-var VerboseFlag bool
-
-// SkipErrorExitFlag - Tells if the program was called with -skip-error-exit
-var SkipErrorExitFlag bool
-
-// PrintCsvHeaderFlag - Tells if the program was called with -print-csv-header
-var PrintCsvHeaderFlag bool
-
-// OutFileParameter - Tells if and where we should write the output to ( -out-file )
-var OutFileParameter string
-
-// DontPanicFlag - Tells if the program was called with -dont-panic
-var DontPanicFlag bool
-
-// DepthParameter - Tells for which depth we should perform the analyses ( -depth )
-var DepthParameter string
-
-// SummaryParameter - Tells if we should add summary to the output ( -summary )
-var SummaryParameter string
-
-// TimeFormatParameter - Tells if we should add summary to the output ( -time-format )
-var TimeFormatParameter string
-
-// CorrectionParameter - Tells how we should correct Elevation data from the track ( -correction )
-var CorrectionParameter string
-
-// PrintVersionFlag - Tells if the program was called with the -version flag
-var PrintVersionFlag bool
-
-// PrintLicenseFlag - Tells if the program was called with the -license flag
-var PrintLicenseFlag bool
-
-// SuppressDuplicateOutPutFlag - Tells if the program was called with the -suppressDuplicateOutPut flag
-var SuppressDuplicateOutPutFlag bool
-
-// MinimalMovingSpeedParameter - Tells the minimal moving speed for moving time and speed calculation
-var MinimalMovingSpeedParameter float64
-
-// MinimalStepHightParameter - Tells the minimal step hight, when "steps" correction is used
-var MinimalStepHightParameter float64
-
-// PrintElevationOverDistanceFlag - Tell if the program was called with the -print-elevation-over-distance flag
-var PrintElevationOverDistanceFlag bool
-
-// StdOutFormatParameter - Tells the formant when StdOut is the output stream -std-out-format
-var StdOutFormatParameter string
-
-var stdOutFormatParameterValues = []string{"CSV", "JSON"}
-
 func main() {
 
 	var fileArgs []string
@@ -187,59 +134,6 @@ func processInputStream() []string {
 	}
 
 	return fileArgs
-}
-
-// handleComandlineOptions - Setup and parse the commandline options.
-// Defines the usage function as well
-func handleComandlineOptions() {
-
-	// Setup the valid comandline flags
-	flag.Float64Var(&MinimalStepHightParameter, "minimal-step-hight", 10.0, "The minimal step hight. Only in use when \"steps\"  elevation correction is used. In [m]")
-	flag.Float64Var(&MinimalMovingSpeedParameter, "minimal-moving-speed", 0.3, "The minimal speed. Distances traveled with less speed are not counted. In [m/s]")
-	flag.BoolVar(&SuppressDuplicateOutPutFlag, "suppress-duplicate-out-put", false, "Suppress the output of duplicate lines. Duplicates are detected by timestamps. Output with non valid time data may still contains duplicates.")
-	flag.BoolVar(&HelpFlag, "help", false, "Print help message and exit")
-	flag.BoolVar(&PrintVersionFlag, "version", false, "Print version of the program and exit")
-	flag.BoolVar(&PrintLicenseFlag, "license", false, "Print license information of the program and exit")
-	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
-	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
-	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line. Possible values are [true false]")
-	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set. *.csv and *.json are supported file endings, the format will be set according the given ending.")
-	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false]")
-	flag.StringVar(&DepthParameter, "depth", string(gpsabl.TRACK),
-		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", gpsabl.GetValidDepthArgsString()))
-	flag.StringVar(&CorrectionParameter, "correction", string(gpsabl.STEPS),
-		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
-	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
-	flag.StringVar(&StdOutFormatParameter, "std-out-format", "CSV",
-		fmt.Sprintf("The output format when stdout is the used output. Ignored when out-file is given. Possible values are [%s]", getStdOutFormatParameterValuesStr()))
-	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
-		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
-	flag.StringVar(&TimeFormatParameter, "time-format", string(csvbl.RFC850),
-		fmt.Sprintf("Tell how the csv output formater should format times. Possible values are [%s]", csvbl.GetValidTimeFormatsString()))
-	// Overwrite the std Usage function with some custom stuff
-	flag.Usage = customHelpMessage
-
-	// Read the given flags
-	flag.Parse()
-}
-
-func customHelpMessage() {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report", os.Args[0]))
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
-	fmt.Fprintln(os.Stdout)
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
-	fmt.Fprintln(os.Stdout, "  files")
-	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx supported at the moment)")
-	fmt.Fprintln(os.Stdout, "Options:")
-	flag.PrintDefaults()
-}
-
-func getStdOutFormatParameterValuesStr() string {
-	ret := ""
-	for _, arg := range stdOutFormatParameterValues {
-		ret = fmt.Sprintf("%s %s", arg, ret)
-	}
-	return ret
 }
 
 // processFiles - processes the input files and adds the found content to the output buffer
@@ -381,16 +275,6 @@ func getCsvOutputFormater() *csvbl.CsvOutputFormater {
 		csvFormater.SetTimeFormat(TimeFormatParameter)
 	}
 	return csvFormater
-}
-
-func checkStdOutFormatParameterValue(val string) bool {
-	for _, arg := range stdOutFormatParameterValues {
-		if strings.ToLower(arg) == strings.ToLower(val) {
-			return true
-		}
-	}
-
-	return false
 }
 
 // Get the file interface we are using as output. Maybe a file or STDOUT
