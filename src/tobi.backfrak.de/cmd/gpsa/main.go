@@ -9,7 +9,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -180,22 +179,11 @@ func processInputStream() []string {
 		}
 
 		reader := bufio.NewReader(os.Stdin)
-
-		for {
-			input, _, err := reader.ReadLine()
-			if err != nil && err == io.EOF {
-				break
-			}
-			line := string(input)
-			if line != "" {
-				if strings.Contains(line, string(os.PathSeparator)) && fileExists(line) {
-					fileArgs = append(fileArgs, line)
-				} else {
-					HandleError(newUnKnownInputStreamError(line), "", false, DontPanicFlag)
-				}
-			}
+		var err error
+		fileArgs, err = ReadInputStreamBuffer(reader)
+		if err != nil {
+			HandleError(err, "", false, DontPanicFlag)
 		}
-
 	}
 
 	return fileArgs

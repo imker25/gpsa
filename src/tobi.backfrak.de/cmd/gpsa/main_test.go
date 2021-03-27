@@ -759,19 +759,10 @@ func TestGetOutPutFormaterJSON(t *testing.T) {
 }
 
 func TestProcessInputStream(t *testing.T) {
-	file1 := testhelper.GetValidGPX("12.gpx")
-	file2 := testhelper.GetValidGPX("10.gpx")
-	input := []byte(fmt.Sprintf("%s%s%s", file1, csvbl.GetNewLine(), file2))
-	read, write, err := os.Pipe()
+	file1, file2, read, err := getTwoValidInputFilePathStream()
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	_, err = write.Write(input)
-	if err != nil {
-		t.Error(err)
-	}
-	write.Close()
 
 	stdin := os.Stdin
 	// Restore stdin right after the test.
