@@ -110,6 +110,13 @@ pipeline {
 							archiveArtifacts "bin/gpsa"
 						}
 					}
+					stages {
+						stage('Test cli') {
+							steps('Integration test') {
+								sh 'build/IntegrationTests.sh'
+							}
+						}
+					}
                 }
             }
         }
