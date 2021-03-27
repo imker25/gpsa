@@ -60,15 +60,11 @@ pipeline {
 								bat 'gradle test'
 							}
 						}
-						post('Get windows test results') {
-							always {
-								bat 'gradle convertTestResults'
-								junit "logs\\*.xml"
-							}
-						}
 					}
 					post('Deploy windows results') {
         				always {
+							bat 'gradle convertTestResults'
+							junit "logs\\*.xml"
 							bat 'gradle createBuildZip'
 							archiveArtifacts "*.zip"
 							archiveArtifacts "bin\\gpsa.exe"
@@ -99,12 +95,6 @@ pipeline {
 								sh 'gradle test'
 							}
 						}
-						post('Get linux test results') {
-							always {
-								sh 'gradle convertTestResults'
-								junit "logs/*.xml"
-							}
-						}
 						stage('Test cli') {
 							steps('Integration test') {
 								sh 'build/IntegrationTests.sh'
@@ -113,6 +103,8 @@ pipeline {
 					}
 					post('Deploy linux results') {
         				always {
+							sh 'gradle convertTestResults'
+							junit "logs/*.xml"
 							sh 'gradle createBuildZip'
 							archiveArtifacts "*.zip"
 							archiveArtifacts "bin/gpsa"
