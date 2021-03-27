@@ -129,7 +129,7 @@ func processInputStream() []string {
 		var err error
 		fileArgs, err = ReadInputStreamBuffer(reader)
 		if err != nil {
-			HandleError(err, "", false, DontPanicFlag)
+			HandleError(err, "os.Stdin", false, DontPanicFlag)
 		}
 	}
 
