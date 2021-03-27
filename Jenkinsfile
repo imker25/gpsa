@@ -59,7 +59,6 @@ pipeline {
 							steps('Unit test') {
 								bat 'gradle test'
 							}
-
 						}
 					}
 					post('Deploy windows results') {
