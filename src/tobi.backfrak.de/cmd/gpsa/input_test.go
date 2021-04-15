@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"testing"
 
 	"tobi.backfrak.de/internal/csvbl"
@@ -60,6 +61,9 @@ func TestReadInputStreamBufferWithNotExistingFileList(t *testing.T) {
 }
 
 func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
+	}
 
 	read, errGet := getValidInputGPXContentStream()
 	if errGet != nil {
