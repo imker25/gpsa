@@ -67,8 +67,6 @@ var stdOutFormatParameterValues = []string{"CSV", "JSON"}
 
 func ReadInputStreamBuffer(reader *bufio.Reader) ([]string, error) {
 
-	// fmt.Fprintln(os.Stdout, fmt.Sprintf("ReadInputStreamBuffer"))
-
 	var inputBytes []byte
 	for {
 		input, errRead := reader.ReadByte()
@@ -83,21 +81,56 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]string, error) {
 		inputBytes = append(inputBytes, input)
 	}
 
-	// fmt.Fprintln(os.Stdout, fmt.Sprintf("getXMlFileBuffersFromInputStream"))
 	buffers := getXMlFileBuffersFromInputStream(inputBytes)
 
 	if len(buffers) != 0 {
 		// fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d input files as stream", len(buffers)))
+		gpxBuffers := getGpxBuffers(buffers)
+		if len(gpxBuffers) != 0 {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d gpx files as stream", len(gpxBuffers)))
+		}
+
+		tcxBuffers := getTcxBuffers(buffers)
+		if len(tcxBuffers) != 0 {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d tcx files as stream", len(tcxBuffers)))
+		}
 		return nil, nil
 	}
 
-	// fmt.Fprintln(os.Stdout, fmt.Sprintf("getFilePathFromInputStream"))
 	fileArgs, errProcFileName := getFilePathFromInputStream(inputBytes)
 	if errProcFileName != nil {
 		return nil, errProcFileName
 	}
 
 	return fileArgs, nil
+}
+
+func getGpxBuffers(buffers [][]byte) [][]byte {
+	var retVal [][]byte
+	for _, buffer := range buffers {
+		for i, _ := range buffer {
+			section := buffer[i : i+4]
+			if string(section) == "<gpx" {
+				retVal = append(retVal, buffer)
+				break
+			}
+		}
+	}
+	return retVal
+}
+
+func getTcxBuffers(buffers [][]byte) [][]byte {
+	var retVal [][]byte
+	for _, buffer := range buffers {
+		for i, _ := range buffer {
+			section := buffer[i : i+23]
+			if string(section) == "<TrainingCenterDatabase" {
+				retVal = append(retVal, buffer)
+				break
+			}
+		}
+	}
+	return retVal
 }
 
 func getXMlFileBuffersFromInputStream(inputBytes []byte) [][]byte {
