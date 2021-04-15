@@ -34,39 +34,15 @@ func (gpx *GpxFile) ReadTracks(correction gpsabl.CorrectionParameter, minimalMov
 
 // ReadGpxFile - Reads a *.gpx file
 func ReadGpxFile(filePath string, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
-	ret := gpsabl.TrackFile{}
-	ret.FilePath = filePath
-
 	gpx, fileError := ReadGPX(filePath)
 
 	if fileError != nil {
-		return ret, fileError
+		return gpsabl.TrackFile{}, fileError
+	}
+	ret, convertError := ConvertGPXFile(gpx, filePath, correction, minimalMovingSpeed, minimalStepHight)
+	if convertError != nil {
+		return gpsabl.TrackFile{}, convertError
 	}
 
-	var tracks []gpsabl.Track
-	for _, trk := range gpx.Tracks {
-
-		// Add only tracks that contain segments
-		if len(trk.TrackSegments) > 0 {
-			track, convertError := ConvertTrk(trk, correction, minimalMovingSpeed, minimalStepHight)
-			if convertError != nil {
-				return ret, convertError
-			}
-			tracks = append(tracks, track)
-		}
-
-	}
-
-	// If no valid tracks found in the file, a error is returned
-	if len(tracks) > 0 {
-		ret.Tracks = tracks
-		ret.Name = gpx.Name
-		ret.Description = gpx.Description
-		ret.NumberOfTracks = len(tracks)
-
-		gpsabl.FillTrackFileValues(&ret)
-	} else {
-		return ret, newEmptyGpxFileError(filePath)
-	}
 	return ret, nil
 }
