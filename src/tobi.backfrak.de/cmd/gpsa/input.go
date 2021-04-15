@@ -66,11 +66,86 @@ var StdOutFormatParameter string
 var stdOutFormatParameterValues = []string{"CSV", "JSON"}
 
 func ReadInputStreamBuffer(reader *bufio.Reader) ([]string, error) {
+
+	// fmt.Fprintln(os.Stdout, fmt.Sprintf("ReadInputStreamBuffer"))
+
+	var inputBytes []byte
+	for {
+		input, errRead := reader.ReadByte()
+		if errRead != nil {
+			if errRead == io.EOF {
+				break
+			} else {
+				return nil, errRead
+			}
+		}
+
+		inputBytes = append(inputBytes, input)
+	}
+
+	// fmt.Fprintln(os.Stdout, fmt.Sprintf("getXMlFileBuffersFromInputStream"))
+	buffers := getXMlFileBuffersFromInputStream(inputBytes)
+
+	if len(buffers) != 0 {
+		// fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d input files as stream", len(buffers)))
+		return nil, nil
+	}
+
+	// fmt.Fprintln(os.Stdout, fmt.Sprintf("getFilePathFromInputStream"))
+	fileArgs, errProcFileName := getFilePathFromInputStream(inputBytes)
+	if errProcFileName != nil {
+		return nil, errProcFileName
+	}
+
+	return fileArgs, nil
+}
+
+func getXMlFileBuffersFromInputStream(inputBytes []byte) [][]byte {
+	var startBytes []int
+	for i, _ := range inputBytes {
+		section := inputBytes[i : i+5]
+		if string(section) == "<?xml" {
+			startBytes = append(startBytes, i)
+		}
+	}
+
+	var retVal [][]byte
+	size := len(inputBytes)
+	numberFiles := len(startBytes)
+	for i, index := range startBytes {
+		// fmt.Println(fmt.Sprintf("New xml file at index %d", index))
+		var oneFile []byte
+		if i < numberFiles-1 {
+			oneFile = inputBytes[index : startBytes[i+1]-1]
+		} else {
+			oneFile = inputBytes[index:size]
+		}
+		retVal = append(retVal, oneFile)
+	}
+	return retVal
+}
+
+func getFilePathFromInputStream(inputBytes []byte) ([]string, error) {
 	var fileArgs []string
+	read, write, errCreate := os.Pipe()
+	if errCreate != nil {
+		return nil, errCreate
+	}
+
+	_, errWrite := write.Write(inputBytes)
+	if errWrite != nil {
+		return nil, errWrite
+	}
+	write.Close()
+	reader := bufio.NewReader(read)
 	for {
 		input, _, err := reader.ReadLine()
-		if err != nil && err == io.EOF {
-			break
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return nil, err
+			}
 		}
 		line := string(input)
 		if line != "" {
@@ -81,7 +156,6 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]string, error) {
 			}
 		}
 	}
-
 	return fileArgs, nil
 }
 

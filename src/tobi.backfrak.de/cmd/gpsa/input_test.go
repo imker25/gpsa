@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"testing"
 
@@ -56,6 +57,67 @@ func TestReadInputStreamBufferWithNotExistingFileList(t *testing.T) {
 	default:
 		t.Errorf("The error is not of the expected type.")
 	}
+}
+
+func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
+
+	read, errGet := getValidInputGPXContentStream()
+	if errGet != nil {
+		t.Fatal(errGet)
+	}
+
+	_, err := ReadInputStreamBuffer(bufio.NewReader(read))
+	if err != nil {
+		t.Errorf("No error, but one expected")
+	}
+}
+
+func getValidInputGPXContentStream() (*os.File, error) {
+	filePath1 := testhelper.GetValidGPX("05.gpx")
+	file1, _ := os.Open(filePath1)
+	filePath2 := testhelper.GetValidGPX("04.gpx")
+	file2, _ := os.Open(filePath2)
+
+	var inputBytes []byte
+	reader1 := bufio.NewReader(file1)
+	for {
+		input, errRead1 := reader1.ReadByte()
+		if errRead1 != nil {
+			if errRead1 == io.EOF {
+				break
+			} else {
+				return nil, errRead1
+			}
+		}
+
+		inputBytes = append(inputBytes, input)
+	}
+
+	reader2 := bufio.NewReader(file2)
+	for {
+		input, errRead2 := reader2.ReadByte()
+		if errRead2 != nil {
+			if errRead2 == io.EOF {
+				break
+			} else {
+				return nil, errRead2
+			}
+		}
+
+		inputBytes = append(inputBytes, input)
+	}
+	read, write, errCreate := os.Pipe()
+	if errCreate != nil {
+		return nil, errCreate
+	}
+
+	_, errWrite := write.Write(inputBytes)
+	if errWrite != nil {
+		return nil, errWrite
+	}
+	write.Close()
+
+	return read, nil
 }
 
 func getInValidInputFilePathStream() (*os.File, error) {
