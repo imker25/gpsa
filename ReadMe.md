@@ -147,7 +147,7 @@ Maximum:; Saturday, 31-Oct-20 13:01:16 UTC; Saturday, 31-Oct-20 14:31:42 UTC; 6:
 Get statistics from a file as json on stdout
 
 ```sh
-Call: ./bin/gpsa  -std-out-format=json my/test/02.gpx 
+./bin/gpsa  -std-out-format=json my/test/02.gpx 
 {
  "Statistics": [
   {
