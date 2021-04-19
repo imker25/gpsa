@@ -31,6 +31,39 @@ func ConvertTrk(track Trk, correction gpsabl.CorrectionParameter, minimalMovingS
 	return res, err
 }
 
+// ConvertGPXFile - Convert a gpxbl.Gpx to a gpsabl.TrackFile
+func ConvertGPXFile(gpx Gpx, filePath string, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (gpsabl.TrackFile, error) {
+	ret := gpsabl.TrackFile{}
+	var tracks []gpsabl.Track
+	for _, trk := range gpx.Tracks {
+
+		// Add only tracks that contain segments
+		if len(trk.TrackSegments) > 0 {
+			track, convertError := ConvertTrk(trk, correction, minimalMovingSpeed, minimalStepHight)
+			if convertError != nil {
+				return ret, convertError
+			}
+			tracks = append(tracks, track)
+		}
+
+	}
+
+	// If no valid tracks found in the file, a error is returned
+	if len(tracks) > 0 {
+		ret.Tracks = tracks
+		ret.Name = gpx.Name
+		ret.Description = gpx.Description
+		ret.NumberOfTracks = len(tracks)
+		ret.FilePath = filePath
+
+		gpsabl.FillTrackFileValues(&ret)
+	} else {
+		return ret, newEmptyGpxFileError(filePath)
+	}
+
+	return ret, nil
+}
+
 func convertSegments(segments []Trkseg, correction gpsabl.CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) ([]gpsabl.TrackSegment, error) {
 	var ret []gpsabl.TrackSegment
 	var err error

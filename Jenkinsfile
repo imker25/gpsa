@@ -56,10 +56,9 @@ pipeline {
 							}
 						}
 						stage('Test windows binaries') {
-							steps('Run') {
+							steps('Unit test') {
 								bat 'gradle test'
 							}
-
 						}
 					}
 					post('Deploy windows results') {
@@ -92,10 +91,10 @@ pipeline {
 							}
 						}
 						stage('Test linux binaries') {
-							steps('Run') {
+							steps('Run test') {
 								sh 'gradle test'
+								sh 'build/IntegrationTests.sh'
 							}
-
 						}
 					}
 					post('Deploy linux results') {

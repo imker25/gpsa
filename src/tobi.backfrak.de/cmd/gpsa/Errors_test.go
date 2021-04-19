@@ -30,3 +30,29 @@ func TestOutFileIsDirErrorStruct(t *testing.T) {
 		t.Errorf("The error message of OutFileIsDirError does not contain the expected directory")
 	}
 }
+
+func TestUnKnownInputStreamError(t *testing.T) {
+	path := "<{}>"
+	err := newUnKnownInputStreamError(path)
+
+	if err.Line != path {
+		t.Errorf("The directory was %s, but %s was expected", err.Line, path)
+	}
+
+	if strings.Contains(err.Error(), path) == false {
+		t.Errorf("The error message of UnKnownInputStreamError does not contain the expected line")
+	}
+}
+
+func TestUnKnowninputFileTypeError(t *testing.T) {
+	path := "myType"
+	err := newUnKnowninputFileTypeError(path)
+
+	if err.inputFileType != path {
+		t.Errorf("The Type was %s, but %s was expected", err.inputFileType, path)
+	}
+
+	if strings.Contains(err.Error(), path) == false {
+		t.Errorf("The error message of UnKnowninputFileTypeError does not contain the expected type")
+	}
+}

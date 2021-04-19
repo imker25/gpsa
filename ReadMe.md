@@ -49,7 +49,7 @@ You might want to call ```-help``` to find out how to use the program.
 ```txt
 ~$ ./gpsa -help
 ./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report
-Program Version: 1.2.6
+Program Version: 2.0.1
 
 Usage: ./bin/gpsa [options] [files]
   files
@@ -124,7 +124,7 @@ Get statistics for a number of files into a csv output, with verbose comandline 
 ```sh
 ~$  ./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
 Call:  ./gpsa -verbose -out-file=gps-statistics.csv my/test/01.gpx my/test/02.gpx my/test/03.gpx
-Version: 0.9.0+7b79520
+Version: 2.0.1+7b79520
 Read file: my/test/01.gpx
 Read file: my/test/02.gpx
 Read file: my/test/03.gpx
@@ -177,6 +177,19 @@ Call: ./bin/gpsa  -std-out-format=json my/test/02.gpx
  ],
  "Summary": null
 ```
+
+It is also possible to pipe in some file names instead of using the file names as input parameter
+
+```sh
+find ./testdata/valid-gpx -name "*.gpx" | ./bin/gpsa -summary=additional -out-file=./test.json
+```
+
+And you can pipe in file contents as well
+
+```sh
+cat  01.gpx 01.tcx 03.tcx 02.gpx | ./bin/gpsa -out-file=./test.json
+```
+
 
 #### Output Values explained
 

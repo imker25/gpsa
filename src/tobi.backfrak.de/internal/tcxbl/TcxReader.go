@@ -57,10 +57,10 @@ func ReadTcx(fileName string) (Tcx, error) {
 	if err != nil {
 		return Tcx{}, err
 	}
-	return readGPXBuffer(xmlfile, fileName)
+	return readTCXBuffer(xmlfile, fileName)
 }
 
-func readGPXBuffer(fileBuffer []byte, fileName string) (Tcx, error) {
+func readTCXBuffer(fileBuffer []byte, fileName string) (Tcx, error) {
 	tcx := Tcx{}
 	err := xml.Unmarshal([]byte(fileBuffer), &tcx)
 
