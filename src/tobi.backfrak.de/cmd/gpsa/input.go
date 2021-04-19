@@ -169,7 +169,7 @@ func getXMlFileBuffersFromInputStream(inputBytes []byte) [][]byte {
 		// fmt.Println(fmt.Sprintf("New xml file at index %d", index))
 		var oneFile []byte
 		if i < numberFiles-1 {
-			oneFile = inputBytes[index : startBytes[i+1]-1]
+			oneFile = inputBytes[index:startBytes[i+1]]
 		} else {
 			oneFile = inputBytes[index:size]
 		}
