@@ -92,6 +92,13 @@ if [ ! -f "$csv_out" ]; then
     assert "echo $csv_out not found" ""
 fi
 assert_raises "find $testdata/valid-gpx -name \"*.gpx\" | $gpsa " 0
+if [ -f "$json_out" ]; then
+    rm -rf "$json_out"
+fi
+assert_raises "cat  $testdata/valid-gpx/01.gpx $testdata/valid-tcx/01.tcx $testdata/valid-tcx/03.tcx $testdata/valid-gpx/04.gpx | $gpsa -verbose -out-file=$json_out | grep \"4 of 4 files processed successfully\"" 0
+if [ ! -f "$json_out" ]; then
+    assert "echo $json_out not found" ""
+fi
 
 popd
 assert_end gpsa_IntegrationTests
