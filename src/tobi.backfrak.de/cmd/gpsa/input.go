@@ -65,8 +65,9 @@ var StdOutFormatParameter string
 
 var stdOutFormatParameterValues = []string{"CSV", "JSON"}
 
-func ReadInputStreamBuffer(reader *bufio.Reader) ([]string, error) {
-
+// ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
+func ReadInputStreamBuffer(reader *bufio.Reader) ([]inputFile, error) {
+	var fileArgs []inputFile
 	var inputBytes []byte
 	for {
 		input, errRead := reader.ReadByte()
@@ -86,25 +87,39 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]string, error) {
 	if len(buffers) != 0 {
 		// fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d input files as stream", len(buffers)))
 		gpxBuffers := getGpxBuffers(buffers)
-		if len(gpxBuffers) != 0 {
+		if len(gpxBuffers) != 0 && VerboseFlag {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d gpx files as stream", len(gpxBuffers)))
 		}
 
+		for i, gpxBuff := range gpxBuffers {
+			fileArgs = append(fileArgs, *newInputFileGpxBuffer(gpxBuff, fmt.Sprintf("Gpx input stream buffer %d", i+1)))
+		}
 		tcxBuffers := getTcxBuffers(buffers)
-		if len(tcxBuffers) != 0 {
+		if len(tcxBuffers) != 0 && VerboseFlag {
 			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d tcx files as stream", len(tcxBuffers)))
 		}
-		return nil, nil
+
+		for i, tcxBuff := range tcxBuffers {
+			fileArgs = append(fileArgs, *newInputFileTcxBuffer(tcxBuff, fmt.Sprintf("Tcx input stream buffer %d", i+1)))
+		}
+		return fileArgs, nil
 	}
 
-	fileArgs, errProcFileName := getFilePathFromInputStream(inputBytes)
+	fileArgsStr, errProcFileName := getFilePathFromInputStream(inputBytes)
 	if errProcFileName != nil {
 		return nil, errProcFileName
+	}
+
+	for _, fileArgStr := range fileArgsStr {
+		fileArgs = append(fileArgs, *newInputFileWithPath(fileArgStr))
 	}
 
 	return fileArgs, nil
 }
 
+// getGpxBuffers - Parse an array of input buffer arrays, where each input buffer array contains only one xml file content
+// and search for those where the content is a GPX file
+// return an array of input buffer arrays, where all  input buffer arrays have a GPX file content
 func getGpxBuffers(buffers [][]byte) [][]byte {
 	var retVal [][]byte
 	for _, buffer := range buffers {
@@ -119,6 +134,9 @@ func getGpxBuffers(buffers [][]byte) [][]byte {
 	return retVal
 }
 
+// getTcxBuffers - Parse an array of input buffer arrays, where each input buffer array contains only one xml file content
+// and search for those where the content is a TCX file
+// return an array of input buffer arrays, where all  input buffer arrays have a TCX file content
 func getTcxBuffers(buffers [][]byte) [][]byte {
 	var retVal [][]byte
 	for _, buffer := range buffers {
@@ -133,6 +151,8 @@ func getTcxBuffers(buffers [][]byte) [][]byte {
 	return retVal
 }
 
+// getXMlFileBuffersFromInputStream - Parse the input buffer array and search for xml files
+// resturn an array of input buffer arrays, where each array of input buffer array contain exactly one xml file content
 func getXMlFileBuffersFromInputStream(inputBytes []byte) [][]byte {
 	var startBytes []int
 	for i, _ := range inputBytes {
@@ -158,6 +178,8 @@ func getXMlFileBuffersFromInputStream(inputBytes []byte) [][]byte {
 	return retVal
 }
 
+// getFilePathFromInputStream - parse the input bytes array and search for valid file pathes
+// resturn the list of valid file pathes
 func getFilePathFromInputStream(inputBytes []byte) ([]string, error) {
 	var fileArgs []string
 	read, write, errCreate := os.Pipe()
@@ -226,6 +248,7 @@ func handleComandlineOptions() {
 	flag.Parse()
 }
 
+// customHelpMessage - Print he customized help message
 func customHelpMessage() {
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report", os.Args[0]))
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
@@ -237,6 +260,7 @@ func customHelpMessage() {
 	flag.PrintDefaults()
 }
 
+// getStdOutFormatParameterValuesStr - Get a string that contains all valid stdOutFormatParameterValues
 func getStdOutFormatParameterValuesStr() string {
 	ret := ""
 	for _, arg := range stdOutFormatParameterValues {
@@ -245,6 +269,7 @@ func getStdOutFormatParameterValuesStr() string {
 	return ret
 }
 
+// checkStdOutFormatParameterValue - Tell if a given stdOutFormatParameterValue is valid
 func checkStdOutFormatParameterValue(val string) bool {
 	for _, arg := range stdOutFormatParameterValues {
 		if strings.ToLower(arg) == strings.ToLower(val) {

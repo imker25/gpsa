@@ -33,7 +33,7 @@ var version = "undefined"
 
 func main() {
 
-	var fileArgs []string
+	var fileArgs []inputFile
 
 	// Setup and read-in comandline flags
 	handleComandlineOptions()
@@ -67,7 +67,7 @@ func main() {
 
 	// If we don't have input files, we might run with stream input
 	if len(flag.Args()) != 0 {
-		fileArgs = flag.Args()
+		fileArgs = proccessFileArgs(flag.Args())
 	} else {
 		// No file input, but might a stream
 		fileArgs = processInputStream()
@@ -109,9 +109,19 @@ func main() {
 	}
 }
 
-func processInputStream() []string {
+func proccessFileArgs(args []string) []inputFile {
+	var fileArgs []inputFile
+	for _, file := range args {
+		fileArgs = append(fileArgs, *newInputFileWithPath(file))
+	}
 
-	var fileArgs []string
+	return fileArgs
+}
+
+// Get the input files from a stream buffer
+func processInputStream() []inputFile {
+
+	var fileArgs []inputFile
 	// Get stdin stream
 	info, errStat := os.Stdin.Stat()
 	if errStat != nil {
@@ -137,7 +147,7 @@ func processInputStream() []string {
 }
 
 // processFiles - processes the input files and adds the found content to the output buffer
-func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
+func processFiles(files []inputFile, iFormater gpsabl.OutputFormater) int {
 
 	if !gpsabl.CheckValidCorrectionParameters(gpsabl.CorrectionParameter(CorrectionParameter)) {
 		HandleError(gpsabl.NewCorrectionParameterNotKnownError(gpsabl.CorrectionParameter(CorrectionParameter)), "", false, DontPanicFlag)
@@ -169,32 +179,53 @@ func processFiles(files []string, iFormater gpsabl.OutputFormater) int {
 }
 
 // goProcessFile - Wraper around, processFile. Use this as go routine
-func goProcessFile(filePath string, formater gpsabl.OutputFormater, c chan bool) {
-	ret := processFile(filePath, formater)
+func goProcessFile(file inputFile, formater gpsabl.OutputFormater, c chan bool) {
+	ret := processFile(file, formater)
 
 	c <- ret
 }
 
 // processFile - processes one input file and adds the found content to the output buffer
-func processFile(filePath string, formater gpsabl.OutputFormater) bool {
+func processFile(inFile inputFile, formater gpsabl.OutputFormater) bool {
 	if VerboseFlag == true {
-		fmt.Println("Read file: " + filePath)
+		fmt.Println("Read file: " + inFile.Name)
 	}
-	// Find out if we can read the file
-	reader, readerErr := getReader(filePath)
-	if HandleError(readerErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+	var file gpsabl.TrackFile
+	var readErr error
+	if inFile.Type == FilePath {
+		// Find out if we can read the file
+		reader, readerErr := getReader(inFile.Name)
+		if HandleError(readerErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
+			return false
+		}
+
+		// Read the *.gpx into a TrackFile type, using the interface
+		file, readErr = reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
+	} else if inFile.Type == GpxBuffer {
+		// Get a reader for gpx files
+		reader := gpxbl.NewGpxFile(inFile.Name)
+
+		// Get the GPX files conent
+		file, readErr = reader.ReadBuffer(inFile.Buffer, gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
+	} else if inFile.Type == TcxBuffer {
+		// Get a reader for TCX files
+		reader := tcxbl.NewTcxFile(inFile.Name)
+
+		// Get the TCX files conent
+		file, readErr = reader.ReadBuffer(inFile.Buffer, gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
+	} else {
+		// Error, we don't know the inFile.Type
+		HandleError(newUnKnowninputFileTypeError(string(inFile.Type)), inFile.Name, SkipErrorExitFlag, DontPanicFlag)
 		return false
 	}
 
-	// Read the *.gpx into a TrackFile type, using the interface
-	file, readErr := reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
-	if HandleError(readErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+	if HandleError(readErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
 
 	// Add the file to the out buffer of the formater
 	addErr := formater.AddOutPut(file, gpsabl.DepthArg(DepthParameter), SuppressDuplicateOutPutFlag)
-	if HandleError(addErr, filePath, SkipErrorExitFlag, DontPanicFlag) == true {
+	if HandleError(addErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
 

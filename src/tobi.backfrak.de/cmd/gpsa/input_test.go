@@ -27,12 +27,24 @@ func TestReadInputStreamBufferWithFileList(t *testing.T) {
 		t.Errorf("The result list does contain %d files, but %d expected", len(result), 2)
 	}
 
-	if result[0] != file1 {
+	if result[0].Name != file1 {
 		t.Errorf("The path is %s, but %s is expected", result[0], file1)
 	}
 
-	if result[1] != file2 {
+	if result[0].Type != FilePath {
+		t.Errorf("The type is %s, but %s is expected", result[0].Type, FilePath)
+	}
+
+	if result[1].Name != file2 {
 		t.Errorf("The path is %s, but %s is expected", result[1], file1)
+	}
+
+	if result[1].Type != FilePath {
+		t.Errorf("The type is %s, but %s is expected", result[1].Type, FilePath)
+	}
+
+	if result[1].Buffer != nil {
+		t.Errorf("The buffer is expected to be nil")
 	}
 
 }
@@ -70,10 +82,39 @@ func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 		t.Fatal(errGet)
 	}
 
-	_, err := ReadInputStreamBuffer(bufio.NewReader(read))
+	input, err := ReadInputStreamBuffer(bufio.NewReader(read))
 	if err != nil {
 		t.Errorf("No error, but one expected")
 	}
+
+	if len(input) != 2 {
+		t.Errorf("The input has %d files, but %d files are expected", len(input), 2)
+	}
+
+	if input[0].Type != GpxBuffer {
+		t.Errorf("The type is %s, but %s is expected", input[0].Type, GpxBuffer)
+	}
+
+	if input[0].Name == "" {
+		t.Errorf(("The name is \"\""))
+	}
+
+	if input[0].Buffer == nil {
+		t.Errorf("The buffer is nil")
+	}
+
+	if input[1].Type != GpxBuffer {
+		t.Errorf("The type is %s, but %s is expected", input[1].Type, GpxBuffer)
+	}
+
+	if input[1].Buffer == nil {
+		t.Errorf("The buffer is nil")
+	}
+
+	if input[0].Name == input[1].Name {
+		t.Errorf(("The names are the same"))
+	}
+
 }
 
 func getValidInputGPXContentStream() (*os.File, error) {
