@@ -56,7 +56,7 @@ static void main(String[] args) {
 	}
 
 	node("awaiter") {
-		stage("Run build and test on nodes with labels ${labelsToRun}\") {
+		stage("Run build and test on nodes with labels ${labelsToRun}") {
 			def jobsToRun = [:]
 			labelsToRun.each {  label ->
 				jobsToRun["${label}"] = {
