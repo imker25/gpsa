@@ -2,8 +2,7 @@
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
-def programmVersion
-void setBuildStatus(String message, String state) {
+def programmVersion setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
       reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/imker25/gpsa"],
@@ -25,6 +24,7 @@ static void main(String[] args) {
 
 	node("unix"){
 		stage("Checkout for get build name on \"${node_name}\"") {
+			echo "Checkout sources to calculate the builds name"
 			checkout scm
 			sh 'git clean -fdx'
 		}
