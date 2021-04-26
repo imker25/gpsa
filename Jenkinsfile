@@ -37,7 +37,7 @@ def gitCleanup() {
 def publishOnGitHub(String version, String text) {
 	if (isUnix()) {
 		echo "${text}"
-		withCredentials([secretText(credentialsId: 'imker25',variable: 'GITHUB_API_KEY')]) {
+		withCredentials([string(credentialsId: 'imker25',variable: 'GITHUB_API_KEY')]) {
 			sh "./build/GitHub-Release.sh ${version} \"${text}\" true ${GITHUB_API_KEY}"
 		} 
 	} else {
