@@ -101,6 +101,7 @@ static void main(String[] args) {
 									junit "logs\\*.xml"
 									runGradle( "createBuildZip")
 									archiveArtifacts "*.zip"
+									archiveArtifacts "logs/Version.txt"
 									if (isUnix()) {
 										archiveArtifacts "bin/gpsa"
 									} else {
@@ -126,6 +127,7 @@ static void main(String[] args) {
 
 			stage("Prepare release on \"${node_name}\"") {
 				unarchive mapping: ['bin/' : '.']
+				unarchive mapping: ['logs/' : '.']
 				programmVersion = readFile "logs/Version.txt"
 			}
 			if( myBranch == "master") {
