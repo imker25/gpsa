@@ -52,11 +52,11 @@ def gitCleanup() {
  * @param version The version string, e. g. V2.1.2-pre
  * @param text The text description of this release
  */
-def publishOnGitHub(String version, String text) {
+def publishOnGitHub(String version, String text, boolean preRelease) {
 	if (isUnix()) {
 		echo "${text}"
 		withCredentials([string(credentialsId: 'imker25',variable: 'GITHUB_API_KEY')]) {
-			sh "./build/GitHub-Release.sh ${version} \"${text}\" true ${GITHUB_API_KEY}"
+			sh "./build/GitHub-Release.sh ${version} \"${text}\" ${preRelease} ${GITHUB_API_KEY}"
 		} 
 	} else {
 		throw new Exception("Can only publish on unix")
@@ -157,11 +157,11 @@ static void main(String[] args) {
 			}
 			if( myBranch == "master") { 
 				stage("Pre release ${myBranch} on \"${node_name}\"") {
-					publishOnGitHub("V${programmVersion}-pre", "Pre release of version ${programmVersion}")
+					publishOnGitHub("V${programmVersion}-pre", "Pre release of version ${programmVersion}", true)
 				}
 			} else if (myBranch.startsWith("release/")) {
 				stage("Release ${myBranch} on \"${node_name}\"") {
-					publishOnGitHub("V${programmVersion}", "Release of version ${programmVersion}")
+					publishOnGitHub("V${programmVersion}", "Release of version ${programmVersion}", false)
 				}				
 
 			} else {
