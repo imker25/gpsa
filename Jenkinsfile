@@ -88,7 +88,11 @@ static void main(String[] args) {
 								junit "logs\\*.xml"
 								runGradle( "createBuildZip")
 								archiveArtifacts "*.zip"
-								archiveArtifacts "bin/gpsa.exe"
+								if (isUnix()) {
+									archiveArtifacts "bin/gpsa"
+								} else {
+									archiveArtifacts "bin/gpsa.exe"
+								}
 							}
 						}
 					}
