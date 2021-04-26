@@ -13,15 +13,18 @@ def programmVersion setBuildStatus(String message, String state) {
 }
 
 def runGradle(String task) {
+
 	if (isUnix()) {
+		echo "Run: \"gradle ${task}\" on unix"
 		sh "gradle ${task}"
 	} else {
+		echo "Run: \"gradle ${task}\" on windows"
 		bat "gradle ${task}"
 	}
 }
 
 static void main(String[] args) {
-
+	def buildDisplayName = ""
 	node("unix"){
 		stage("Checkout for get build name on \"${node_name}\"") {
 			echo "Checkout sources to calculate the builds name"
@@ -30,8 +33,11 @@ static void main(String[] args) {
 		}
 
 		stage("Get build name on \"${node_name}\"") {
+			echo "Get the builds name"
 			runGradle( "getBuildName")
-			currentBuild.displayName = readFile "logs/BuildName.txt"		
+			buildDisplayName = readFile "logs/BuildName.txt"
+			echo "Set the builds display name to \"${buildDisplayName}\""
+			currentBuild.displayName = 	"${buildDisplayName}"
 		}
 	}
 
