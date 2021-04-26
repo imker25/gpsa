@@ -34,6 +34,17 @@ def gitCleanup() {
 	}
 }
 
+def publishOnGitHub(String version, string text) {
+	if (isUnix()) {
+		echo "${text}"
+		withCredentials([usernameColonPassword(credentialsId: 'imker25',variable: 'GITHUB_API_KEY')]) {
+			sh "./build/GitHub-Release.sh V${version}-pre \"${text}\" true ${GITHUB_API_KEY}"
+		}
+	} else {
+		throw new Exception("Can only publish on unix")
+	}
+}
+
 static void main(String[] args) {
 	def labelsToRun = ["unix", "windows"]
 	def buildDisplayName = ""
@@ -102,6 +113,34 @@ static void main(String[] args) {
 				}
 
 				parallel jobsToRun
+			}
+		}
+
+		node("unix"){
+			def myBranch = "${env.BRANCH_NAME}"
+			stage("Checkout for publish ${myBranch} on \"${node_name}\"") {
+				echo "Checkout sources to release ${myBranch} on \"${node_name}\""
+				checkout scm
+				gitCleanup()
+			}
+
+			stage("Prepare release on \"${node_name}\"") {
+				unarchive mapping: ['bin/' : '.']
+				programmVersion = readFile "logs/Version.txt"
+			}
+			if( myBranch == "master") {
+				stage("Pre release ${myBranch} on \"${node_name}\"") {
+					publishOnGitHub("${programmVersion}", "Pre release of version ${programmVersion}")
+				}
+			} else if (myBranch.startsWith(release/)) {
+				stage("Release ${myBranch} on \"${node_name}\"") {
+					publishOnGitHub("${programmVersion}", "Release of version ${programmVersion}")
+				}				
+
+			} else {
+				stage("Publish on Github skipped") {
+					echo "Publish on Github skipped since we running on \"${env.BRANCH_NAME}\" branch"
+				}
 			}
 		}
 
