@@ -46,7 +46,7 @@ static void main(String[] args) {
 
 	node("awaiter") {
 		def jobsToRun = [:]
-		labelsToRun.each { -> label
+		labelsToRun.each {  label ->
 			stage("Run build and test on node with label \"${label}\"") {
 				node("${label}"){
 					echo "Run build and test on \"${node_name}\""
