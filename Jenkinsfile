@@ -56,10 +56,11 @@ static void main(String[] args) {
 	}
 
 	node("awaiter") {
-		def jobsToRun = [:]
-		labelsToRun.each {  label ->
-			jobsToRun["${label}"] = {
-				stage("Run build and test on node with label \"${label}\"") {
+		stage("Run build and test on nodes with labels ${labelsToRun}\") {
+			def jobsToRun = [:]
+			labelsToRun.each {  label ->
+				jobsToRun["${label}"] = {
+				
 					node("${label}"){
 						try {
 							stage("Checkout for build and test on \"${node_name}\"") {
@@ -98,9 +99,9 @@ static void main(String[] args) {
 					}
 				}
 			}
+
+			parallel jobsToRun
 		}
-		
-		parallel jobsToRun
 	}
 
 }
