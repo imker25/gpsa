@@ -2,7 +2,13 @@
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
-def programmVersion
+
+/**
+* Function to set the build state on github
+* 
+* @param message The message to set
+* @param state The state to set
+ */
 void setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
@@ -13,150 +19,171 @@ void setBuildStatus(String message, String state) {
   ]);
 }
 
-pipeline {
-    agent {
-		label "awaiter"
+/**
+* Function to run a gradle task
+*
+* @param task The task to run
+ */
+def runGradle(String task) {
+
+	if (isUnix()) {
+		echo "Run: \"gradle ${task}\" on unix"
+		sh "gradle ${task}"
+	} else {
+		echo "Run: \"gradle ${task}\" on windows"
+		bat "gradle ${task}"
 	}
-	options { skipDefaultCheckout() }
-	environment {
-        GITHUB_API_KEY = credentials('imker25')
-        
-    }
-	
-    stages {
-		stage('Get Build Name') {
-			steps ('Calculate the name') {
+}
+
+/** Function to clean the git repo */
+def gitCleanup() {
+		if (isUnix()) {
+		echo "Clean workspace on unix"
+		sh 'git clean -fdx'
+	} else {
+		echo "Clean workspace on windows"
+		bat 'git clean -fdx'
+	}
+}
+
+/**
+ Function to publish a builds output as release on github
+ *
+ * @param version The version string, e. g. V2.1.2-pre
+ * @param text The text description of this release
+ */
+def publishOnGitHub(String version, String text) {
+	if (isUnix()) {
+		echo "${text}"
+		withCredentials([string(credentialsId: 'imker25',variable: 'GITHUB_API_KEY')]) {
+			sh "./build/GitHub-Release.sh ${version} \"${text}\" true ${GITHUB_API_KEY}"
+		} 
+	} else {
+		throw new Exception("Can only publish on unix")
+	}
+}
+
+/** The entry point of the pipeline workflow */
+static void main(String[] args) {
+	def labelsToRun = ["unix", "windows"]
+	def buildDisplayName = ""
+	def programmVersion = ""
+	try {
+
+		// Section 1: Get the build name and program version
+		node("unix"){
+			stage("Checkout for get build name on \"${node_name}\"") {
+				echo "Checkout sources to calculate the builds name"
 				checkout scm
-				sh 'git clean -fdx'
-				sh 'gradle getBuildName'
-				script {
-					currentBuild.displayName = readFile "logs/BuildName.txt"
-				}
+				gitCleanup()
+			}
+
+			stage("Get build name on \"${node_name}\"") {
+				echo "Get the builds name"
+				runGradle( "getBuildName")
+				buildDisplayName = readFile "logs/BuildName.txt"
+				echo "Set the builds display name to \"${buildDisplayName}\""
+				currentBuild.displayName = 	"${buildDisplayName}"
+				archiveArtifacts "logs/Version.txt"
+				programmVersion = readFile "logs/Version.txt"
 			}
 		}
-		
 
-        stage('Build and test the gpsa project') {
-            parallel {
-                stage('Run on Windows') {
-                    agent {
-                        label "windows"
-                    }
-					stages{
-						stage('Prepare windows workspace'){
-							steps ('Checkout') {
-								checkout scm
-								bat 'git clean -fdx'
-							}
-						}
-						stage('Create windows binaries') {
+		// Section 2: Run build and test on different node types parallel (e. g. windows and unix)
+		node("awaiter") {
+			stage("Run build and test on nodes with labels ${labelsToRun}") {
+				def jobsToRun = [:]
+				labelsToRun.each {  label ->
+					jobsToRun["${label}"] = {
+					
+						node("${label}"){
+							try {
+								stage("Checkout for build and test on \"${node_name}\"") {
+									echo "Checkout sources on \"${node_name}\""
+									checkout scm
+									gitCleanup()
+								}
 
-							steps ('Build') {
-								bat 'gradle build'
-							}
-						}
-						stage('Test windows binaries') {
-							steps('Unit test') {
-								bat 'gradle test'
+								stage("Build on \"${node_name}\"") {
+									runGradle( "build")
+								}
+
+								stage("Test on \"${node_name}\"") {
+									runGradle( "test")
+								}
+
+								if (isUnix()) {
+									stage("Run Integration Tests on \"${node_name}\"") {
+										echo "Run: build/IntegrationTests.sh"
+										sh "build/IntegrationTests.sh"
+									}
+								}
+
+							} finally {
+								stage("Get results and artifacts") {
+									runGradle( "convertTestResults")
+									junit "logs\\*.xml"
+									runGradle( "createBuildZip")
+									archiveArtifacts "*.zip"
+									
+									if (isUnix()) {
+										archiveArtifacts "bin/gpsa"
+									} else {
+										archiveArtifacts "bin/gpsa.exe"
+									}
+								}
 							}
 						}
 					}
-					post('Deploy windows results') {
-        				always {
-							bat 'gradle convertTestResults'
-							junit "logs\\*.xml"
-							bat 'gradle createBuildZip'
-							archiveArtifacts "*.zip"
-							archiveArtifacts "bin\\gpsa.exe"
-						}
-					}
-
 				}
 
+				parallel jobsToRun
+			}
+		}
 
-                stage('Run on Linux') {
-                    agent {
-                        label "unix"
-                    }
-					stages{
-						stage('Prepare linux workspace'){
-							steps ('Checkout') {
-								checkout scm
-								sh 'git clean -fdx'
-							}
-						}
-						stage('Create linux binaries') {
-							steps ('Build') {
-								sh 'gradle build'
-							}
-						}
-						stage('Test linux binaries') {
-							steps('Run test') {
-								sh 'gradle test'
-								sh 'build/IntegrationTests.sh'
-							}
-						}
-					}
-					post('Deploy linux results') {
-        				always {
-							sh 'gradle convertTestResults'
-							junit "logs/*.xml"
-							sh 'gradle createBuildZip'
-							archiveArtifacts "*.zip"
-							archiveArtifacts "bin/gpsa"
-						}
-					}
-                }
-            }
-        }
+		// Section 3: Publish the build output as release on github if needed
+		node("unix"){
+			def myBranch = "${env.BRANCH_NAME}"
+			stage("Checkout for publish ${myBranch} on \"${node_name}\"") {
+				echo "Checkout sources to release ${myBranch} on \"${node_name}\""
+				checkout scm
+				gitCleanup()
+			}
 
-		stage('Publish master') {
-			when {
-                branch 'master'
-            }
-			steps ('Do a pre release') { 
+			stage("Prepare release \"V${programmVersion}\" on \"${node_name}\"") {
 				unarchive mapping: ['bin/' : '.']
-				script {
-					programmVersion = readFile "logs/Version.txt"
+				unarchive mapping: ['logs/' : '.']
+				
+			}
+			if( myBranch == "master") { 
+				stage("Pre release ${myBranch} on \"${node_name}\"") {
+					publishOnGitHub("V${programmVersion}-pre", "Pre release of version ${programmVersion}")
 				}
-				
-				sh "./build/GitHub-Release.sh V${programmVersion}-pre \"Pre release of version ${programmVersion}\" true ${GITHUB_API_KEY}"
-				
+			} else if (myBranch.startsWith("release/")) {
+				stage("Release ${myBranch} on \"${node_name}\"") {
+					publishOnGitHub("V${programmVersion}", "Release of version ${programmVersion}")
+				}				
+
+			} else {
+				stage("Publish on Github skipped") {
+					echo "Publish on Github skipped since we running on \"${env.BRANCH_NAME}\" branch"
+				}
 			}
 		}
 
-		stage('Publish release') {
-			when {
-                branch 'release/**'
-            }
-			steps ('Do a release') { 
-				unarchive mapping: ['bin/' : '.']
-				script {
-					programmVersion = readFile "logs/Version.txt"
-				}
-				
-				sh "./build/GitHub-Release.sh V${programmVersion} \"Release of version ${programmVersion}\" false ${GITHUB_API_KEY}"
-				
+		// Section 4: Set the builds status on github
+		node("awaiter") {
+			stage("Finanlize build") {
+				setBuildStatus("Build complete", "SUCCESS")
 			}
 		}
-    }
-	post ('Publish build result on GitHub') {
-
-		always {
-			archiveArtifacts "logs/*.json"
-		}
-
-		success {
-			setBuildStatus("Build complete", "SUCCESS");
-		}
-
-		failure {
-			setBuildStatus("Build complete", "FAILURE");
-		}
-
-		unstable {
-			setBuildStatus("Build complete", "UNSTABLE");
+	} catch(error) {
+		node("awaiter") {
+			stage("Finanlize build wiht FAILURE") {
+				setBuildStatus("Build complete", "FAILURE")
+			}
+			throw error
 		}
 	}
-	
+
 }
