@@ -25,6 +25,7 @@ def runGradle(String task) {
 }
 
 static void main(String[] args) {
+	def labelsToRun = ["unix", "windows"]
 	def buildDisplayName = ""
 	def programmVersion = ""
 	node("unix"){
@@ -41,6 +42,18 @@ static void main(String[] args) {
 			echo "Set the builds display name to \"${buildDisplayName}\""
 			currentBuild.displayName = 	"${buildDisplayName}"
 		}
+	}
+
+	node("awaiter") {
+		def jobsToRun = [:]
+		labelsToRun.each { -> label
+			stage("Run build and test on node with label \"${label}\"") {
+				node("${label}"){
+					echo "Run build and test on \"${node_name}\""
+				}
+			}
+		}
+		
 	}
 
 }
