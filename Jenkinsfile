@@ -150,7 +150,7 @@ static void main(String[] args) {
 				gitCleanup()
 			}
 
-			stage("Prepare release on \"${node_name}\"") {
+			stage("Prepare release \"V${programmVersion}\" on \"${node_name}\"") {
 				unarchive mapping: ['bin/' : '.']
 				unarchive mapping: ['logs/' : '.']
 				
