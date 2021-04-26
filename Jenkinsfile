@@ -34,7 +34,7 @@ def gitCleanup() {
 	}
 }
 
-def publishOnGitHub(String version, string text) {
+def publishOnGitHub(String version, String text) {
 	if (isUnix()) {
 		echo "${text}"
 		withCredentials([usernameColonPassword(credentialsId: 'imker25',variable: 'GITHUB_API_KEY')]) {
