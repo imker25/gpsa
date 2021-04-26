@@ -54,6 +54,7 @@ static void main(String[] args) {
 			}
 		}
 		
+		parallel jobsToRun
 	}
 
 }
