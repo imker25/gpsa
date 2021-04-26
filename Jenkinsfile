@@ -58,36 +58,38 @@ static void main(String[] args) {
 	node("awaiter") {
 		def jobsToRun = [:]
 		labelsToRun.each {  label ->
-			stage("Run build and test on node with label \"${label}\"") {
-				node("${label}"){
-					try {
-						stage("Checkout for build and test on \"${node_name}\"") {
-							echo "Checkout sources on \"${node_name}\""
-							checkout scm
-							gitCleanup()
-						}
-
-						stage("Build on \"${node_name}\"") {
-							runGradle( "build")
-						}
-
-						stage("Test on \"${node_name}\"") {
-							runGradle( "test")
-						}
-
-						if (isUnix()) {
-							stage("Run Integration\"${node_name}\"") {
-								sh "build/IntegrationTests.sh"
+			jobsToRun["${label}"] = {
+				stage("Run build and test on node with label \"${label}\"") {
+					node("${label}"){
+						try {
+							stage("Checkout for build and test on \"${node_name}\"") {
+								echo "Checkout sources on \"${node_name}\""
+								checkout scm
+								gitCleanup()
 							}
-						}
 
-					} finally {
-						stage("Get results and artifacts") {
-							runGradle( "convertTestResults")
-							junit "logs\\*.xml"
-							runGradle( "createBuildZip")
-							archiveArtifacts "*.zip"
-							archiveArtifacts "bin/gpsa.exe"
+							stage("Build on \"${node_name}\"") {
+								runGradle( "build")
+							}
+
+							stage("Test on \"${node_name}\"") {
+								runGradle( "test")
+							}
+
+							if (isUnix()) {
+								stage("Run Integration\"${node_name}\"") {
+									sh "build/IntegrationTests.sh"
+								}
+							}
+
+						} finally {
+							stage("Get results and artifacts") {
+								runGradle( "convertTestResults")
+								junit "logs\\*.xml"
+								runGradle( "createBuildZip")
+								archiveArtifacts "*.zip"
+								archiveArtifacts "bin/gpsa.exe"
+							}
 						}
 					}
 				}
