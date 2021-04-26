@@ -2,7 +2,8 @@
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
-def programmVersion setBuildStatus(String message, String state) {
+
+void setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
       reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/imker25/gpsa"],
@@ -25,6 +26,7 @@ def runGradle(String task) {
 
 static void main(String[] args) {
 	def buildDisplayName = ""
+	def programmVersion = ""
 	node("unix"){
 		stage("Checkout for get build name on \"${node_name}\"") {
 			echo "Checkout sources to calculate the builds name"
