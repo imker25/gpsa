@@ -131,7 +131,7 @@ static void main(String[] args) {
 				unarchive mapping: ['logs/' : '.']
 				programmVersion = readFile "logs/Version.txt"
 			}
-			if( myBranch == "feature/scriptedPipeline") { // for debug, should be "master"!!!
+			if( myBranch == "master") { 
 				stage("Pre release ${myBranch} on \"${node_name}\"") {
 					publishOnGitHub("V${programmVersion}-pre", "Pre release of version ${programmVersion}")
 				}
