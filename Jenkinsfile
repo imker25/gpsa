@@ -63,6 +63,7 @@ static void main(String[] args) {
 				buildDisplayName = readFile "logs/BuildName.txt"
 				echo "Set the builds display name to \"${buildDisplayName}\""
 				currentBuild.displayName = 	"${buildDisplayName}"
+				archiveArtifacts "logs/Version.txt"
 			}
 		}
 
@@ -101,7 +102,7 @@ static void main(String[] args) {
 									junit "logs\\*.xml"
 									runGradle( "createBuildZip")
 									archiveArtifacts "*.zip"
-									archiveArtifacts "logs/Version.txt"
+									
 									if (isUnix()) {
 										archiveArtifacts "bin/gpsa"
 									} else {
