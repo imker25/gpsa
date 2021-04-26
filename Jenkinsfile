@@ -132,7 +132,7 @@ static void main(String[] args) {
 				stage("Pre release ${myBranch} on \"${node_name}\"") {
 					publishOnGitHub("${programmVersion}", "Pre release of version ${programmVersion}")
 				}
-			} else if (myBranch.startsWith(release/)) {
+			} else if (myBranch.startsWith("release/")) {
 				stage("Release ${myBranch} on \"${node_name}\"") {
 					publishOnGitHub("${programmVersion}", "Release of version ${programmVersion}")
 				}				
