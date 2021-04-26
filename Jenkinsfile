@@ -3,6 +3,12 @@
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
+/**
+* Function to set the build state on github
+* 
+* @param message The message to set
+* @param state The state to set
+ */
 void setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
@@ -13,6 +19,11 @@ void setBuildStatus(String message, String state) {
   ]);
 }
 
+/**
+* Function to run a gradle task
+*
+* @param task The task to run
+ */
 def runGradle(String task) {
 
 	if (isUnix()) {
@@ -24,6 +35,7 @@ def runGradle(String task) {
 	}
 }
 
+/** Function to clean the git repo */
 def gitCleanup() {
 		if (isUnix()) {
 		echo "Clean workspace on unix"
@@ -34,6 +46,12 @@ def gitCleanup() {
 	}
 }
 
+/**
+ Function to publish a builds output as release on github
+ *
+ * @param version The version string, e. g. V2.1.2-pre
+ * @param text The text description of this release
+ */
 def publishOnGitHub(String version, String text) {
 	if (isUnix()) {
 		echo "${text}"
@@ -45,11 +63,14 @@ def publishOnGitHub(String version, String text) {
 	}
 }
 
+/** The entry point of the pipeline workflow */
 static void main(String[] args) {
 	def labelsToRun = ["unix", "windows"]
 	def buildDisplayName = ""
 	def programmVersion = ""
 	try {
+
+		// Section 1: Get the build name and program version
 		node("unix"){
 			stage("Checkout for get build name on \"${node_name}\"") {
 				echo "Checkout sources to calculate the builds name"
@@ -64,9 +85,11 @@ static void main(String[] args) {
 				echo "Set the builds display name to \"${buildDisplayName}\""
 				currentBuild.displayName = 	"${buildDisplayName}"
 				archiveArtifacts "logs/Version.txt"
+				programmVersion = readFile "logs/Version.txt"
 			}
 		}
 
+		// Section 2: Run build and test on different node types parallel (e. g. windows and unix)
 		node("awaiter") {
 			stage("Run build and test on nodes with labels ${labelsToRun}") {
 				def jobsToRun = [:]
@@ -118,6 +141,7 @@ static void main(String[] args) {
 			}
 		}
 
+		// Section 3: Publish the build output as release on github if needed
 		node("unix"){
 			def myBranch = "${env.BRANCH_NAME}"
 			stage("Checkout for publish ${myBranch} on \"${node_name}\"") {
@@ -129,7 +153,7 @@ static void main(String[] args) {
 			stage("Prepare release on \"${node_name}\"") {
 				unarchive mapping: ['bin/' : '.']
 				unarchive mapping: ['logs/' : '.']
-				programmVersion = readFile "logs/Version.txt"
+				
 			}
 			if( myBranch == "master") { 
 				stage("Pre release ${myBranch} on \"${node_name}\"") {
@@ -147,6 +171,7 @@ static void main(String[] args) {
 			}
 		}
 
+		// Section 4: Set the builds status on github
 		node("awaiter") {
 			stage("Finanlize build") {
 				setBuildStatus("Build complete", "SUCCESS")
