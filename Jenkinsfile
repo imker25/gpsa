@@ -38,7 +38,7 @@ static void main(String[] args) {
 	def labelsToRun = ["unix", "windows"]
 	def buildDisplayName = ""
 	def programmVersion = ""
-	
+
 	node("unix"){
 		stage("Checkout for get build name on \"${node_name}\"") {
 			echo "Checkout sources to calculate the builds name"
@@ -85,7 +85,7 @@ static void main(String[] args) {
 						stage("Get results and artifacts") {
 							runGradle( "convertTestResults")
 							junit "logs\\*.xml"
-							runGradle( gradle "createBuildZip")
+							runGradle( "createBuildZip")
 							archiveArtifacts "*.zip"
 							archiveArtifacts "bin/gpsa.exe"
 						}
