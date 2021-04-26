@@ -24,15 +24,26 @@ def runGradle(String task) {
 	}
 }
 
+def gitCleanup() {
+		if (isUnix()) {
+		echo "Clean workspace on unix"
+		sh 'git clean -fdx'
+	} else {
+		echo "Clean workspace on windows"
+		bat 'git clean -fdx'
+	}
+}
+
 static void main(String[] args) {
 	def labelsToRun = ["unix", "windows"]
 	def buildDisplayName = ""
 	def programmVersion = ""
+	
 	node("unix"){
 		stage("Checkout for get build name on \"${node_name}\"") {
 			echo "Checkout sources to calculate the builds name"
 			checkout scm
-			sh 'git clean -fdx'
+			gitCleanup()
 		}
 
 		stage("Get build name on \"${node_name}\"") {
@@ -49,7 +60,36 @@ static void main(String[] args) {
 		labelsToRun.each {  label ->
 			stage("Run build and test on node with label \"${label}\"") {
 				node("${label}"){
-					echo "Run build and test on \"${node_name}\""
+					try {
+						stage("Checkout for build and test on \"${node_name}\"") {
+							echo "Checkout sources on \"${node_name}\""
+							checkout scm
+							gitCleanup()
+						}
+
+						stage("Build on \"${node_name}\"") {
+							runGradle( "build")
+						}
+
+						stage("Test on \"${node_name}\"") {
+							runGradle( "test")
+						}
+
+						if (isUnix()) {
+							stage("Run Integration\"${node_name}\"") {
+								sh "build/IntegrationTests.sh"
+							}
+						}
+
+					} finally {
+						stage("Get results and artifacts") {
+							runGradle( "convertTestResults")
+							junit "logs\\*.xml"
+							runGradle( gradle "createBuildZip")
+							archiveArtifacts "*.zip"
+							archiveArtifacts "bin/gpsa.exe"
+						}
+					}
 				}
 			}
 		}
