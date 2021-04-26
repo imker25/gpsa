@@ -38,69 +38,84 @@ static void main(String[] args) {
 	def labelsToRun = ["unix", "windows"]
 	def buildDisplayName = ""
 	def programmVersion = ""
+	try {
+		node("unix"){
+			stage("Checkout for get build name on \"${node_name}\"") {
+				echo "Checkout sources to calculate the builds name"
+				checkout scm
+				gitCleanup()
+			}
 
-	node("unix"){
-		stage("Checkout for get build name on \"${node_name}\"") {
-			echo "Checkout sources to calculate the builds name"
-			checkout scm
-			gitCleanup()
+			stage("Get build name on \"${node_name}\"") {
+				echo "Get the builds name"
+				runGradle( "getBuildName")
+				buildDisplayName = readFile "logs/BuildName.txt"
+				echo "Set the builds display name to \"${buildDisplayName}\""
+				currentBuild.displayName = 	"${buildDisplayName}"
+			}
 		}
 
-		stage("Get build name on \"${node_name}\"") {
-			echo "Get the builds name"
-			runGradle( "getBuildName")
-			buildDisplayName = readFile "logs/BuildName.txt"
-			echo "Set the builds display name to \"${buildDisplayName}\""
-			currentBuild.displayName = 	"${buildDisplayName}"
-		}
-	}
-
-	node("awaiter") {
-		stage("Run build and test on nodes with labels ${labelsToRun}") {
-			def jobsToRun = [:]
-			labelsToRun.each {  label ->
-				jobsToRun["${label}"] = {
-				
-					node("${label}"){
-						try {
-							stage("Checkout for build and test on \"${node_name}\"") {
-								echo "Checkout sources on \"${node_name}\""
-								checkout scm
-								gitCleanup()
-							}
-
-							stage("Build on \"${node_name}\"") {
-								runGradle( "build")
-							}
-
-							stage("Test on \"${node_name}\"") {
-								runGradle( "test")
-							}
-
-							if (isUnix()) {
-								stage("Run Integration\"${node_name}\"") {
-									sh "build/IntegrationTests.sh"
+		node("awaiter") {
+			stage("Run build and test on nodes with labels ${labelsToRun}") {
+				def jobsToRun = [:]
+				labelsToRun.each {  label ->
+					jobsToRun["${label}"] = {
+					
+						node("${label}"){
+							try {
+								stage("Checkout for build and test on \"${node_name}\"") {
+									echo "Checkout sources on \"${node_name}\""
+									checkout scm
+									gitCleanup()
 								}
-							}
 
-						} finally {
-							stage("Get results and artifacts") {
-								runGradle( "convertTestResults")
-								junit "logs\\*.xml"
-								runGradle( "createBuildZip")
-								archiveArtifacts "*.zip"
+								stage("Build on \"${node_name}\"") {
+									runGradle( "build")
+								}
+
+								stage("Test on \"${node_name}\"") {
+									runGradle( "test")
+								}
+
 								if (isUnix()) {
-									archiveArtifacts "bin/gpsa"
-								} else {
-									archiveArtifacts "bin/gpsa.exe"
+									stage("Run Integration Tests on \"${node_name}\"") {
+										echo "Run: build/IntegrationTests.sh"
+										sh "build/IntegrationTests.sh"
+									}
+								}
+
+							} finally {
+								stage("Get results and artifacts") {
+									runGradle( "convertTestResults")
+									junit "logs\\*.xml"
+									runGradle( "createBuildZip")
+									archiveArtifacts "*.zip"
+									if (isUnix()) {
+										archiveArtifacts "bin/gpsa"
+									} else {
+										archiveArtifacts "bin/gpsa.exe"
+									}
 								}
 							}
 						}
 					}
 				}
-			}
 
-			parallel jobsToRun
+				parallel jobsToRun
+			}
+		}
+
+		node("awaiter") {
+			stage("Finanlize build") {
+				setBuildStatus("Build complete", "SUCCESS")
+			}
+		}
+	} catch(error) {
+		node("awaiter") {
+			stage("Finanlize build wiht FAILURE") {
+				setBuildStatus("Build complete", "FAILURE")
+			}
+			throw error
 		}
 	}
 
