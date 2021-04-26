@@ -13,150 +13,26 @@ void setBuildStatus(String message, String state) {
   ]);
 }
 
-pipeline {
-    agent {
-		label "awaiter"
+def runGradle(String task) {
+	if (isUnix()) {
+		sh "gradle ${task}"
+	} else {
+		bat "gradle ${task}"
 	}
-	options { skipDefaultCheckout() }
-	environment {
-        GITHUB_API_KEY = credentials('imker25')
-        
-    }
-	
-    stages {
-		stage('Get Build Name') {
-			steps ('Calculate the name') {
-				checkout scm
-				sh 'git clean -fdx'
-				sh 'gradle getBuildName'
-				script {
-					currentBuild.displayName = readFile "logs/BuildName.txt"
-				}
-			}
-		}
-		
+}
 
-        stage('Build and test the gpsa project') {
-            parallel {
-                stage('Run on Windows') {
-                    agent {
-                        label "windows"
-                    }
-					stages{
-						stage('Prepare windows workspace'){
-							steps ('Checkout') {
-								checkout scm
-								bat 'git clean -fdx'
-							}
-						}
-						stage('Create windows binaries') {
+static void main(String[] args) {
 
-							steps ('Build') {
-								bat 'gradle build'
-							}
-						}
-						stage('Test windows binaries') {
-							steps('Unit test') {
-								bat 'gradle test'
-							}
-						}
-					}
-					post('Deploy windows results') {
-        				always {
-							bat 'gradle convertTestResults'
-							junit "logs\\*.xml"
-							bat 'gradle createBuildZip'
-							archiveArtifacts "*.zip"
-							archiveArtifacts "bin\\gpsa.exe"
-						}
-					}
-
-				}
-
-
-                stage('Run on Linux') {
-                    agent {
-                        label "unix"
-                    }
-					stages{
-						stage('Prepare linux workspace'){
-							steps ('Checkout') {
-								checkout scm
-								sh 'git clean -fdx'
-							}
-						}
-						stage('Create linux binaries') {
-							steps ('Build') {
-								sh 'gradle build'
-							}
-						}
-						stage('Test linux binaries') {
-							steps('Run test') {
-								sh 'gradle test'
-								sh 'build/IntegrationTests.sh'
-							}
-						}
-					}
-					post('Deploy linux results') {
-        				always {
-							sh 'gradle convertTestResults'
-							junit "logs/*.xml"
-							sh 'gradle createBuildZip'
-							archiveArtifacts "*.zip"
-							archiveArtifacts "bin/gpsa"
-						}
-					}
-                }
-            }
-        }
-
-		stage('Publish master') {
-			when {
-                branch 'master'
-            }
-			steps ('Do a pre release') { 
-				unarchive mapping: ['bin/' : '.']
-				script {
-					programmVersion = readFile "logs/Version.txt"
-				}
-				
-				sh "./build/GitHub-Release.sh V${programmVersion}-pre \"Pre release of version ${programmVersion}\" true ${GITHUB_API_KEY}"
-				
-			}
+	node("unix"){
+		stage("Checkout for get build name on \"${node_name}\"") {
+			checkout scm
+			sh 'git clean -fdx'
 		}
 
-		stage('Publish release') {
-			when {
-                branch 'release/**'
-            }
-			steps ('Do a release') { 
-				unarchive mapping: ['bin/' : '.']
-				script {
-					programmVersion = readFile "logs/Version.txt"
-				}
-				
-				sh "./build/GitHub-Release.sh V${programmVersion} \"Release of version ${programmVersion}\" false ${GITHUB_API_KEY}"
-				
-			}
-		}
-    }
-	post ('Publish build result on GitHub') {
-
-		always {
-			archiveArtifacts "logs/*.json"
-		}
-
-		success {
-			setBuildStatus("Build complete", "SUCCESS");
-		}
-
-		failure {
-			setBuildStatus("Build complete", "FAILURE");
-		}
-
-		unstable {
-			setBuildStatus("Build complete", "UNSTABLE");
+		stage("Get build name on \"${node_name}\"") {
+			runGradle( "getBuildName")
+			currentBuild.displayName = readFile "logs/BuildName.txt"		
 		}
 	}
-	
+
 }
