@@ -38,8 +38,8 @@ def publishOnGitHub(String version, String text) {
 	if (isUnix()) {
 		echo "${text}"
 		withCredentials([secretText(credentialsId: 'imker25',variable: 'GITHUB_API_KEY')]) {
-			sh "./build/GitHub-Release.sh V${version}-pre \"${text}\" true ${GITHUB_API_KEY}"
-		}
+			sh "./build/GitHub-Release.sh ${version} \"${text}\" true ${GITHUB_API_KEY}"
+		} 
 	} else {
 		throw new Exception("Can only publish on unix")
 	}
@@ -133,11 +133,11 @@ static void main(String[] args) {
 			}
 			if( myBranch == "feature/scriptedPipeline") { // for debug, should be "master"!!!
 				stage("Pre release ${myBranch} on \"${node_name}\"") {
-					publishOnGitHub("${programmVersion}", "Pre release of version ${programmVersion}")
+					publishOnGitHub("V${programmVersion}-pre", "Pre release of version ${programmVersion}")
 				}
 			} else if (myBranch.startsWith("release/")) {
 				stage("Release ${myBranch} on \"${node_name}\"") {
-					publishOnGitHub("${programmVersion}", "Release of version ${programmVersion}")
+					publishOnGitHub("V${programmVersion}", "Release of version ${programmVersion}")
 				}				
 
 			} else {
