@@ -65,9 +65,16 @@ var StdOutFormatParameter string
 
 var stdOutFormatParameterValues = []string{"CSV", "JSON"}
 
+const (
+	// GpxBuffer - The input file is given as buffer containing a gpx files content
+	GpxBuffer gpsabl.InputFileType = "GpxBuffer"
+	// TcxBuffer -  The input file is given as buffer containing a tcx files content
+	TcxBuffer gpsabl.InputFileType = "TcxBuffer"
+)
+
 // ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
-func ReadInputStreamBuffer(reader *bufio.Reader) ([]inputFile, error) {
-	var fileArgs []inputFile
+func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
+	var fileArgs []gpsabl.InputFile
 	var inputBytes []byte
 	for {
 		input, errRead := reader.ReadByte()
@@ -111,7 +118,7 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]inputFile, error) {
 	}
 
 	for _, fileArgStr := range fileArgsStr {
-		fileArgs = append(fileArgs, *newInputFileWithPath(fileArgStr))
+		fileArgs = append(fileArgs, *gpsabl.NewInputFileWithPath(fileArgStr))
 	}
 
 	return fileArgs, nil
@@ -278,4 +285,24 @@ func checkStdOutFormatParameterValue(val string) bool {
 	}
 
 	return false
+}
+
+// newInputFileGpxBuffer - Get a new inputFilw from a buffer containing a gpx files content
+func newInputFileGpxBuffer(buffer []byte, name string) *gpsabl.InputFile {
+	file := gpsabl.InputFile{}
+	file.Name = name
+	file.Type = GpxBuffer
+	file.Buffer = buffer
+
+	return &file
+}
+
+// newInputFileGpxBuffer - Get a new inputFilw from a buffer containing a tcx files content
+func newInputFileTcxBuffer(buffer []byte, name string) *gpsabl.InputFile {
+	file := gpsabl.InputFile{}
+	file.Name = name
+	file.Type = TcxBuffer
+	file.Buffer = buffer
+
+	return &file
 }

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"tobi.backfrak.de/internal/csvbl"
+	"tobi.backfrak.de/internal/gpsabl"
 	"tobi.backfrak.de/internal/testhelper"
 )
 
@@ -31,16 +32,16 @@ func TestReadInputStreamBufferWithFileList(t *testing.T) {
 		t.Errorf("The path is %s, but %s is expected", result[0], file1)
 	}
 
-	if result[0].Type != FilePath {
-		t.Errorf("The type is %s, but %s is expected", result[0].Type, FilePath)
+	if result[0].Type != gpsabl.FilePath {
+		t.Errorf("The type is %s, but %s is expected", result[0].Type, gpsabl.FilePath)
 	}
 
 	if result[1].Name != file2 {
 		t.Errorf("The path is %s, but %s is expected", result[1], file1)
 	}
 
-	if result[1].Type != FilePath {
-		t.Errorf("The type is %s, but %s is expected", result[1].Type, FilePath)
+	if result[1].Type != gpsabl.FilePath {
+		t.Errorf("The type is %s, but %s is expected", result[1].Type, gpsabl.FilePath)
 	}
 
 	if result[1].Buffer != nil {
@@ -113,6 +114,54 @@ func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 
 	if input[0].Name == input[1].Name {
 		t.Errorf(("The names are the same"))
+	}
+
+}
+
+func TestNewInputFileGpxBuffer(t *testing.T) {
+	name := "stream buffer 1"
+	buffer := []byte{1, 2, 3, 4, 5, 6}
+	sut := newInputFileGpxBuffer(buffer, name)
+	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, GpxBuffer)
+
+	if sut.Name != name {
+		t.Errorf("The inputFile.Name is %s, but %s is expected", sut.Name, name)
+	}
+
+	if sut.Type != GpxBuffer {
+		t.Errorf("The inputFile.Type is %s, but %s is expected", sut.Type, GpxBuffer)
+	}
+
+	if sut.Buffer[3] != buffer[3] {
+		t.Errorf("The inputFile.Buffer is has not the expected value")
+	}
+
+	if sut.InputFileTypeValid() == false {
+		t.Errorf("The inputFileTypeValid tells that inputFile.Type %s is not valide", sut.Type)
+	}
+
+}
+
+func TestNewInputFileTcxBuffer(t *testing.T) {
+	name := "stream buffer 1"
+	buffer := []byte{1, 2, 3, 4, 5, 6}
+	sut := newInputFileTcxBuffer(buffer, name)
+	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, TcxBuffer)
+
+	if sut.Name != name {
+		t.Errorf("The inputFile.Name is %s, but %s is expected", sut.Name, name)
+	}
+
+	if sut.Type != TcxBuffer {
+		t.Errorf("The inputFile.Type is %s, but %s is expected", sut.Type, TcxBuffer)
+	}
+
+	if sut.Buffer[3] != buffer[3] {
+		t.Errorf("The inputFile.Buffer is has not the expected value")
+	}
+
+	if sut.InputFileTypeValid() == false {
+		t.Errorf("The inputFileTypeValid tells that inputFile.Type %s is not valide", sut.Type)
 	}
 
 }

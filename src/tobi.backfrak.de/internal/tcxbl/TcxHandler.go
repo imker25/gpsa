@@ -4,7 +4,11 @@ package tcxbl
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
-import "tobi.backfrak.de/internal/gpsabl"
+import (
+	"strings"
+
+	"tobi.backfrak.de/internal/gpsabl"
+)
 
 // TcxFile - The struct to handle *.gpx data files
 type TcxFile struct {
@@ -45,6 +49,26 @@ func (tcx *TcxFile) ReadBuffer(buffer []byte, correction gpsabl.CorrectionParame
 	}
 
 	return ret, nil
+}
+
+// CheckFile - Check if a file can be read by the TcxFile "class"
+func (gpx *TcxFile) CheckFile(path string) bool {
+	if strings.HasSuffix(path, "tcx") == true { // If the file is a *.gpx, we can read it
+		return true
+	}
+
+	return false
+}
+
+// CheckBuffer - Check if a buffer can be read by he TcxFile "class"
+func (gpx *TcxFile) CheckBuffer(buffer []byte) bool {
+	for i, _ := range buffer {
+		section := buffer[i : i+23]
+		if string(section) == "<TrainingCenterDatabase" {
+			return true
+		}
+	}
+	return false
 }
 
 // ReadTcxFile - Reads a *.gpx file

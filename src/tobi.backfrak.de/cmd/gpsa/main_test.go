@@ -149,9 +149,9 @@ func TestProcessValidFiles(t *testing.T) {
 	iFormater := gpsabl.OutputFormater(formater)
 
 	fileStrs := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("02.gpx"), testhelper.GetValidTcx("02.tcx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	successCount := processFiles(files, iFormater)
 	if successCount != 3 {
@@ -182,9 +182,9 @@ func TestProcessValidFilesWithEmpyElements(t *testing.T) {
 	iFormater := gpsabl.OutputFormater(formater)
 
 	fileStrs := []string{testhelper.GetValidGPX("13.gpx"), testhelper.GetValidGPX("14.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	successCount := processFiles(files, iFormater)
 	if successCount != 2 {
@@ -223,9 +223,9 @@ func TestProcessValidFilesWithDuplicateElementsDetectionenabeled(t *testing.T) {
 	iFormater := gpsabl.OutputFormater(formater)
 
 	fileStrs := []string{testhelper.GetValidGPX("15.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
@@ -265,9 +265,9 @@ func TestProcessValidFilesWithDuplicateElementsDetectionDisabeled(t *testing.T) 
 	iFormater := gpsabl.OutputFormater(formater)
 
 	fileStrs := []string{testhelper.GetValidGPX("15.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
@@ -300,9 +300,9 @@ func TestProcessFilesDifferentCorrection(t *testing.T) {
 	oldPrintCsvHeaderFlag := PrintCsvHeaderFlag
 	PrintCsvHeaderFlag = false
 	fileStrs := []string{testhelper.GetValidGPX("01.gpx"), testhelper.GetValidGPX("12.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	CorrectionParameter = "none"
 	formater1 := csvbl.NewCsvOutputFormater(";", false)
@@ -350,9 +350,9 @@ func TestProcessFilesDifferentMovingSpeed(t *testing.T) {
 	PrintCsvHeaderFlag = false
 	oldMinMovingSpeed := MinimalMovingSpeedParameter
 	fileStrs := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	MinimalMovingSpeedParameter = 0.1
 	formater1 := csvbl.NewCsvOutputFormater(";", false)
@@ -405,9 +405,9 @@ func TestProcessFilesDifferentStepHight(t *testing.T) {
 	PrintCsvHeaderFlag = false
 	oldStepHight := MinimalStepHightParameter
 	fileStrs := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	MinimalStepHightParameter = 20.0
 	formater1 := csvbl.NewCsvOutputFormater(";", false)
@@ -460,9 +460,9 @@ func TestProcessFilesStepHightEffectsOther(t *testing.T) {
 	PrintCsvHeaderFlag = false
 	oldStepHight := MinimalStepHightParameter
 	fileStrs := []string{testhelper.GetValidGPX("02.gpx"), testhelper.GetValidGPX("12.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 
 	MinimalStepHightParameter = 20.0
@@ -517,9 +517,9 @@ func TestProcessMixedFiles(t *testing.T) {
 	iFormater := gpsabl.OutputFormater(formater)
 
 	fileStrs := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetValidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx"), testhelper.GetInvalidGPX("03.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	successCount := processFiles(files, iFormater)
 	if successCount != 1 {
@@ -550,9 +550,9 @@ func TestProcessInValidFiles(t *testing.T) {
 	iFormater := gpsabl.OutputFormater(formater)
 
 	fileStrs := []string{testhelper.GetInvalidGPX("01.gpx"), testhelper.GetInvalidGPX("02.gpx")}
-	var files []inputFile
+	var files []gpsabl.InputFile
 	for _, file := range fileStrs {
-		files = append(files, *newInputFileWithPath(file))
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
 	}
 	successCount := processFiles(files, iFormater)
 	if successCount != 0 {
@@ -818,8 +818,8 @@ func TestProcessInputStreamWithFileNames(t *testing.T) {
 		t.Errorf("processInputStream does not return the expected string")
 	}
 
-	if inFiles[1].Type != FilePath {
-		t.Errorf("The type is %s, but %s is expected", inFiles[1].Type, FilePath)
+	if inFiles[1].Type != gpsabl.FilePath {
+		t.Errorf("The type is %s, but %s is expected", inFiles[1].Type, gpsabl.FilePath)
 	}
 }
 

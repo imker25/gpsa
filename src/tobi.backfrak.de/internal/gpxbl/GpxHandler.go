@@ -5,7 +5,11 @@ package gpxbl
 // by a BSD-style license that can be found in the
 // LICENSE file.
 
-import "tobi.backfrak.de/internal/gpsabl"
+import (
+	"strings"
+
+	"tobi.backfrak.de/internal/gpsabl"
+)
 
 // GpxFile - The struct to handle *.gpx data files
 type GpxFile struct {
@@ -46,6 +50,26 @@ func (gpx *GpxFile) ReadBuffer(buffer []byte, correction gpsabl.CorrectionParame
 	}
 
 	return ret, nil
+}
+
+// CheckFile - Check if a file can be read by the GpxFile "class"
+func (gpx *GpxFile) CheckFile(path string) bool {
+	if strings.HasSuffix(path, "gpx") == true { // If the file is a *.gpx, we can read it
+		return true
+	}
+
+	return false
+}
+
+// CheckBuffer - Check if a buffer can be read by he GpxFile "class"
+func (gpx *GpxFile) CheckBuffer(buffer []byte) bool {
+	for i, _ := range buffer {
+		section := buffer[i : i+4]
+		if string(section) == "<gpx" {
+			return true
+		}
+	}
+	return false
 }
 
 // ReadGpxFile - Reads a *.gpx file

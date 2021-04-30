@@ -33,7 +33,9 @@ var version = "undefined"
 
 func main() {
 
-	var fileArgs []inputFile
+	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, TcxBuffer)
+	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, GpxBuffer)
+	var fileArgs []gpsabl.InputFile
 
 	// Setup and read-in comandline flags
 	handleComandlineOptions()
@@ -109,19 +111,19 @@ func main() {
 	}
 }
 
-func proccessFileArgs(args []string) []inputFile {
-	var fileArgs []inputFile
+func proccessFileArgs(args []string) []gpsabl.InputFile {
+	var fileArgs []gpsabl.InputFile
 	for _, file := range args {
-		fileArgs = append(fileArgs, *newInputFileWithPath(file))
+		fileArgs = append(fileArgs, *gpsabl.NewInputFileWithPath(file))
 	}
 
 	return fileArgs
 }
 
 // Get the input files from a stream buffer
-func processInputStream() []inputFile {
+func processInputStream() []gpsabl.InputFile {
 
-	var fileArgs []inputFile
+	var fileArgs []gpsabl.InputFile
 	// Get stdin stream
 	info, errStat := os.Stdin.Stat()
 	if errStat != nil {
@@ -147,7 +149,7 @@ func processInputStream() []inputFile {
 }
 
 // processFiles - processes the input files and adds the found content to the output buffer
-func processFiles(files []inputFile, iFormater gpsabl.OutputFormater) int {
+func processFiles(files []gpsabl.InputFile, iFormater gpsabl.OutputFormater) int {
 
 	if !gpsabl.CheckValidCorrectionParameters(gpsabl.CorrectionParameter(CorrectionParameter)) {
 		HandleError(gpsabl.NewCorrectionParameterNotKnownError(gpsabl.CorrectionParameter(CorrectionParameter)), "", false, DontPanicFlag)
@@ -179,20 +181,20 @@ func processFiles(files []inputFile, iFormater gpsabl.OutputFormater) int {
 }
 
 // goProcessFile - Wraper around, processFile. Use this as go routine
-func goProcessFile(file inputFile, formater gpsabl.OutputFormater, c chan bool) {
+func goProcessFile(file gpsabl.InputFile, formater gpsabl.OutputFormater, c chan bool) {
 	ret := processFile(file, formater)
 
 	c <- ret
 }
 
 // processFile - processes one input file and adds the found content to the output buffer
-func processFile(inFile inputFile, formater gpsabl.OutputFormater) bool {
+func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + inFile.Name)
 	}
 	var file gpsabl.TrackFile
 	var readErr error
-	if inFile.Type == FilePath {
+	if inFile.Type == gpsabl.FilePath {
 		// Find out if we can read the file
 		reader, readerErr := getReader(inFile.Name)
 		if HandleError(readerErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {

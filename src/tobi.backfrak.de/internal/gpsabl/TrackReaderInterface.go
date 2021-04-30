@@ -11,6 +11,8 @@ import "time"
 type TrackReader interface {
 	ReadTracks(correction CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (TrackFile, error)
 	ReadBuffer(buffer []byte, correction CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (TrackFile, error)
+	CheckBuffer(buffer []byte) bool
+	CheckFile(path string) bool
 }
 
 // TrackSummaryProvider - Interface for classes that provide track summary data
