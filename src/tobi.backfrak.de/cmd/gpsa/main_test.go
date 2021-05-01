@@ -10,6 +10,7 @@ import (
 	"sync"
 	"testing"
 
+	"tobi.backfrak.de/internal/gpxbl"
 	"tobi.backfrak.de/internal/jsonbl"
 
 	"tobi.backfrak.de/internal/csvbl"
@@ -110,30 +111,6 @@ func TestHandleErrorNotNil(t *testing.T) {
 	}
 	SkipErrorExitFlag = oldFlagValue
 	ErrorsHandled = false
-}
-
-func TestGetReaderGpxFile(t *testing.T) {
-	reader, err := getReader("/some/track.gpx")
-
-	if err != nil {
-		t.Errorf("Got an error when try to get a reader for a gpx file: %s", err.Error())
-	}
-
-	if reader == nil {
-		t.Errorf("The reader we got was nil")
-	}
-}
-
-func TestGetReaderUnknownFile(t *testing.T) {
-	reader, err := getReader("/some/track.txt")
-
-	if err == nil {
-		t.Errorf("Got no error when trying to get a reader for a txt file.")
-	}
-
-	if reader != nil {
-		t.Errorf("The reader we got was not nil")
-	}
 }
 
 func TestProcessValidFiles(t *testing.T) {
@@ -845,8 +822,8 @@ func TestInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 	os.Stdin = read
 
 	inFiles := processInputStream()
-	if inFiles[1].Type != GpxBuffer {
-		t.Errorf("The type is %s, but %s is expected", inFiles[1].Type, GpxBuffer)
+	if inFiles[1].Type != gpxbl.GpxBuffer {
+		t.Errorf("The type is %s, but %s is expected", inFiles[1].Type, gpxbl.GpxBuffer)
 	}
 	if len(inFiles) != 2 {
 		t.Errorf("%d files expected, but got %d", 2, len(inFiles))
@@ -862,4 +839,18 @@ func TestInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 	SkipErrorExitFlag = oldFlagValue
 	DepthParameter = oldDepthValue
 	CorrectionParameter = oldCorrectionPAr
+}
+
+func TestProccessFileArgs(t *testing.T) {
+	fileargs := []string{testhelper.GetValidGPX("13.gpx"), testhelper.GetValidTcx("01.gpx")}
+
+	inputFiles := proccessFileArgs(fileargs)
+
+	if len(fileargs) != len(inputFiles) {
+		t.Errorf("The number of inputFiles %d does not match the number of fileargs %d", len(fileargs), len(inputFiles))
+	}
+
+	if inputFiles[0].Name != fileargs[0] {
+		t.Errorf("The inputFiles.Name %s is not fileargs %s ", inputFiles[0].Name, fileargs[0])
+	}
 }

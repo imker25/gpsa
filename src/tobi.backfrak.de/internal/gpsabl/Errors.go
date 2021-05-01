@@ -81,3 +81,19 @@ func (e *SummaryParamaterNotKnown) Error() string { // Implement the Error Inter
 func NewSummaryParamaterNotKnown(givenValue SummaryArg) *SummaryParamaterNotKnown {
 	return &SummaryParamaterNotKnown{fmt.Sprintf("The given -summary \"%s\" is not known.", givenValue), givenValue}
 }
+
+// UnKnowninputFileTypeError - Error when getting a unknown inputFileType
+type UnKnownInputFileTypeError struct {
+	err string
+	// File - The path to the file that caused this error
+	inputFileType string
+}
+
+func (e *UnKnownInputFileTypeError) Error() string { // Implement the Error Interface for the UnKnowninputFileTypeError struct
+	return fmt.Sprintf("%s", e.err)
+}
+
+// newUnKnownInputStreamError - Get a new UnKnownFileTypeError struct
+func NewUnKnownInputFileTypeError(inputFileType string) *UnKnownInputFileTypeError {
+	return &UnKnownInputFileTypeError{fmt.Sprintf("Can not process inputFileType \"%s\".", inputFileType), inputFileType}
+}

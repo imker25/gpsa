@@ -72,3 +72,16 @@ func TestMinimalStepHightLessThenZero(t *testing.T) {
 		t.Errorf("The error message of MinimalStepHightLessThenZero does not contain the expected GivenValue")
 	}
 }
+
+func TestUnKnownInputFileTypeError(t *testing.T) {
+	path := "myType"
+	err := NewUnKnownInputFileTypeError(path)
+
+	if err.inputFileType != path {
+		t.Errorf("The Type was %s, but %s was expected", err.inputFileType, path)
+	}
+
+	if strings.Contains(err.Error(), path) == false {
+		t.Errorf("The error message of UnKnownInputFileTypeError does not contain the expected type")
+	}
+}

@@ -70,15 +70,6 @@ var StdOutFormatParameter string
 
 var stdOutFormatParameterValues = []string{"CSV", "JSON"}
 
-const (
-	// GpxBuffer - The input file is given as buffer containing a gpx files content
-	GpxBuffer gpsabl.InputFileType = "GpxBuffer"
-	// TcxBuffer -  The input file is given as buffer containing a tcx files content
-	TcxBuffer gpsabl.InputFileType = "TcxBuffer"
-)
-
-var validInputFileTypes = []gpsabl.InputFileType{GpxBuffer, TcxBuffer}
-
 // ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
 func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
 	var fileArgs []gpsabl.InputFile
@@ -100,21 +91,15 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
 
 	if len(buffers) != 0 {
 		// fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d input files as stream", len(buffers)))
-		gpxBuffers := getGpxBuffers(buffers)
-		if len(gpxBuffers) != 0 && VerboseFlag {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d gpx files as stream", len(gpxBuffers)))
-		}
 
-		for i, gpxBuff := range gpxBuffers {
-			fileArgs = append(fileArgs, *newInputFileGpxBuffer(gpxBuff, fmt.Sprintf("Gpx input stream buffer %d", i+1)))
+		for i, buffer := range buffers {
+			res, input := gpsabl.GetInputFileFromBuffer(ValidReaders, buffer, fmt.Sprintf("Input stream buffer %d", i+1))
+			if res == true {
+				fileArgs = append(fileArgs, input)
+			}
 		}
-		tcxBuffers := getTcxBuffers(buffers)
-		if len(tcxBuffers) != 0 && VerboseFlag {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d tcx files as stream", len(tcxBuffers)))
-		}
-
-		for i, tcxBuff := range tcxBuffers {
-			fileArgs = append(fileArgs, *newInputFileTcxBuffer(tcxBuff, fmt.Sprintf("Tcx input stream buffer %d", i+1)))
+		if len(fileArgs) != 0 && VerboseFlag {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d files as stream", len(fileArgs)))
 		}
 		return fileArgs, nil
 	}
@@ -125,44 +110,15 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
 	}
 
 	for _, fileArgStr := range fileArgsStr {
-		fileArgs = append(fileArgs, *gpsabl.NewInputFileWithPath(fileArgStr))
+		res, input := gpsabl.GetInputFileFromPath(ValidReaders, fileArgStr)
+		if res == true {
+			fileArgs = append(fileArgs, input)
+		} else {
+			return nil, newUnKnownFileTypeError(fileArgStr)
+		}
 	}
 
 	return fileArgs, nil
-}
-
-// getGpxBuffers - Parse an array of input buffer arrays, where each input buffer array contains only one xml file content
-// and search for those where the content is a GPX file
-// return an array of input buffer arrays, where all  input buffer arrays have a GPX file content
-func getGpxBuffers(buffers [][]byte) [][]byte {
-	var retVal [][]byte
-	for _, buffer := range buffers {
-		for i, _ := range buffer {
-			section := buffer[i : i+4]
-			if string(section) == "<gpx" {
-				retVal = append(retVal, buffer)
-				break
-			}
-		}
-	}
-	return retVal
-}
-
-// getTcxBuffers - Parse an array of input buffer arrays, where each input buffer array contains only one xml file content
-// and search for those where the content is a TCX file
-// return an array of input buffer arrays, where all  input buffer arrays have a TCX file content
-func getTcxBuffers(buffers [][]byte) [][]byte {
-	var retVal [][]byte
-	for _, buffer := range buffers {
-		for i, _ := range buffer {
-			section := buffer[i : i+23]
-			if string(section) == "<TrainingCenterDatabase" {
-				retVal = append(retVal, buffer)
-				break
-			}
-		}
-	}
-	return retVal
 }
 
 // getXMlFileBuffersFromInputStream - Parse the input buffer array and search for xml files
@@ -294,22 +250,10 @@ func checkStdOutFormatParameterValue(val string) bool {
 	return false
 }
 
-// newInputFileGpxBuffer - Get a new inputFilw from a buffer containing a gpx files content
-func newInputFileGpxBuffer(buffer []byte, name string) *gpsabl.InputFile {
-	file := gpsabl.InputFile{}
-	file.Name = name
-	file.Type = GpxBuffer
-	file.Buffer = buffer
-
-	return &file
-}
-
-// newInputFileGpxBuffer - Get a new inputFilw from a buffer containing a tcx files content
-func newInputFileTcxBuffer(buffer []byte, name string) *gpsabl.InputFile {
-	file := gpsabl.InputFile{}
-	file.Name = name
-	file.Type = TcxBuffer
-	file.Buffer = buffer
-
-	return &file
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
 }

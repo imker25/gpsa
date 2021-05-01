@@ -31,9 +31,9 @@ const OutputSeperator = "; "
 // The version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
 
-func main() {
+var ValidReaders = []gpsabl.TrackReader{&gpxbl.GpxFile{}, &tcxbl.TcxFile{}}
 
-	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, validInputFileTypes...)
+func main() {
 
 	var fileArgs []gpsabl.InputFile
 
@@ -114,7 +114,12 @@ func main() {
 func proccessFileArgs(args []string) []gpsabl.InputFile {
 	var fileArgs []gpsabl.InputFile
 	for _, file := range args {
-		fileArgs = append(fileArgs, *gpsabl.NewInputFileWithPath(file))
+		res, input := gpsabl.GetInputFileFromPath(ValidReaders, file)
+		if res == true {
+			fileArgs = append(fileArgs, input)
+		} else {
+			HandleError(newUnKnownFileTypeError(file), file, SkipErrorExitFlag, DontPanicFlag)
+		}
 	}
 
 	return fileArgs
@@ -194,32 +199,15 @@ func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 	}
 	var file gpsabl.TrackFile
 	var readErr error
-	if inFile.Type == gpsabl.FilePath {
-		// Find out if we can read the file
-		reader, readerErr := getReader(inFile.Name)
-		if HandleError(readerErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
-			return false
-		}
 
-		// Read the *.gpx into a TrackFile type, using the interface
-		file, readErr = reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
-	} else if inFile.Type == GpxBuffer {
-		// Get a reader for gpx files
-		reader := gpxbl.NewGpxFile(inFile.Name)
-
-		// Get the GPX files conent
-		file, readErr = reader.ReadBuffer(inFile.Buffer, gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
-	} else if inFile.Type == TcxBuffer {
-		// Get a reader for TCX files
-		reader := tcxbl.NewTcxFile(inFile.Name)
-
-		// Get the TCX files conent
-		file, readErr = reader.ReadBuffer(inFile.Buffer, gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
-	} else {
-		// Error, we don't know the inFile.Type
-		HandleError(newUnKnowninputFileTypeError(string(inFile.Type)), inFile.Name, SkipErrorExitFlag, DontPanicFlag)
+	// Find out if we can read the file
+	reader, readerErr := getReader(inFile)
+	if HandleError(readerErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
+
+	// Read the *.gpx into a TrackFile type, using the interface
+	file, readErr = reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
 
 	if HandleError(readErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
@@ -338,36 +326,15 @@ func getOutPutStream() *os.File {
 }
 
 // Get the interface that can read a given input file
-func getReader(file string) (gpsabl.TrackReader, error) {
+func getReader(file gpsabl.InputFile) (gpsabl.TrackReader, error) {
 
-	if strings.HasSuffix(file, "gpx") == true { // If the file is a *.gpx, we can read it
-		return getGpxReader(file), nil
-	}
-
-	if strings.HasSuffix(file, "tcx") == true { // If the file is a *.tcx, we can read it
-		return getTcxReader(file), nil
+	res, reader := gpsabl.GetNewReader(ValidReaders, file)
+	if res == true {
+		return reader, nil
 	}
 
 	// We dont know the file type
-	return nil, newUnKnownFileTypeError(file)
-}
-
-// Get the interface that can read a *.gpx file
-func getGpxReader(file string) gpsabl.TrackReader {
-	// Get the GpxFile type
-	gpx := gpxbl.NewGpxFile(file)
-
-	// Convert the GpxFile to the TrackReader interface
-	return gpsabl.TrackReader(&gpx)
-}
-
-// Get the interface that can read a *.tcx file
-func getTcxReader(file string) gpsabl.TrackReader {
-	// Get the TcxFile type
-	tcx := tcxbl.NewTcxFile(file)
-
-	// Convert the TcxFile to the TrackReader interface
-	return gpsabl.TrackReader(&tcx)
+	return nil, newUnKnownFileTypeError(file.Name)
 }
 
 // outFileExists checks if a file exists and is not a directory before we
@@ -381,14 +348,6 @@ func outFileExists(filename string) bool {
 	if info.IsDir() {
 		err := newOutFileIsDirError(filename)
 		HandleError(err, filename, false, DontPanicFlag)
-	}
-	return true
-}
-
-func fileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
 	}
 	return true
 }

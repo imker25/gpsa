@@ -5,7 +5,9 @@ package testhelper
 // by a BSD-style license that can be found in the
 // LICENSE file.
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,6 +53,50 @@ func GetValidGPX(name string) string {
 	return filepath.Join(rootDir, "testdata", "valid-gpx", name)
 }
 
+func GetValidGpxBuffer(name string) ([]byte, error) {
+	filePath1 := GetValidGPX(name)
+	file1, _ := os.Open(filePath1)
+
+	var inputBytes []byte
+	reader1 := bufio.NewReader(file1)
+	for {
+		input, errRead1 := reader1.ReadByte()
+		if errRead1 != nil {
+			if errRead1 == io.EOF {
+				break
+			} else {
+				return nil, errRead1
+			}
+		}
+
+		inputBytes = append(inputBytes, input)
+	}
+
+	return inputBytes, nil
+}
+
+func GetInvalidGpxBuffer(name string) ([]byte, error) {
+	filePath1 := GetInvalidGPX(name)
+	file1, _ := os.Open(filePath1)
+
+	var inputBytes []byte
+	reader1 := bufio.NewReader(file1)
+	for {
+		input, errRead1 := reader1.ReadByte()
+		if errRead1 != nil {
+			if errRead1 == io.EOF {
+				break
+			} else {
+				return nil, errRead1
+			}
+		}
+
+		inputBytes = append(inputBytes, input)
+	}
+
+	return inputBytes, nil
+}
+
 // GetInvalidGPX - Get the file path to a valid gpx file with the given name
 func GetInvalidGPX(name string) string {
 	rootDir := GetProjectRoot()
@@ -63,6 +109,50 @@ func GetValidTcx(name string) string {
 	rootDir := GetProjectRoot()
 
 	return filepath.Join(rootDir, "testdata", "valid-tcx", name)
+}
+
+func GetValidTcxBuffer(name string) ([]byte, error) {
+	filePath1 := GetValidTcx(name)
+	file1, _ := os.Open(filePath1)
+
+	var inputBytes []byte
+	reader1 := bufio.NewReader(file1)
+	for {
+		input, errRead1 := reader1.ReadByte()
+		if errRead1 != nil {
+			if errRead1 == io.EOF {
+				break
+			} else {
+				return nil, errRead1
+			}
+		}
+
+		inputBytes = append(inputBytes, input)
+	}
+
+	return inputBytes, nil
+}
+
+func GetInvalidTcxBuffer(name string) ([]byte, error) {
+	filePath1 := GetInvalidTcx(name)
+	file1, _ := os.Open(filePath1)
+
+	var inputBytes []byte
+	reader1 := bufio.NewReader(file1)
+	for {
+		input, errRead1 := reader1.ReadByte()
+		if errRead1 != nil {
+			if errRead1 == io.EOF {
+				break
+			} else {
+				return nil, errRead1
+			}
+		}
+
+		inputBytes = append(inputBytes, input)
+	}
+
+	return inputBytes, nil
 }
 
 // GetInvalidTcx - Get the file path to a valid gpx file with the given name

@@ -43,16 +43,3 @@ func TestUnKnownInputStreamError(t *testing.T) {
 		t.Errorf("The error message of UnKnownInputStreamError does not contain the expected line")
 	}
 }
-
-func TestUnKnowninputFileTypeError(t *testing.T) {
-	path := "myType"
-	err := newUnKnowninputFileTypeError(path)
-
-	if err.inputFileType != path {
-		t.Errorf("The Type was %s, but %s was expected", err.inputFileType, path)
-	}
-
-	if strings.Contains(err.Error(), path) == false {
-		t.Errorf("The error message of UnKnowninputFileTypeError does not contain the expected type")
-	}
-}
