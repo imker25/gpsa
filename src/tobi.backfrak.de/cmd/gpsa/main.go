@@ -33,8 +33,8 @@ var version = "undefined"
 
 func main() {
 
-	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, TcxBuffer)
-	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, GpxBuffer)
+	gpsabl.ValidInputFileTypes = append(gpsabl.ValidInputFileTypes, validInputFileTypes...)
+
 	var fileArgs []gpsabl.InputFile
 
 	// Setup and read-in comandline flags

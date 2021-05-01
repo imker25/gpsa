@@ -1,5 +1,10 @@
 package main
 
+// Copyright 2021 by tobi@backfrak.de. All
+// rights reserved. Use of this source code is governed
+// by a BSD-style license that can be found in the
+// LICENSE file.
+
 import (
 	"bufio"
 	"flag"
@@ -71,6 +76,8 @@ const (
 	// TcxBuffer -  The input file is given as buffer containing a tcx files content
 	TcxBuffer gpsabl.InputFileType = "TcxBuffer"
 )
+
+var validInputFileTypes = []gpsabl.InputFileType{GpxBuffer, TcxBuffer}
 
 // ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
 func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
