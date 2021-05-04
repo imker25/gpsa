@@ -23,6 +23,47 @@ func TestNewJSONOutputFormater(t *testing.T) {
 	}
 }
 
+func TestNewOutputFormater(t *testing.T) {
+	orig := NewJSONOutputFormater()
+	sut := orig.NewOutputFormater()
+
+	if sut.CheckFileExtension("my/output.json") == false {
+		t.Errorf("JSONOutputFormater can not write *.json")
+	}
+
+	if sut.CheckFileExtension("my/output.csv") == true {
+		t.Errorf("JSONOutputFormater can write *.csv")
+	}
+
+	if sut.CheckOutputFormaterType(JSONOutputFormatertype) == false {
+		t.Errorf("JSONOutputFormater can not write %s type", JSONOutputFormatertype)
+	}
+
+	if sut.CheckOutputFormaterType(gpsabl.OutputFormaterType("abs")) == true {
+		t.Errorf("JSONOutputFormater can write %s type", "abs")
+	}
+
+	ext := sut.GetFileExtensions()
+	if len(ext) != 1 {
+		t.Errorf("The number of FileExtensions is not expected")
+	}
+
+	if ext[0] != ".json" {
+		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", ext[0], ".json")
+	}
+
+	form := sut.GetOutputFormaterTypes()
+
+	if len(form) != 1 {
+		t.Errorf("The number of FileExtensionsTypes is not expected")
+	}
+
+	if form[0] != gpsabl.OutputFormaterType("JSON") {
+		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", form[0], "JSON")
+	}
+
+}
+
 func TestAddOutPutInvalidDepth(t *testing.T) {
 	sut := NewJSONOutputFormater()
 	trk := getSimpleTrackFileWithTime()

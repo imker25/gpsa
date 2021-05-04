@@ -12,6 +12,9 @@ type DepthArg string
 // SummaryArg - "Enum" Type that represents the different summary modes
 type SummaryArg string
 
+// OutputFormaterType - a string type to implement the enum pattern
+type OutputFormaterType string
+
 const (
 	// TRACK - analyse into track depth
 	TRACK DepthArg = "track"
@@ -72,10 +75,24 @@ func CheckValidSummaryArg(agr string) bool {
 
 // OutputFormater - Interface for classes that can format a track output into a file format and write this file
 type OutputFormater interface {
+	// Get a new OutputFormater of this type
+	NewOutputFormater() OutputFormater
 
 	// AddOutPut - Add the output values of a TrackFile to the out file buffer
 	AddOutPut(trackFile TrackFile, depth DepthArg, filterDuplicate bool) error
 
 	// WriteOutput - Write the output to the output file
 	WriteOutput(outFile *os.File, summary SummaryArg) error
+
+	// Check if this OutputFormater can write the given output file
+	CheckFileExtension(filePath string) bool
+
+	// Check if this OutputFormater is responsible for the given OutputFormaterType
+	CheckOutputFormaterType(formaterType OutputFormaterType) bool
+
+	// Get the list of file extensions this formater can write
+	GetFileExtensions() []string
+
+	// Get the list of OutputFormaterType this formater can write
+	GetOutputFormaterTypes() []OutputFormaterType
 }

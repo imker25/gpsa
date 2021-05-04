@@ -31,6 +31,47 @@ func TestNewTimeFormatNotKnown(t *testing.T) {
 	}
 }
 
+func TestNewOutputFormater(t *testing.T) {
+	var orig CsvOutputFormater
+	sut := orig.NewOutputFormater()
+
+	if sut.CheckFileExtension("my/output.csv") == false {
+		t.Errorf("JSONOutputFormater can not write *.csv")
+	}
+
+	if sut.CheckFileExtension("my/output.json") == true {
+		t.Errorf("JSONOutputFormater can write *.json")
+	}
+
+	if sut.CheckOutputFormaterType(CSVOutputFormatertype) == false {
+		t.Errorf("JSONOutputFormater can not write %s type", CSVOutputFormatertype)
+	}
+
+	if sut.CheckOutputFormaterType(gpsabl.OutputFormaterType("abs")) == true {
+		t.Errorf("JSONOutputFormater can write %s type", "abs")
+	}
+
+	ext := sut.GetFileExtensions()
+	if len(ext) != 1 {
+		t.Errorf("The number of FileExtensions is not expected")
+	}
+
+	if ext[0] != ".csv" {
+		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", ext[0], ".csv")
+	}
+
+	form := sut.GetOutputFormaterTypes()
+
+	if len(form) != 1 {
+		t.Errorf("The number of FileExtensionsTypes is not expected")
+	}
+
+	if form[0] != gpsabl.OutputFormaterType("CSV") {
+		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", form[0], "CSV")
+	}
+
+}
+
 func TestSetTimeFormat(t *testing.T) {
 	sut := NewCsvOutputFormater(";", false)
 

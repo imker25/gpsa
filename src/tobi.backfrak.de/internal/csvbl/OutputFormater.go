@@ -19,6 +19,13 @@ import (
 // NotValidValue - The value set when values are not valid
 const NotValidValue = "not valid"
 
+// CSVOutputFormatertype - The gpsabl.OutputFormaterType this formater is responsible for
+const CSVOutputFormatertype gpsabl.OutputFormaterType = "CSV"
+const FileExtension = ".csv"
+
+// DefaultOutputSeperator - The seperator string for csv output files
+const DefaultOutputSeperator = "; "
+
 // TimeFormat - Represents a go Time format string for the enum pattern
 type TimeFormat string
 
@@ -93,6 +100,13 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	return &ret
 }
 
+// NewOutputFormater -  Get a new gpsabl.OutputFormater of this type
+func (formater *CsvOutputFormater) NewOutputFormater() gpsabl.OutputFormater {
+	ret := NewCsvOutputFormater(DefaultOutputSeperator, true)
+
+	return gpsabl.OutputFormater(ret)
+}
+
 // GetTimeFormat - Get the time format string used by this CsvOutputFormater
 func (formater *CsvOutputFormater) GetTimeFormat() string {
 	return string(formater.timeFormater)
@@ -132,6 +146,34 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile gpsabl.TrackFile, depth g
 	}
 
 	return nil
+}
+
+// CheckOutputFormaterType - Check if this OutputFormater is responsible for the given gpsabl.OutputFormaterType
+func (formater *CsvOutputFormater) CheckOutputFormaterType(formaterType gpsabl.OutputFormaterType) bool {
+	if formaterType == CSVOutputFormatertype {
+		return true
+	}
+
+	return false
+}
+
+// GetFileExtensions - Get the list of file extensions this formater can write
+func (formater *CsvOutputFormater) GetFileExtensions() []string {
+	return []string{FileExtension}
+}
+
+// GetOutputFormaterTypes - Get the list of gpsabl.OutputFormaterType this formater can write
+func (formater *CsvOutputFormater) GetOutputFormaterTypes() []gpsabl.OutputFormaterType {
+	return []gpsabl.OutputFormaterType{CSVOutputFormatertype}
+}
+
+// CheckFileExtension - Check if this OutputFormater can write the given output file
+func (formater *CsvOutputFormater) CheckFileExtension(filePath string) bool {
+	if strings.HasSuffix(strings.ToLower(filePath), FileExtension) {
+		return true
+	}
+
+	return false
 }
 
 // GetStatisticSummaryLines - Get a summary of statistic data

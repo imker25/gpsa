@@ -3,6 +3,7 @@ package jsonbl
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"sync"
 
 	"tobi.backfrak.de/internal/gpsabl"
@@ -12,6 +13,10 @@ import (
 // rights reserved. Use of this source code is governed
 // by a BSD-style license that can be found in the
 // LICENSE file.
+
+// JSONOutputFormatertype - The gpsabl.OutputFormaterType this formater is responsible for
+const JSONOutputFormatertype gpsabl.OutputFormaterType = "JSON"
+const FileExtension = ".json"
 
 // JSONOutput - Structure of the json file
 type JSONOutput struct {
@@ -31,6 +36,13 @@ func NewJSONOutputFormater() *JSONOutputFormater {
 	ret.lineBuffer = []gpsabl.OutputLine{}
 
 	return &ret
+}
+
+// NewOutputFormater -  Get a new gpsabl.OutputFormater of this type
+func (formater *JSONOutputFormater) NewOutputFormater() gpsabl.OutputFormater {
+	ret := NewJSONOutputFormater()
+
+	return gpsabl.OutputFormater(ret)
 }
 
 // AddOutPut - Add the output values of a TrackFile to the out file buffer. Implements the gpsabl.OutputFormater interface
@@ -98,6 +110,34 @@ func (formater *JSONOutputFormater) GetOutput(summary gpsabl.SummaryArg) (JSONOu
 	}
 
 	return ret, nil
+}
+
+// CheckOutputFormaterType - Check if this OutputFormater is responsible for the given gpsabl.OutputFormaterType
+func (formater *JSONOutputFormater) CheckOutputFormaterType(formaterType gpsabl.OutputFormaterType) bool {
+	if formaterType == JSONOutputFormatertype {
+		return true
+	}
+
+	return false
+}
+
+// GetOutputFormaterTypes - Get the list of gpsabl.OutputFormaterType this formater can write
+func (formater *JSONOutputFormater) GetOutputFormaterTypes() []gpsabl.OutputFormaterType {
+	return []gpsabl.OutputFormaterType{JSONOutputFormatertype}
+}
+
+// CheckFileExtension - Check if this OutputFormater can write the given output file
+func (formater *JSONOutputFormater) CheckFileExtension(filePath string) bool {
+	if strings.HasSuffix(strings.ToLower(filePath), FileExtension) {
+		return true
+	}
+
+	return false
+}
+
+// GetFileExtensions - Get the list of file extensions this formater can write
+func (formater *JSONOutputFormater) GetFileExtensions() []string {
+	return []string{FileExtension}
 }
 
 func (formater *JSONOutputFormater) getSummaryEntires() []gpsabl.OutputLine {
