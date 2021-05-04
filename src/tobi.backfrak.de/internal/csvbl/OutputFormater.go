@@ -121,6 +121,36 @@ func (formater *CsvOutputFormater) SetTimeFormat(timeFormat string) error {
 	return nil
 }
 
+// GetAddHeader - Get the value of formater.AddHeader
+func (formater *CsvOutputFormater) GetAddHeader() bool {
+	return formater.AddHeader
+}
+
+// SetAddHeader - Set the value of formater.AddHeader
+func (formater *CsvOutputFormater) SetAddHeader(value bool) {
+	formater.AddHeader = value
+}
+
+// GetSeperator - Get the value of formater.Separator
+func (formater *CsvOutputFormater) GetSeperator() string {
+	return formater.Separator
+}
+
+// SetSeperator - Set the value of formater.Separator
+func (formater *CsvOutputFormater) SetSeperator(value string) {
+	formater.Separator = value
+}
+
+// GetTextOutputFormater - Get the gpsabl.TextOutputFormater of ths formater
+func (formater *CsvOutputFormater) GetTextOutputFormater() gpsabl.TextOutputFormater {
+	return formater
+}
+
+// CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
+func (formater *CsvOutputFormater) CheckTimeFormatIsValid(format string) bool {
+	return strings.Contains(GetValidTimeFormatsString(), format)
+}
+
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
 func (formater *CsvOutputFormater) AddOutPut(trackFile gpsabl.TrackFile, depth gpsabl.DepthArg, filterDuplicate bool) error {
 

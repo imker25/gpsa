@@ -45,6 +45,11 @@ func (formater *JSONOutputFormater) NewOutputFormater() gpsabl.OutputFormater {
 	return gpsabl.OutputFormater(ret)
 }
 
+// GetTextOutputFormater - Get the gpsabl.TextOutputFormater. This is always nil for this formater
+func (formater *JSONOutputFormater) GetTextOutputFormater() gpsabl.TextOutputFormater {
+	return nil
+}
+
 // AddOutPut - Add the output values of a TrackFile to the out file buffer. Implements the gpsabl.OutputFormater interface
 func (formater *JSONOutputFormater) AddOutPut(trackFile gpsabl.TrackFile, depth gpsabl.DepthArg, filterDuplicate bool) error {
 	var lines []gpsabl.OutputLine

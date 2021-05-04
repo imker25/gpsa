@@ -31,6 +31,36 @@ func TestNewTimeFormatNotKnown(t *testing.T) {
 	}
 }
 
+func TestTestOutputFormater(t *testing.T) {
+	var sut CsvOutputFormater
+
+	if sut.GetAddHeader() {
+		t.Errorf("AddHeader is set but should not")
+	}
+	sut.SetAddHeader(true)
+	if !sut.GetAddHeader() {
+		t.Errorf("AddHeader is not set but should")
+	}
+
+	sut.SetAddHeader(false)
+	if sut.GetAddHeader() {
+		t.Errorf("AddHeader is set but should not")
+	}
+
+	sut.SetSeperator("123")
+	if sut.GetSeperator() != "123" {
+		t.Errorf("Seperator is not the expected value")
+	}
+
+	if sut.CheckTimeFormatIsValid(string(RFC3339)) == false {
+		t.Errorf("RFC3339 is not a valid Time Format")
+	}
+
+	if sut.CheckTimeFormatIsValid("asd") == true {
+		t.Errorf("asd is a valid Time Format")
+	}
+}
+
 func TestNewOutputFormater(t *testing.T) {
 	var orig CsvOutputFormater
 	sut := orig.NewOutputFormater()

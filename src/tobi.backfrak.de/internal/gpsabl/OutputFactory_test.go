@@ -135,3 +135,7 @@ func (formater *formaterMock) GetFileExtensions() []string {
 func (formater *formaterMock) GetOutputFormaterTypes() []OutputFormaterType {
 	return []OutputFormaterType{"ABS"}
 }
+
+func (formater *formaterMock) GetTextOutputFormater() TextOutputFormater {
+	return nil
+}

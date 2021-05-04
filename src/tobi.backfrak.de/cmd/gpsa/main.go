@@ -275,8 +275,8 @@ func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
 		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
 	}
 	switch iFormater.(type) {
-	case *csvbl.CsvOutputFormater:
-		iFormater = getCsvOutputFormater()
+	case gpsabl.TextOutputFormater:
+		iFormater = setTextutputFormater(iFormater.GetTextOutputFormater())
 	}
 	if iFormater == nil {
 		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
@@ -304,14 +304,16 @@ func checkOutFileType(fileType string) bool {
 	return false
 }
 
-func getCsvOutputFormater() *csvbl.CsvOutputFormater {
-	csvFormater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
-	if !csvbl.CheckTimeFormatIsValid(TimeFormatParameter) {
+func setTextutputFormater(formater gpsabl.TextOutputFormater) gpsabl.OutputFormater {
+	if !formater.CheckTimeFormatIsValid(TimeFormatParameter) {
 		HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
 	} else {
-		csvFormater.SetTimeFormat(TimeFormatParameter)
+		formater.SetTimeFormat(TimeFormatParameter)
 	}
-	return csvFormater
+	formater.SetAddHeader(PrintCsvHeaderFlag)
+	formater.SetSeperator(OutputSeperator)
+
+	return formater
 }
 
 // Get the file interface we are using as output. Maybe a file or STDOUT

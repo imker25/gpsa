@@ -100,4 +100,24 @@ type OutputFormater interface {
 
 	// Get the list of OutputFormaterType this formater can write
 	GetOutputFormaterTypes() []OutputFormaterType
+
+	// Get the TextOutputFormater version of this formater or nil if the formater is not a TextOutputFormater
+	GetTextOutputFormater() TextOutputFormater
+}
+
+// TextOutputFormater - Interface for classes that can format a track output into a text style file format like csv
+type TextOutputFormater interface {
+	OutputFormater
+
+	// Set the time format string used by this CsvOutputFormater. Will return an error if you want to set an unknown format
+	SetTimeFormat(timeFormat string) error
+
+	// Set the value of formater.AddHeader
+	SetAddHeader(value bool)
+
+	// Set the value of formater.Separator
+	SetSeperator(value string)
+
+	// Check if the given format string is a valid TimeFormat
+	CheckTimeFormatIsValid(format string) bool
 }
