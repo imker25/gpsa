@@ -227,6 +227,14 @@ func customHelpMessage() {
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("        One or more track files of the following type: %s", getValidTrackExtensions()))
 	fmt.Fprintln(os.Stdout, "Options:")
 	flag.PrintDefaults()
+	fmt.Fprintln(os.Stdout)
+	fmt.Fprintln(os.Stdout, "It is also possible to pipe track file names or track file content into")
+	fmt.Fprintln(os.Stdout)
+	fmt.Fprintln(os.Stdout, "Examples:")
+	fmt.Fprintln(os.Stdout, "./gpsa my/test/file.gpx")
+	fmt.Fprintln(os.Stdout, "./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx")
+	fmt.Fprintln(os.Stdout, "find ./testdata/valid-gpx -name \"*.gpx\" | ./bin/gpsa -summary=additional -out-file=./test.json")
+	fmt.Fprintln(os.Stdout, "cat  01.gpx 01.tcx 03.tcx 02.gpx | ./bin/gpsa -out-file=./test.json")
 }
 
 // getStdOutFormatParameterValuesStr - Get a string that contains all valid stdOutFormatParameterValues

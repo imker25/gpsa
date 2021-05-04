@@ -48,12 +48,12 @@ You might want to call ```-help``` to find out how to use the program.
 
 ```txt
 ~$ ./gpsa -help
-./gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report
-Program Version: 2.0.1
+./bin/gpsa: Reads in GPS track files, and writes out basic statistic data found in the track as a report
+Program Version: 2.3.6-4142b3b
 
 Usage: ./bin/gpsa [options] [files]
   files
-        One or more track files (only *.gpx and *.tcx supported at the moment)
+        One or more track files of the following type: *.tcx, *.gpx, 
 Options:
   -correction string
     	Define how to correct the elevation data read in from the track. Possible values are [steps linear none ] (default "steps")
@@ -70,7 +70,7 @@ Options:
   -minimal-step-hight float
     	The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
   -out-file string
-    	Decide where to write the output. StdOut is used when not explicitly set. *.csv and *.json are supported file endings, the format will be set according the given ending.
+    	Decide where to write the output. StdOut is used when not explicitly set. Supported file endings are: *.json, *.csv, . The format will be set according the given ending.
   -print-csv-header
     	Print out a csv header line. Possible values are [true false] (default true)
   -print-elevation-over-distance
@@ -89,6 +89,14 @@ Options:
     	Run the program with verbose output
   -version
     	Print version of the program and exit
+
+It is also possible to pipe track file names or track file content into
+
+Examples:
+./gpsa my/test/file.gpx
+./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx
+find ./testdata/valid-gpx -name "*.gpx" | ./bin/gpsa -summary=additional -out-file=./test.json
+cat  01.gpx 01.tcx 03.tcx 02.gpx | ./bin/gpsa -out-file=./test.json
 ```
 
 #### Examples
