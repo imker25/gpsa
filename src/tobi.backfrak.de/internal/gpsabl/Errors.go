@@ -97,3 +97,19 @@ func (e *UnKnownInputFileTypeError) Error() string { // Implement the Error Inte
 func NewUnKnownInputFileTypeError(inputFileType string) *UnKnownInputFileTypeError {
 	return &UnKnownInputFileTypeError{fmt.Sprintf("Can not process inputFileType \"%s\".", inputFileType), inputFileType}
 }
+
+// TimeFormatNotKnown - Error when the given -summary is not known
+type TimeFormatNotKnown struct {
+	err string
+	// File - The path to the dir that caused this error
+	GivenValue TimeFormat
+}
+
+func (e *TimeFormatNotKnown) Error() string { // Implement the Error Interface for the TimeFormatNotKnown struct
+	return fmt.Sprintf("%s", e.err)
+}
+
+// NewTimeFormatNotKnown - Get a new TimeFormatNotKnown struct
+func NewTimeFormatNotKnown(givenValue TimeFormat) *TimeFormatNotKnown {
+	return &TimeFormatNotKnown{fmt.Sprintf("The given -summary \"%s\" is not known.", givenValue), givenValue}
+}

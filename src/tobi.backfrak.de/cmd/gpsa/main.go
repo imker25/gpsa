@@ -306,7 +306,7 @@ func checkOutFileType(fileType string) bool {
 
 func setTextutputFormater(formater gpsabl.TextOutputFormater) gpsabl.OutputFormater {
 	if !formater.CheckTimeFormatIsValid(TimeFormatParameter) {
-		HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
+		HandleError(gpsabl.NewTimeFormatNotKnown(gpsabl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
 	} else {
 		formater.SetTimeFormat(TimeFormatParameter)
 	}

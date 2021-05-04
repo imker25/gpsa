@@ -26,23 +26,20 @@ const FileExtension = ".csv"
 // DefaultOutputSeperator - The seperator string for csv output files
 const DefaultOutputSeperator = "; "
 
-// TimeFormat - Represents a go Time format string for the enum pattern
-type TimeFormat string
-
 const (
 	// RFC3339 - Internal representation of gos time.RFC3339
-	RFC3339 TimeFormat = time.RFC3339
+	RFC3339 gpsabl.TimeFormat = time.RFC3339
 
 	// RFC850 -  Internal representation of gos time.RFC850
-	RFC850 TimeFormat = time.RFC850
+	RFC850 gpsabl.TimeFormat = time.RFC850
 
 	// UnixDate -  Internal representation of gos time.UnixDate
-	UnixDate TimeFormat = time.UnixDate
+	UnixDate gpsabl.TimeFormat = time.UnixDate
 )
 
 // GetValidTimeFormats -  Get the valid TimeFormat values
-func GetValidTimeFormats() []TimeFormat {
-	return []TimeFormat{RFC3339, RFC850, UnixDate}
+func GetValidTimeFormats() []gpsabl.TimeFormat {
+	return []gpsabl.TimeFormat{RFC3339, RFC850, UnixDate}
 }
 
 // GetValidTimeFormatsString - Get a string that contains all valid TimeFormat values
@@ -52,22 +49,6 @@ func GetValidTimeFormatsString() string {
 		ret = fmt.Sprintf("\"%s\" %s", arg, ret)
 	}
 	return ret
-}
-
-// TimeFormatNotKnown - Error when the given -summary is not known
-type TimeFormatNotKnown struct {
-	err string
-	// File - The path to the dir that caused this error
-	GivenValue TimeFormat
-}
-
-func (e *TimeFormatNotKnown) Error() string { // Implement the Error Interface for the TimeFormatNotKnown struct
-	return fmt.Sprintf("%s", e.err)
-}
-
-// NewTimeFormatNotKnown - Get a new TimeFormatNotKnown struct
-func NewTimeFormatNotKnown(givenValue TimeFormat) *TimeFormatNotKnown {
-	return &TimeFormatNotKnown{fmt.Sprintf("The given -summary \"%s\" is not known.", givenValue), givenValue}
 }
 
 // CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
@@ -83,7 +64,7 @@ type CsvOutputFormater struct {
 	// Tell if the CSV header should be added to the output
 	AddHeader bool
 
-	timeFormater TimeFormat
+	timeFormater gpsabl.TimeFormat
 
 	lineBuffer []gpsabl.OutputLine
 	mux        sync.Mutex
@@ -115,9 +96,9 @@ func (formater *CsvOutputFormater) GetTimeFormat() string {
 // SetTimeFormat - Set the time format string used by this CsvOutputFormater. Will return an error if you want to set an unknown format
 func (formater *CsvOutputFormater) SetTimeFormat(timeFormat string) error {
 	if CheckTimeFormatIsValid(timeFormat) == false {
-		return NewTimeFormatNotKnown(TimeFormat(timeFormat))
+		return gpsabl.NewTimeFormatNotKnown(gpsabl.TimeFormat(timeFormat))
 	}
-	formater.timeFormater = TimeFormat(timeFormat)
+	formater.timeFormater = gpsabl.TimeFormat(timeFormat)
 	return nil
 }
 
@@ -565,7 +546,7 @@ func (formater *CsvOutputFormater) formatTimeDuration(duration time.Duration) (s
 	case UnixDate:
 		return fmt.Sprintf("%.2f", duration.Seconds()), nil
 	default:
-		return "", NewTimeFormatNotKnown(formater.timeFormater)
+		return "", gpsabl.NewTimeFormatNotKnown(formater.timeFormater)
 	}
 }
 
@@ -578,6 +559,6 @@ func (formater *CsvOutputFormater) getTimeDurationHeader(prefix string) (string,
 	case UnixDate:
 		return fmt.Sprintf("%s (%s)", prefix, "s"), nil
 	default:
-		return "", NewTimeFormatNotKnown(formater.timeFormater)
+		return "", gpsabl.NewTimeFormatNotKnown(formater.timeFormater)
 	}
 }

@@ -20,6 +20,9 @@ type SummaryArg string
 // OutputFormaterType - a string type to implement the enum pattern
 type OutputFormaterType string
 
+// TimeFormat - Represents a go Time format string for the enum pattern
+type TimeFormat string
+
 const (
 	// TRACK - analyse into track depth
 	TRACK DepthArg = "track"

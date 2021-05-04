@@ -85,3 +85,16 @@ func TestUnKnownInputFileTypeError(t *testing.T) {
 		t.Errorf("The error message of UnKnownInputFileTypeError does not contain the expected type")
 	}
 }
+
+func TestNewTimeFormatNotKnown(t *testing.T) {
+	val := "asdgfg"
+	err := NewTimeFormatNotKnown(TimeFormat(val))
+
+	if err.GivenValue != TimeFormat(val) {
+		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
+	}
+
+	if strings.Contains(err.Error(), val) == false {
+		t.Errorf("The error message of DepthParameterNotKnownError does not contain the expected GivenValue")
+	}
+}

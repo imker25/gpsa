@@ -18,19 +18,6 @@ import (
 const numberOfSemicolonExpected = 19
 const numberOfNotValideExpected = 9
 
-func TestNewTimeFormatNotKnown(t *testing.T) {
-	val := "asdgfg"
-	err := NewTimeFormatNotKnown(TimeFormat(val))
-
-	if err.GivenValue != TimeFormat(val) {
-		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
-	}
-
-	if strings.Contains(err.Error(), val) == false {
-		t.Errorf("The error message of DepthParameterNotKnownError does not contain the expected GivenValue")
-	}
-}
-
 func TestTestOutputFormater(t *testing.T) {
 	var sut CsvOutputFormater
 
@@ -128,7 +115,7 @@ func TestSetTimeFormat(t *testing.T) {
 		t.Errorf("Got no errorbut expected one")
 	}
 	switch err2.(type) {
-	case *TimeFormatNotKnown:
+	case *gpsabl.TimeFormatNotKnown:
 		fmt.Println("OK")
 	default:
 		t.Errorf("The error is not from the expected type")
@@ -888,7 +875,7 @@ func TestGetStatisticSummaryLinesWithoutTime(t *testing.T) {
 
 func TestFormatTimeDurationUnknownFormat(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
-	frt.timeFormater = TimeFormat("blabla")
+	frt.timeFormater = gpsabl.TimeFormat("blabla")
 	now := time.Now()
 	dur := now.Sub(now.Add(-2 * time.Hour))
 	_, err := frt.formatTimeDuration(dur)
@@ -897,7 +884,7 @@ func TestFormatTimeDurationUnknownFormat(t *testing.T) {
 		t.Errorf("Got no error, but expected one")
 	}
 	switch err.(type) {
-	case *TimeFormatNotKnown:
+	case *gpsabl.TimeFormatNotKnown:
 		fmt.Println("OK")
 	default:
 		t.Errorf("The error is not from the expected type")
@@ -1029,14 +1016,14 @@ func TestFormatTimeDurationUnixFormat(t *testing.T) {
 
 func TestGetTimeHeader(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
-	frt.timeFormater = TimeFormat("blabla")
+	frt.timeFormater = gpsabl.TimeFormat("blabla")
 	_, err := frt.getTimeDurationHeader("bla")
 
 	if err == nil {
 		t.Errorf("Got no error, but expected one")
 	}
 	switch err.(type) {
-	case *TimeFormatNotKnown:
+	case *gpsabl.TimeFormatNotKnown:
 		fmt.Println("OK")
 	default:
 		t.Errorf("The error is not from the expected type")
