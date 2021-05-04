@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"testing"
 
 	"tobi.backfrak.de/internal/csvbl"
@@ -121,6 +122,18 @@ func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 		t.Errorf(("The names are the same"))
 	}
 
+}
+
+func TestGetValidTrackExtensions(t *testing.T) {
+	sut := getValidTrackExtensions()
+
+	if strings.Contains(sut, ".gpx") == false {
+		t.Errorf("\"%s\" does not contain \".gpx\"", sut)
+	}
+
+	if strings.Contains(sut, ".tcx") == false {
+		t.Errorf("\"%s\" does not contain \".tcx\"", sut)
+	}
 }
 
 func getValidInputGPXContentStream() (*os.File, error) {

@@ -134,6 +134,13 @@ func (mok *readerMock) CheckFile(path string) bool {
 	return false
 }
 
+func (mok *readerMock) GetValidFileExtensions() []string {
+
+	extensions := []string{".abc"}
+
+	return extensions
+}
+
 func (mok *readerMock) ReadTracks(correction CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (TrackFile, error) {
 	return mok.TrackFile, nil
 }

@@ -847,3 +847,22 @@ func TestReadBufferWithInvalidBuffer(t *testing.T) {
 	}
 
 }
+
+func TestGetValidFileExtensions(t *testing.T) {
+	gpx := GpxFile{}
+	file := testhelper.GetValidGPX("01.gpx")
+	input := *gpsabl.NewInputFileWithPath(file)
+
+	sut := gpx.NewReader(input)
+
+	extensions := sut.GetValidFileExtensions()
+
+	if len(extensions) != 1 {
+		t.Errorf("The GetValidFileExtensions does not give the expected amount of data")
+	}
+
+	if extensions[0] != ".gpx" {
+		t.Errorf("The GetValidFileExtensions does not give the expected value")
+	}
+
+}

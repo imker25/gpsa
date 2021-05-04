@@ -12,6 +12,7 @@ import (
 )
 
 const GpxBuffer gpsabl.InputFileType = "GpxBuffer"
+const FileExtension string = ".gpx"
 
 // GpxFile - The struct to handle *.gpx data files
 type GpxFile struct {
@@ -77,7 +78,7 @@ func ReadBuffer(buffer []byte, name string, correction gpsabl.CorrectionParamete
 // CheckFile - Check if a file can be read by the GpxFile "class"
 // Implement the gpsabl.TrackReader interface for *.gpx files
 func (gpx *GpxFile) CheckFile(path string) bool {
-	if strings.HasSuffix(path, "gpx") == true { // If the file is a *.gpx, we can read it
+	if strings.HasSuffix(strings.ToLower(path), FileExtension) == true { // If the file is a *.gpx, we can read it
 		return true
 	}
 
@@ -105,6 +106,15 @@ func (gpx *GpxFile) NewInputFileForBuffer(buffer []byte, name string) *gpsabl.In
 	file.Buffer = buffer
 
 	return &file
+}
+
+// GetValidFileExtensions - Get a list of file extensions this reader can read
+// Implement the gpsabl.TrackReader interface for *.gpx files
+func (gpx *GpxFile) GetValidFileExtensions() []string {
+
+	extensions := []string{FileExtension}
+
+	return extensions
 }
 
 // CheckInputFile - Check if a gpsabl.InputFile can be handled by the GpxFile reader

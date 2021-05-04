@@ -225,7 +225,7 @@ func customHelpMessage() {
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 	fmt.Fprintln(os.Stdout, "  files")
-	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx supported at the moment)")
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("        One or more track files of the following type: %s", getValidTrackExtensions()))
 	fmt.Fprintln(os.Stdout, "Options:")
 	flag.PrintDefaults()
 }
@@ -256,4 +256,19 @@ func fileExists(filename string) bool {
 		return false
 	}
 	return true
+}
+
+func getValidTrackExtensions() string {
+	var ret string
+
+	for _, reader := range ValidReaders {
+		extensions := reader.GetValidFileExtensions()
+
+		for _, extension := range extensions {
+			toAdd := fmt.Sprintf("*%s", extension)
+			ret = fmt.Sprintf("%s, %s", toAdd, ret)
+		}
+	}
+
+	return ret
 }

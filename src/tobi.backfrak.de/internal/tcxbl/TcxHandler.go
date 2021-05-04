@@ -12,6 +12,9 @@ import (
 
 const TcxBuffer gpsabl.InputFileType = "TcxBuffer"
 
+// The file extension this Reader can read
+const FileExtension string = ".tcx"
+
 // TcxFile - The struct to handle *.gpx data files
 type TcxFile struct {
 	gpsabl.TrackFile
@@ -88,7 +91,7 @@ func ReadBuffer(buffer []byte, name string, correction gpsabl.CorrectionParamete
 // CheckFile - Check if a file can be read by the TcxFile "class"
 // Implement the gpsabl.TrackReader interface for *.tcx files
 func (gpx *TcxFile) CheckFile(path string) bool {
-	if strings.HasSuffix(path, "tcx") == true { // If the file is a *.gpx, we can read it
+	if strings.HasSuffix(strings.ToLower(path), FileExtension) == true { // If the file is a *.gpx, we can read it
 		return true
 	}
 
@@ -116,6 +119,15 @@ func (gpx *TcxFile) NewInputFileForBuffer(buffer []byte, name string) *gpsabl.In
 	file.Buffer = buffer
 
 	return &file
+}
+
+// GetValidFileExtensions - Get a list of file extensions this reader can read
+// Implement the gpsabl.TrackReader interface for *.tcx files
+func (gpx *TcxFile) GetValidFileExtensions() []string {
+
+	extensions := []string{FileExtension}
+
+	return extensions
 }
 
 // ReadTcxFile - Reads a *.gpx file

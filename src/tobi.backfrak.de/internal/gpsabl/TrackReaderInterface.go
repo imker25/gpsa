@@ -21,6 +21,8 @@ type TrackReader interface {
 	CheckInputFile(input InputFile) bool
 	// Get a new InputFile instance for a buffer that can be read by a reader of this type
 	NewInputFileForBuffer(buffer []byte, name string) *InputFile
+	// Get a list of file extensions this reader can read
+	GetValidFileExtensions() []string
 }
 
 // TrackSummaryProvider - Interface for classes that provide track summary data

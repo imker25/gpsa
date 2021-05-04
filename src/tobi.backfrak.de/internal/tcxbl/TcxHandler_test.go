@@ -213,3 +213,22 @@ func TestReadBufferWithInvalidBuffer(t *testing.T) {
 	}
 
 }
+
+func TestGetValidFileExtensions(t *testing.T) {
+	tcx := TcxFile{}
+	file := testhelper.GetValidTcx("01.tcx")
+	input := *gpsabl.NewInputFileWithPath(file)
+
+	sut := tcx.NewReader(input)
+
+	extensions := sut.GetValidFileExtensions()
+
+	if len(extensions) != 1 {
+		t.Errorf("The GetValidFileExtensions does not give the expected amount of data")
+	}
+
+	if extensions[0] != ".tcx" {
+		t.Errorf("The GetValidFileExtensions does not give the expected value")
+	}
+
+}
