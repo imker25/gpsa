@@ -32,6 +32,7 @@ const OutputSeperator = "; "
 var version = "undefined"
 
 var ValidReaders = []gpsabl.TrackReader{&gpxbl.GpxFile{}, &tcxbl.TcxFile{}}
+var ValidFormaters = []gpsabl.OutputFormater{&csvbl.CsvOutputFormater{}, &jsonbl.JSONOutputFormater{}}
 
 func main() {
 
@@ -252,40 +253,55 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 // Get the Interface to format the output
 func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
 	var iFormater gpsabl.OutputFormater
+	var res bool
 	if !gpsabl.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(gpsabl.DepthArg(DepthParameter)), "", false, DontPanicFlag)
 	}
 	if !gpsabl.CheckValidSummaryArg(SummaryParameter) {
 		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
 	}
-
-	if outFile == *os.Stdout {
-		if checkStdOutFormatParameterValue(StdOutFormatParameter) == false {
+	if outFile != *os.Stdout {
+		if !checkOutFileExtension(outFile.Name()) {
+			HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
+		}
+	} else {
+		if !checkOutFileType(StdOutFormatParameter) {
 			HandleError(newUnKnownFileTypeError(StdOutFormatParameter), "", false, DontPanicFlag)
 		}
-
-		if strings.ToLower(StdOutFormatParameter) == strings.ToLower(stdOutFormatParameterValues[0]) {
-			iFormater = getCsvOutputFormater()
-		}
-		if strings.ToLower(StdOutFormatParameter) == strings.ToLower(stdOutFormatParameterValues[1]) {
-			jsonFormater := jsonbl.NewJSONOutputFormater()
-			iFormater = gpsabl.OutputFormater(jsonFormater)
-		}
 	}
 
-	if strings.HasSuffix(strings.ToLower(outFile.Name()), ".csv") {
+	res, iFormater = gpsabl.GetOutputFormater(ValidFormaters, outFile, gpsabl.OutputFormaterType(strings.ToUpper(StdOutFormatParameter)))
+	if res == false {
+		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
+	}
+	switch iFormater.(type) {
+	case *csvbl.CsvOutputFormater:
 		iFormater = getCsvOutputFormater()
 	}
-
-	if strings.HasSuffix(strings.ToLower(outFile.Name()), ".json") {
-		jsonFormater := jsonbl.NewJSONOutputFormater()
-		iFormater = gpsabl.OutputFormater(jsonFormater)
-	}
-
 	if iFormater == nil {
 		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
 	}
 	return iFormater
+}
+
+func checkOutFileExtension(filePath string) bool {
+	for _, formater := range ValidFormaters {
+		if formater.CheckFileExtension(filePath) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func checkOutFileType(fileType string) bool {
+	for _, formater := range ValidFormaters {
+		if formater.CheckOutputFormaterType(gpsabl.OutputFormaterType(strings.ToUpper(fileType))) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func getCsvOutputFormater() *csvbl.CsvOutputFormater {

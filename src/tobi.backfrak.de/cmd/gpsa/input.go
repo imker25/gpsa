@@ -68,8 +68,6 @@ var PrintElevationOverDistanceFlag bool
 // StdOutFormatParameter - Tells the formant when StdOut is the output stream -std-out-format
 var StdOutFormatParameter string
 
-var stdOutFormatParameterValues = []string{"CSV", "JSON"}
-
 // ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
 func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
 	var fileArgs []gpsabl.InputFile
@@ -198,14 +196,15 @@ func handleComandlineOptions() {
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line. Possible values are [true false]")
-	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set. *.csv and *.json are supported file endings, the format will be set according the given ending.")
+	flag.StringVar(&OutFileParameter, "out-file", "",
+		fmt.Sprintf("Decide where to write the output. StdOut is used when not explicitly set. Supported file endings are: %s. The format will be set according the given ending.", getValidOutputxtensions()))
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false]")
 	flag.StringVar(&DepthParameter, "depth", string(gpsabl.TRACK),
 		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", gpsabl.GetValidDepthArgsString()))
 	flag.StringVar(&CorrectionParameter, "correction", string(gpsabl.STEPS),
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
-	flag.StringVar(&StdOutFormatParameter, "std-out-format", "CSV",
+	flag.StringVar(&StdOutFormatParameter, "std-out-format", string(ValidFormaters[0].GetOutputFormaterTypes()[0]),
 		fmt.Sprintf("The output format when stdout is the used output. Ignored when out-file is given. Possible values are [%s]", getStdOutFormatParameterValuesStr()))
 	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
 		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
@@ -220,7 +219,7 @@ func handleComandlineOptions() {
 
 // customHelpMessage - Print he customized help message
 func customHelpMessage() {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report", os.Args[0]))
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a report", os.Args[0]))
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
@@ -233,17 +232,23 @@ func customHelpMessage() {
 // getStdOutFormatParameterValuesStr - Get a string that contains all valid stdOutFormatParameterValues
 func getStdOutFormatParameterValuesStr() string {
 	ret := ""
-	for _, arg := range stdOutFormatParameterValues {
-		ret = fmt.Sprintf("%s %s", arg, ret)
+	for _, formater := range ValidFormaters {
+		types := formater.GetOutputFormaterTypes()
+		for _, t := range types {
+			ret = fmt.Sprintf("%s %s", t, ret)
+		}
 	}
 	return ret
 }
 
 // checkStdOutFormatParameterValue - Tell if a given stdOutFormatParameterValue is valid
 func checkStdOutFormatParameterValue(val string) bool {
-	for _, arg := range stdOutFormatParameterValues {
-		if strings.ToLower(arg) == strings.ToLower(val) {
-			return true
+	for _, formater := range ValidFormaters {
+		args := formater.GetOutputFormaterTypes()
+		for _, arg := range args {
+			if strings.ToLower(string(arg)) == strings.ToLower(val) {
+				return true
+			}
 		}
 	}
 
@@ -263,6 +268,21 @@ func getValidTrackExtensions() string {
 
 	for _, reader := range ValidReaders {
 		extensions := reader.GetValidFileExtensions()
+
+		for _, extension := range extensions {
+			toAdd := fmt.Sprintf("*%s", extension)
+			ret = fmt.Sprintf("%s, %s", toAdd, ret)
+		}
+	}
+
+	return ret
+}
+
+func getValidOutputxtensions() string {
+	var ret string
+
+	for _, formater := range ValidFormaters {
+		extensions := formater.GetFileExtensions()
 
 		for _, extension := range extensions {
 			toAdd := fmt.Sprintf("*%s", extension)

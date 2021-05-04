@@ -711,7 +711,7 @@ func TestGetOutPutFormaterCSV(t *testing.T) {
 
 func TestGetOutPutFormaterCSVStdOut(t *testing.T) {
 	oldStdOutFormatParameter := StdOutFormatParameter
-	StdOutFormatParameter = stdOutFormatParameterValues[0]
+	StdOutFormatParameter = string(csvbl.CSVOutputFormatertype)
 	frt := getOutPutFormater(*os.Stdout)
 
 	switch frt.(type) {
@@ -725,7 +725,7 @@ func TestGetOutPutFormaterCSVStdOut(t *testing.T) {
 
 func TestGetOutPutFormaterJSONStdOut(t *testing.T) {
 	oldStdOutFormatParameter := StdOutFormatParameter
-	StdOutFormatParameter = stdOutFormatParameterValues[1]
+	StdOutFormatParameter = string(jsonbl.JSONOutputFormatertype)
 	frt := getOutPutFormater(*os.Stdout)
 
 	switch frt.(type) {
