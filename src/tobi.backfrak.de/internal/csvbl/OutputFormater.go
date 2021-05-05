@@ -26,34 +26,14 @@ const FileExtension = ".csv"
 // DefaultOutputSeperator - The seperator string for csv output files
 const DefaultOutputSeperator = "; "
 
-const (
-	// RFC3339 - Internal representation of gos time.RFC3339
-	RFC3339 gpsabl.TimeFormat = time.RFC3339
-
-	// RFC850 -  Internal representation of gos time.RFC850
-	RFC850 gpsabl.TimeFormat = time.RFC850
-
-	// UnixDate -  Internal representation of gos time.UnixDate
-	UnixDate gpsabl.TimeFormat = time.UnixDate
-)
-
 // GetValidTimeFormats -  Get the valid TimeFormat values
 func GetValidTimeFormats() []gpsabl.TimeFormat {
-	return []gpsabl.TimeFormat{RFC3339, RFC850, UnixDate}
-}
-
-// GetValidTimeFormatsString - Get a string that contains all valid TimeFormat values
-func GetValidTimeFormatsString() string {
-	ret := ""
-	for _, arg := range GetValidTimeFormats() {
-		ret = fmt.Sprintf("\"%s\" %s", arg, ret)
-	}
-	return ret
+	return gpsabl.GetValidTimeFormats()
 }
 
 // CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
 func CheckTimeFormatIsValid(format string) bool {
-	return strings.Contains(GetValidTimeFormatsString(), format)
+	return strings.Contains(gpsabl.GetValidTimeFormatsString(), format)
 }
 
 // CsvOutputFormater - type that formats TrackSummary into csv style
@@ -75,7 +55,7 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
 	ret.AddHeader = addHeader
-	ret.timeFormater = RFC3339
+	ret.timeFormater = gpsabl.RFC3339
 	ret.lineBuffer = []gpsabl.OutputLine{}
 
 	return &ret
@@ -129,7 +109,7 @@ func (formater *CsvOutputFormater) GetTextOutputFormater() gpsabl.TextOutputForm
 
 // CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
 func (formater *CsvOutputFormater) CheckTimeFormatIsValid(format string) bool {
-	return strings.Contains(GetValidTimeFormatsString(), format)
+	return strings.Contains(gpsabl.GetValidTimeFormatsString(), format)
 }
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
@@ -536,14 +516,14 @@ func GetNewLine() string {
 
 func (formater *CsvOutputFormater) formatTimeDuration(duration time.Duration) (string, error) {
 	switch formater.timeFormater {
-	case RFC850:
+	case gpsabl.RFC850:
 		str := strings.ReplaceAll(duration.String(), "s", "")
 		str = strings.ReplaceAll(str, "m", ":")
 		str = strings.ReplaceAll(str, "h", ":")
 		return str, nil
-	case RFC3339:
+	case gpsabl.RFC3339:
 		return duration.String(), nil
-	case UnixDate:
+	case gpsabl.UnixDate:
 		return fmt.Sprintf("%.2f", duration.Seconds()), nil
 	default:
 		return "", gpsabl.NewTimeFormatNotKnown(formater.timeFormater)
@@ -552,11 +532,11 @@ func (formater *CsvOutputFormater) formatTimeDuration(duration time.Duration) (s
 
 func (formater *CsvOutputFormater) getTimeDurationHeader(prefix string) (string, error) {
 	switch formater.timeFormater {
-	case RFC850:
+	case gpsabl.RFC850:
 		return fmt.Sprintf("%s (%s)", prefix, "hh:mm:ss"), nil
-	case RFC3339:
+	case gpsabl.RFC3339:
 		return fmt.Sprintf("%s (%s)", prefix, "xxhxxmxxs"), nil
-	case UnixDate:
+	case gpsabl.UnixDate:
 		return fmt.Sprintf("%s (%s)", prefix, "s"), nil
 	default:
 		return "", gpsabl.NewTimeFormatNotKnown(formater.timeFormater)

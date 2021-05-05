@@ -13,7 +13,6 @@ import (
 	"os"
 	"strings"
 
-	"tobi.backfrak.de/internal/csvbl"
 	"tobi.backfrak.de/internal/gpsabl"
 )
 
@@ -208,8 +207,8 @@ func handleComandlineOptions() {
 		fmt.Sprintf("The output format when stdout is the used output. Ignored when out-file is given. Possible values are [%s]", getStdOutFormatParameterValuesStr()))
 	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
 		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
-	flag.StringVar(&TimeFormatParameter, "time-format", string(csvbl.RFC850),
-		fmt.Sprintf("Tell how the csv output formater should format times. Possible values are [%s]", csvbl.GetValidTimeFormatsString()))
+	flag.StringVar(&TimeFormatParameter, "time-format", string(gpsabl.RFC850),
+		fmt.Sprintf("Tell how the csv output formater should format times. Possible values are [%s]", gpsabl.GetValidTimeFormatsString()))
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
 

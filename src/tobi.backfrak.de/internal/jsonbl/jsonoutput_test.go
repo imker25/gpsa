@@ -62,6 +62,12 @@ func TestNewOutputFormater(t *testing.T) {
 		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", form[0], "JSON")
 	}
 
+	textOut := sut.GetTextOutputFormater()
+
+	if textOut != nil {
+		t.Errorf("JSONOutputFormater should not be a TextOutputFormater")
+	}
+
 }
 
 func TestAddOutPutInvalidDepth(t *testing.T) {

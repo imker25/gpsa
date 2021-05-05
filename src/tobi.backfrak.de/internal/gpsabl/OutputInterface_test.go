@@ -5,8 +5,10 @@ package gpsabl
 // by a BSD-style license that can be found in the
 // LICENSE file.
 import (
+	"fmt"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestGetValidDepthArgsString(t *testing.T) {
@@ -30,6 +32,14 @@ func TestGetValidDepthArgsString(t *testing.T) {
 
 	if len(GetValidDepthArgs()) != 3 {
 		t.Errorf("The ValidDepthArgs array does not contain the expected number of values")
+	}
+}
+
+func TestGetValidTimeFormatsString(t *testing.T) {
+	str := GetValidTimeFormatsString()
+	res := fmt.Sprintf("\"%s\" \"%s\" \"%s\" ", time.UnixDate, time.RFC850, time.RFC3339)
+	if str != res {
+		t.Errorf("Got \"%s\", but expected \"%s \"", str, res)
 	}
 }
 

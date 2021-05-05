@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 // DepthArg -  "Enum" Type that represents the different depth modes
@@ -40,6 +41,31 @@ const (
 	// ONLY - write only the summara as output
 	ONLY SummaryArg = "only"
 )
+
+const (
+	// RFC3339 - Internal representation of gos time.RFC3339
+	RFC3339 TimeFormat = time.RFC3339
+
+	// RFC850 -  Internal representation of gos time.RFC850
+	RFC850 TimeFormat = time.RFC850
+
+	// UnixDate -  Internal representation of gos time.UnixDate
+	UnixDate TimeFormat = time.UnixDate
+)
+
+// GetValidTimeFormats -  Get the valid TimeFormat values
+func GetValidTimeFormats() []TimeFormat {
+	return []TimeFormat{RFC3339, RFC850, UnixDate}
+}
+
+// GetValidTimeFormatsString - Get a string that contains all valid TimeFormat values
+func GetValidTimeFormatsString() string {
+	ret := ""
+	for _, arg := range GetValidTimeFormats() {
+		ret = fmt.Sprintf("\"%s\" %s", arg, ret)
+	}
+	return ret
+}
 
 // GetValidDepthArgs - The valid args values for the depth parameter
 func GetValidDepthArgs() []DepthArg {
