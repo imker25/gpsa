@@ -1,5 +1,10 @@
 package main
 
+// Copyright 2021 by tobi@backfrak.de. All
+// rights reserved. Use of this source code is governed
+// by a BSD-style license that can be found in the
+// LICENSE file.
+
 import (
 	"bufio"
 	"flag"
@@ -8,7 +13,6 @@ import (
 	"os"
 	"strings"
 
-	"tobi.backfrak.de/internal/csvbl"
 	"tobi.backfrak.de/internal/gpsabl"
 )
 
@@ -63,11 +67,9 @@ var PrintElevationOverDistanceFlag bool
 // StdOutFormatParameter - Tells the formant when StdOut is the output stream -std-out-format
 var StdOutFormatParameter string
 
-var stdOutFormatParameterValues = []string{"CSV", "JSON"}
-
 // ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
-func ReadInputStreamBuffer(reader *bufio.Reader) ([]inputFile, error) {
-	var fileArgs []inputFile
+func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
+	var fileArgs []gpsabl.InputFile
 	var inputBytes []byte
 	for {
 		input, errRead := reader.ReadByte()
@@ -86,21 +88,15 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]inputFile, error) {
 
 	if len(buffers) != 0 {
 		// fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d input files as stream", len(buffers)))
-		gpxBuffers := getGpxBuffers(buffers)
-		if len(gpxBuffers) != 0 && VerboseFlag {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d gpx files as stream", len(gpxBuffers)))
-		}
 
-		for i, gpxBuff := range gpxBuffers {
-			fileArgs = append(fileArgs, *newInputFileGpxBuffer(gpxBuff, fmt.Sprintf("Gpx input stream buffer %d", i+1)))
+		for i, buffer := range buffers {
+			res, input := gpsabl.GetInputFileFromBuffer(ValidReaders, buffer, fmt.Sprintf("Input stream buffer %d", i+1))
+			if res == true {
+				fileArgs = append(fileArgs, input)
+			}
 		}
-		tcxBuffers := getTcxBuffers(buffers)
-		if len(tcxBuffers) != 0 && VerboseFlag {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d tcx files as stream", len(tcxBuffers)))
-		}
-
-		for i, tcxBuff := range tcxBuffers {
-			fileArgs = append(fileArgs, *newInputFileTcxBuffer(tcxBuff, fmt.Sprintf("Tcx input stream buffer %d", i+1)))
+		if len(fileArgs) != 0 && VerboseFlag {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Got %d files as stream", len(fileArgs)))
 		}
 		return fileArgs, nil
 	}
@@ -111,44 +107,15 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]inputFile, error) {
 	}
 
 	for _, fileArgStr := range fileArgsStr {
-		fileArgs = append(fileArgs, *newInputFileWithPath(fileArgStr))
+		res, input := gpsabl.GetInputFileFromPath(ValidReaders, fileArgStr)
+		if res == true {
+			fileArgs = append(fileArgs, input)
+		} else {
+			return nil, newUnKnownFileTypeError(fileArgStr)
+		}
 	}
 
 	return fileArgs, nil
-}
-
-// getGpxBuffers - Parse an array of input buffer arrays, where each input buffer array contains only one xml file content
-// and search for those where the content is a GPX file
-// return an array of input buffer arrays, where all  input buffer arrays have a GPX file content
-func getGpxBuffers(buffers [][]byte) [][]byte {
-	var retVal [][]byte
-	for _, buffer := range buffers {
-		for i, _ := range buffer {
-			section := buffer[i : i+4]
-			if string(section) == "<gpx" {
-				retVal = append(retVal, buffer)
-				break
-			}
-		}
-	}
-	return retVal
-}
-
-// getTcxBuffers - Parse an array of input buffer arrays, where each input buffer array contains only one xml file content
-// and search for those where the content is a TCX file
-// return an array of input buffer arrays, where all  input buffer arrays have a TCX file content
-func getTcxBuffers(buffers [][]byte) [][]byte {
-	var retVal [][]byte
-	for _, buffer := range buffers {
-		for i, _ := range buffer {
-			section := buffer[i : i+23]
-			if string(section) == "<TrainingCenterDatabase" {
-				retVal = append(retVal, buffer)
-				break
-			}
-		}
-	}
-	return retVal
 }
 
 // getXMlFileBuffersFromInputStream - Parse the input buffer array and search for xml files
@@ -228,19 +195,20 @@ func handleComandlineOptions() {
 	flag.BoolVar(&VerboseFlag, "verbose", false, "Run the program with verbose output")
 	flag.BoolVar(&SkipErrorExitFlag, "skip-error-exit", false, "Don't exit the program on track file processing errors")
 	flag.BoolVar(&PrintCsvHeaderFlag, "print-csv-header", true, "Print out a csv header line. Possible values are [true false]")
-	flag.StringVar(&OutFileParameter, "out-file", "", "Decide where to write the output. StdOut is used when not explicitly set. *.csv and *.json are supported file endings, the format will be set according the given ending.")
+	flag.StringVar(&OutFileParameter, "out-file", "",
+		fmt.Sprintf("Decide where to write the output. StdOut is used when not explicitly set. Supported file endings are: %s. The format will be set according the given ending.", getValidOutputxtensions()))
 	flag.BoolVar(&DontPanicFlag, "dont-panic", true, "Decide if the program will exit with panic or with negative exit code in error cases. Possible values are [true false]")
 	flag.StringVar(&DepthParameter, "depth", string(gpsabl.TRACK),
 		fmt.Sprintf("Define the way the program should analyse the files. Possible values are [%s]", gpsabl.GetValidDepthArgsString()))
 	flag.StringVar(&CorrectionParameter, "correction", string(gpsabl.STEPS),
 		fmt.Sprintf("Define how to correct the elevation data read in from the track. Possible values are [%s]", gpsabl.GetValidCorrectionParametersString()))
 	flag.BoolVar(&PrintElevationOverDistanceFlag, "print-elevation-over-distance", false, "Tell if \"ElevationOverDistance.csv\" should be created for each track. The files will be locate in tmp dir.")
-	flag.StringVar(&StdOutFormatParameter, "std-out-format", "CSV",
+	flag.StringVar(&StdOutFormatParameter, "std-out-format", string(ValidFormaters[0].GetOutputFormaterTypes()[0]),
 		fmt.Sprintf("The output format when stdout is the used output. Ignored when out-file is given. Possible values are [%s]", getStdOutFormatParameterValuesStr()))
 	flag.StringVar(&SummaryParameter, "summary", string(gpsabl.NONE),
 		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
-	flag.StringVar(&TimeFormatParameter, "time-format", string(csvbl.RFC850),
-		fmt.Sprintf("Tell how the csv output formater should format times. Possible values are [%s]", csvbl.GetValidTimeFormatsString()))
+	flag.StringVar(&TimeFormatParameter, "time-format", string(gpsabl.RFC850),
+		fmt.Sprintf("Tell how the csv output formater should format times. Possible values are [%s]", gpsabl.GetValidTimeFormatsString()))
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
 
@@ -250,32 +218,84 @@ func handleComandlineOptions() {
 
 // customHelpMessage - Print he customized help message
 func customHelpMessage() {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a CSV or JSON style report", os.Args[0]))
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("%s: Reads in GPS track files, and writes out basic statistic data found in the track as a report", os.Args[0]))
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Program %s", getVersion()))
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("Usage: %s [options] [files]", os.Args[0]))
 	fmt.Fprintln(os.Stdout, "  files")
-	fmt.Fprintln(os.Stdout, "        One or more track files (only *.gpx and *.tcx supported at the moment)")
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("        One or more track files of the following type: %s", getValidTrackExtensions()))
 	fmt.Fprintln(os.Stdout, "Options:")
 	flag.PrintDefaults()
+	fmt.Fprintln(os.Stdout)
+	fmt.Fprintln(os.Stdout, "It is also possible to pipe track file names or track file content into")
+	fmt.Fprintln(os.Stdout)
+	fmt.Fprintln(os.Stdout, "Examples:")
+	fmt.Fprintln(os.Stdout, "./gpsa my/test/file.gpx")
+	fmt.Fprintln(os.Stdout, "./gpsa -verbose -out-file=gps-statistics.csv my/test/*.gpx")
+	fmt.Fprintln(os.Stdout, "find ./testdata/valid-gpx -name \"*.gpx\" | ./bin/gpsa -summary=additional -out-file=./test.json")
+	fmt.Fprintln(os.Stdout, "cat  01.gpx 01.tcx 03.tcx 02.gpx | ./bin/gpsa -out-file=./test.json")
 }
 
 // getStdOutFormatParameterValuesStr - Get a string that contains all valid stdOutFormatParameterValues
 func getStdOutFormatParameterValuesStr() string {
 	ret := ""
-	for _, arg := range stdOutFormatParameterValues {
-		ret = fmt.Sprintf("%s %s", arg, ret)
+	for _, formater := range ValidFormaters {
+		types := formater.GetOutputFormaterTypes()
+		for _, t := range types {
+			ret = fmt.Sprintf("%s %s", t, ret)
+		}
 	}
 	return ret
 }
 
 // checkStdOutFormatParameterValue - Tell if a given stdOutFormatParameterValue is valid
 func checkStdOutFormatParameterValue(val string) bool {
-	for _, arg := range stdOutFormatParameterValues {
-		if strings.ToLower(arg) == strings.ToLower(val) {
-			return true
+	for _, formater := range ValidFormaters {
+		args := formater.GetOutputFormaterTypes()
+		for _, arg := range args {
+			if strings.ToLower(string(arg)) == strings.ToLower(val) {
+				return true
+			}
 		}
 	}
 
 	return false
+}
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func getValidTrackExtensions() string {
+	var ret string
+
+	for _, reader := range ValidReaders {
+		extensions := reader.GetValidFileExtensions()
+
+		for _, extension := range extensions {
+			toAdd := fmt.Sprintf("*%s", extension)
+			ret = fmt.Sprintf("%s, %s", toAdd, ret)
+		}
+	}
+
+	return ret
+}
+
+func getValidOutputxtensions() string {
+	var ret string
+
+	for _, formater := range ValidFormaters {
+		extensions := formater.GetFileExtensions()
+
+		for _, extension := range extensions {
+			toAdd := fmt.Sprintf("*%s", extension)
+			ret = fmt.Sprintf("%s, %s", toAdd, ret)
+		}
+	}
+
+	return ret
 }

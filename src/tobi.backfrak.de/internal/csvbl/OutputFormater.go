@@ -19,53 +19,21 @@ import (
 // NotValidValue - The value set when values are not valid
 const NotValidValue = "not valid"
 
-// TimeFormat - Represents a go Time format string for the enum pattern
-type TimeFormat string
+// CSVOutputFormatertype - The gpsabl.OutputFormaterType this formater is responsible for
+const CSVOutputFormatertype gpsabl.OutputFormaterType = "CSV"
+const FileExtension = ".csv"
 
-const (
-	// RFC3339 - Internal representation of gos time.RFC3339
-	RFC3339 TimeFormat = time.RFC3339
-
-	// RFC850 -  Internal representation of gos time.RFC850
-	RFC850 TimeFormat = time.RFC850
-
-	// UnixDate -  Internal representation of gos time.UnixDate
-	UnixDate TimeFormat = time.UnixDate
-)
+// DefaultOutputSeperator - The seperator string for csv output files
+const DefaultOutputSeperator = "; "
 
 // GetValidTimeFormats -  Get the valid TimeFormat values
-func GetValidTimeFormats() []TimeFormat {
-	return []TimeFormat{RFC3339, RFC850, UnixDate}
-}
-
-// GetValidTimeFormatsString - Get a string that contains all valid TimeFormat values
-func GetValidTimeFormatsString() string {
-	ret := ""
-	for _, arg := range GetValidTimeFormats() {
-		ret = fmt.Sprintf("\"%s\" %s", arg, ret)
-	}
-	return ret
-}
-
-// TimeFormatNotKnown - Error when the given -summary is not known
-type TimeFormatNotKnown struct {
-	err string
-	// File - The path to the dir that caused this error
-	GivenValue TimeFormat
-}
-
-func (e *TimeFormatNotKnown) Error() string { // Implement the Error Interface for the TimeFormatNotKnown struct
-	return fmt.Sprintf("%s", e.err)
-}
-
-// NewTimeFormatNotKnown - Get a new TimeFormatNotKnown struct
-func NewTimeFormatNotKnown(givenValue TimeFormat) *TimeFormatNotKnown {
-	return &TimeFormatNotKnown{fmt.Sprintf("The given -summary \"%s\" is not known.", givenValue), givenValue}
+func GetValidTimeFormats() []gpsabl.TimeFormat {
+	return gpsabl.GetValidTimeFormats()
 }
 
 // CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
 func CheckTimeFormatIsValid(format string) bool {
-	return strings.Contains(GetValidTimeFormatsString(), format)
+	return strings.Contains(gpsabl.GetValidTimeFormatsString(), format)
 }
 
 // CsvOutputFormater - type that formats TrackSummary into csv style
@@ -76,7 +44,7 @@ type CsvOutputFormater struct {
 	// Tell if the CSV header should be added to the output
 	AddHeader bool
 
-	timeFormater TimeFormat
+	timeFormater gpsabl.TimeFormat
 
 	lineBuffer []gpsabl.OutputLine
 	mux        sync.Mutex
@@ -87,10 +55,17 @@ func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
 	ret.Separator = separator
 	ret.AddHeader = addHeader
-	ret.timeFormater = RFC3339
+	ret.timeFormater = gpsabl.RFC3339
 	ret.lineBuffer = []gpsabl.OutputLine{}
 
 	return &ret
+}
+
+// NewOutputFormater -  Get a new gpsabl.OutputFormater of this type
+func (formater *CsvOutputFormater) NewOutputFormater() gpsabl.OutputFormater {
+	ret := NewCsvOutputFormater(DefaultOutputSeperator, true)
+
+	return gpsabl.OutputFormater(ret)
 }
 
 // GetTimeFormat - Get the time format string used by this CsvOutputFormater
@@ -101,10 +76,40 @@ func (formater *CsvOutputFormater) GetTimeFormat() string {
 // SetTimeFormat - Set the time format string used by this CsvOutputFormater. Will return an error if you want to set an unknown format
 func (formater *CsvOutputFormater) SetTimeFormat(timeFormat string) error {
 	if CheckTimeFormatIsValid(timeFormat) == false {
-		return NewTimeFormatNotKnown(TimeFormat(timeFormat))
+		return gpsabl.NewTimeFormatNotKnown(gpsabl.TimeFormat(timeFormat))
 	}
-	formater.timeFormater = TimeFormat(timeFormat)
+	formater.timeFormater = gpsabl.TimeFormat(timeFormat)
 	return nil
+}
+
+// GetAddHeader - Get the value of formater.AddHeader
+func (formater *CsvOutputFormater) GetAddHeader() bool {
+	return formater.AddHeader
+}
+
+// SetAddHeader - Set the value of formater.AddHeader
+func (formater *CsvOutputFormater) SetAddHeader(value bool) {
+	formater.AddHeader = value
+}
+
+// GetSeperator - Get the value of formater.Separator
+func (formater *CsvOutputFormater) GetSeperator() string {
+	return formater.Separator
+}
+
+// SetSeperator - Set the value of formater.Separator
+func (formater *CsvOutputFormater) SetSeperator(value string) {
+	formater.Separator = value
+}
+
+// GetTextOutputFormater - Get the gpsabl.TextOutputFormater of ths formater
+func (formater *CsvOutputFormater) GetTextOutputFormater() gpsabl.TextOutputFormater {
+	return formater
+}
+
+// CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
+func (formater *CsvOutputFormater) CheckTimeFormatIsValid(format string) bool {
+	return strings.Contains(gpsabl.GetValidTimeFormatsString(), format)
 }
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
@@ -132,6 +137,34 @@ func (formater *CsvOutputFormater) AddOutPut(trackFile gpsabl.TrackFile, depth g
 	}
 
 	return nil
+}
+
+// CheckOutputFormaterType - Check if this OutputFormater is responsible for the given gpsabl.OutputFormaterType
+func (formater *CsvOutputFormater) CheckOutputFormaterType(formaterType gpsabl.OutputFormaterType) bool {
+	if formaterType == CSVOutputFormatertype {
+		return true
+	}
+
+	return false
+}
+
+// GetFileExtensions - Get the list of file extensions this formater can write
+func (formater *CsvOutputFormater) GetFileExtensions() []string {
+	return []string{FileExtension}
+}
+
+// GetOutputFormaterTypes - Get the list of gpsabl.OutputFormaterType this formater can write
+func (formater *CsvOutputFormater) GetOutputFormaterTypes() []gpsabl.OutputFormaterType {
+	return []gpsabl.OutputFormaterType{CSVOutputFormatertype}
+}
+
+// CheckFileExtension - Check if this OutputFormater can write the given output file
+func (formater *CsvOutputFormater) CheckFileExtension(filePath string) bool {
+	if strings.HasSuffix(strings.ToLower(filePath), FileExtension) {
+		return true
+	}
+
+	return false
 }
 
 // GetStatisticSummaryLines - Get a summary of statistic data
@@ -483,29 +516,29 @@ func GetNewLine() string {
 
 func (formater *CsvOutputFormater) formatTimeDuration(duration time.Duration) (string, error) {
 	switch formater.timeFormater {
-	case RFC850:
+	case gpsabl.RFC850:
 		str := strings.ReplaceAll(duration.String(), "s", "")
 		str = strings.ReplaceAll(str, "m", ":")
 		str = strings.ReplaceAll(str, "h", ":")
 		return str, nil
-	case RFC3339:
+	case gpsabl.RFC3339:
 		return duration.String(), nil
-	case UnixDate:
+	case gpsabl.UnixDate:
 		return fmt.Sprintf("%.2f", duration.Seconds()), nil
 	default:
-		return "", NewTimeFormatNotKnown(formater.timeFormater)
+		return "", gpsabl.NewTimeFormatNotKnown(formater.timeFormater)
 	}
 }
 
 func (formater *CsvOutputFormater) getTimeDurationHeader(prefix string) (string, error) {
 	switch formater.timeFormater {
-	case RFC850:
+	case gpsabl.RFC850:
 		return fmt.Sprintf("%s (%s)", prefix, "hh:mm:ss"), nil
-	case RFC3339:
+	case gpsabl.RFC3339:
 		return fmt.Sprintf("%s (%s)", prefix, "xxhxxmxxs"), nil
-	case UnixDate:
+	case gpsabl.UnixDate:
 		return fmt.Sprintf("%s (%s)", prefix, "s"), nil
 	default:
-		return "", NewTimeFormatNotKnown(formater.timeFormater)
+		return "", gpsabl.NewTimeFormatNotKnown(formater.timeFormater)
 	}
 }

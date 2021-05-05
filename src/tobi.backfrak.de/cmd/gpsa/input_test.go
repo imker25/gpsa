@@ -1,14 +1,21 @@
 package main
 
+// Copyright 2021 by tobi@backfrak.de. All
+// rights reserved. Use of this source code is governed
+// by a BSD-style license that can be found in the
+// LICENSE file.
+
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"runtime"
+	"strings"
 	"testing"
 
 	"tobi.backfrak.de/internal/csvbl"
+	"tobi.backfrak.de/internal/gpsabl"
+	"tobi.backfrak.de/internal/gpxbl"
 	"tobi.backfrak.de/internal/testhelper"
 )
 
@@ -31,16 +38,16 @@ func TestReadInputStreamBufferWithFileList(t *testing.T) {
 		t.Errorf("The path is %s, but %s is expected", result[0], file1)
 	}
 
-	if result[0].Type != FilePath {
-		t.Errorf("The type is %s, but %s is expected", result[0].Type, FilePath)
+	if result[0].Type != gpsabl.FilePath {
+		t.Errorf("The type is %s, but %s is expected", result[0].Type, gpsabl.FilePath)
 	}
 
 	if result[1].Name != file2 {
 		t.Errorf("The path is %s, but %s is expected", result[1], file1)
 	}
 
-	if result[1].Type != FilePath {
-		t.Errorf("The type is %s, but %s is expected", result[1].Type, FilePath)
+	if result[1].Type != gpsabl.FilePath {
+		t.Errorf("The type is %s, but %s is expected", result[1].Type, gpsabl.FilePath)
 	}
 
 	if result[1].Buffer != nil {
@@ -91,8 +98,8 @@ func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 		t.Errorf("The input has %d files, but %d files are expected", len(input), 2)
 	}
 
-	if input[0].Type != GpxBuffer {
-		t.Errorf("The type is %s, but %s is expected", input[0].Type, GpxBuffer)
+	if input[0].Type != gpxbl.GpxBuffer {
+		t.Errorf("The type is %s, but %s is expected", input[0].Type, gpxbl.GpxBuffer)
 	}
 
 	if input[0].Name == "" {
@@ -103,8 +110,8 @@ func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 		t.Errorf("The buffer is nil")
 	}
 
-	if input[1].Type != GpxBuffer {
-		t.Errorf("The type is %s, but %s is expected", input[1].Type, GpxBuffer)
+	if input[1].Type != gpxbl.GpxBuffer {
+		t.Errorf("The type is %s, but %s is expected", input[1].Type, gpxbl.GpxBuffer)
 	}
 
 	if input[1].Buffer == nil {
@@ -117,40 +124,30 @@ func TestReadInputStreamBufferWithTwoGPXFileContent(t *testing.T) {
 
 }
 
+func TestGetValidTrackExtensions(t *testing.T) {
+	sut := getValidTrackExtensions()
+
+	if strings.Contains(sut, ".gpx") == false {
+		t.Errorf("\"%s\" does not contain \".gpx\"", sut)
+	}
+
+	if strings.Contains(sut, ".tcx") == false {
+		t.Errorf("\"%s\" does not contain \".tcx\"", sut)
+	}
+}
+
 func getValidInputGPXContentStream() (*os.File, error) {
-	filePath1 := testhelper.GetValidGPX("05.gpx")
-	file1, _ := os.Open(filePath1)
-	filePath2 := testhelper.GetValidGPX("04.gpx")
-	file2, _ := os.Open(filePath2)
-
+	buffer1, err1 := testhelper.GetValidGpxBuffer("05.gpx")
+	if err1 != nil {
+		return nil, err1
+	}
+	buffer2, err2 := testhelper.GetValidGpxBuffer("04.gpx")
+	if err2 != nil {
+		return nil, err1
+	}
 	var inputBytes []byte
-	reader1 := bufio.NewReader(file1)
-	for {
-		input, errRead1 := reader1.ReadByte()
-		if errRead1 != nil {
-			if errRead1 == io.EOF {
-				break
-			} else {
-				return nil, errRead1
-			}
-		}
-
-		inputBytes = append(inputBytes, input)
-	}
-
-	reader2 := bufio.NewReader(file2)
-	for {
-		input, errRead2 := reader2.ReadByte()
-		if errRead2 != nil {
-			if errRead2 == io.EOF {
-				break
-			} else {
-				return nil, errRead2
-			}
-		}
-
-		inputBytes = append(inputBytes, input)
-	}
+	inputBytes = append(inputBytes, buffer1...)
+	inputBytes = append(inputBytes, buffer2...)
 	read, write, errCreate := os.Pipe()
 	if errCreate != nil {
 		return nil, errCreate

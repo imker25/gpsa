@@ -9,8 +9,20 @@ import "time"
 
 // TrackReader - The interface for all functions that can read gps data files like *.gpx
 type TrackReader interface {
+	// Get a new reader of this type for a given InputFile
+	NewReader(data InputFile) TrackReader
+	// ReadTracks - Read the tracks that are realted to this instance
 	ReadTracks(correction CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (TrackFile, error)
-	ReadBuffer(buffer []byte, correction CorrectionParameter, minimalMovingSpeed float64, minimalStepHight float64) (TrackFile, error)
+	// Check if a reader of this type can read this buffer
+	CheckBuffer(buffer []byte) bool
+	// Check if a reader of this type can read this a file with the extencion of the given path
+	CheckFile(path string) bool
+	// Check if a given InputFile ca be read by a reader of this type
+	CheckInputFile(input InputFile) bool
+	// Get a new InputFile instance for a buffer that can be read by a reader of this type
+	NewInputFileForBuffer(buffer []byte, name string) *InputFile
+	// Get a list of file extensions this reader can read
+	GetValidFileExtensions() []string
 }
 
 // TrackSummaryProvider - Interface for classes that provide track summary data

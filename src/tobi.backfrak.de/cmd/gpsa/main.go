@@ -31,9 +31,12 @@ const OutputSeperator = "; "
 // The version of this program, will be set at compile time by the gradle build script
 var version = "undefined"
 
+var ValidReaders = []gpsabl.TrackReader{&gpxbl.GpxFile{}, &tcxbl.TcxFile{}}
+var ValidFormaters = []gpsabl.OutputFormater{&csvbl.CsvOutputFormater{}, &jsonbl.JSONOutputFormater{}}
+
 func main() {
 
-	var fileArgs []inputFile
+	var fileArgs []gpsabl.InputFile
 
 	// Setup and read-in comandline flags
 	handleComandlineOptions()
@@ -109,19 +112,24 @@ func main() {
 	}
 }
 
-func proccessFileArgs(args []string) []inputFile {
-	var fileArgs []inputFile
+func proccessFileArgs(args []string) []gpsabl.InputFile {
+	var fileArgs []gpsabl.InputFile
 	for _, file := range args {
-		fileArgs = append(fileArgs, *newInputFileWithPath(file))
+		res, input := gpsabl.GetInputFileFromPath(ValidReaders, file)
+		if res == true {
+			fileArgs = append(fileArgs, input)
+		} else {
+			HandleError(newUnKnownFileTypeError(file), file, SkipErrorExitFlag, DontPanicFlag)
+		}
 	}
 
 	return fileArgs
 }
 
 // Get the input files from a stream buffer
-func processInputStream() []inputFile {
+func processInputStream() []gpsabl.InputFile {
 
-	var fileArgs []inputFile
+	var fileArgs []gpsabl.InputFile
 	// Get stdin stream
 	info, errStat := os.Stdin.Stat()
 	if errStat != nil {
@@ -147,7 +155,7 @@ func processInputStream() []inputFile {
 }
 
 // processFiles - processes the input files and adds the found content to the output buffer
-func processFiles(files []inputFile, iFormater gpsabl.OutputFormater) int {
+func processFiles(files []gpsabl.InputFile, iFormater gpsabl.OutputFormater) int {
 
 	if !gpsabl.CheckValidCorrectionParameters(gpsabl.CorrectionParameter(CorrectionParameter)) {
 		HandleError(gpsabl.NewCorrectionParameterNotKnownError(gpsabl.CorrectionParameter(CorrectionParameter)), "", false, DontPanicFlag)
@@ -179,45 +187,28 @@ func processFiles(files []inputFile, iFormater gpsabl.OutputFormater) int {
 }
 
 // goProcessFile - Wraper around, processFile. Use this as go routine
-func goProcessFile(file inputFile, formater gpsabl.OutputFormater, c chan bool) {
+func goProcessFile(file gpsabl.InputFile, formater gpsabl.OutputFormater, c chan bool) {
 	ret := processFile(file, formater)
 
 	c <- ret
 }
 
 // processFile - processes one input file and adds the found content to the output buffer
-func processFile(inFile inputFile, formater gpsabl.OutputFormater) bool {
+func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 	if VerboseFlag == true {
 		fmt.Println("Read file: " + inFile.Name)
 	}
 	var file gpsabl.TrackFile
 	var readErr error
-	if inFile.Type == FilePath {
-		// Find out if we can read the file
-		reader, readerErr := getReader(inFile.Name)
-		if HandleError(readerErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
-			return false
-		}
 
-		// Read the *.gpx into a TrackFile type, using the interface
-		file, readErr = reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
-	} else if inFile.Type == GpxBuffer {
-		// Get a reader for gpx files
-		reader := gpxbl.NewGpxFile(inFile.Name)
-
-		// Get the GPX files conent
-		file, readErr = reader.ReadBuffer(inFile.Buffer, gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
-	} else if inFile.Type == TcxBuffer {
-		// Get a reader for TCX files
-		reader := tcxbl.NewTcxFile(inFile.Name)
-
-		// Get the TCX files conent
-		file, readErr = reader.ReadBuffer(inFile.Buffer, gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
-	} else {
-		// Error, we don't know the inFile.Type
-		HandleError(newUnKnowninputFileTypeError(string(inFile.Type)), inFile.Name, SkipErrorExitFlag, DontPanicFlag)
+	// Find out if we can read the file
+	reader, readerErr := getReader(inFile)
+	if HandleError(readerErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
 	}
+
+	// Read the *.gpx into a TrackFile type, using the interface
+	file, readErr = reader.ReadTracks(gpsabl.CorrectionParameter(CorrectionParameter), MinimalMovingSpeedParameter, MinimalStepHightParameter)
 
 	if HandleError(readErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false
@@ -262,50 +253,67 @@ func getElevationOverDistanceFileName(file gpsabl.TrackFile) string {
 // Get the Interface to format the output
 func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
 	var iFormater gpsabl.OutputFormater
+	var res bool
 	if !gpsabl.CheckValidDepthArg(DepthParameter) {
 		HandleError(gpsabl.NewDepthParameterNotKnownError(gpsabl.DepthArg(DepthParameter)), "", false, DontPanicFlag)
 	}
 	if !gpsabl.CheckValidSummaryArg(SummaryParameter) {
 		HandleError(gpsabl.NewSummaryParamaterNotKnown(gpsabl.SummaryArg(SummaryParameter)), "", false, DontPanicFlag)
 	}
-
-	if outFile == *os.Stdout {
-		if checkStdOutFormatParameterValue(StdOutFormatParameter) == false {
+	if outFile != *os.Stdout {
+		if !checkOutFileExtension(outFile.Name()) {
+			HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
+		}
+	} else {
+		if !checkOutFileType(StdOutFormatParameter) {
 			HandleError(newUnKnownFileTypeError(StdOutFormatParameter), "", false, DontPanicFlag)
 		}
-
-		if strings.ToLower(StdOutFormatParameter) == strings.ToLower(stdOutFormatParameterValues[0]) {
-			iFormater = getCsvOutputFormater()
-		}
-		if strings.ToLower(StdOutFormatParameter) == strings.ToLower(stdOutFormatParameterValues[1]) {
-			jsonFormater := jsonbl.NewJSONOutputFormater()
-			iFormater = gpsabl.OutputFormater(jsonFormater)
-		}
 	}
 
-	if strings.HasSuffix(strings.ToLower(outFile.Name()), ".csv") {
-		iFormater = getCsvOutputFormater()
+	res, iFormater = gpsabl.GetOutputFormater(ValidFormaters, outFile, gpsabl.OutputFormaterType(strings.ToUpper(StdOutFormatParameter)))
+	if res == false {
+		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
 	}
-
-	if strings.HasSuffix(strings.ToLower(outFile.Name()), ".json") {
-		jsonFormater := jsonbl.NewJSONOutputFormater()
-		iFormater = gpsabl.OutputFormater(jsonFormater)
+	switch iFormater.(type) {
+	case gpsabl.TextOutputFormater:
+		iFormater = setTextutputFormater(iFormater.GetTextOutputFormater())
 	}
-
 	if iFormater == nil {
 		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)
 	}
 	return iFormater
 }
 
-func getCsvOutputFormater() *csvbl.CsvOutputFormater {
-	csvFormater := csvbl.NewCsvOutputFormater(OutputSeperator, PrintCsvHeaderFlag)
-	if !csvbl.CheckTimeFormatIsValid(TimeFormatParameter) {
-		HandleError(csvbl.NewTimeFormatNotKnown(csvbl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
-	} else {
-		csvFormater.SetTimeFormat(TimeFormatParameter)
+func checkOutFileExtension(filePath string) bool {
+	for _, formater := range ValidFormaters {
+		if formater.CheckFileExtension(filePath) {
+			return true
+		}
 	}
-	return csvFormater
+
+	return false
+}
+
+func checkOutFileType(fileType string) bool {
+	for _, formater := range ValidFormaters {
+		if formater.CheckOutputFormaterType(gpsabl.OutputFormaterType(strings.ToUpper(fileType))) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func setTextutputFormater(formater gpsabl.TextOutputFormater) gpsabl.OutputFormater {
+	if !formater.CheckTimeFormatIsValid(TimeFormatParameter) {
+		HandleError(gpsabl.NewTimeFormatNotKnown(gpsabl.TimeFormat(TimeFormatParameter)), "", false, DontPanicFlag)
+	} else {
+		formater.SetTimeFormat(TimeFormatParameter)
+	}
+	formater.SetAddHeader(PrintCsvHeaderFlag)
+	formater.SetSeperator(OutputSeperator)
+
+	return formater
 }
 
 // Get the file interface we are using as output. Maybe a file or STDOUT
@@ -336,36 +344,15 @@ func getOutPutStream() *os.File {
 }
 
 // Get the interface that can read a given input file
-func getReader(file string) (gpsabl.TrackReader, error) {
+func getReader(file gpsabl.InputFile) (gpsabl.TrackReader, error) {
 
-	if strings.HasSuffix(file, "gpx") == true { // If the file is a *.gpx, we can read it
-		return getGpxReader(file), nil
-	}
-
-	if strings.HasSuffix(file, "tcx") == true { // If the file is a *.tcx, we can read it
-		return getTcxReader(file), nil
+	res, reader := gpsabl.GetNewReader(ValidReaders, file)
+	if res == true {
+		return reader, nil
 	}
 
 	// We dont know the file type
-	return nil, newUnKnownFileTypeError(file)
-}
-
-// Get the interface that can read a *.gpx file
-func getGpxReader(file string) gpsabl.TrackReader {
-	// Get the GpxFile type
-	gpx := gpxbl.NewGpxFile(file)
-
-	// Convert the GpxFile to the TrackReader interface
-	return gpsabl.TrackReader(&gpx)
-}
-
-// Get the interface that can read a *.tcx file
-func getTcxReader(file string) gpsabl.TrackReader {
-	// Get the TcxFile type
-	tcx := tcxbl.NewTcxFile(file)
-
-	// Convert the TcxFile to the TrackReader interface
-	return gpsabl.TrackReader(&tcx)
+	return nil, newUnKnownFileTypeError(file.Name)
 }
 
 // outFileExists checks if a file exists and is not a directory before we
@@ -379,14 +366,6 @@ func outFileExists(filename string) bool {
 	if info.IsDir() {
 		err := newOutFileIsDirError(filename)
 		HandleError(err, filename, false, DontPanicFlag)
-	}
-	return true
-}
-
-func fileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
 	}
 	return true
 }

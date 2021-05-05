@@ -730,3 +730,139 @@ func TestParameterErrors(t *testing.T) {
 		t.Errorf("Got no error when a MinimalStepHightLessThenZero error is expected")
 	}
 }
+
+func TestNewReaderWithValidFilePath(t *testing.T) {
+	gpx := GpxFile{}
+	file := testhelper.GetValidGPX("01.gpx")
+	checkRes := gpx.CheckFile(file)
+	input := *gpsabl.NewInputFileWithPath(file)
+
+	sut := gpx.NewReader(input)
+
+	if checkRes != true {
+		t.Errorf("GpxFile can not read %s", file)
+	}
+
+	trk, err := sut.ReadTracks(gpsabl.STEPS, 0.01, 10)
+	if err != nil {
+		t.Errorf("Got error \"%s\" but expect none", err)
+	}
+
+	if trk.FilePath != file {
+		t.Errorf("The trk.FilePath %s is not the given path %s", trk.FilePath, file)
+	}
+
+	if trk.GetDistance() != 18478.293509238614 {
+		t.Errorf("The Distance is %f, but should be %f", trk.GetDistance(), 18478.293509238614)
+	}
+
+}
+
+func TestNewReaderWithValidBuffer(t *testing.T) {
+	gpx := GpxFile{}
+	buffer, createErr := testhelper.GetValidGpxBuffer("01.gpx")
+	name := "Buffer 1"
+	if createErr != nil {
+		t.Fatalf("Got error \"%s\" while creating the input buffer", createErr)
+	}
+	checkRes := gpx.CheckBuffer(buffer)
+	input := *gpx.NewInputFileForBuffer(buffer, name)
+
+	sut := gpx.NewReader(input)
+
+	if checkRes != true {
+		t.Errorf("GpxFile can not read from buffer")
+	}
+
+	trk, err := sut.ReadTracks(gpsabl.STEPS, 0.01, 10)
+	if err != nil {
+		t.Errorf("Got error \"%s\" but expect none", err)
+	}
+
+	if trk.FilePath != name {
+		t.Errorf("The trk.FilePath %s is not the given path %s", trk.FilePath, name)
+	}
+
+	if trk.GetDistance() != 18478.293509238614 {
+		t.Errorf("The Distance is %f, but should be %f", trk.GetDistance(), 18478.293509238614)
+	}
+
+}
+
+func TestCheckInputFile(t *testing.T) {
+	gpx := GpxFile{}
+	file1 := testhelper.GetValidGPX("01.gpx")
+	input1 := *gpsabl.NewInputFileWithPath(file1)
+	if gpx.CheckInputFile(input1) == false {
+		t.Errorf("GpxFile can not read %s", file1)
+	}
+
+	file2 := testhelper.GetValidTcx("01.tcx")
+	input2 := *gpsabl.NewInputFileWithPath(file2)
+	if gpx.CheckInputFile(input2) == true {
+		t.Errorf("GpxFile can read %s", file2)
+	}
+
+	buffer1, createErr1 := testhelper.GetValidGpxBuffer("01.gpx")
+	name := "Buffer 1"
+	if createErr1 != nil {
+		t.Fatalf("Got error \"%s\" while creating the input buffer", createErr1)
+	}
+	input3 := *gpx.NewInputFileForBuffer(buffer1, name)
+	if gpx.CheckInputFile(input3) == false {
+		t.Errorf("GpxFile can not read %s from buffer", file1)
+	}
+}
+
+func TestCheckBuffer(t *testing.T) {
+	gpx := GpxFile{}
+	buffer1, createErr1 := testhelper.GetValidGpxBuffer("01.gpx")
+	if createErr1 != nil {
+		t.Fatalf("Got error \"%s\" while creating the input buffer", createErr1)
+	}
+
+	if gpx.CheckBuffer(buffer1) == false {
+		t.Errorf("GpxFile can not read %s from buffer", testhelper.GetValidTcx("01.tcx"))
+	}
+
+	buffer2, createErr2 := testhelper.GetValidTcxBuffer("01.tcx")
+	if createErr2 != nil {
+		t.Fatalf("Got error \"%s\" while creating the input buffer", createErr1)
+	}
+
+	if gpx.CheckBuffer(buffer2) == true {
+		t.Errorf("GpxFile can  read %s from buffer", testhelper.GetValidGPX("01.gpx"))
+	}
+}
+
+func TestReadBufferWithInvalidBuffer(t *testing.T) {
+	buffer1, createErr1 := testhelper.GetInvalidGpxBuffer("01.gpx")
+	if createErr1 != nil {
+		t.Fatalf("Got error \"%s\" while creating the input buffer", createErr1)
+	}
+
+	_, err := ReadBuffer(buffer1, "bla", gpsabl.STEPS, 0.3, 10.0)
+	if err == nil {
+		t.Errorf("Got no error, but expected one")
+	}
+
+}
+
+func TestGetValidFileExtensions(t *testing.T) {
+	gpx := GpxFile{}
+	file := testhelper.GetValidGPX("01.gpx")
+	input := *gpsabl.NewInputFileWithPath(file)
+
+	sut := gpx.NewReader(input)
+
+	extensions := sut.GetValidFileExtensions()
+
+	if len(extensions) != 1 {
+		t.Errorf("The GetValidFileExtensions does not give the expected amount of data")
+	}
+
+	if extensions[0] != ".gpx" {
+		t.Errorf("The GetValidFileExtensions does not give the expected value")
+	}
+
+}

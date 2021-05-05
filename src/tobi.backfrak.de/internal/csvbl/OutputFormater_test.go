@@ -18,17 +18,84 @@ import (
 const numberOfSemicolonExpected = 19
 const numberOfNotValideExpected = 9
 
-func TestNewTimeFormatNotKnown(t *testing.T) {
-	val := "asdgfg"
-	err := NewTimeFormatNotKnown(TimeFormat(val))
+func TestTextOutputFormater(t *testing.T) {
+	var sut CsvOutputFormater
 
-	if err.GivenValue != TimeFormat(val) {
-		t.Errorf("The GivenValue was %s, but %s was expected", err.GivenValue, val)
+	if sut.GetAddHeader() {
+		t.Errorf("AddHeader is set but should not")
+	}
+	sut.SetAddHeader(true)
+	if !sut.GetAddHeader() {
+		t.Errorf("AddHeader is not set but should")
 	}
 
-	if strings.Contains(err.Error(), val) == false {
-		t.Errorf("The error message of DepthParameterNotKnownError does not contain the expected GivenValue")
+	sut.SetAddHeader(false)
+	if sut.GetAddHeader() {
+		t.Errorf("AddHeader is set but should not")
 	}
+
+	sut.SetSeperator("123")
+	if sut.GetSeperator() != "123" {
+		t.Errorf("Seperator is not the expected value")
+	}
+
+	if sut.CheckTimeFormatIsValid(string(gpsabl.RFC3339)) == false {
+		t.Errorf("RFC3339 is not a valid Time Format")
+	}
+
+	if sut.CheckTimeFormatIsValid("asd") == true {
+		t.Errorf("asd is a valid Time Format")
+	}
+}
+
+func TestNewOutputFormater(t *testing.T) {
+	var orig CsvOutputFormater
+	sut := orig.NewOutputFormater()
+
+	if sut.CheckFileExtension("my/output.csv") == false {
+		t.Errorf("JSONOutputFormater can not write *.csv")
+	}
+
+	if sut.CheckFileExtension("my/output.json") == true {
+		t.Errorf("JSONOutputFormater can write *.json")
+	}
+
+	if sut.CheckOutputFormaterType(CSVOutputFormatertype) == false {
+		t.Errorf("JSONOutputFormater can not write %s type", CSVOutputFormatertype)
+	}
+
+	if sut.CheckOutputFormaterType(gpsabl.OutputFormaterType("abs")) == true {
+		t.Errorf("JSONOutputFormater can write %s type", "abs")
+	}
+
+	ext := sut.GetFileExtensions()
+	if len(ext) != 1 {
+		t.Errorf("The number of FileExtensions is not expected")
+	}
+
+	if ext[0] != ".csv" {
+		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", ext[0], ".csv")
+	}
+
+	form := sut.GetOutputFormaterTypes()
+
+	if len(form) != 1 {
+		t.Errorf("The number of FileExtensionsTypes is not expected")
+	}
+
+	if form[0] != gpsabl.OutputFormaterType("CSV") {
+		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", form[0], "CSV")
+	}
+
+	textOut := sut.GetTextOutputFormater()
+
+	switch textOut.(type) {
+	case gpsabl.TextOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("The Interface is not from the expected type")
+	}
+
 }
 
 func TestSetTimeFormat(t *testing.T) {
@@ -57,18 +124,10 @@ func TestSetTimeFormat(t *testing.T) {
 		t.Errorf("Got no errorbut expected one")
 	}
 	switch err2.(type) {
-	case *TimeFormatNotKnown:
+	case *gpsabl.TimeFormatNotKnown:
 		fmt.Println("OK")
 	default:
 		t.Errorf("The error is not from the expected type")
-	}
-}
-
-func TestGetValidTimeFormatsString(t *testing.T) {
-	str := GetValidTimeFormatsString()
-	res := fmt.Sprintf("\"%s\" \"%s\" \"%s\" ", time.UnixDate, time.RFC850, time.RFC3339)
-	if str != res {
-		t.Errorf("Got \"%s\", but expected \"%s \"", str, res)
 	}
 }
 
@@ -817,7 +876,7 @@ func TestGetStatisticSummaryLinesWithoutTime(t *testing.T) {
 
 func TestFormatTimeDurationUnknownFormat(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
-	frt.timeFormater = TimeFormat("blabla")
+	frt.timeFormater = gpsabl.TimeFormat("blabla")
 	now := time.Now()
 	dur := now.Sub(now.Add(-2 * time.Hour))
 	_, err := frt.formatTimeDuration(dur)
@@ -826,7 +885,7 @@ func TestFormatTimeDurationUnknownFormat(t *testing.T) {
 		t.Errorf("Got no error, but expected one")
 	}
 	switch err.(type) {
-	case *TimeFormatNotKnown:
+	case *gpsabl.TimeFormatNotKnown:
 		fmt.Println("OK")
 	default:
 		t.Errorf("The error is not from the expected type")
@@ -835,7 +894,7 @@ func TestFormatTimeDurationUnknownFormat(t *testing.T) {
 
 func TestFormatTimeDurationRFC3339Format(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
-	err := frt.SetTimeFormat(string(RFC3339))
+	err := frt.SetTimeFormat(string(gpsabl.RFC3339))
 	if err != nil {
 		t.Errorf("Got an error, but expected none")
 	}
@@ -876,7 +935,7 @@ func TestFormatTimeDurationRFC3339Format(t *testing.T) {
 
 func TestFormatTimeDurationRFC850Format(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
-	err := frt.SetTimeFormat(string(RFC850))
+	err := frt.SetTimeFormat(string(gpsabl.RFC850))
 	if err != nil {
 		t.Errorf("Got an error, but expected none")
 	}
@@ -917,7 +976,7 @@ func TestFormatTimeDurationRFC850Format(t *testing.T) {
 
 func TestFormatTimeDurationUnixFormat(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
-	err := frt.SetTimeFormat(string(UnixDate))
+	err := frt.SetTimeFormat(string(gpsabl.UnixDate))
 	if err != nil {
 		t.Errorf("Got an error, but expected none")
 	}
@@ -958,34 +1017,34 @@ func TestFormatTimeDurationUnixFormat(t *testing.T) {
 
 func TestGetTimeHeader(t *testing.T) {
 	frt := NewCsvOutputFormater(";", false)
-	frt.timeFormater = TimeFormat("blabla")
+	frt.timeFormater = gpsabl.TimeFormat("blabla")
 	_, err := frt.getTimeDurationHeader("bla")
 
 	if err == nil {
 		t.Errorf("Got no error, but expected one")
 	}
 	switch err.(type) {
-	case *TimeFormatNotKnown:
+	case *gpsabl.TimeFormatNotKnown:
 		fmt.Println("OK")
 	default:
 		t.Errorf("The error is not from the expected type")
 	}
 
-	frt.timeFormater = RFC3339
+	frt.timeFormater = gpsabl.RFC3339
 	str, _ := frt.getTimeDurationHeader("bla")
 	res := "bla (xxhxxmxxs)"
 	if str != res {
 		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
 	}
 
-	frt.timeFormater = UnixDate
+	frt.timeFormater = gpsabl.UnixDate
 	str, _ = frt.getTimeDurationHeader("bla")
 	res = "bla (s)"
 	if str != res {
 		t.Errorf("Get  \"%s \" but expected \"%s\"", str, res)
 	}
 
-	frt.timeFormater = RFC850
+	frt.timeFormater = gpsabl.RFC850
 	str, _ = frt.getTimeDurationHeader("bla")
 	res = "bla (hh:mm:ss)"
 	if str != res {
