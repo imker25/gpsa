@@ -51,6 +51,8 @@ echo "# ###################################################################"
 
 # Test the version output
 assert_raises "$gpsa -version | grep Version: &> /dev/null" 0
+# Test help output
+assert_raises "$gpsa -help | grep Version: &> /dev/null" 0
 
 # Test output to file
 if [ -f "$csv_out" ]; then
