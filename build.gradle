@@ -178,10 +178,10 @@ task installTestConvert(dependsOn: 'getEnvironment') {
     }
     doLast {
         // Install go get github.com/tebeka/go2xunit so it can be used after test execution
-        println "go get github.com/tebeka/go2xunit"
+        println "go install -v github.com/tebeka/go2xunit@v1.4.10"
         exec {
             workingDir "$scriptDirectory"
-            commandLine 'go', 'get', 'github.com/tebeka/go2xunit'
+            commandLine 'go', 'install', '-v' ,'github.com/tebeka/go2xunit@v1.4.10'
             environment('GOPATH', goPath)
         }
     }
@@ -232,7 +232,7 @@ task test(dependsOn: 'getEnvironment') {
         def outtext = ""
         packageArray.each { packageDir ->
             def outputStream = new ByteArrayOutputStream()
-            println "cd $packageDir && go test -v $raceParameter  > ${logDir}TestsRun.log "
+            println "cd $packageDir && go test -v $raceParameter  >> ${logDir}TestsRun.log "
             exec {
                 workingDir "${scriptDirectory}${File.separator}${packageDir}"
                 executable "go"
@@ -256,24 +256,26 @@ task cover(dependsOn: 'getEnvironment') {
         println '##################################################################################'
     }
     doLast {
-        println "go test -cover $packagesToTest"
         def packageArray = packagesToTest.split(' ');
-        def callArgsTestRun = new String[packageArray.length + 3]
+        def callArgsTestRun = new String[3]
         callArgsTestRun[0] = 'test'
         callArgsTestRun[1] = '-v'
         callArgsTestRun[2] = '-cover'
-        def i = 0
-        packageArray.each {
-            callArgsTestRun[i + 3] = it
-            i = i + 1
-        }
+        def outtext = ""
+        packageArray.each { packageDir ->
+            def outputStream = new ByteArrayOutputStream()
+            println "cd $packageDir && go test -v -cover  >> ${logDir}TestsCoverRun.log "
+            exec {
+                workingDir "${scriptDirectory}${File.separator}${packageDir}"
+                executable "go"
+                args callArgsTestRun
+                environment('GOPATH', goPath)
 
-        exec {
-            workingDir "$scriptDirectory"
-            executable "go"
-            args callArgsTestRun
-            environment('GOPATH', goPath)
-
+                standardOutput outputStream
+                errorOutput outputStream
+            } 
+            outtext = outtext + outputStream.toString()
+            file("${logDir}TestsCoverRun.log").text = outtext 
         }
     }
 }
@@ -289,7 +291,7 @@ task convertTestResults(dependsOn: 'installTestConvert') {
         def logTextFile = logDir + 'TestsRun.log'
         def logXMLFile = logDir + 'TestsResult.xml'
         def convertExe = binDir + 'go2xunit'
-        println "${convertExe} -input ${logTextFile} -output ${logXMLFile}"
+        println "go run github.com/tebeka/go2xunit -input ${logTextFile} -output ${logXMLFile}"
         exec {
             workingDir "$scriptDirectory"
             commandLine 'go', 'run', 'github.com/tebeka/go2xunit', '-input', logTextFile, '-output', logXMLFile
