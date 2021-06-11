@@ -37,12 +37,12 @@ def runGradle(String task) {
 
 /** Function to clean the git repo */
 def gitCleanup() {
-		if (isUnix()) {
+	if (isUnix()) {
 		echo "Clean workspace on unix"
 		sh 'git clean -fdx'
 	} else {
 		echo "Clean workspace on windows"
-		bat 'git clean -fdx'
+		bat 'git clean -fx'
 	}
 }
 
