@@ -306,25 +306,25 @@ task build(dependsOn: 'clean') {
         println '##################################################################################'
     }
     doLast {
-        println "go install -v -ldflags=\"-X main.version=${programVersion}\" $packagesToBuild"
+        
         def versionArg ='-X main.version=' + "${programVersion}" +''
         def packageArray = packagesToBuild.split(' ');
-        def callArgs = new String[packageArray.length + 4]
-        callArgs[0] = 'install'
+        def callArgs = new String[6]
+        callArgs[0] = 'build'
         callArgs[1] = '-v'
         callArgs[2] = "-ldflags"
         callArgs[3] = versionArg
-        def i = 0
-        packageArray.each {
-            callArgs[i + 4] = it
-            i = i + 1
-        }
+        callArgs[4] = '-o'
+        callArgs[5] = "$binDir"
+        packageArray.each { packageDir ->
+            println "cd $packageDir && go build -o $binDir -v -ldflags=\"-X main.version=${programVersion}\""
+            exec {
+                workingDir "${scriptDirectory}${File.separator}${packageDir}"
+                executable "go"
+                args callArgs
+                environment('GOPATH', goPath)
+            }
 
-        exec {
-            workingDir "$scriptDirectory"
-            executable "go"
-            args callArgs
-            environment('GOPATH', goPath)
         }
     }
 }
