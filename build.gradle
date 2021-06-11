@@ -2,7 +2,6 @@
 defaultTasks 'build'
 def programVersion=''
 def programVersionNumber=''
-def goPath
 def scriptDirectory
 def scriptFile
 def osName
@@ -84,27 +83,6 @@ task getEnvironment {
         def logDirBase = new File(logDir)
         logDirBase.mkdirs()
 
-        // Make sure the gopath is valid for build
-        goPath = "${System.env.GOPATH}"
-
-        if ("$goPath"!="null" ) {
-            if (goPath.contains(scriptDirectory) == false) {
-                println "GOPATH needs to be extended with: $scriptDirectory"
-                if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-                    println "Go Path will be set to: $goPath;$scriptDirectory"
-                    goPath ="$goPath;$scriptDirectory"
-                } else {
-                    println "Go Path will be set to: $goPath:$scriptDirectory"
-                    goPath ="$goPath:$scriptDirectory"
-                }
-            } else {
-                println 'GOPATH already contains all needed'
-            }
-        } else {
-            println "No GOPATH set. Set it to: $scriptDirectory"
-            goPath ="$scriptDirectory"
-        }
-
         if ( osName.contains('Windows') == true) {
             raceParameter = ''
         } else {
@@ -114,7 +92,6 @@ task getEnvironment {
         programVersionNumber = programVersion + "." + getGitHight()
         programVersion= programVersionNumber + "-" + getGitHash()
         println "Program version: ${programVersion}"
-        println "GOPATH=$goPath"
 
         // Find all directories within src/ that contains *.go files
         new File(srcDir).traverse( [maxDepth: 100, filter: ~/.*.go/ , type: groovy.io.FileType.FILES]){
@@ -182,7 +159,6 @@ task installTestConvert(dependsOn: 'getEnvironment') {
         exec {
             workingDir "$scriptDirectory"
             commandLine 'go', 'install', '-v' ,'github.com/tebeka/go2xunit@v1.4.10'
-            environment('GOPATH', goPath)
         }
     }
 }
@@ -237,7 +213,6 @@ task test(dependsOn: 'getEnvironment') {
                 workingDir "${scriptDirectory}${File.separator}${packageDir}"
                 executable "go"
                 args callArgsTestRun
-                environment('GOPATH', goPath)
 
                 standardOutput outputStream
                 errorOutput outputStream
@@ -269,7 +244,6 @@ task cover(dependsOn: 'getEnvironment') {
                 workingDir "${scriptDirectory}${File.separator}${packageDir}"
                 executable "go"
                 args callArgsTestRun
-                environment('GOPATH', goPath)
 
                 standardOutput outputStream
                 errorOutput outputStream
@@ -295,7 +269,6 @@ task convertTestResults(dependsOn: 'installTestConvert') {
         exec {
             workingDir "$scriptDirectory"
             commandLine 'go', 'run', 'github.com/tebeka/go2xunit', '-input', logTextFile, '-output', logXMLFile
-            environment('GOPATH', goPath)
         }
     }
 }
@@ -324,7 +297,6 @@ task build(dependsOn: 'clean') {
                 workingDir "${scriptDirectory}${File.separator}${packageDir}"
                 executable "go"
                 args callArgs
-                environment('GOPATH', goPath)
             }
 
         }
