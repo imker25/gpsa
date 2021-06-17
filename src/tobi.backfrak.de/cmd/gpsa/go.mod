@@ -1,4 +1,4 @@
-module "tobi.backfrak.de/gpsa"
+module "tobi.backfrak.de/cmd/gpsa"
 
 
 
