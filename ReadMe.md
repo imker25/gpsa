@@ -241,7 +241,7 @@ The statistic summary report will include `-` (in case of csv output) or `0.0000
 
 ## Development
 
-To develop this software install [Go v1.16](https://golang.org/)  and [Gradle v7.0](https://gradle.org/) on your machine.
+To develop this software install [Go v1.17](https://golang.org/)  and [Gradle v7.1](https://gradle.org/) on your machine.
 
 ### Build
 
