@@ -31,7 +31,7 @@ def runGradle(String task) {
 		sh "./gradlew ${task}"
 	} else {
 		echo "Run: \"gradle ${task}\" on windows"
-		bat ".\gradlew.bat ${task}"
+		bat ".\\gradlew.bat ${task}"
 	}
 }
 
