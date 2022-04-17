@@ -241,16 +241,16 @@ The statistic summary report will include `-` (in case of csv output) or `0.0000
 
 ## Development
 
-To develop this software install [Go v1.17](https://golang.org/)  and [Gradle v7.1](https://gradle.org/) on your machine.
+To develop this software install [Go v1.17](https://golang.org/)  and [java](https://java.com/de/download/manual.jsp) on your machine.
 
 ### Build
 
 Use [Gradle](https://gradle.org/) to build and test the project.
 
 ```sh
-gradle build        # build the project
-gradle build test   # build and run the tests for the project
-gradle test         # test the project
+./gradlew build        # build the project
+./gradlew build test   # build and run the tests for the project
+./gradlew test         # test the project
 ```
 
 ### Hints for VSCode Users

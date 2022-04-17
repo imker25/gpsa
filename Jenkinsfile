@@ -28,10 +28,10 @@ def runGradle(String task) {
 
 	if (isUnix()) {
 		echo "Run: \"gradle ${task}\" on unix"
-		sh "gradle ${task}"
+		sh "./gradlew ${task}"
 	} else {
 		echo "Run: \"gradle ${task}\" on windows"
-		bat "gradle ${task}"
+		bat ".\gradlew.bat ${task}"
 	}
 }
 
