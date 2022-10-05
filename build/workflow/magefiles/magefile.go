@@ -391,6 +391,7 @@ func listContains(list []string, value string) bool {
 }
 
 func zipSources(sources []string, target string) error {
+	fmt.Println(fmt.Sprintf("Zip %s into %s", sources, target))
 	// 1. Create a ZIP file and zip.Writer
 	f, err := os.Create(target)
 	if err != nil {
