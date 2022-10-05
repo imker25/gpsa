@@ -105,12 +105,9 @@ static void main(String[] args) {
 								}
 
 								stage("Build on \"${node_name}\"") {
-									runBuildWorkflow( "build")
+									runBuildWorkflow( "build test")
 								}
 
-								stage("Test on \"${node_name}\"") {
-									runBuildWorkflow( "test")
-								}
 
 								if (isUnix()) {
 									stage("Run Integration Tests on \"${node_name}\"") {
