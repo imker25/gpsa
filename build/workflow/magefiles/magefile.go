@@ -40,11 +40,29 @@ type buildContext struct {
 	PackagesToTest       []string
 	BuildZipPath         string
 	BinZipPath           string
+	VersionFilePath      string
 }
 
 var gpsaBuildContext buildContext
 
 func getEnvironment() error {
+	workDir, errWorkDir := os.Getwd()
+	if errWorkDir != nil {
+		return errWorkDir
+	}
+
+	if strings.HasSuffix(workDir, "build\\workflow\\") || strings.HasSuffix(workDir, "build\\workflow") || strings.HasSuffix(workDir, "build/workflow/") || strings.HasSuffix(workDir, "build/workflow") {
+		workDir = filepath.Join(workDir, "..", "..")
+	}
+
+	gpsaBuildContext.WorkDir = workDir
+	gpsaBuildContext.BinDir = filepath.Join(workDir, "bin")
+	gpsaBuildContext.LogDir = filepath.Join(workDir, "logs")
+	gpsaBuildContext.PackageDir = filepath.Join(workDir, "pkg")
+	gpsaBuildContext.SourceDir = filepath.Join(workDir, "src")
+	gpsaBuildContext.BuildZipPath = filepath.Join(gpsaBuildContext.WorkDir, fmt.Sprintf("%s_Build.zip", runtime.GOOS))
+	gpsaBuildContext.BinZipPath = filepath.Join(gpsaBuildContext.WorkDir, fmt.Sprintf("%s_bin.zip", runtime.GOOS))
+	gpsaBuildContext.VersionFilePath = filepath.Join(gpsaBuildContext.WorkDir, VERSION_FILE)
 
 	hash, errHash := getGitHash()
 	if errHash != nil {
@@ -69,18 +87,6 @@ func getEnvironment() error {
 	gpsaBuildContext.ProgramVersion = fmt.Sprintf("%s.%d-%s", givenVersion, hight, hash)
 
 	fmt.Println(fmt.Sprintf("Run gpsa build workflow for V%s", gpsaBuildContext.ProgramVersionNumber))
-	workDir, errWorkDir := os.Getwd()
-	if errWorkDir != nil {
-		return errWorkDir
-	}
-
-	gpsaBuildContext.WorkDir = workDir
-	gpsaBuildContext.BinDir = filepath.Join(workDir, "bin")
-	gpsaBuildContext.LogDir = filepath.Join(workDir, "logs")
-	gpsaBuildContext.PackageDir = filepath.Join(workDir, "pkg")
-	gpsaBuildContext.SourceDir = filepath.Join(workDir, "src")
-	gpsaBuildContext.BuildZipPath = filepath.Join(gpsaBuildContext.WorkDir, fmt.Sprintf("%s_Build.zip", runtime.GOOS))
-	gpsaBuildContext.BinZipPath = filepath.Join(gpsaBuildContext.WorkDir, fmt.Sprintf("%s_bin.zip", runtime.GOOS))
 
 	errFindBuild := filepath.Walk(filepath.Join(gpsaBuildContext.SourceDir, PROJECT_NAME_SPACE, "cmd"), func(path string, info os.FileInfo, err error) error {
 
@@ -335,7 +341,9 @@ func CreateBuildZip() error {
 }
 
 func getGitHash() (string, error) {
-	hash, err := exec.Command("git", "describe", "--always", "--long", "--dirty").Output()
+	cmd := exec.Command("git", "describe", "--always", "--long", "--dirty")
+	cmd.Dir = gpsaBuildContext.WorkDir
+	hash, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
@@ -344,20 +352,26 @@ func getGitHash() (string, error) {
 }
 
 func getGitHight() (int, error) {
-	lastChange, errLast := exec.Command("git", "log", "--pretty=format:\"%H\"", "-n 1", "--follow", VERSION_FILE).Output()
+	cmd := exec.Command("git", "log", "--pretty=format:\"%H\"", "-n 1", "--follow", VERSION_FILE)
+	cmd.Dir = gpsaBuildContext.WorkDir
+	lastChange, errLast := cmd.Output()
 	if errLast != nil {
 		return -1, errLast
 	}
 	lastChangeStr := strings.ReplaceAll(strings.TrimSpace(string(lastChange)), "\"", "")
 
-	head, errHead := exec.Command("git", "log", "--pretty=format:\"%H\"", "-n 1").Output()
+	cmd = exec.Command("git", "log", "--pretty=format:\"%H\"", "-n 1")
+	cmd.Dir = gpsaBuildContext.WorkDir
+	head, errHead := cmd.Output()
 	if errHead != nil {
 		return -1, errHead
 	}
 
 	headStr := strings.ReplaceAll(strings.TrimSpace(string(head)), "\"", "")
 
-	hight, hightErr := exec.Command("git", "rev-list", "--count", lastChangeStr+".."+headStr).Output()
+	cmd = exec.Command("git", "rev-list", "--count", lastChangeStr+".."+headStr)
+	cmd.Dir = gpsaBuildContext.WorkDir
+	hight, hightErr := cmd.Output()
 	if hightErr != nil {
 		return -1, hightErr
 	}
@@ -372,7 +386,7 @@ func getGitHight() (int, error) {
 }
 
 func readVersionMaster() (string, error) {
-	content, err := ioutil.ReadFile(VERSION_FILE)
+	content, err := ioutil.ReadFile(gpsaBuildContext.VersionFilePath)
 	if err != nil {
 		return "", err
 	}
