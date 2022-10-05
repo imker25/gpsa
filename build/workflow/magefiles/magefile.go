@@ -175,6 +175,9 @@ func Build() error {
 
 	for _, packToBuild := range gpsaBuildContext.PackagesToBuild {
 		outPutPath := filepath.Join(gpsaBuildContext.BinDir, filepath.Base(packToBuild))
+		if runtime.GOOS == "windows" {
+			outPutPath = fmt.Sprintf(outPutPath, ".exe")
+		}
 		fmt.Println(fmt.Sprintf("Compile package '%s' to '%s'", packToBuild, outPutPath))
 
 		ldfFlags := fmt.Sprintf("-ldflags=\"-X main.version=%s\"", gpsaBuildContext.ProgramVersion)
