@@ -241,17 +241,19 @@ The statistic summary report will include `-` (in case of csv output) or `0.0000
 
 ## Development
 
-To develop this software install [Go v1.17](https://golang.org/)  and [java](https://java.com/de/download/manual.jsp) on your machine.
+To develop this software install [Go v1.17](https://golang.org/) on your machine.
 
 ### Build
 
-Use [Gradle](https://gradle.org/) to build and test the project.
+Use the [mage](https://magefile.org/) base build script to build and test the project.
 
 ```sh
-./gradlew build        # build the project
-./gradlew build test   # build and run the tests for the project
-./gradlew test         # test the project
+./build.sh build        # build the project
+./build.sh build test   # build and run the tests for the project
+./build.sh test         # test the project
 ```
+
+**Remark:** On Windows replace `./build.sh` with `.\build.bat`
 
 ### Hints for VSCode Users
 
@@ -266,7 +268,7 @@ The ```tasks.json```:
         {
             "label": "Build",
             "type": "shell",
-            "command": "gradle build test",
+            "command": "${workspaceRoot}/build.sh build test",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -275,7 +277,7 @@ The ```tasks.json```:
         {
             "label": "Test",
             "type": "shell",
-            "command": "gradle test",
+            "command": "${workspaceRoot}/build.sh test",
             "group": {
                 "kind": "test",
                 "isDefault": true

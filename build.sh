@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Script to run the mage build workflow for the project
+# Script to run the mage build workflow for the project.
+# - running the script without paramates just recompiles the project
+# - running the script with -l list the targets
+# - running the script with -h shows the mage help
+
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 

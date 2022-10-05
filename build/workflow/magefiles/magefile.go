@@ -127,6 +127,7 @@ func getEnvironment() error {
 	return nil
 }
 
+// Get the build name files
 func GetBuildName() error {
 	mg.Deps(getEnvironment, Clean)
 	fmt.Println(fmt.Sprintf("Create gpsa Version files..."))
@@ -161,7 +162,7 @@ func GetBuildName() error {
 	return nil
 }
 
-// A build step that requires additional params, or platform specific steps for example
+// Compiles the project
 func Build() error {
 	mg.Deps(getEnvironment, Clean, GetBuildName)
 	fmt.Println(fmt.Sprintf("Building gpsa V%s ...", gpsaBuildContext.ProgramVersion))
@@ -203,8 +204,9 @@ func Build() error {
 	return nil
 }
 
+// Runs the tests for the project
 func Test() error {
-	mg.Deps(getEnvironment, Clean, GetBuildName, InstallTestDeps)
+	mg.Deps(getEnvironment, Clean, GetBuildName, installTestDeps)
 	fmt.Println(fmt.Sprintf("Testing gpsa... "))
 
 	if _, err := os.Stat(gpsaBuildContext.LogDir); os.IsNotExist(err) {
@@ -265,8 +267,9 @@ func Test() error {
 	return nil
 }
 
+// Runs test coverage for the project
 func Cover() error {
-	mg.Deps(getEnvironment, Clean, GetBuildName, InstallTestDeps)
+	mg.Deps(getEnvironment, Clean, GetBuildName, installTestDeps)
 	fmt.Println(fmt.Sprintf("Testing gpsa... "))
 
 	if _, err := os.Stat(gpsaBuildContext.LogDir); os.IsNotExist(err) {
@@ -303,16 +306,7 @@ func Cover() error {
 	return nil
 }
 
-// Manage your deps, or running package managers.
-func InstallTestDeps() error {
-	mg.Deps(Clean)
-	fmt.Println("Installing Test Dependencies...")
-	cmd := exec.Command("go", "install", "-v", "github.com/tebeka/go2xunit@v1.4.10")
-	cmd.Dir = filepath.Join(gpsaBuildContext.WorkDir, "build")
-	return cmd.Run()
-}
-
-// Clean up after yourself
+// Remove all build output
 func Clean() error {
 	mg.Deps(getEnvironment)
 	fmt.Println("Cleaning...")
@@ -326,6 +320,7 @@ func Clean() error {
 	})
 }
 
+// Create zip files from the build output and logs
 func CreateBuildZip() error {
 	mg.Deps(getEnvironment)
 	fmt.Println("Zipping...")
@@ -341,6 +336,14 @@ func CreateBuildZip() error {
 	}
 
 	return nil
+}
+
+func installTestDeps() error {
+	mg.Deps(Clean)
+	fmt.Println("Installing Test Dependencies...")
+	cmd := exec.Command("go", "install", "-v", "github.com/tebeka/go2xunit@v1.4.10")
+	cmd.Dir = filepath.Join(gpsaBuildContext.WorkDir, "build")
+	return cmd.Run()
 }
 
 func getGitHash() (string, error) {
