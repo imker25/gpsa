@@ -24,14 +24,14 @@ void setBuildStatus(String message, String state) {
 *
 * @param task The task to run
  */
-def runGradle(String task) {
+def runBuildWorkflow(String task) {
 
 	if (isUnix()) {
-		echo "Run: \"gradle ${task}\" on unix"
-		sh "./gradlew ${task}"
+		echo "Run: \"build.sh ${task}\" on unix"
+		sh "./build.sh ${task}"
 	} else {
-		echo "Run: \"gradle ${task}\" on windows"
-		bat ".\\gradlew.bat ${task}"
+		echo "Run: \"build.bat ${task}\" on windows"
+		bat ".\\build.bat ${task}"
 	}
 }
 
@@ -80,7 +80,7 @@ static void main(String[] args) {
 
 			stage("Get build name on \"${node_name}\"") {
 				echo "Get the builds name"
-				runGradle( "getBuildName")
+				runBuildWorkflow( "getBuildName")
 				buildDisplayName = readFile "logs/BuildName.txt"
 				echo "Set the builds display name to \"${buildDisplayName}\""
 				currentBuild.displayName = 	"${buildDisplayName}"
@@ -105,12 +105,9 @@ static void main(String[] args) {
 								}
 
 								stage("Build on \"${node_name}\"") {
-									runGradle( "build")
+									runBuildWorkflow( "build test")
 								}
 
-								stage("Test on \"${node_name}\"") {
-									runGradle( "test")
-								}
 
 								if (isUnix()) {
 									stage("Run Integration Tests on \"${node_name}\"") {
@@ -121,9 +118,8 @@ static void main(String[] args) {
 
 							} finally {
 								stage("Get results and artifacts") {
-									runGradle( "convertTestResults")
 									junit "logs\\*.xml"
-									runGradle( "createBuildZip")
+									runBuildWorkflow( "createBuildZip")
 									archiveArtifacts "*.zip"
 									
 									if (isUnix()) {
