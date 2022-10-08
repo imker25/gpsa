@@ -5,7 +5,6 @@ package main
 
 import (
 	"archive/zip"
-	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -131,6 +130,7 @@ func getEnvironment() error {
 func GetBuildName() error {
 	mg.Deps(getEnvironment, Clean)
 	fmt.Println(fmt.Sprintf("Create gpsa Version files..."))
+	fmt.Println("# ########################################################################################")
 
 	buildNumber := gpsaBuildContext.ProgramVersion
 	if os.Getenv("BUILD_NUMBER") != "" {
@@ -159,6 +159,7 @@ func GetBuildName() error {
 		return errDum
 	}
 
+	fmt.Println("# ########################################################################################")
 	return nil
 }
 
@@ -166,6 +167,7 @@ func GetBuildName() error {
 func Build() error {
 	mg.Deps(getEnvironment, Clean, GetBuildName)
 	fmt.Println(fmt.Sprintf("Building gpsa V%s ...", gpsaBuildContext.ProgramVersion))
+	fmt.Println("# ########################################################################################")
 
 	if _, err := os.Stat(gpsaBuildContext.BinDir); os.IsNotExist(err) {
 		errCreate := os.Mkdir(gpsaBuildContext.BinDir, 0755)
@@ -185,22 +187,16 @@ func Build() error {
 		fmt.Println(fmt.Sprintf("Run in %s: %s %s %s %s %s %s", packToBuild, "go", "build", "-o", outPutPath, "-v", ldfFlags))
 		cmd := exec.Command("go", "build", "-o", outPutPath, "-v", ldfFlags)
 		cmd.Dir = packToBuild
-		var out bytes.Buffer
-		var stderr bytes.Buffer
-		cmd.Stdout = &out
-		cmd.Stderr = &stderr
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		errBuild := cmd.Run()
-		buildOutStr := out.String()
-		if buildOutStr != "" {
-			fmt.Println(buildOutStr)
-		}
 		if errBuild != nil {
-			fmt.Println(stderr.String())
 			fmt.Println(errBuild.Error())
 			return errBuild
 		}
 	}
 
+	fmt.Println("# ########################################################################################")
 	return nil
 }
 
@@ -208,6 +204,7 @@ func Build() error {
 func Test() error {
 	mg.Deps(getEnvironment, Clean, GetBuildName, installTestDeps)
 	fmt.Println(fmt.Sprintf("Testing gpsa... "))
+	fmt.Println("# ########################################################################################")
 
 	if _, err := os.Stat(gpsaBuildContext.LogDir); os.IsNotExist(err) {
 		errCreate := os.Mkdir(gpsaBuildContext.LogDir, 0755)
@@ -222,7 +219,9 @@ func Test() error {
 	if errOpen != nil {
 		return errOpen
 	}
+	defer logFile.Close()
 
+	testErrors := []error{}
 	for _, packToTest := range gpsaBuildContext.PackagesToTest {
 
 		fmt.Println(fmt.Sprintf("Test package '%s', logging to '%s'", packToTest, logPath))
@@ -239,38 +238,35 @@ func Test() error {
 		cmd.Stdout = logFile
 		errTest := cmd.Run()
 		if errTest != nil {
-			logFile.Close()
 			fmt.Println(errTest.Error())
-			return errTest
+			testErrors = append(testErrors, errTest)
 		}
 	}
-	logFile.Close()
 
 	fmt.Println(fmt.Sprintf("Convert the test results %s to %s", logPath, xmlResult))
 	cmd := exec.Command("go", "run", "github.com/tebeka/go2xunit", "-input", logPath, "-output", xmlResult)
 	cmd.Dir = filepath.Join(gpsaBuildContext.WorkDir, "build")
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	errConvert := cmd.Run()
-	buildOutStr := out.String()
-	if buildOutStr != "" {
-		fmt.Println(buildOutStr)
-	}
 	if errConvert != nil {
-		fmt.Println(stderr.String())
 		fmt.Println(errConvert.Error())
 		return errConvert
 	}
 
+	if len(testErrors) > 0 {
+		return testErrors[0]
+	}
+
+	fmt.Println("# ########################################################################################")
 	return nil
 }
 
 // Runs test coverage for the project
 func Cover() error {
 	mg.Deps(getEnvironment, Clean, GetBuildName, installTestDeps)
-	fmt.Println(fmt.Sprintf("Testing gpsa... "))
+	fmt.Println(fmt.Sprintf("Testing with coverage gpsa... "))
+	fmt.Println("# ########################################################################################")
 
 	if _, err := os.Stat(gpsaBuildContext.LogDir); os.IsNotExist(err) {
 		errCreate := os.Mkdir(gpsaBuildContext.LogDir, 0755)
@@ -284,6 +280,7 @@ func Cover() error {
 	if errOpen != nil {
 		return errOpen
 	}
+	defer logFile.Close()
 
 	for _, packToTest := range gpsaBuildContext.PackagesToTest {
 
@@ -296,13 +293,12 @@ func Cover() error {
 		cmd.Stdout = logFile
 		errTest := cmd.Run()
 		if errTest != nil {
-			logFile.Close()
 			fmt.Println(errTest.Error())
 			return errTest
 		}
 	}
-	logFile.Close()
 
+	fmt.Println("# ########################################################################################")
 	return nil
 }
 
@@ -310,45 +306,65 @@ func Cover() error {
 func Clean() error {
 	mg.Deps(getEnvironment)
 	fmt.Println("Cleaning...")
+	fmt.Println("# ########################################################################################")
 
-	return removePathes([]string{
+	errClean := removePathes([]string{
 		gpsaBuildContext.BinDir,
 		gpsaBuildContext.PackageDir,
 		gpsaBuildContext.LogDir,
 		gpsaBuildContext.BinZipPath,
 		gpsaBuildContext.BuildZipPath,
 	})
+	if errClean != nil {
+		return errClean
+	}
+
+	fmt.Println("# ########################################################################################")
+	return nil
 }
 
 // Create zip files from the build output and logs
 func CreateBuildZip() error {
 	mg.Deps(getEnvironment)
 	fmt.Println("Zipping...")
+	fmt.Println("# ########################################################################################")
 
-	errBuildZip := zipSources([]string{gpsaBuildContext.BinDir, gpsaBuildContext.PackageDir, gpsaBuildContext.LogDir}, gpsaBuildContext.BuildZipPath)
+	errBuildZip := zipSourceFolders([]string{gpsaBuildContext.BinDir, gpsaBuildContext.PackageDir, gpsaBuildContext.LogDir}, gpsaBuildContext.BuildZipPath)
 	if errBuildZip != nil {
 		return errBuildZip
 	}
 
-	errBinZip := zipSources([]string{gpsaBuildContext.BinDir}, gpsaBuildContext.BinZipPath)
+	errBinZip := zipSourceFolders([]string{gpsaBuildContext.BinDir}, gpsaBuildContext.BinZipPath)
 	if errBinZip != nil {
 		return errBinZip
 	}
 
+	fmt.Println("# ########################################################################################")
 	return nil
 }
 
 func installTestDeps() error {
 	mg.Deps(Clean)
 	fmt.Println("Installing Test Dependencies...")
+	fmt.Println("# ########################################################################################")
+
 	cmd := exec.Command("go", "install", "-v", "github.com/tebeka/go2xunit@v1.4.10")
 	cmd.Dir = filepath.Join(gpsaBuildContext.WorkDir, "build")
-	return cmd.Run()
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	errInst := cmd.Run()
+	if errInst != nil {
+		return errInst
+	}
+
+	fmt.Println("# ########################################################################################")
+	return nil
 }
 
 func getGitHash() (string, error) {
 	cmd := exec.Command("git", "describe", "--always", "--long", "--dirty")
 	cmd.Dir = gpsaBuildContext.WorkDir
+	cmd.Stderr = os.Stderr
 	hash, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -360,6 +376,7 @@ func getGitHash() (string, error) {
 func getGitHight() (int, error) {
 	cmd := exec.Command("git", "log", "--pretty=format:\"%H\"", "-n 1", "--follow", VERSION_FILE)
 	cmd.Dir = gpsaBuildContext.WorkDir
+	cmd.Stderr = os.Stderr
 	lastChange, errLast := cmd.Output()
 	if errLast != nil {
 		return -1, errLast
@@ -368,6 +385,7 @@ func getGitHight() (int, error) {
 
 	cmd = exec.Command("git", "log", "--pretty=format:\"%H\"", "-n 1")
 	cmd.Dir = gpsaBuildContext.WorkDir
+	cmd.Stderr = os.Stderr
 	head, errHead := cmd.Output()
 	if errHead != nil {
 		return -1, errHead
@@ -377,6 +395,7 @@ func getGitHight() (int, error) {
 
 	cmd = exec.Command("git", "rev-list", "--count", lastChangeStr+".."+headStr)
 	cmd.Dir = gpsaBuildContext.WorkDir
+	cmd.Stderr = os.Stderr
 	hight, hightErr := cmd.Output()
 	if hightErr != nil {
 		return -1, hightErr
@@ -410,7 +429,7 @@ func listContains(list []string, value string) bool {
 	return false
 }
 
-func zipSources(sources []string, target string) error {
+func zipSourceFolders(sources []string, target string) error {
 	fmt.Println(fmt.Sprintf("Zip %s into %s", sources, target))
 	// 1. Create a ZIP file and zip.Writer
 	f, err := os.Create(target)
