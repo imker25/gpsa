@@ -243,17 +243,10 @@ func Test() error {
 		}
 	}
 
-	fmt.Println(fmt.Sprintf("Convert the test results %s to %s", logPath, xmlResult))
-	cmd := exec.Command("go", "run", "github.com/tebeka/go2xunit", "-input", logPath, "-output", xmlResult)
-	cmd.Dir = filepath.Join(gpsaBuildContext.WorkDir, "build")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	errConvert := cmd.Run()
-	if errConvert != nil {
-		fmt.Println(errConvert.Error())
-		return errConvert
+	errConv := convertTestResults(logPath, xmlResult)
+	if errConv != nil {
+		return errConv
 	}
-
 	if len(testErrors) > 0 {
 		return testErrors[0]
 	}
@@ -509,5 +502,20 @@ func removePathes(pathes []string) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func convertTestResults(logPath, xmlResult string) error {
+	fmt.Println(fmt.Sprintf("Convert the test results %s to %s", logPath, xmlResult))
+	cmd := exec.Command("go", "run", "github.com/tebeka/go2xunit", "-input", logPath, "-output", xmlResult)
+	cmd.Dir = filepath.Join(gpsaBuildContext.WorkDir, "build")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	errConvert := cmd.Run()
+	if errConvert != nil {
+		fmt.Println(errConvert.Error())
+		return errConvert
+	}
+
 	return nil
 }
