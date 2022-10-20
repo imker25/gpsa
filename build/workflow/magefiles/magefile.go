@@ -148,7 +148,10 @@ func Build() error {
 	fmt.Println("# ########################################################################################")
 	ldfFlags := fmt.Sprintf("-X main.version=%s", gpsaBuildContext.ProgramVersion)
 
-	gobuildhelpers.BuildFolders(gpsaBuildContext.PackagesToBuild, gpsaBuildContext.BinDir, ldfFlags)
+	err := gobuildhelpers.BuildFolders(gpsaBuildContext.PackagesToBuild, gpsaBuildContext.BinDir, ldfFlags)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("# ########################################################################################")
 	return nil
@@ -182,7 +185,10 @@ func Cover() error {
 	fmt.Println(fmt.Sprintf("Testing with coverage gpsa... "))
 	fmt.Println("# ########################################################################################")
 
-	gobuildhelpers.CoverTestFolders(gpsaBuildContext.PackagesToTest, gpsaBuildContext.LogDir, "TestCoverage.log")
+	err := gobuildhelpers.CoverTestFolders(gpsaBuildContext.PackagesToTest, gpsaBuildContext.LogDir, "TestCoverage.log")
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("# ########################################################################################")
 	return nil
@@ -234,7 +240,10 @@ func installTestDeps() error {
 	fmt.Println("Installing Test Dependencies...")
 	fmt.Println("# ########################################################################################")
 
-	gobuildhelpers.InstallTestConverter(filepath.Join(gpsaBuildContext.WorkDir, "build"))
+	err := gobuildhelpers.InstallTestConverter(filepath.Join(gpsaBuildContext.WorkDir, "build"))
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("# ########################################################################################")
 	return nil
