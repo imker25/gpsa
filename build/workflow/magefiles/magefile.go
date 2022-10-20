@@ -16,6 +16,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/imker25/gobuildhelpers"
 	"github.com/magefile/mage/mg" // mg contains helpful utility functions, like Deps
 )
 
@@ -64,14 +65,14 @@ func getEnvironment() error {
 	gpsaBuildContext.BinZipPath = filepath.Join(gpsaBuildContext.WorkDir, fmt.Sprintf("%s_bin.zip", runtime.GOOS))
 	gpsaBuildContext.VersionFilePath = filepath.Join(gpsaBuildContext.WorkDir, VERSION_FILE)
 
-	hash, errHash := GetGitHash(gpsaBuildContext.WorkDir)
+	hash, errHash := gobuildhelpers.GetGitHash(gpsaBuildContext.WorkDir)
 	if errHash != nil {
 		return errHash
 	}
 	// fmt.Println(fmt.Sprintf("Git Hash: %s", hash))
 	gpsaBuildContext.GitHash = hash
 
-	hight, errHight := GetGitHeight(VERSION_FILE, gpsaBuildContext.WorkDir)
+	hight, errHight := gobuildhelpers.GetGitHeight(VERSION_FILE, gpsaBuildContext.WorkDir)
 	if errHight != nil {
 		return errHight
 	}
@@ -89,13 +90,13 @@ func getEnvironment() error {
 	fmt.Println(fmt.Sprintf("Run gpsa build workflow for V%s", gpsaBuildContext.ProgramVersionNumber))
 
 	var errFinBuild error
-	gpsaBuildContext.PackagesToBuild, errFinBuild = FindPackagesToBuild(filepath.Join(gpsaBuildContext.SourceDir, PROJECT_NAME_SPACE, "cmd"))
+	gpsaBuildContext.PackagesToBuild, errFinBuild = gobuildhelpers.FindPackagesToBuild(filepath.Join(gpsaBuildContext.SourceDir, PROJECT_NAME_SPACE, "cmd"))
 	if errFinBuild != nil {
 		return errFinBuild
 	}
 
 	var errFinTest error
-	gpsaBuildContext.PackagesToTest, errFinTest = FindPackagesToTest(filepath.Join(gpsaBuildContext.SourceDir, PROJECT_NAME_SPACE))
+	gpsaBuildContext.PackagesToTest, errFinTest = gobuildhelpers.FindPackagesToTest(filepath.Join(gpsaBuildContext.SourceDir, PROJECT_NAME_SPACE))
 	if errFinTest != nil {
 		return errFinTest
 	}
@@ -147,7 +148,7 @@ func Build() error {
 	fmt.Println("# ########################################################################################")
 	ldfFlags := fmt.Sprintf("-X main.version=%s", gpsaBuildContext.ProgramVersion)
 
-	BuildFolders(gpsaBuildContext.PackagesToBuild, gpsaBuildContext.BinDir, ldfFlags)
+	gobuildhelpers.BuildFolders(gpsaBuildContext.PackagesToBuild, gpsaBuildContext.BinDir, ldfFlags)
 
 	fmt.Println("# ########################################################################################")
 	return nil
@@ -161,9 +162,9 @@ func Test() error {
 	xmlResult := filepath.Join(gpsaBuildContext.LogDir, "TestsResult.xml")
 	logFileName := "TestRun.log"
 
-	testErrors := RunTestFolders(gpsaBuildContext.PackagesToTest, gpsaBuildContext.LogDir, logFileName)
+	testErrors := gobuildhelpers.RunTestFolders(gpsaBuildContext.PackagesToTest, gpsaBuildContext.LogDir, logFileName)
 
-	errConv := ConvertTestResults(filepath.Join(gpsaBuildContext.LogDir, logFileName), xmlResult, gpsaBuildContext.WorkDir)
+	errConv := gobuildhelpers.ConvertTestResults(filepath.Join(gpsaBuildContext.LogDir, logFileName), xmlResult, gpsaBuildContext.WorkDir)
 	if errConv != nil {
 		return errConv
 	}
@@ -181,7 +182,7 @@ func Cover() error {
 	fmt.Println(fmt.Sprintf("Testing with coverage gpsa... "))
 	fmt.Println("# ########################################################################################")
 
-	CoverTestFolders(gpsaBuildContext.PackagesToTest, gpsaBuildContext.LogDir, "TestCoverage.log")
+	gobuildhelpers.CoverTestFolders(gpsaBuildContext.PackagesToTest, gpsaBuildContext.LogDir, "TestCoverage.log")
 
 	fmt.Println("# ########################################################################################")
 	return nil
@@ -193,7 +194,7 @@ func Clean() error {
 	fmt.Println("Cleaning...")
 	fmt.Println("# ########################################################################################")
 
-	errClean := RemovePaths([]string{
+	errClean := gobuildhelpers.RemovePaths([]string{
 		gpsaBuildContext.BinDir,
 		gpsaBuildContext.PackageDir,
 		gpsaBuildContext.LogDir,
@@ -214,12 +215,12 @@ func CreateBuildZip() error {
 	fmt.Println("Zipping...")
 	fmt.Println("# ########################################################################################")
 
-	errBuildZip := ZipFolders([]string{gpsaBuildContext.BinDir, gpsaBuildContext.PackageDir, gpsaBuildContext.LogDir}, gpsaBuildContext.BuildZipPath)
+	errBuildZip := gobuildhelpers.ZipFolders([]string{gpsaBuildContext.BinDir, gpsaBuildContext.PackageDir, gpsaBuildContext.LogDir}, gpsaBuildContext.BuildZipPath)
 	if errBuildZip != nil {
 		return errBuildZip
 	}
 
-	errBinZip := ZipFolders([]string{gpsaBuildContext.BinDir}, gpsaBuildContext.BinZipPath)
+	errBinZip := gobuildhelpers.ZipFolders([]string{gpsaBuildContext.BinDir}, gpsaBuildContext.BinZipPath)
 	if errBinZip != nil {
 		return errBinZip
 	}
@@ -233,7 +234,7 @@ func installTestDeps() error {
 	fmt.Println("Installing Test Dependencies...")
 	fmt.Println("# ########################################################################################")
 
-	InstallTestConverter(filepath.Join(gpsaBuildContext.WorkDir, "build"))
+	gobuildhelpers.InstallTestConverter(filepath.Join(gpsaBuildContext.WorkDir, "build"))
 
 	fmt.Println("# ########################################################################################")
 	return nil
