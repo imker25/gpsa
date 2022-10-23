@@ -115,11 +115,8 @@ func GetBuildName() error {
 		buildNumber = fmt.Sprintf("%s-%s", gpsaBuildContext.ProgramVersion, os.Getenv("BUILD_NUMBER"))
 	}
 
-	if _, err := os.Stat(gpsaBuildContext.LogDir); os.IsNotExist(err) {
-		errCreate := os.Mkdir(gpsaBuildContext.LogDir, 0755)
-		if errCreate != nil {
-			return errCreate
-		}
+	if err := gobuildhelpers.EnsureDirectoryExists(gpsaBuildContext.LogDir); err != nil {
+		return err
 	}
 
 	errNr := ioutil.WriteFile(filepath.Join(gpsaBuildContext.LogDir, "BuildName.txt"), []byte(buildNumber), 0644)
@@ -167,7 +164,7 @@ func Test() error {
 
 	testErrors := gobuildhelpers.RunTestFolders(gpsaBuildContext.PackagesToTest, gpsaBuildContext.LogDir, logFileName)
 
-	errConv := gobuildhelpers.ConvertTestResults(filepath.Join(gpsaBuildContext.LogDir, logFileName), xmlResult, gpsaBuildContext.WorkDir)
+	errConv := gobuildhelpers.ConvertTestResults(filepath.Join(gpsaBuildContext.LogDir, logFileName), xmlResult, filepath.Join(gpsaBuildContext.WorkDir, "build"))
 	if errConv != nil {
 		return errConv
 	}
