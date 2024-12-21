@@ -1,6 +1,6 @@
 module tobi.backfrak.de/gpsa-build
 
-go 1.21
+go 1.23
 
 require github.com/magefile/mage v1.14.0
 
