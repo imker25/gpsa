@@ -75,6 +75,7 @@ func TestNewMinStartTimeFilterValidDateFilterString(t *testing.T) {
 	}
 
 }
+
 func TestMinStartTimeFilterFilterMatchingDate1(t *testing.T) {
 	filterString := "2014-08-21"
 	track := getSimpleTrackWithTime()
@@ -115,6 +116,117 @@ func TestMinStartTimeFilterFilterNotValidDateTime(t *testing.T) {
 
 	if !sut.Filter(track.TrackSummary) {
 		t.Errorf("The tracks start date \"%s\" is newer than the min date \"%s\"", track.TrackSummary.StartTime, sut.MinStartTime)
+	}
+
+}
+
+func TestNewMaxStartTimeFilterNoFilterString(t *testing.T) {
+
+	_, err := NewMaxStartTimeFilter("bla")
+
+	if err == nil {
+		t.Errorf("The MinStartTimeFilter can parse the string \"bla\"")
+	}
+
+}
+
+func TestNewMaxStartTimeFilterValidDateTimeFilterString(t *testing.T) {
+
+	filterString := "2024-12-13 20:51:42"
+	sut, err := NewMaxStartTimeFilter(filterString)
+
+	if err != nil {
+		t.Errorf("The MinStartTimeFilter can not parse the string \"%s\"", filterString)
+	}
+
+	if sut.GetFilterText() != filterString {
+		t.Errorf("The MinStartTimeFilter.GetFilterText() returns \"%s\" but should return \"%s\"", sut.GetFilterText(), filterString)
+	}
+
+	if sut.MaxStartTime.Unix() != 1734123102 {
+		t.Errorf("The MinStartTimeFilter.MinStartTime is \"%d\" but not the expected \"1734123102\"", sut.MaxStartTime.Unix())
+	}
+
+}
+
+func TestNewMaxStartTimeFilterValidDateTimeNoSecondsFilterString(t *testing.T) {
+
+	filterString := "2024-12-13 20:51"
+	sut, err := NewMaxStartTimeFilter(filterString)
+
+	if err != nil {
+		t.Errorf("The MinStartTimeFilter can not parse the string \"%s\"", filterString)
+	}
+
+	if sut.GetFilterText() != filterString {
+		t.Errorf("The MinStartTimeFilter.GetFilterText() returns \"%s\" but should return \"%s\"", sut.GetFilterText(), filterString)
+	}
+
+	if sut.MaxStartTime.Unix() != 1734123060 {
+		t.Errorf("The MinStartTimeFilter.MinStartTime is \"%d\" but not the expected \"1734123060\"", sut.MaxStartTime.Unix())
+	}
+
+}
+
+func TestNewMaxStartTimeFilterValidDateFilterString(t *testing.T) {
+
+	filterString := "2024-12-13"
+	sut, err := NewMaxStartTimeFilter(filterString)
+
+	if err != nil {
+		t.Errorf("The MinStartTimeFilter can not parse the string \"%s\"", filterString)
+	}
+
+	if sut.GetFilterText() != filterString {
+		t.Errorf("The MinStartTimeFilter.GetFilterText() returns \"%s\" but should return \"%s\"", sut.GetFilterText(), filterString)
+	}
+
+	if sut.MaxStartTime.Unix() != 1734048000 {
+		t.Errorf("The MinStartTimeFilter.MinStartTime is \"%d\" but not the expected \"1734048000\"", sut.MaxStartTime.Unix())
+	}
+
+}
+
+func TestMaxStartTimeFilterFilterMatchingDate1(t *testing.T) {
+	filterString := "2014-08-24"
+	track := getSimpleTrackWithTime()
+	sut, _ := NewMaxStartTimeFilter(filterString)
+
+	if !sut.Filter(track.TrackSummary) {
+		t.Errorf("The tracks start date \"%s\" is older than the min date \"%s\"", track.TrackSummary.StartTime, sut.MaxStartTime)
+	}
+
+}
+
+func TestMaxStartTimeFilterFilterMatchingDate2(t *testing.T) {
+	filterString := "2014-08-23"
+	track := getSimpleTrackWithTime()
+	sut, _ := NewMaxStartTimeFilter(filterString)
+
+	if !sut.Filter(track.TrackSummary) {
+		t.Errorf("The tracks start date \"%s\" is older than the min date \"%s\"", track.TrackSummary.StartTime, sut.MaxStartTime)
+	}
+
+}
+
+func TestMaxStartTimeFilterFilterNotMatchingDate1(t *testing.T) {
+	filterString := "2014-08-21"
+	track := getSimpleTrackWithTime()
+	sut, _ := NewMaxStartTimeFilter(filterString)
+
+	if sut.Filter(track.TrackSummary) {
+		t.Errorf("The tracks start date \"%s\" is older than the min date \"%s\"", track.TrackSummary.StartTime, sut.MaxStartTime)
+	}
+
+}
+
+func TestMaxStartTimeFilterFilterNotValidDateTime(t *testing.T) {
+	filterString := "2014-08-23"
+	track := getSimpleTrack()
+	sut, _ := NewMaxStartTimeFilter(filterString)
+
+	if !sut.Filter(track.TrackSummary) {
+		t.Errorf("The tracks start date \"%s\" is newer than the min date \"%s\"", track.TrackSummary.StartTime, sut.MaxStartTime)
 	}
 
 }
