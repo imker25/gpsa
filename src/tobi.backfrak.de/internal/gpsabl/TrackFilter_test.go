@@ -230,3 +230,121 @@ func TestMaxStartTimeFilterFilterNotValidDateTime(t *testing.T) {
 	}
 
 }
+
+func TestFilterTrackWithMinAndMaxFilterPass(t *testing.T) {
+	track := getSimpleTrackWithStartTime("2014-08-23T17:19:33Z")
+
+	minFilterString := "2014-08-22"
+	maxFilterString := "2014-08-24"
+	filters := []TrackFilter{}
+	minFilter, _ := NewMinStartTimeFilter(minFilterString)
+	filters = append(filters, &minFilter)
+	maxFilter, _ := NewMaxStartTimeFilter(maxFilterString)
+	filters = append(filters, &maxFilter)
+
+	if !FilterTrack(track, filters) {
+		t.Errorf("The track with StartTime \"%s\" does not pass the FilterTrack with filters %s and %s", track.StartTime.String(), minFilterString, maxFilterString)
+	}
+}
+
+func TestFilterTrackWithMinAndMaxFilterFailToOld(t *testing.T) {
+	track := getSimpleTrackWithStartTime("2014-08-21T17:19:33Z")
+
+	minFilterString := "2014-08-22"
+	maxFilterString := "2014-08-24"
+	filters := []TrackFilter{}
+	minFilter, _ := NewMinStartTimeFilter(minFilterString)
+	filters = append(filters, &minFilter)
+	maxFilter, _ := NewMaxStartTimeFilter(maxFilterString)
+	filters = append(filters, &maxFilter)
+
+	if FilterTrack(track, filters) {
+		t.Errorf("The track with StartTime \"%s\" does pass the FilterTrack with filters %s and %s", track.StartTime.String(), minFilterString, maxFilterString)
+	}
+}
+
+func TestFilterTrackWithMinAndMaxFilterFailToNew(t *testing.T) {
+	track := getSimpleTrackWithStartTime("2014-08-25T17:19:33Z")
+
+	minFilterString := "2014-08-22"
+	maxFilterString := "2014-08-24"
+	filters := []TrackFilter{}
+	minFilter, _ := NewMinStartTimeFilter(minFilterString)
+	filters = append(filters, &minFilter)
+	maxFilter, _ := NewMaxStartTimeFilter(maxFilterString)
+	filters = append(filters, &maxFilter)
+
+	if FilterTrack(track, filters) {
+		t.Errorf("The track with StartTime \"%s\" does pass the FilterTrack with filters %s and %s", track.StartTime.String(), minFilterString, maxFilterString)
+	}
+}
+
+func TestFilterTracksAppliesMaxStartTimeFilterCorrect(t *testing.T) {
+	tracks := []Track{}
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-21T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+
+	filterString := "2014-08-23"
+	filters := []TrackFilter{}
+	maxFilter, _ := NewMaxStartTimeFilter(filterString)
+	filters = append(filters, &maxFilter)
+
+	filteredTracks := FilterTracks(tracks, filters)
+
+	if len(filteredTracks) != 2 {
+		t.Errorf("FilterTracks with maxFilter \"%s\" does return the following Tracks %s", filterString, printTracks(filteredTracks))
+	}
+}
+
+func TestFilterTracksAppliesMinStartTimeFilterCorrect(t *testing.T) {
+	tracks := []Track{}
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-21T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+
+	filterString := "2014-08-23"
+	filters := []TrackFilter{}
+	minFilter, _ := NewMinStartTimeFilter(filterString)
+	filters = append(filters, &minFilter)
+
+	filteredTracks := FilterTracks(tracks, filters)
+
+	if len(filteredTracks) != 2 {
+		t.Errorf("FilterTracks with minFilter \"%s\" does return the following Tracks %s", filterString, printTracks(filteredTracks))
+	}
+}
+
+func TestFilterTracksAppliesMinAndMaxStartTimeFilterCorrect(t *testing.T) {
+	tracks := []Track{}
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-21T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+
+	minFilterString := "2014-08-22"
+	maxFilterString := "2014-08-24"
+	filters := []TrackFilter{}
+	minFilter, _ := NewMinStartTimeFilter(minFilterString)
+	filters = append(filters, &minFilter)
+	maxFilter, _ := NewMaxStartTimeFilter(maxFilterString)
+	filters = append(filters, &maxFilter)
+
+	filteredTracks := FilterTracks(tracks, filters)
+
+	if len(filteredTracks) != 2 {
+		t.Errorf("FilterTracks with minFilter \"%s\" and maxFilter \"%s\" does return the following Tracks %s", minFilterString, maxFilterString, printTracks(filteredTracks))
+	}
+}
+
+func printTracks(tracks []Track) string {
+	ret := ""
+
+	for _, track := range tracks {
+		ret += track.TrackSummary.StartTime.String() + " "
+	}
+
+	return ret
+}

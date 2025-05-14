@@ -86,19 +86,22 @@ func (filter *MaxStartTimeFilter) GetFilterText() string {
 func FilterTracks(tracks []Track, filters []TrackFilter) []Track {
 	ret := []Track{}
 	for _, track := range tracks {
-		trackPassedAll := true
-		for _, filter := range filters {
-			if !filter.Filter(track.TrackSummary) {
-				trackPassedAll = false
-				break
-			}
-		}
-		if trackPassedAll {
+		if FilterTrack(track, filters) {
 			ret = append(ret, track)
 		}
 	}
 
 	return ret
+}
+
+func FilterTrack(track Track, filters []TrackFilter) bool {
+	for _, filter := range filters {
+		if !filter.Filter(track.TrackSummary) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func filterTextToTime(filterText string) (time.Time, error) {

@@ -1,6 +1,13 @@
 package gpsabl
 
+// Copyright 2025 by tobi@backfrak.de. All
+// rights reserved. Use of this source code is governed
+// by a BSD-style license that can be found in the
+// LICENSE file.
+
 import "time"
+
+const DEFAULT_START_TIME = "2014-08-22T17:19:33Z"
 
 func getTrackPoint(lat, lon, ele float32) TrackPoint {
 	pnt := TrackPoint{}
@@ -54,36 +61,6 @@ func getTrackFileWithStandStillPoints(correction string, minimalMovingSpeed floa
 	return file
 }
 
-func getTrackFileWithBigVerticalDistance() TrackFile {
-	file := getSimpleTrackFileWithTime()
-
-	t1, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:13Z")
-	t2, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:33Z")
-	t3, _ := time.Parse(time.RFC3339, "2014-08-22T19:19:53Z")
-	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
-	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 142.0, t2)
-	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 151.0, t3)
-	points := []TrackPoint{pnt1, pnt2, pnt3}
-
-	FillDistancesTrackPoint(&points[0], TrackPoint{}, points[1])
-	FillDistancesTrackPoint(&points[1], points[0], points[2])
-	FillDistancesTrackPoint(&points[2], points[1], TrackPoint{})
-	FillValuesTrackPointArray(points, "none", 0.3, 10.0)
-	laterTrack := Track{}
-	seg := TrackSegment{}
-	seg.TrackPoints = points
-	FillTrackSegmentValues(&seg)
-	laterTrack.TrackSegments = append(laterTrack.TrackSegments, seg)
-	FillTrackValues(&laterTrack)
-	laterTrack.NumberOfSegments = 1
-
-	file.Tracks = append(file.Tracks, laterTrack)
-	file.NumberOfTracks = 2
-	FillTrackFileValues(&file)
-
-	return file
-}
-
 func getTrackFileWithTimeGaps() TrackFile {
 	file := getSimpleTrackFileWithTime()
 
@@ -126,8 +103,12 @@ func getSimpleTrackFile() TrackFile {
 }
 
 func getSimpleTrackFileWithTime() TrackFile {
+	return getSimpleTrackFileWithStartTime(DEFAULT_START_TIME)
+}
+
+func getSimpleTrackFileWithStartTime(startTime string) TrackFile {
 	ret := NewTrackFile("/mys/track/file")
-	trk := getSimpleTrackWithTime()
+	trk := getSimpleTrackWithStartTime(startTime)
 	FillTrackValues(&trk)
 	ret.Tracks = []Track{trk}
 	FillTrackFileValues(&ret)
@@ -148,8 +129,12 @@ func getSimpleTrack() Track {
 }
 
 func getSimpleTrackWithTime() Track {
+	return getSimpleTrackWithStartTime(DEFAULT_START_TIME)
+}
+
+func getSimpleTrackWithStartTime(startTime string) Track {
 	ret := Track{}
-	segs := getSimpleTrackSegmentWithTime()
+	segs := getSimpleTrackSegmentWithStartTime(startTime)
 	FillTrackSegmentValues(&segs)
 	ret.TrackSegments = []TrackSegment{segs}
 	FillTrackValues(&ret)
@@ -166,9 +151,9 @@ func getSimpleTrackSegment() TrackSegment {
 	return seg
 }
 
-func getSimpleTrackSegmentWithTime() TrackSegment {
+func getSimpleTrackSegmentWithStartTime(startTime string) TrackSegment {
 	seg := TrackSegment{}
-	points := getSimpleTrackPointArrayWithTime()
+	points := getSimpleTrackPointArrayWithStartTime(startTime)
 	seg.TrackPoints = points
 
 	return seg
@@ -189,9 +174,13 @@ func gerSimpleTrackPointArray() []TrackPoint {
 }
 
 func getSimpleTrackPointArrayWithTime() []TrackPoint {
-	t1, _ := time.Parse(time.RFC3339, "2014-08-22T17:19:33Z")
-	t2, _ := time.Parse(time.RFC3339, "2014-08-22T17:19:43Z")
-	t3, _ := time.Parse(time.RFC3339, "2014-08-22T17:19:53Z")
+	return getSimpleTrackPointArrayWithStartTime(DEFAULT_START_TIME)
+}
+
+func getSimpleTrackPointArrayWithStartTime(startTime string) []TrackPoint {
+	t1, _ := time.Parse(time.RFC3339, startTime)
+	t2 := t1.Add(time.Second * 10)
+	t3 := t2.Add(time.Second * 10)
 	pnt1 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t1)
 	pnt2 := getTrackPointWithTime(50.11495750, 8.684874770, 108.0, t2)
 	pnt3 := getTrackPointWithTime(50.11484790, 8.684885500, 109.0, t3)
