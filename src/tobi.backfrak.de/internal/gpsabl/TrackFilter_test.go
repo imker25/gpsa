@@ -114,7 +114,7 @@ func TestMinStartTimeFilterFilterNotValidDateTime(t *testing.T) {
 	track := getSimpleTrack()
 	sut, _ := NewMinStartTimeFilter(filterString)
 
-	if !sut.Filter(track.TrackSummary) {
+	if sut.Filter(track.TrackSummary) {
 		t.Errorf("The tracks start date \"%s\" is newer than the min date \"%s\"", track.TrackSummary.StartTime, sut.MinStartTime)
 	}
 
@@ -225,7 +225,7 @@ func TestMaxStartTimeFilterFilterNotValidDateTime(t *testing.T) {
 	track := getSimpleTrack()
 	sut, _ := NewMaxStartTimeFilter(filterString)
 
-	if !sut.Filter(track.TrackSummary) {
+	if sut.Filter(track.TrackSummary) {
 		t.Errorf("The tracks start date \"%s\" is newer than the min date \"%s\"", track.TrackSummary.StartTime, sut.MaxStartTime)
 	}
 
@@ -280,11 +280,7 @@ func TestFilterTrackWithMinAndMaxFilterFailToNew(t *testing.T) {
 }
 
 func TestFilterTracksAppliesMaxStartTimeFilterCorrect(t *testing.T) {
-	tracks := []Track{}
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-21T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+	tracks := getSimpleTrackList()
 
 	filterString := "2014-08-23"
 	filters := []TrackFilter{}
@@ -299,11 +295,7 @@ func TestFilterTracksAppliesMaxStartTimeFilterCorrect(t *testing.T) {
 }
 
 func TestFilterTracksAppliesMinStartTimeFilterCorrect(t *testing.T) {
-	tracks := []Track{}
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-21T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+	tracks := getSimpleTrackList()
 
 	filterString := "2014-08-23"
 	filters := []TrackFilter{}
@@ -318,11 +310,7 @@ func TestFilterTracksAppliesMinStartTimeFilterCorrect(t *testing.T) {
 }
 
 func TestFilterTracksAppliesMinAndMaxStartTimeFilterCorrect(t *testing.T) {
-	tracks := []Track{}
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-21T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
-	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+	tracks := getSimpleTrackList()
 
 	minFilterString := "2014-08-22"
 	maxFilterString := "2014-08-24"
@@ -336,6 +324,90 @@ func TestFilterTracksAppliesMinAndMaxStartTimeFilterCorrect(t *testing.T) {
 
 	if len(filteredTracks) != 2 {
 		t.Errorf("FilterTracks with minFilter \"%s\" and maxFilter \"%s\" does return the following Tracks %s", minFilterString, maxFilterString, printTracks(filteredTracks))
+	}
+}
+
+func TestFilterTrackFilesWithOneTrackPassAll(t *testing.T) {
+	file := getSimpleTrackFileWithTime()
+	filters := []TrackFilter{}
+	minFilterString := "2014-08-22"
+	maxFilterString := "2014-08-24"
+	minFilter, _ := NewMinStartTimeFilter(minFilterString)
+	filters = append(filters, &minFilter)
+	maxFilter, _ := NewMaxStartTimeFilter(maxFilterString)
+	filters = append(filters, &maxFilter)
+
+	filteredFile := FilterTrackFile(file, filters)
+	if len(filteredFile.Tracks) != 1 {
+		t.Errorf("The filteredFile contains %d tracks, but %d are expected", len(filteredFile.Tracks), 1)
+	}
+
+	if filteredFile.FilePath != file.FilePath {
+		t.Errorf("The filteredFile.FilePath is \"%s\", but \"%s\" is expected", filteredFile.FilePath, file.FilePath)
+	}
+
+	if filteredFile.Distance != file.Distance {
+		t.Errorf("The filteredFile.Distance is \"%f\", but \"%f\" is expected", filteredFile.Distance, file.Distance)
+	}
+
+	if filteredFile.ElevationGain != file.ElevationGain {
+		t.Errorf("The filteredFile.ElevationGain is \"%f\", but \"%f\" is expected", filteredFile.ElevationGain, file.ElevationGain)
+	}
+}
+
+func TestFilterTrackFilesWithFourTracksTwoPassAll(t *testing.T) {
+	file := getTrackFileWithMultipleTracks()
+	filters := []TrackFilter{}
+	minFilterString := "2014-08-22"
+	maxFilterString := "2014-08-24"
+	minFilter, _ := NewMinStartTimeFilter(minFilterString)
+	filters = append(filters, &minFilter)
+	maxFilter, _ := NewMaxStartTimeFilter(maxFilterString)
+	filters = append(filters, &maxFilter)
+
+	filteredFile := FilterTrackFile(file, filters)
+	if len(filteredFile.Tracks) != 2 {
+		t.Errorf("The filteredFile contains %d tracks, but %d are expected", len(filteredFile.Tracks), 1)
+	}
+
+	if filteredFile.FilePath != file.FilePath {
+		t.Errorf("The filteredFile.FilePath is \"%s\", but \"%s\" is expected", filteredFile.FilePath, file.FilePath)
+	}
+
+	if filteredFile.Distance != file.Distance/2 {
+		t.Errorf("The filteredFile.Distance is \"%f\", but \"%f\" is expected", filteredFile.Distance, file.Distance/2)
+	}
+
+	if filteredFile.ElevationGain != file.ElevationGain/2 {
+		t.Errorf("The filteredFile.ElevationGain is \"%f\", but \"%f\" is expected", filteredFile.ElevationGain, file.ElevationGain/2)
+	}
+}
+
+func TestFilterTrackFilesWithFourTracksZeroPassAll(t *testing.T) {
+	file := getTrackFileWithMultipleTracks()
+	filters := []TrackFilter{}
+	minFilterString := "2014-08-24"
+	maxFilterString := "2014-08-22"
+	minFilter, _ := NewMinStartTimeFilter(minFilterString)
+	filters = append(filters, &minFilter)
+	maxFilter, _ := NewMaxStartTimeFilter(maxFilterString)
+	filters = append(filters, &maxFilter)
+
+	filteredFile := FilterTrackFile(file, filters)
+	if len(filteredFile.Tracks) != 0 {
+		t.Errorf("The filteredFile contains %d tracks, but %d are expected", len(filteredFile.Tracks), 1)
+	}
+
+	if filteredFile.FilePath != file.FilePath {
+		t.Errorf("The filteredFile.FilePath is \"%s\", but \"%s\" is expected", filteredFile.FilePath, file.FilePath)
+	}
+
+	if filteredFile.Distance != 0 {
+		t.Errorf("The filteredFile.Distance is \"%f\", but \"%f\" is expected", filteredFile.Distance, 0.0)
+	}
+
+	if filteredFile.ElevationGain != 0 {
+		t.Errorf("The filteredFile.ElevationGain is \"%f\", but \"%f\" is expected", filteredFile.ElevationGain, 0.0)
 	}
 }
 

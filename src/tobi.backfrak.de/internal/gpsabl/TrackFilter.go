@@ -25,7 +25,7 @@ type MinStartTimeFilter struct {
 func (filter *MinStartTimeFilter) Filter(track TrackSummary) bool {
 
 	if !track.TimeDataValid {
-		return true
+		return false
 	}
 
 	if track.StartTime.Unix() >= filter.MinStartTime.Unix() {
@@ -59,7 +59,7 @@ type MaxStartTimeFilter struct {
 func (filter *MaxStartTimeFilter) Filter(track TrackSummary) bool {
 
 	if !track.TimeDataValid {
-		return true
+		return false
 	}
 
 	if track.StartTime.Unix() <= filter.MaxStartTime.Unix() {
@@ -83,6 +83,8 @@ func (filter *MaxStartTimeFilter) GetFilterText() string {
 	return filter.myFilterText
 }
 
+// FilterTracks - Filter a list of tracks by applying a list of filters
+// returns a list that contains all tests that passed all the filters
 func FilterTracks(tracks []Track, filters []TrackFilter) []Track {
 	ret := []Track{}
 	for _, track := range tracks {
@@ -94,6 +96,17 @@ func FilterTracks(tracks []Track, filters []TrackFilter) []Track {
 	return ret
 }
 
+// FilterTrackFile - Filter the tracks of a TrackFile by applying a list of filters
+// returns a TrackFile that only contains tracks that passed all the filters
+func FilterTrackFile(file TrackFile, filters []TrackFilter) TrackFile {
+	file.Tracks = FilterTracks(file.Tracks, filters)
+	FillTrackFileValues(&file)
+
+	return file
+}
+
+// FilterTrack - Check a track if it passes a list of filters
+// return true when all filters are passed by the track
 func FilterTrack(track Track, filters []TrackFilter) bool {
 	for _, filter := range filters {
 		if !filter.Filter(track.TrackSummary) {

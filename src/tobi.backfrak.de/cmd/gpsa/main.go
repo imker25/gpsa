@@ -218,11 +218,15 @@ func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 	filters := []gpsabl.TrackFilter{}
 	// TODO Add filters depending on call parameters
 	if len(filters) > 0 {
-		file.Tracks = gpsabl.FilterTracks(file.Tracks, filters)
-		// TODO Ensure the file data (Distance, ...) is correct after some tracks are removed
+		file = gpsabl.FilterTrackFile(file, filters)
 	}
 
-	// Add the file to the out buffer of the formater
+	// Add the file to the out buffer of the formater, if it contains tracks
+	if len(file.Tracks) < 1 {
+		fmt.Println(fmt.Sprintf("File \"%s\" does not contain any tracks after appling the given filters", inFile.Name))
+		return true
+	}
+
 	addErr := formater.AddOutPut(file, gpsabl.DepthArg(DepthParameter), SuppressDuplicateOutPutFlag)
 	if HandleError(addErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false

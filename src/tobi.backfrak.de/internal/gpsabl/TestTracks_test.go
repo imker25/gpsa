@@ -193,3 +193,23 @@ func getSimpleTrackPointArrayWithStartTime(startTime string) []TrackPoint {
 
 	return points
 }
+
+func getSimpleTrackList() []Track {
+	tracks := []Track{}
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-21T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
+	tracks = append(tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+
+	return tracks
+}
+
+func getTrackFileWithMultipleTracks() TrackFile {
+	ret := getSimpleTrackFileWithStartTime("2014-08-21T17:19:33Z")
+	ret.Tracks = append(ret.Tracks, getSimpleTrackWithStartTime("2014-08-22T17:19:33Z"))
+	ret.Tracks = append(ret.Tracks, getSimpleTrackWithStartTime("2014-08-23T17:19:33Z"))
+	ret.Tracks = append(ret.Tracks, getSimpleTrackWithStartTime("2014-08-24T17:19:33Z"))
+	FillTrackFileValues(&ret)
+
+	return ret
+}
