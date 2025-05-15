@@ -33,6 +33,7 @@ var version = "undefined"
 
 var ValidReaders = []gpsabl.TrackReader{&gpxbl.GpxFile{}, &tcxbl.TcxFile{}}
 var ValidFormaters = []gpsabl.OutputFormater{&csvbl.CsvOutputFormater{}, &jsonbl.JSONOutputFormater{}}
+var DefinedFilters = []gpsabl.TrackFilter{}
 
 func main() {
 
@@ -66,6 +67,26 @@ func main() {
 	if PrintLicenseFlag {
 		fmt.Fprintln(os.Stdout, fmt.Sprintf("(c) %s - Apache License, Version 2.0( http://www.apache.org/licenses/LICENSE-2.0 )", Authors))
 		os.Exit(0)
+	}
+
+	if MinStartTime != "" {
+		minFilter, minFilterErr := gpsabl.NewMinStartTimeFilter(MinStartTime)
+		if minFilterErr != nil {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MinStartTime))
+			os.Exit(1)
+		}
+
+		DefinedFilters = append(DefinedFilters, &minFilter)
+	}
+
+	if MaxStartTime != "" {
+		maxFilter, maxFilterErr := gpsabl.NewMaxStartTimeFilter(MaxStartTime)
+		if maxFilterErr != nil {
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MaxStartTime))
+			os.Exit(1)
+		}
+
+		DefinedFilters = append(DefinedFilters, &maxFilter)
 	}
 
 	// If we don't have input files, we might run with stream input
@@ -215,10 +236,9 @@ func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 	}
 
 	// Filter the track
-	filters := []gpsabl.TrackFilter{}
-	// TODO Add filters depending on call parameters
-	if len(filters) > 0 {
-		file = gpsabl.FilterTrackFile(file, filters)
+	if len(DefinedFilters) > 0 {
+		// TODO Write Tests for this functionality
+		file = gpsabl.FilterTrackFile(file, DefinedFilters)
 	}
 
 	// Add the file to the out buffer of the formater, if it contains tracks
