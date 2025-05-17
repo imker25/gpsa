@@ -67,6 +67,10 @@ Options:
     	Print license information of the program and exit
   -minimal-moving-speed float
     	The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
+  -max-start-time string
+        The maximum StartTime for a track to be added to the output. Formatted in "YYYY-MMM-dd HH:mm:ss", may without seconds or just a date
+  -min-start-time string
+        The minimum StartTime for a track to be added to the output. Formatted in "YYYY-MMM-dd HH:mm:ss", may without seconds or just a date      
   -minimal-step-hight float
     	The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
   -out-file string
