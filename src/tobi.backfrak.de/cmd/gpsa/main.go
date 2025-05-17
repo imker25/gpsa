@@ -33,6 +33,7 @@ var version = "undefined"
 
 var ValidReaders = []gpsabl.TrackReader{&gpxbl.GpxFile{}, &tcxbl.TcxFile{}}
 var ValidFormaters = []gpsabl.OutputFormater{&csvbl.CsvOutputFormater{}, &jsonbl.JSONOutputFormater{}}
+var DefinedFilters = []gpsabl.TrackFilter{}
 
 func main() {
 
@@ -112,6 +113,30 @@ func main() {
 	}
 }
 
+func createFilters() bool {
+	if MinStartTime != "" {
+		minFilter, minFilterErr := gpsabl.NewMinStartTimeFilter(MinStartTime)
+		if minFilterErr != nil {
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MinStartTime))
+			return false
+		}
+
+		DefinedFilters = append(DefinedFilters, &minFilter)
+	}
+
+	if MaxStartTime != "" {
+		maxFilter, maxFilterErr := gpsabl.NewMaxStartTimeFilter(MaxStartTime)
+		if maxFilterErr != nil {
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MaxStartTime))
+			return false
+		}
+
+		DefinedFilters = append(DefinedFilters, &maxFilter)
+	}
+
+	return true
+}
+
 func proccessFileArgs(args []string) []gpsabl.InputFile {
 	var fileArgs []gpsabl.InputFile
 	for _, file := range args {
@@ -159,6 +184,10 @@ func processFiles(files []gpsabl.InputFile, iFormater gpsabl.OutputFormater) int
 
 	if !gpsabl.CheckValidCorrectionParameters(gpsabl.CorrectionParameter(CorrectionParameter)) {
 		HandleError(gpsabl.NewCorrectionParameterNotKnownError(gpsabl.CorrectionParameter(CorrectionParameter)), "", false, DontPanicFlag)
+	}
+
+	if !createFilters() {
+		os.Exit(-10)
 	}
 
 	allFiles := len(files)
@@ -214,7 +243,20 @@ func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 		return false
 	}
 
-	// Add the file to the out buffer of the formater
+	// Filter the track
+	if len(DefinedFilters) > 0 {
+		// TODO Write Tests for this functionality
+		file = gpsabl.FilterTrackFile(file, DefinedFilters)
+	}
+
+	// Add the file to the out buffer of the formater, if it contains tracks
+	if len(file.Tracks) < 1 {
+		if VerboseFlag {
+			fmt.Println(fmt.Sprintf("File \"%s\" does not contain any tracks after applying the given filters", inFile.Name))
+		}
+		return true
+	}
+
 	addErr := formater.AddOutPut(file, gpsabl.DepthArg(DepthParameter), SuppressDuplicateOutPutFlag)
 	if HandleError(addErr, inFile.Name, SkipErrorExitFlag, DontPanicFlag) == true {
 		return false

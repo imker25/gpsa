@@ -67,6 +67,12 @@ var PrintElevationOverDistanceFlag bool
 // StdOutFormatParameter - Tells the formant when StdOut is the output stream -std-out-format
 var StdOutFormatParameter string
 
+// MinStartTime - The minimum StartTime for a track to be added to the output. Formatted in "YYYY-MMM-dd HH:mm:ss", may without seconds or just a date
+var MinStartTime string
+
+// MaxStartTime - The maximum StartTime for a track to be added to the output. Formatted in "YYYY-MMM-dd HH:mm:ss", may without seconds or just a date
+var MaxStartTime string
+
 // ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
 func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
 	var fileArgs []gpsabl.InputFile
@@ -209,6 +215,11 @@ func handleComandlineOptions() {
 		fmt.Sprintf("Tell if you want to get a summary report. Possible values are [%s]", gpsabl.GetValidSummaryArgsString()))
 	flag.StringVar(&TimeFormatParameter, "time-format", string(gpsabl.RFC850),
 		fmt.Sprintf("Tell how the csv output formater should format times. Possible values are [%s]", gpsabl.GetValidTimeFormatsString()))
+	flag.StringVar(&MinStartTime, "min-start-time", "",
+		"The minimum StartTime for a track to be added to the output. Formatted in \"YYYY-MMM-dd HH:mm:ss\", may without seconds or just a date")
+	flag.StringVar(&MaxStartTime, "max-start-time", "",
+		"The maximum StartTime for a track to be added to the output. Formatted in \"YYYY-MMM-dd HH:mm:ss\", may without seconds or just a date")
+
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage
 

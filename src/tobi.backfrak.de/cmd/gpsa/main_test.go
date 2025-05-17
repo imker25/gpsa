@@ -854,3 +854,173 @@ func TestProccessFileArgs(t *testing.T) {
 		t.Errorf("The inputFiles.Name %s is not fileargs %s ", inputFiles[0].Name, fileargs[0])
 	}
 }
+
+func TestCreateFiltersWithValidMinStartTimeFilterString(t *testing.T) {
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+	oldMinStartTime := MinStartTime
+
+	MinStartTime = "2025-03-04 16:45:31"
+
+	if !createFilters() {
+		t.Errorf("The string \"%s\" was not parssed as a time stamp", MinStartTime)
+	}
+
+	if len(DefinedFilters) != 1 {
+		t.Errorf("There are %d filters defined, but just 1 is expected", len(DefinedFilters))
+	}
+
+	if DefinedFilters[0].GetFilterText() != MinStartTime {
+		t.Errorf("The Filtered Text of the defnied filter is \"%s\", but \"%s\" is expected", DefinedFilters[0].GetFilterText(), MinStartTime)
+	}
+
+	switch ty := DefinedFilters[0].(type) {
+	default:
+		t.Errorf("The Defined filter is of type %s, but gpsabl.MinStartTimeFilter is expected", ty)
+	case *gpsabl.MinStartTimeFilter:
+		fmt.Println("OK")
+	}
+
+	MinStartTime = oldMinStartTime
+	DefinedFilters = []gpsabl.TrackFilter{}
+}
+
+func TestCreateFiltersWithValidMaxStartTimeFilterString(t *testing.T) {
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+	oldMaxStartTime := MaxStartTime
+
+	MaxStartTime = "2025-03-04 16:45:31"
+
+	if !createFilters() {
+		t.Errorf("The string \"%s\" was not parssed as a time stamp", MaxStartTime)
+	}
+
+	if len(DefinedFilters) != 1 {
+		t.Errorf("There are %d filters defined, but just 1 is expected", len(DefinedFilters))
+	}
+
+	if DefinedFilters[0].GetFilterText() != MaxStartTime {
+		t.Errorf("The Filtered Text of the defnied filter is \"%s\", but \"%s\" is expected", DefinedFilters[0].GetFilterText(), MaxStartTime)
+	}
+
+	switch ty := DefinedFilters[0].(type) {
+	default:
+		t.Errorf("The Defined filter is of type %s, but gpsabl.MaxStartTimeFilter is expected", ty)
+	case *gpsabl.MaxStartTimeFilter:
+		fmt.Println("OK")
+	}
+
+	MaxStartTime = oldMaxStartTime
+	DefinedFilters = []gpsabl.TrackFilter{}
+}
+
+func TestCreateFiltersWithValidMinAndMaxStartTimeFilterString(t *testing.T) {
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+	oldMaxStartTime := MaxStartTime
+	oldMinStartTime := MinStartTime
+
+	MaxStartTime = "2025-03-04 16:45:31"
+	MinStartTime = "2025-03-04 15:45:31"
+
+	if !createFilters() {
+		t.Errorf("The string \"%s\" was not parssed as a time stamp", MaxStartTime)
+	}
+
+	if len(DefinedFilters) != 2 {
+		t.Errorf("There are %d filters defined, but 2 is expected", len(DefinedFilters))
+	}
+
+	MaxStartTime = oldMaxStartTime
+	MinStartTime = oldMinStartTime
+	DefinedFilters = []gpsabl.TrackFilter{}
+}
+
+func TestCreateFiltersWithInValidMinStartTimeFilterString(t *testing.T) {
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+	oldMinStartTime := MinStartTime
+
+	MinStartTime = "not a time"
+
+	if createFilters() {
+		t.Errorf("The string \"%s\" was parssed as a time stamp", MinStartTime)
+	}
+
+	if len(DefinedFilters) != 0 {
+		t.Errorf("There are %d filters defined, but just 0 is expected", len(DefinedFilters))
+	}
+
+	MinStartTime = oldMinStartTime
+	DefinedFilters = []gpsabl.TrackFilter{}
+}
+
+func TestCreateFiltersWithInValidMaxStartTimeFilterString(t *testing.T) {
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+	oldMaxStartTime := MaxStartTime
+
+	MaxStartTime = "not a time"
+
+	if createFilters() {
+		t.Errorf("The string \"%s\" was parssed as a time stamp", MinStartTime)
+	}
+
+	if len(DefinedFilters) != 0 {
+		t.Errorf("There are %d filters defined, but just 0 is expected", len(DefinedFilters))
+	}
+
+	MaxStartTime = oldMaxStartTime
+	DefinedFilters = []gpsabl.TrackFilter{}
+}
+
+func TestProcessValidFilesWithStartTimeFilters(t *testing.T) {
+
+	outFileMux.Lock()
+	defer outFileMux.Unlock()
+	oldMaxStartTime := MaxStartTime
+	oldMinStartTime := MinStartTime
+
+	MaxStartTime = "2020-02-04 16:45:31"
+	MinStartTime = "2019-03-04 15:45:31"
+
+	ErrorsHandled = false
+	oldFlagValue := SkipErrorExitFlag
+	SkipErrorExitFlag = true
+	oldDepthValue := DepthParameter
+	DepthParameter = "file"
+	oldCorrectionPAr := CorrectionParameter
+	CorrectionParameter = "linear"
+
+	formater := csvbl.NewCsvOutputFormater(";", false)
+	iFormater := gpsabl.OutputFormater(formater)
+
+	fileStrs := []string{testhelper.GetValidGPX("06.gpx"), testhelper.GetValidGPX("05.gpx"), testhelper.GetValidGPX("16.gpx")}
+	var files []gpsabl.InputFile
+	for _, file := range fileStrs {
+		files = append(files, *gpsabl.NewInputFileWithPath(file))
+	}
+	successCount := processFiles(files, iFormater)
+	if successCount != 3 {
+		t.Errorf("Not all files were processed successfully as expected")
+	}
+
+	if len(DefinedFilters) != 2 {
+		t.Errorf("There are %d filters defined, but 2 is expected", len(DefinedFilters))
+	}
+	lines := formater.GetLines()
+	if len(lines) != 1 {
+		t.Errorf("There are %d output lines, but 1 is excpected", len(lines))
+	}
+	if ErrorsHandled == true {
+		t.Errorf("Errors occurred that were not expected")
+	}
+	ErrorsHandled = false
+	SkipErrorExitFlag = oldFlagValue
+	DepthParameter = oldDepthValue
+	CorrectionParameter = oldCorrectionPAr
+	MaxStartTime = oldMaxStartTime
+	MinStartTime = oldMinStartTime
+	DefinedFilters = []gpsabl.TrackFilter{}
+}

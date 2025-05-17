@@ -2,7 +2,6 @@ package gpsabl
 
 import (
 	"testing"
-	"time"
 )
 
 // Copyright 2019 by tobi@backfrak.de. All
@@ -135,22 +134,4 @@ func TestShortDistance3(t *testing.T) {
 	if dist2 != dist1 {
 		t.Errorf("The distance was calculated with %f but %f was expected", dist2, dist1)
 	}
-}
-
-func getTrackPoint(lat, lon, ele float32) TrackPoint {
-	pnt := TrackPoint{}
-	pnt.Latitude = lat
-	pnt.Longitude = lon
-	pnt.Elevation = ele
-	pnt.TimeValid = false
-
-	return pnt
-}
-
-func getTrackPointWithTime(lat, lon, ele float32, time time.Time) TrackPoint {
-	pnt := getTrackPoint(lat, lon, ele)
-	pnt.TimeValid = true
-	pnt.Time = time
-
-	return pnt
 }
