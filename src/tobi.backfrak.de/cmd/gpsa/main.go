@@ -69,26 +69,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	if MinStartTime != "" {
-		minFilter, minFilterErr := gpsabl.NewMinStartTimeFilter(MinStartTime)
-		if minFilterErr != nil {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MinStartTime))
-			os.Exit(1)
-		}
-
-		DefinedFilters = append(DefinedFilters, &minFilter)
-	}
-
-	if MaxStartTime != "" {
-		maxFilter, maxFilterErr := gpsabl.NewMaxStartTimeFilter(MaxStartTime)
-		if maxFilterErr != nil {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MaxStartTime))
-			os.Exit(1)
-		}
-
-		DefinedFilters = append(DefinedFilters, &maxFilter)
-	}
-
 	// If we don't have input files, we might run with stream input
 	if len(flag.Args()) != 0 {
 		fileArgs = proccessFileArgs(flag.Args())
@@ -131,6 +111,30 @@ func main() {
 		fmt.Fprintln(os.Stderr, "At least one error occurred")
 		os.Exit(-1)
 	}
+}
+
+func createFilters() bool {
+	if MinStartTime != "" {
+		minFilter, minFilterErr := gpsabl.NewMinStartTimeFilter(MinStartTime)
+		if minFilterErr != nil {
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MinStartTime))
+			return false
+		}
+
+		DefinedFilters = append(DefinedFilters, &minFilter)
+	}
+
+	if MaxStartTime != "" {
+		maxFilter, maxFilterErr := gpsabl.NewMaxStartTimeFilter(MaxStartTime)
+		if maxFilterErr != nil {
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Can not parse the string \"%s\" as date or date time", MaxStartTime))
+			return false
+		}
+
+		DefinedFilters = append(DefinedFilters, &maxFilter)
+	}
+
+	return true
 }
 
 func proccessFileArgs(args []string) []gpsabl.InputFile {
@@ -180,6 +184,10 @@ func processFiles(files []gpsabl.InputFile, iFormater gpsabl.OutputFormater) int
 
 	if !gpsabl.CheckValidCorrectionParameters(gpsabl.CorrectionParameter(CorrectionParameter)) {
 		HandleError(gpsabl.NewCorrectionParameterNotKnownError(gpsabl.CorrectionParameter(CorrectionParameter)), "", false, DontPanicFlag)
+	}
+
+	if !createFilters() {
+		os.Exit(-10)
 	}
 
 	allFiles := len(files)
@@ -243,7 +251,9 @@ func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 
 	// Add the file to the out buffer of the formater, if it contains tracks
 	if len(file.Tracks) < 1 {
-		fmt.Println(fmt.Sprintf("File \"%s\" does not contain any tracks after appling the given filters", inFile.Name))
+		if VerboseFlag {
+			fmt.Println(fmt.Sprintf("File \"%s\" does not contain any tracks after applying the given filters", inFile.Name))
+		}
 		return true
 	}
 

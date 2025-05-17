@@ -101,6 +101,7 @@ func FilterTracks(tracks []Track, filters []TrackFilter) []Track {
 func FilterTrackFile(file TrackFile, filters []TrackFilter) TrackFile {
 	file.Tracks = FilterTracks(file.Tracks, filters)
 	FillTrackFileValues(&file)
+	file.NumberOfTracks = len(file.Tracks)
 
 	return file
 }

@@ -353,6 +353,10 @@ func TestFilterTrackFilesWithOneTrackPassAll(t *testing.T) {
 	if filteredFile.ElevationGain != file.ElevationGain {
 		t.Errorf("The filteredFile.ElevationGain is \"%f\", but \"%f\" is expected", filteredFile.ElevationGain, file.ElevationGain)
 	}
+
+	if filteredFile.NumberOfTracks != 1 {
+		t.Errorf("The filteredFile.NumberOfTracks is \"%d\", but \"%d\" is expected", filteredFile.NumberOfTracks, 1)
+	}
 }
 
 func TestFilterTrackFilesWithFourTracksTwoPassAll(t *testing.T) {
@@ -381,6 +385,10 @@ func TestFilterTrackFilesWithFourTracksTwoPassAll(t *testing.T) {
 	if filteredFile.ElevationGain != file.ElevationGain/2 {
 		t.Errorf("The filteredFile.ElevationGain is \"%f\", but \"%f\" is expected", filteredFile.ElevationGain, file.ElevationGain/2)
 	}
+
+	if filteredFile.NumberOfTracks != 2 {
+		t.Errorf("The filteredFile.NumberOfTracks is \"%d\", but \"%d\" is expected", filteredFile.NumberOfTracks, 2)
+	}
 }
 
 func TestFilterTrackFilesWithFourTracksZeroPassAll(t *testing.T) {
@@ -408,6 +416,10 @@ func TestFilterTrackFilesWithFourTracksZeroPassAll(t *testing.T) {
 
 	if filteredFile.ElevationGain != 0 {
 		t.Errorf("The filteredFile.ElevationGain is \"%f\", but \"%f\" is expected", filteredFile.ElevationGain, 0.0)
+	}
+
+	if filteredFile.NumberOfTracks != 0 {
+		t.Errorf("The filteredFile.NumberOfTracks is \"%d\", but \"%d\" is expected", filteredFile.NumberOfTracks, 0)
 	}
 }
 
