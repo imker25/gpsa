@@ -153,8 +153,6 @@ func (formater *MDOutputFormater) GetStatisticSummaryLines() []string {
 // GetLines - Get the lines stored in the internal buffer
 func (formater *MDOutputFormater) GetLines() []string {
 	ret := []string{}
-	ret = append(ret, formater.GetHeader())
-	ret = append(ret, formater.GetHeaderContentSeparator())
 
 	formater.mux.Lock()
 	defer formater.mux.Unlock()
@@ -187,17 +185,18 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 // GetOutputLines - Get all lines of the output
 func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]string, error) {
 	var lines []string
+	lines = append(lines, formater.GetHeader())
+	lines = append(lines, formater.GetHeaderContentSeparator())
 	switch summary {
 	case gpsabl.NONE:
-		lines = formater.GetLines()
+		lines = append(lines, formater.GetLines()...)
 	case gpsabl.ONLY:
-		lines = append(lines, formater.GetHeader())
-		lines = append(lines, formater.GetHeaderContentSeparator())
 		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	case gpsabl.ADDITIONAL:
-		lines = formater.GetLines()
-		sepaeratorLine := fmt.Sprintf("%s%s%s", "Statistics:", formater.Separator, GetNewLine())
-		lines = append(lines, sepaeratorLine)
+		lines = append(lines, formater.GetLines()...)
+		lines = append(lines, formater.GetHeaderContentSeparator())
+		// sepaeratorLine := fmt.Sprintf("%s%s%s", "Statistics:", formater.Separator, GetNewLine())
+		// lines = append(lines, sepaeratorLine)
 		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	default:
 		return nil, gpsabl.NewSummaryParamaterNotKnown(summary)

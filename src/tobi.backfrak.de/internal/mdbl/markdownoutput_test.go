@@ -116,16 +116,8 @@ func TestNewMDOutputFormater(t *testing.T) {
 	}
 
 	lines := sut.GetLines()
-	if len(lines) != 2 {
+	if len(lines) != 0 {
 		t.Errorf("The line buffer is not empty on a new MDOutputFormater")
-	}
-
-	if !strings.HasPrefix(lines[0], "| Name | StartTime | EndTime | TrackTime (xxhxxmxxs) | Distance (km) |") {
-		t.Errorf("The header line \"%s\" is not expected", lines[0])
-	}
-
-	if !strings.HasPrefix(lines[1], "| ---- | ") {
-		t.Errorf("The header line \"%s\" is not expected", lines[1])
 	}
 
 	if sut.GetTimeFormat() != string(sut.timeFormater) {
@@ -146,23 +138,15 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
 	ret := formater.GetLines()
-	if len(ret) != 3 {
+	if len(ret) != 1 {
 		t.Errorf("The output has not the expected number of files")
 	}
 
-	if strings.Count(ret[0], "|") != strings.Count(ret[1], "|") {
-		t.Errorf("The Number of pipes is not the same in each line")
-	}
-
-	if strings.Count(ret[0], "|") != strings.Count(ret[2], "|") {
-		t.Errorf("The Number of pipes is not the same in each line")
-	}
-
-	if strings.Contains(ret[2], "0.02") == false {
+	if strings.Contains(ret[0], "0.02") == false {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
 	}
 
-	if strings.Contains(ret[2], trackFile.FilePath) == false {
+	if strings.Contains(ret[0], trackFile.FilePath) == false {
 		t.Errorf("The output does not contain the name as expected. It is: %s", ret[1])
 	}
 }
@@ -177,24 +161,20 @@ func TestFormatOutPutWithHeaderAndSetName(t *testing.T) {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
 	ret := formater.GetLines()
-	if len(ret) != 3 {
+	if len(ret) != 1 {
 		t.Errorf("The output has not the expected number of files")
 	}
 
-	if strings.Count(ret[0], ";") != strings.Count(ret[1], ";") {
-		t.Errorf("The Number of semicolons is not the same in each line")
+	if strings.Contains(ret[0], "0.02") == false {
+		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[0])
 	}
 
-	if strings.Contains(ret[2], "0.02") == false {
-		t.Errorf("The output does not contain the distance as expected. It is: %s", ret[1])
+	if strings.Contains(ret[0], trackFile.Name) == false {
+		t.Errorf("The output does not contain the name as expected. It is: %s", ret[0])
 	}
 
-	if strings.Contains(ret[2], trackFile.Name) == false {
-		t.Errorf("The output does not contain the name as expected. It is: %s", ret[1])
-	}
-
-	if strings.Contains(ret[2], trackFile.FilePath) == true {
-		t.Errorf("The output does contain the FilePath but should not. It is: %s", ret[1])
+	if strings.Contains(ret[0], trackFile.FilePath) == true {
+		t.Errorf("The output does contain the FilePath but should not. It is: %s", ret[0])
 	}
 }
 
@@ -335,28 +315,28 @@ func TestAddOutPut(t *testing.T) {
 
 	lines := frt.GetLines()
 
-	if len(lines) != 3 {
+	if len(lines) != 1 {
 		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[2], "|") != numberOfPipeExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[2], ";"), numberOfPipeExpected)
+	if strings.Count(lines[0], "|") != numberOfPipeExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], "|"), numberOfPipeExpected)
 	}
 
-	if strings.Count(lines[2], "0.02 |") != 2 {
-		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "0.02 |") != 2 {
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "1.00 |") != 3 {
-		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "1.00 |") != 3 {
+		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "0.01 |") != 2 {
-		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "0.01 |") != 2 {
+		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "not valid |") != numberOfNotValideExpected {
-		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "not valid |") != numberOfNotValideExpected {
+		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
 	}
 }
 
@@ -371,40 +351,40 @@ func TestAddOutPutWithTimeStamp(t *testing.T) {
 
 	lines := frt.GetLines()
 
-	if len(lines) != 3 {
-		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 3)
+	if len(lines) != 1 {
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
 	}
 
-	if strings.Count(lines[2], "|") != numberOfPipeExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[2], " |"), numberOfPipeExpected)
+	if strings.Count(lines[0], "|") != numberOfPipeExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], " |"), numberOfPipeExpected)
 	}
 
-	if strings.Count(lines[2], "0.02 |") != 2 {
-		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "0.02 |") != 2 {
+		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "1.00 |") != 3 {
-		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "1.00 |") != 3 {
+		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "0.01 |") != 2 {
-		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "0.01 |") != 2 {
+		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "2014-08-22T17:19:33Z |") != 1 {
-		t.Errorf("The output does not contain the StartTime as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "2014-08-22T17:19:33Z |") != 1 {
+		t.Errorf("The output does not contain the StartTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "2014-08-22T17:19:53Z |") != 1 {
-		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "2014-08-22T17:19:53Z |") != 1 {
+		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "20s |") != 2 {
-		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "20s |") != 2 {
+		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[2], "4.30 |") != 3 {
-		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[2])
+	if strings.Count(lines[0], "4.30 |") != 3 {
+		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
 	}
 }
 
@@ -471,7 +451,7 @@ func TestMDOutputFormaterDuplicateFilterWithTimeStamp(t *testing.T) {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
 
-	if len(frt.GetLines()) != 3 {
+	if len(frt.GetLines()) != 1 {
 		t.Errorf("Got %d lines, but expected 1", len(frt.GetLines()))
 	}
 }
@@ -485,8 +465,8 @@ func TestMDOutputFormaterDuplicateFilterWithOutTime(t *testing.T) {
 		t.Errorf("Got an error but did not expect one. The error is: %s", errAdd.Error())
 	}
 
-	if len(frt.GetLines()) != 4 {
-		t.Errorf("Got %d lines, but expected 1", len(frt.GetLines()))
+	if len(frt.GetLines()) != 2 {
+		t.Errorf("Got %d lines, but expected 2", len(frt.GetLines()))
 	}
 }
 
@@ -523,47 +503,47 @@ func TestAddOutPutMixedTimeAndNoTime(t *testing.T) {
 	lines := frt.GetLines()
 
 	if len(lines) != 2 {
-		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 1)
+		t.Errorf("The number of lines was not expected. Got %d, expected %d", len(lines), 2)
 	}
 
-	if strings.Count(lines[1], ";") != numberOfPipeExpected {
-		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[0], ";"), numberOfPipeExpected)
+	if strings.Count(lines[1], "|") != numberOfPipeExpected {
+		t.Errorf("The Number of semicolons in the line is %d but %d was expected", strings.Count(lines[1], "|"), numberOfPipeExpected)
 	}
 
-	if strings.Count(lines[1], "0.02;") != 2 {
+	if strings.Count(lines[0], "0.02 |") != 2 {
 		t.Errorf("The output does not contain the distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "1.00;") != 3 {
+	if strings.Count(lines[0], "1.00 |") != 3 {
 		t.Errorf("The output does not contain the ElevationGain as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "0.01;") != 2 {
+	if strings.Count(lines[0], "0.01 |") != 2 {
 		t.Errorf("The output does not contain the UpwardsDistance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[1], "2014-08-22T17:19:33Z;") != 1 {
-		t.Errorf("The output does not contain the StartTime as expected. It is: %s", lines[0])
+	if strings.Count(lines[1], "2014-08-22T17:19:33Z |") != 1 {
+		t.Errorf("The output does not contain the StartTime as expected. It is: %s", lines[1])
 	}
 
-	if strings.Count(lines[1], "2014-08-22T17:19:53Z;") != 1 {
-		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[0])
+	if strings.Count(lines[1], "2014-08-22T17:19:53Z |") != 1 {
+		t.Errorf("The output does not contain the EndTime as expected. It is: %s", lines[1])
 	}
 
-	if strings.Count(lines[1], "20s;") != 2 {
-		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
+	if strings.Count(lines[1], "20s |") != 2 {
+		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[1])
 	}
 
-	if strings.Count(lines[1], "4.30;") != 3 {
-		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[0])
+	if strings.Count(lines[1], "4.30 |") != 3 {
+		t.Errorf("The output does not contain the AvarageSpeed as expected. It is: %s", lines[1])
 	}
 
-	if strings.Count(lines[0], "not valid;") != numberOfNotValideExpected {
-		t.Errorf("The output does not contain the Time values as often as expected. Found it %d times in: %s", strings.Count(lines[1], "not valid;"), lines[1])
+	if strings.Count(lines[0], "not valid |") != numberOfNotValideExpected {
+		t.Errorf("The output does not contain the Time values as often as expected. Found it %d times in: %s", strings.Count(lines[0], "not valid |"), lines[0])
 	}
 
 	if strings.Count(lines[1], "10s") != 2 {
-		t.Errorf("The output does not contain the Time values as often as expected. Found it %d times in: %s", strings.Count(lines[0], "10s;"), lines[1])
+		t.Errorf("The output does not contain the Time values as often as expected. Found it %d times in: %s", strings.Count(lines[1], "10s |"), lines[1])
 	}
 }
 
@@ -578,16 +558,16 @@ func TestOutPutTrackTimeAndMovingTimeIsDifferent(t *testing.T) {
 
 	lines := frt.GetLines()
 
-	if strings.Count(lines[0], "2h0m20s;") != 1 {
-		t.Errorf("The output does not contain the TrackTime as expected. It is: %s", lines[0])
+	if strings.Count(lines[0], "2h0m20s |") != 1 {
+		t.Errorf("The output does not contain the TrackTime as expected. It is: %s", lines[2])
 	}
 
-	if strings.Count(lines[0], "1m0s;") != 1 {
-		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[0])
+	if strings.Count(lines[0], "1m0s |") != 1 {
+		t.Errorf("The output does not contain the MovingTime as expected. It is: %s", lines[2])
 	}
 
-	if strings.Count(lines[0], "30s;") != 2 {
-		t.Errorf("The output does not contain the Upwards / Downwards Time as expected. It is: %s", lines[0])
+	if strings.Count(lines[0], "30s |") != 2 {
+		t.Errorf("The output does not contain the Upwards / Downwards Time as expected. It is: %s", lines[2])
 	}
 }
 
@@ -602,11 +582,11 @@ func TestOutPutDistanceAndHorizontalDistanceIsDifferent(t *testing.T) {
 
 	lines := frt.GetLines()
 
-	if strings.Count(lines[0], "0.07;") != 1 {
+	if strings.Count(lines[0], "0.07 |") != 1 {
 		t.Errorf("The output does not contain the Distance as expected. It is: %s", lines[0])
 	}
 
-	if strings.Count(lines[0], "0.05;") != 1 {
+	if strings.Count(lines[0], "0.05 |") != 1 {
 		t.Errorf("The output does not contain the HorizontalDistance as expected. It is: %s", lines[0])
 	}
 }
@@ -656,12 +636,12 @@ func TestOutputIsSorted(t *testing.T) {
 	}
 	lines := frt.GetLines()
 
-	slpitLineOne := strings.Split(lines[0], ";")
-	slpitLineTwo := strings.Split(lines[1], ";")
-	if slpitLineOne[1] != "2014-08-22T17:19:33Z" {
+	slpitLineOne := strings.Split(lines[0], "|")
+	slpitLineTwo := strings.Split(lines[1], "|")
+	if strings.TrimSpace(slpitLineOne[2]) != "2014-08-22T17:19:33Z" {
 		t.Errorf("The lines are not in the right order")
 	}
-	if slpitLineTwo[1] != "2015-08-22T17:19:33Z" {
+	if strings.TrimSpace(slpitLineTwo[2]) != "2015-08-22T17:19:33Z" {
 		t.Errorf("The lines are not in the right order")
 	}
 
@@ -681,18 +661,18 @@ func TestGetStatisticSummaryLinesWithTime(t *testing.T) {
 	}
 	lines := frt.GetStatisticSummaryLines()
 
-	if strings.Count(lines[0], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[0], strings.Count(lines[0], ";"), numberOfPipeExpected)
+	if strings.Count(lines[0], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[0], strings.Count(lines[0], "|"), numberOfPipeExpected)
 	}
 
-	if strings.Count(lines[1], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[1], strings.Count(lines[1], ";"), numberOfPipeExpected)
+	if strings.Count(lines[1], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[1], strings.Count(lines[1], "|"), numberOfPipeExpected)
 	}
-	if strings.Count(lines[2], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[2], strings.Count(lines[2], ";"), numberOfPipeExpected)
+	if strings.Count(lines[2], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[2], strings.Count(lines[2], "|"), numberOfPipeExpected)
 	}
-	if strings.Count(lines[3], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], ";"), numberOfPipeExpected)
+	if strings.Count(lines[3], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], "|"), numberOfPipeExpected)
 	}
 }
 
@@ -712,7 +692,7 @@ func TestGetOutputLinesSummaryNone(t *testing.T) {
 	if errOut != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-	if len(lines) != 2 {
+	if len(lines) != 4 {
 		t.Errorf("Got an unexpected number of lines")
 	}
 }
@@ -733,28 +713,7 @@ func TestGetOutputLinesSummaryOnly(t *testing.T) {
 	if errOut != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-	if len(lines) != 4 {
-		t.Errorf("Got an unexpected number of lines")
-	}
-}
-
-func TestGetOutputLinesSummaryOnlyWithHeader(t *testing.T) {
-	frt := NewMDOutputFormater()
-	trackFile1 := getTrackFileWithDifferentTime()
-	err := frt.AddOutPut(trackFile1, "file", false)
-	if err != nil {
-		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
-	}
-	trackFile2 := getSimpleTrackFileWithTime()
-	err = frt.AddOutPut(trackFile2, "file", false)
-	if err != nil {
-		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
-	}
-	lines, errOut := frt.GetOutputLines("only")
-	if errOut != nil {
-		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
-	}
-	if len(lines) != 5 {
+	if len(lines) != 6 {
 		t.Errorf("Got an unexpected number of lines")
 	}
 }
@@ -775,7 +734,7 @@ func TestGetOutputLinesSummaryAdditional(t *testing.T) {
 	if errOut != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-	if len(lines) != 7 {
+	if len(lines) != 9 {
 		t.Errorf("Got an unexpected number of lines")
 	}
 }
@@ -819,18 +778,18 @@ func TestGetStatisticSummaryLinesWithoutTime(t *testing.T) {
 	}
 	lines := frt.GetStatisticSummaryLines()
 
-	if strings.Count(lines[0], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[0], strings.Count(lines[0], ";"), numberOfPipeExpected)
+	if strings.Count(lines[0], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[0], strings.Count(lines[0], "|"), numberOfPipeExpected)
 	}
 
-	if strings.Count(lines[1], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[1], strings.Count(lines[1], ";"), numberOfPipeExpected)
+	if strings.Count(lines[1], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[1], strings.Count(lines[1], "|"), numberOfPipeExpected)
 	}
-	if strings.Count(lines[2], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[2], strings.Count(lines[2], ";"), numberOfPipeExpected)
+	if strings.Count(lines[2], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[2], strings.Count(lines[2], "|"), numberOfPipeExpected)
 	}
-	if strings.Count(lines[3], ";") != numberOfPipeExpected {
-		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], ";"), numberOfPipeExpected)
+	if strings.Count(lines[3], "|") != numberOfPipeExpected {
+		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], "|"), numberOfPipeExpected)
 	}
 }
 
