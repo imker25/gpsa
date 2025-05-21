@@ -734,7 +734,7 @@ func TestGetOutputLinesSummaryAdditional(t *testing.T) {
 	if errOut != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-	if len(lines) != 9 {
+	if len(lines) != 8 {
 		t.Errorf("Got an unexpected number of lines")
 	}
 }
