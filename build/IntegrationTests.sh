@@ -84,7 +84,7 @@ assert_raises "$gpsa $valid_gpx | grep \"not valid\" &> /dev/null" 0
 assert_raises "$gpsa -verbose $valid_gpx | grep \"16 of 16 files processed successfully\" &> /dev/null" 0
 assert_raises "$gpsa -verbose -skip-error-exit $valid_gpx $testdata/invalid-tcx/02.tcx | grep \"16 of 17 files processed successfully\" &> /dev/null" 0
 assert_raises "$gpsa -verbose -skip-error-exit $valid_gpx $testdata/invalid-tcx/02.tcx | grep \"At least one error occurred\" &> /dev/null" 1
-assert_raises "$gpsa -verbose -min-start-time=2012-01-02 -max-start-time=2015-03-04 $valid_gpx | grep \"does not contain any tracks after applying the given filters\" | wc -l | grep 13  &> /dev/null" 0
+assert_raises "$gpsa -verbose -minimum-start-time=2012-01-02 -maximum-start-time=2015-03-04 $valid_gpx | grep \"does not contain any tracks after applying the given filters\" | wc -l | grep 13  &> /dev/null" 0
 
 # Test stdin
 if [ -f "$csv_out" ]; then
