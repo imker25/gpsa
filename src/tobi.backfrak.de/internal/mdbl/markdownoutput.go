@@ -194,9 +194,6 @@ func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]s
 		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	case gpsabl.ADDITIONAL:
 		lines = append(lines, formater.GetLines()...)
-		lines = append(lines, formater.GetHeaderContentSeparator())
-		// sepaeratorLine := fmt.Sprintf("%s%s%s", "Statistics:", formater.Separator, GetNewLine())
-		// lines = append(lines, sepaeratorLine)
 		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	default:
 		return nil, gpsabl.NewSummaryParamaterNotKnown(summary)
@@ -217,7 +214,7 @@ func (formater *MDOutputFormater) GetHeader() string {
 	movingTimeHeader, _ := formater.getTimeDurationHeader("MovingTime")
 	upwardsTimeHeader, _ := formater.getTimeDurationHeader("UpwardsTime")
 	downwardsTimeHeader, _ := formater.getTimeDurationHeader("DownwardsTime")
-	ret := fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+	ret := fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s%s",
 		formater.Separator,
 		"Name", formater.Separator,
 		"StartTime", formater.Separator,
@@ -245,27 +242,27 @@ func (formater *MDOutputFormater) GetHeader() string {
 }
 
 func (formater *MDOutputFormater) GetHeaderContentSeparator() string {
-	ret := fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+	ret := fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s%s",
 		formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
-		"----", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
+		" :----: ", formater.Separator,
 		GetNewLine(),
 	)
 
@@ -280,7 +277,7 @@ func (formater *MDOutputFormater) FormatTrackSummary(info gpsabl.TrackSummaryPro
 		moveTime, _ := formater.formatTimeDuration(info.GetMovingTime())
 		upTime, _ := formater.formatTimeDuration(info.GetUpwardsTime())
 		downTime, _ := formater.formatTimeDuration(info.GetDownwardsTime())
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s%s",
 			formater.Separator,
 			name, formater.Separator,
 			info.GetStartTime().Format(string(formater.timeFormater)), formater.Separator,
@@ -304,7 +301,7 @@ func (formater *MDOutputFormater) FormatTrackSummary(info gpsabl.TrackSummaryPro
 			GetNewLine(),
 		)
 	} else {
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s%s",
 			formater.Separator,
 			name, formater.Separator,
 			NotValidValue, formater.Separator,
@@ -339,9 +336,9 @@ func (formater *MDOutputFormater) formatMinMaxSummary(info gpsabl.ExtendedTrackS
 		moveTime, _ := formater.formatTimeDuration(info.MovingTime)
 		upTime, _ := formater.formatTimeDuration(info.UpwardsTime)
 		downTime, _ := formater.formatTimeDuration(info.DownwardsTime)
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s%s",
 			formater.Separator,
-			name, formater.Separator,
+			fmt.Sprintf("**%s**", name), formater.Separator,
 			info.StartTime.Format(string(formater.timeFormater)), formater.Separator,
 			info.EndTime.Format(string(formater.timeFormater)), formater.Separator,
 			duration, formater.Separator,
@@ -363,9 +360,9 @@ func (formater *MDOutputFormater) formatMinMaxSummary(info gpsabl.ExtendedTrackS
 			GetNewLine(),
 		)
 	} else {
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s%s",
 			formater.Separator,
-			name, formater.Separator,
+			fmt.Sprintf("**%s**", name), formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
@@ -399,9 +396,9 @@ func (formater *MDOutputFormater) formatAverageSummary(info gpsabl.ExtendedTrack
 		moveTime, _ := formater.formatTimeDuration(info.MovingTime)
 		upTime, _ := formater.formatTimeDuration(info.UpwardsTime)
 		downTime, _ := formater.formatTimeDuration(info.DownwardsTime)
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s%s",
 			formater.Separator,
-			"Average:", formater.Separator,
+			"**Average**:", formater.Separator,
 			"-", formater.Separator,
 			"-", formater.Separator,
 			duration, formater.Separator,
@@ -423,9 +420,9 @@ func (formater *MDOutputFormater) formatAverageSummary(info gpsabl.ExtendedTrack
 			GetNewLine(),
 		)
 	} else {
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s%s",
 			formater.Separator,
-			"Average:", formater.Separator,
+			"**Average:**", formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
@@ -458,9 +455,9 @@ func (formater *MDOutputFormater) formatSumSummary(info gpsabl.ExtendedTrackSumm
 		moveTime, _ := formater.formatTimeDuration(info.MovingTime)
 		upTime, _ := formater.formatTimeDuration(info.UpwardsTime)
 		downTime, _ := formater.formatTimeDuration(info.DownwardsTime)
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s%s",
 			formater.Separator,
-			"Sum:", formater.Separator,
+			"**Sum:**", formater.Separator,
 			"-", formater.Separator,
 			"-", formater.Separator,
 			duration, formater.Separator,
@@ -482,9 +479,9 @@ func (formater *MDOutputFormater) formatSumSummary(info gpsabl.ExtendedTrackSumm
 			GetNewLine(),
 		)
 	} else {
-		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+		ret = fmt.Sprintf("%s %s %s %s %s %s %s %s %s %.2f %s %.2f %s %s %s %s %s %s %s %.2f %s %.2f %s %.2f %s %.2f %s %s %s %s %s %s %s %s %s %s %s %s %s%s",
 			formater.Separator,
-			"Sum:", formater.Separator,
+			"**Sum:**", formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,
 			NotValidValue, formater.Separator,

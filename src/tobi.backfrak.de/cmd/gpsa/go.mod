@@ -12,6 +12,8 @@ require "tobi.backfrak.de/internal/jsonbl" v0.0.0
 replace  "tobi.backfrak.de/internal/jsonbl" v0.0.0 => "../../internal/jsonbl"
 require "tobi.backfrak.de/internal/tcxbl" v0.0.0
 replace  "tobi.backfrak.de/internal/tcxbl" v0.0.0 => "../../internal/tcxbl"
+require "tobi.backfrak.de/internal/mdbl" v0.0.0
+replace  "tobi.backfrak.de/internal/mdbl" v0.0.0 => "../../internal/mdbl"
 
 require "tobi.backfrak.de/internal/testhelper" v0.0.0
 replace  "tobi.backfrak.de/internal/testhelper" v0.0.0 => "../../internal/testhelper"

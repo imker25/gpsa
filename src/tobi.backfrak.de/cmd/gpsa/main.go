@@ -14,10 +14,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"tobi.backfrak.de/internal/jsonbl"
+	"tobi.backfrak.de/internal/gpsabl"
 
 	"tobi.backfrak.de/internal/csvbl"
-	"tobi.backfrak.de/internal/gpsabl"
+	"tobi.backfrak.de/internal/jsonbl"
+	"tobi.backfrak.de/internal/mdbl"
+
 	"tobi.backfrak.de/internal/gpxbl"
 	"tobi.backfrak.de/internal/tcxbl"
 )
@@ -32,7 +34,7 @@ const OutputSeperator = "; "
 var version = "undefined"
 
 var ValidReaders = []gpsabl.TrackReader{&gpxbl.GpxFile{}, &tcxbl.TcxFile{}}
-var ValidFormaters = []gpsabl.OutputFormater{&csvbl.CsvOutputFormater{}, &jsonbl.JSONOutputFormater{}}
+var ValidFormaters = []gpsabl.OutputFormater{&csvbl.CsvOutputFormater{}, &jsonbl.JSONOutputFormater{}, &mdbl.MDOutputFormater{}}
 var DefinedFilters = []gpsabl.TrackFilter{}
 
 func main() {
