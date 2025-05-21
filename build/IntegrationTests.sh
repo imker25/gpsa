@@ -10,6 +10,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 gpsa="$SCRIPT_DIR/../bin/gpsa"
 csv_out="$SCRIPT_DIR/../logs/test.csv"
 json_out="$SCRIPT_DIR/../logs/test.json"
+md_out="$SCRIPT_DIR/../logs/test.md"
 testdata="$SCRIPT_DIR/../testdata"
 valid_gpx="$testdata/valid-gpx/*.gpx"
 
@@ -58,6 +59,11 @@ assert_raises "$gpsa -help | grep Version: &> /dev/null" 0
 if [ -f "$csv_out" ]; then
     rm -rf "$csv_out"
 fi
+
+if [ -f "$md_out" ]; then
+    rm -rf "$md_out"
+fi
+
 assert "$gpsa -out-file=$csv_out $valid_gpx" ""
 if [ ! -f "$csv_out" ]; then
     assert "echo $csv_out not found" ""
@@ -98,6 +104,12 @@ assert_raises "find $testdata/valid-gpx -name \"*.gpx\" | $gpsa " 0
 if [ -f "$json_out" ]; then
     rm -rf "$json_out"
 fi
+
+assert_raises "find $testdata/valid-gpx -name \"*.gpx\" | $gpsa -out-file $md_out " 0
+if [ ! -f "$md_out" ]; then
+    assert "echo $md_out not found" ""
+fi
+
 assert_raises "cat  $testdata/valid-gpx/01.gpx $testdata/valid-tcx/01.tcx $testdata/valid-tcx/03.tcx $testdata/valid-gpx/04.gpx | $gpsa -verbose -out-file=$json_out | grep \"4 of 4 files processed successfully\"" 0
 if [ ! -f "$json_out" ]; then
     assert "echo $json_out not found" ""
