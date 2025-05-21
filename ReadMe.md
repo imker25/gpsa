@@ -67,14 +67,14 @@ Options:
     	Print license information of the program and exit
   -minimal-moving-speed float
     	The minimal speed. Distances traveled with less speed are not counted. In [m/s] (default 0.3)
-  -max-start-time string
+  -maximum-start-time string
         The maximum StartTime for a track to be added to the output. Formatted in "YYYY-MMM-dd HH:mm:ss", may without seconds or just a date
-  -min-start-time string
+  -minimum-start-time string
         The minimum StartTime for a track to be added to the output. Formatted in "YYYY-MMM-dd HH:mm:ss", may without seconds or just a date      
   -minimal-step-hight float
     	The minimal step hight. Only in use when "steps"  elevation correction is used. In [m] (default 10)
   -out-file string
-    	Decide where to write the output. StdOut is used when not explicitly set. Supported file endings are: *.json, *.csv, . The format will be set according the given ending.
+    	Decide where to write the output. StdOut is used when not explicitly set. Supported file endings are: *.md *.json, *.csv, . The format will be set according the given ending.
   -print-csv-header
     	Print out a csv header line. Possible values are [true false] (default true)
   -print-elevation-over-distance
@@ -82,7 +82,7 @@ Options:
   -skip-error-exit
     	Don't exit the program on track file processing errors
   -std-out-format string
-    	The output format when stdout is the used output. Ignored when out-file is given. Possible values are [JSON CSV ] (default "CSV")
+    	The output format when stdout is the used output. Ignored when out-file is given. Possible values are [JSON CSV  MD] (default "CSV")
   -summary string
     	Tell if you want to get a summary report. Possible values are [only additional none ] (default "none")
   -suppress-duplicate-out-put
@@ -189,6 +189,16 @@ Get statistics from a file as json on stdout
  ],
  "Summary": null
 ```
+
+Get statistics from a file as markdown on stdout
+
+```sh
+./bin/gpsa -std-out-format MD  my/test/02.gpx         
+| Name | StartTime | EndTime | TrackTime (xxhxxmxxs) | Distance (km) | HorizontalDistance (km) | AltitudeRange (m) | MinimumAltitude (m) | MaximumAltitude (m) | ElevationGain (m) | ElevationLose (m) | UpwardsDistance (km) | DownwardsDistance (km) | MovingTime (xxhxxmxxs) | UpwardsTime (xxhxxmxxs) | DownwardsTime (xxhxxmxxs) | AverageSpeed (km/h) | UpwardsSpeed (km/h) | DownwardsSpeed (km/h) |
+|  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |
+| my/test/02.gpx: 2019-08-18 11:07:40 | 2019-08-18T09:11:01Z | 2019-08-18T15:47:34Z | 6h36m33s | 37.82 | 37.74 | 104.09 | 347.02 | 451.11 | 263.88 | -251.43 | 17.86 | 19.76 | 1h33m20s | 47m54s | 44m56s | 24.32 | 22.37 | 26.39 |
+```
+
 
 It is also possible to pipe in some file names instead of using the file names as input parameter
 

@@ -12,6 +12,7 @@ import (
 
 	"tobi.backfrak.de/internal/gpxbl"
 	"tobi.backfrak.de/internal/jsonbl"
+	"tobi.backfrak.de/internal/mdbl"
 
 	"tobi.backfrak.de/internal/csvbl"
 	"tobi.backfrak.de/internal/gpsabl"
@@ -737,6 +738,20 @@ func TestGetOutPutFormaterJSONStdOut(t *testing.T) {
 	StdOutFormatParameter = oldStdOutFormatParameter
 }
 
+func TestGetOutPutFormaterMDStdOut(t *testing.T) {
+	oldStdOutFormatParameter := StdOutFormatParameter
+	StdOutFormatParameter = string(mdbl.MDOutputFormatertype)
+	frt := getOutPutFormater(*os.Stdout)
+
+	switch frt.(type) {
+	case *mdbl.MDOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Did not receive the expected formater")
+	}
+	StdOutFormatParameter = oldStdOutFormatParameter
+}
+
 func TestGetOutPutFormaterJSON(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("Skip this test on windows")
@@ -766,6 +781,41 @@ func TestGetOutPutFormaterJSON(t *testing.T) {
 	}
 	switch frt.(type) {
 	case *jsonbl.JSONOutputFormater:
+		fmt.Println("OK")
+	default:
+		t.Errorf("Did not receive the expected formater")
+	}
+}
+
+func TestGetOutPutFormaterMD(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
+	}
+	var out *os.File
+	filePath := filepath.Join(testhelper.GetProjectRoot(), "testdata", fmt.Sprintf("test-out.md"))
+	out, errCreate := os.Create(filePath)
+	if errCreate != nil {
+		t.Errorf("%s", errCreate)
+	}
+	out, errOpen := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0600)
+	if errOpen != nil {
+		t.Errorf("%s", errOpen)
+	}
+
+	frt := getOutPutFormater(*out)
+	out.Sync()
+	out.Close()
+	if outFileExists(filePath) {
+		err := os.Remove(filePath)
+		if err != nil {
+			t.Errorf("Test cleanup was not able to delete %s. Error was: %s", filePath, err.Error())
+		}
+	} else {
+		t.Errorf("The outfile \"%s\" was not created, as expected", filePath)
+		return
+	}
+	switch frt.(type) {
+	case *mdbl.MDOutputFormater:
 		fmt.Println("OK")
 	default:
 		t.Errorf("Did not receive the expected formater")
