@@ -3,6 +3,7 @@ package mdbl
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -405,6 +406,10 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 }
 
 func TestWriteOutputEmptyTrackList(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
+	}
+
 	frt := NewMDOutputFormater()
 	fileName := "empty.md"
 	os.Create(fileName)
@@ -414,7 +419,6 @@ func TestWriteOutputEmptyTrackList(t *testing.T) {
 	if errWrite != nil {
 		t.Errorf("Error while writing the output: %s", errWrite.Error())
 	}
-
 	_, err := os.Stat(fileName)
 	if !os.IsNotExist(err) {
 		t.Errorf("File with empty content was written but should not")

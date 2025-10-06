@@ -177,6 +177,7 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 	// Don't write an empty file, delete already existing temp file
 	if len(lines) == 0 {
 		if outFile != os.Stdout {
+			outFile.Close()
 			os.Remove(outFile.Name())
 		}
 		return nil
