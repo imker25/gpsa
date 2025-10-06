@@ -146,28 +146,30 @@ func (formater *JSONOutputFormater) GetFileExtensions() []string {
 }
 
 func (formater *JSONOutputFormater) getSummaryEntires() []gpsabl.OutputLine {
-	stats := gpsabl.GetStatisticSummaryData(formater.lineBuffer)
-
 	ret := []gpsabl.OutputLine{}
-	sumLine := gpsabl.OutputLine{}
-	sumLine.Name = "Sum"
-	sumLine.Data = stats.Sum
-	ret = append(ret, sumLine)
+	if len(formater.lineBuffer) > 0 {
+		stats := gpsabl.GetStatisticSummaryData(formater.lineBuffer)
 
-	avgLine := gpsabl.OutputLine{}
-	avgLine.Name = "Average"
-	avgLine.Data = stats.Average
-	ret = append(ret, avgLine)
+		sumLine := gpsabl.OutputLine{}
+		sumLine.Name = "Sum"
+		sumLine.Data = stats.Sum
+		ret = append(ret, sumLine)
 
-	minLine := gpsabl.OutputLine{}
-	minLine.Name = "Minimum"
-	minLine.Data = stats.Minimum
-	ret = append(ret, minLine)
+		avgLine := gpsabl.OutputLine{}
+		avgLine.Name = "Average"
+		avgLine.Data = stats.Average
+		ret = append(ret, avgLine)
 
-	maxLine := gpsabl.OutputLine{}
-	maxLine.Name = "Maximum"
-	maxLine.Data = stats.Maximum
-	ret = append(ret, maxLine)
+		minLine := gpsabl.OutputLine{}
+		minLine.Name = "Minimum"
+		minLine.Data = stats.Minimum
+		ret = append(ret, minLine)
+
+		maxLine := gpsabl.OutputLine{}
+		maxLine.Name = "Maximum"
+		maxLine.Data = stats.Maximum
+		ret = append(ret, maxLine)
+	}
 
 	return ret
 }

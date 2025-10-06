@@ -170,12 +170,14 @@ func (formater *CsvOutputFormater) CheckFileExtension(filePath string) bool {
 // GetStatisticSummaryLines - Get a summary of statistic data
 func (formater *CsvOutputFormater) GetStatisticSummaryLines() []string {
 	ret := []string{}
-	summary := gpsabl.GetStatisticSummaryData(formater.lineBuffer)
+	if len(formater.lineBuffer) > 0 {
+		summary := gpsabl.GetStatisticSummaryData(formater.lineBuffer)
 
-	ret = append(ret, formater.formatSumSummary(summary.Sum, summary.AllTimeDataValid))
-	ret = append(ret, formater.formatAverageSummary(summary.Average, summary.AllTimeDataValid))
-	ret = append(ret, formater.formatMinMaxSummary(summary.Minimum, summary.AllTimeDataValid, "Minimum:"))
-	ret = append(ret, formater.formatMinMaxSummary(summary.Maximum, summary.AllTimeDataValid, "Maximum:"))
+		ret = append(ret, formater.formatSumSummary(summary.Sum, summary.AllTimeDataValid))
+		ret = append(ret, formater.formatAverageSummary(summary.Average, summary.AllTimeDataValid))
+		ret = append(ret, formater.formatMinMaxSummary(summary.Minimum, summary.AllTimeDataValid, "Minimum:"))
+		ret = append(ret, formater.formatMinMaxSummary(summary.Maximum, summary.AllTimeDataValid, "Maximum:"))
+	}
 
 	return ret
 }
