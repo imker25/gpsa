@@ -3,6 +3,7 @@ package mdbl
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -404,6 +405,26 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 	}
 }
 
+func TestWriteOutputEmptyTrackList(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skip this test on windows")
+	}
+
+	frt := NewMDOutputFormater()
+	fileName := "empty.md"
+	os.Create(fileName)
+	out, _ := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, 0600)
+	errWrite := frt.WriteOutput(out, gpsabl.ADDITIONAL)
+
+	if errWrite != nil {
+		t.Errorf("Error while writing the output: %s", errWrite.Error())
+	}
+	_, err := os.Stat(fileName)
+	if !os.IsNotExist(err) {
+		t.Errorf("File with empty content was written but should not")
+	}
+}
+
 func TestWriteOutputSummaryUnknown(t *testing.T) {
 	frt := NewMDOutputFormater()
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
@@ -673,6 +694,32 @@ func TestGetStatisticSummaryLinesWithTime(t *testing.T) {
 	}
 	if strings.Count(lines[3], "|") != numberOfPipeExpected {
 		t.Errorf("In \"%s\" The number of semicolons is %d, but expected %d", lines[3], strings.Count(lines[3], "|"), numberOfPipeExpected)
+	}
+}
+
+func TestGetStatisticSummaryLinesNoLinesInList(t *testing.T) {
+	frt := NewMDOutputFormater()
+	numberlinesExpected := 0
+
+	lines := frt.GetStatisticSummaryLines()
+
+	if len(lines) != numberlinesExpected {
+		t.Errorf("Don't get an empty list when no entries are added")
+	}
+}
+
+func TestGetOutputLinesNoLinesInList(t *testing.T) {
+	frt := NewMDOutputFormater()
+	numberlinesExpected := 0
+
+	lines, err := frt.GetOutputLines(gpsabl.ADDITIONAL)
+
+	if err != nil {
+		t.Errorf("An error occurred, but should not: %s", err)
+	}
+
+	if len(lines) != numberlinesExpected {
+		t.Errorf("Don't get an empty list when no entries are added")
 	}
 }
 

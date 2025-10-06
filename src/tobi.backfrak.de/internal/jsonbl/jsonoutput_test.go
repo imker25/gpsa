@@ -382,6 +382,16 @@ func TestWriteOutput2(t *testing.T) {
 	}
 }
 
+func TestGetSummaryEntiresWithEmptyTrackList(t *testing.T) {
+	sut := NewJSONOutputFormater()
+
+	lines := sut.getSummaryEntires()
+
+	if len(lines) != 0 {
+		t.Errorf("Don't get an empty list when no entries are added")
+	}
+}
+
 func getTrackFileWithDifferentTime() gpsabl.TrackFile {
 	ret := gpsabl.NewTrackFile("/mys/track/file")
 	trk := getTrackWithDifferentTime()

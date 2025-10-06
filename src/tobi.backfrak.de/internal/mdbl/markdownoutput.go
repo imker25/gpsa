@@ -140,13 +140,15 @@ func (formater *MDOutputFormater) CheckFileExtension(filePath string) bool {
 // GetStatisticSummaryLines - Get a summary of statistic data
 func (formater *MDOutputFormater) GetStatisticSummaryLines() []string {
 	ret := []string{}
-	summary := gpsabl.GetStatisticSummaryData(formater.lineBuffer)
 
-	ret = append(ret, formater.formatSumSummary(summary.Sum, summary.AllTimeDataValid))
-	ret = append(ret, formater.formatAverageSummary(summary.Average, summary.AllTimeDataValid))
-	ret = append(ret, formater.formatMinMaxSummary(summary.Minimum, summary.AllTimeDataValid, "Minimum:"))
-	ret = append(ret, formater.formatMinMaxSummary(summary.Maximum, summary.AllTimeDataValid, "Maximum:"))
+	if len(formater.lineBuffer) > 0 {
+		summary := gpsabl.GetStatisticSummaryData(formater.lineBuffer)
 
+		ret = append(ret, formater.formatSumSummary(summary.Sum, summary.AllTimeDataValid))
+		ret = append(ret, formater.formatAverageSummary(summary.Average, summary.AllTimeDataValid))
+		ret = append(ret, formater.formatMinMaxSummary(summary.Minimum, summary.AllTimeDataValid, "Minimum:"))
+		ret = append(ret, formater.formatMinMaxSummary(summary.Maximum, summary.AllTimeDataValid, "Maximum:"))
+	}
 	return ret
 }
 
@@ -172,6 +174,15 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 		return getErr
 	}
 
+	// Don't write an empty file, delete already existing temp file
+	if len(lines) == 0 {
+		if outFile != os.Stdout {
+			outFile.Close()
+			os.Remove(outFile.Name())
+		}
+		return nil
+	}
+
 	for _, line := range lines {
 		_, errWrite := outFile.WriteString(line)
 		if errWrite != nil {
@@ -185,8 +196,9 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 // GetOutputLines - Get all lines of the output
 func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]string, error) {
 	var lines []string
-	lines = append(lines, formater.GetHeader())
-	lines = append(lines, formater.GetHeaderContentSeparator())
+	var headerLines []string
+	headerLines = append(headerLines, formater.GetHeader())
+	headerLines = append(headerLines, formater.GetHeaderContentSeparator())
 	switch summary {
 	case gpsabl.NONE:
 		lines = append(lines, formater.GetLines()...)
@@ -197,6 +209,10 @@ func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]s
 		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	default:
 		return nil, gpsabl.NewSummaryParamaterNotKnown(summary)
+	}
+
+	if len(lines) > 0 {
+		return append(headerLines, lines...), nil
 	}
 
 	return lines, nil
