@@ -1052,6 +1052,10 @@ func TestGetTimeHeader(t *testing.T) {
 	}
 }
 
+func TestGetOutputLinesNoLinesInList(t *testing.T) {
+
+}
+
 func getLinesFormOutputLines(lines []gpsabl.OutputLine) []string {
 	ret := []string{}
 	formater := NewCsvOutputFormater(";", true)
