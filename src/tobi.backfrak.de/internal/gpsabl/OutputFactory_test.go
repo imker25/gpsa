@@ -93,12 +93,14 @@ func TestGetOutputFormater(t *testing.T) {
 }
 
 type formaterMock struct {
-	lineBuffer []OutputLine
-	mux        sync.Mutex
+	WrittenEntriesCount int
+	lineBuffer          []OutputLine
+	mux                 sync.Mutex
 }
 
 func (formater *formaterMock) NewOutputFormater() OutputFormater {
 	ret := formaterMock{}
+	ret.WrittenEntriesCount = -1
 	ret.lineBuffer = []OutputLine{}
 
 	return OutputFormater(&ret)
@@ -138,4 +140,8 @@ func (formater *formaterMock) GetOutputFormaterTypes() []OutputFormaterType {
 
 func (formater *formaterMock) GetTextOutputFormater() TextOutputFormater {
 	return nil
+}
+
+func (formater *formaterMock) GetNumberOfOutputEntries() int {
+	return formater.WrittenEntriesCount
 }

@@ -46,13 +46,17 @@ type CsvOutputFormater struct {
 
 	timeFormater gpsabl.TimeFormat
 
-	lineBuffer []gpsabl.OutputLine
-	mux        sync.Mutex
+	writtenEntiresCount int
+	entriesToWriteCount int
+	lineBuffer          []gpsabl.OutputLine
+	mux                 sync.Mutex
 }
 
 // NewCsvOutputFormater - Get a new CsvOutputFormater
 func NewCsvOutputFormater(separator string, addHeader bool) *CsvOutputFormater {
 	ret := CsvOutputFormater{}
+	ret.writtenEntiresCount = -1
+	ret.entriesToWriteCount = 0
 	ret.Separator = separator
 	ret.AddHeader = addHeader
 	ret.timeFormater = gpsabl.RFC3339
@@ -110,6 +114,14 @@ func (formater *CsvOutputFormater) GetTextOutputFormater() gpsabl.TextOutputForm
 // CheckTimeFormatIsValid - Check if the given format string is a valid TimeFormat
 func (formater *CsvOutputFormater) CheckTimeFormatIsValid(format string) bool {
 	return strings.Contains(gpsabl.GetValidTimeFormatsString(), format)
+}
+
+// Tells the number if output entries already written to output.
+// * -1: When output was not written yet
+// * 0: Output was written but contains no entries, may because no entry passes the given filter
+// * >0: The number of entries written to the outputs
+func (formater *CsvOutputFormater) GetNumberOfOutputEntries() int {
+	return formater.writtenEntiresCount
 }
 
 // AddOutPut - Add the formated output of a TrackFile to the internal buffer, so it can be written out later
@@ -185,9 +197,6 @@ func (formater *CsvOutputFormater) GetStatisticSummaryLines() []string {
 // GetLines - Get the lines stored in the internal buffer
 func (formater *CsvOutputFormater) GetLines() []string {
 	ret := []string{}
-	if formater.AddHeader {
-		ret = append(ret, formater.GetHeader())
-	}
 	formater.mux.Lock()
 	defer formater.mux.Unlock()
 	sort.Slice(formater.lineBuffer, func(i, j int) bool {
@@ -212,6 +221,7 @@ func (formater *CsvOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.
 			return errWrite
 		}
 	}
+	formater.writtenEntiresCount = formater.entriesToWriteCount
 
 	return nil
 }
@@ -223,9 +233,6 @@ func (formater *CsvOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]
 	case gpsabl.NONE:
 		lines = formater.GetLines()
 	case gpsabl.ONLY:
-		if formater.AddHeader {
-			lines = append(lines, formater.GetHeader())
-		}
 		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	case gpsabl.ADDITIONAL:
 		lines = formater.GetLines()
@@ -234,6 +241,14 @@ func (formater *CsvOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]
 		lines = append(lines, formater.GetStatisticSummaryLines()...)
 	default:
 		return nil, gpsabl.NewSummaryParamaterNotKnown(summary)
+	}
+
+	formater.entriesToWriteCount = len(lines)
+
+	if formater.AddHeader && (formater.entriesToWriteCount > 0) {
+		var headerLines []string
+		headerLines = append(headerLines, formater.GetHeader())
+		lines = append(headerLines, lines...)
 	}
 
 	return lines, nil
