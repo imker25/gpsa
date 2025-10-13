@@ -31,6 +31,10 @@ jobs:
       if: always()
       with:
         junit_files: logs/TestsResult.xml    
+    - name: "Integration Tests"
+      env:
+        GITHUB_RUNNER_OS:  ${{ matrix.os }}
+      run:  ./build/IntegrationTests.sh        
     - name: 'Upload Artifact logs'
       uses: actions/upload-artifact@v4
       if: always()
