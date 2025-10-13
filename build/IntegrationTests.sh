@@ -70,7 +70,7 @@ if [ ! -f "$csv_out" ]; then
 fi
 
 assert "$gpsa -minimum-start-time=2025-01-01 -out-file=$csv_out $valid_gpx" ""
-if [-f "$csv_out" ]; then
+if [ -f "$csv_out" ]; then
     assert "echo $csv_out found but should not, since it is empty" ""
 fi
 
