@@ -30,7 +30,14 @@ jobs:
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
-        junit_files: logs/TestsResult.xml       
+        junit_files: logs/TestsResult.xml    
+    - name: 'Upload Artifact logs'
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: Logs-${{ matrix.os }}.txt
+        path: logs/*
+        retention-days: 1                
     - name: 'Upload Artifact gpsa binary'
       uses: actions/upload-artifact@v4
       with:
@@ -42,10 +49,4 @@ jobs:
       with:
         name: Version-${{ matrix.os }}.txt
         path: logs/Version.txt
-        retention-days: 1    
-    - name: 'Upload Artifact logs'
-      uses: actions/upload-artifact@v4
-      with:
-        name: Logs-${{ matrix.os }}.txt
-        path: logs/*
-        retention-days: 1                     
+        retention-days: 1                    
