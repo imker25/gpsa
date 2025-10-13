@@ -69,6 +69,11 @@ if [ ! -f "$csv_out" ]; then
     assert "echo $csv_out not found" ""
 fi
 
+assert "$gpsa -minimum-start-time=2025-01-01 -out-file=$csv_out $valid_gpx" ""
+if [-f "$csv_out" ]; then
+    assert "echo $csv_out found but should not, since it is empty" ""
+fi
+
 if [ -f "$csv_out" ]; then
     rm -rf "$csv_out"
 fi

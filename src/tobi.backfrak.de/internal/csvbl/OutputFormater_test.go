@@ -472,6 +472,20 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 	}
 }
 
+func TestWriteOutputNoTrack(t *testing.T) {
+	frt := NewCsvOutputFormater(";", true)
+
+	errWrite := frt.WriteOutput(os.Stdout, "none")
+
+	if errWrite != nil {
+		t.Errorf("Error while writing the output: %s", errWrite.Error())
+	}
+
+	if frt.GetNumberOfOutputEntries() != 0 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 0)
+	}
+}
+
 func TestWriteOutputSummaryUnknown(t *testing.T) {
 	frt := NewCsvOutputFormater(";", true)
 	trackFile := getTrackFileTwoTracksWithThreeSegments()

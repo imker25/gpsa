@@ -370,6 +370,19 @@ func TestWriteOutput1(t *testing.T) {
 	}
 }
 
+func TestWriteOutputNoEntries(t *testing.T) {
+	sut := NewJSONOutputFormater()
+
+	err3 := sut.WriteOutput(os.Stdout, gpsabl.ADDITIONAL)
+	if err3 != nil {
+		t.Errorf("Got an error but expected none")
+	}
+
+	if sut.GetNumberOfOutputEntries() != 0 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", sut.GetNumberOfOutputEntries(), 0)
+	}
+}
+
 func TestWriteOutput2(t *testing.T) {
 	sut := NewJSONOutputFormater()
 	trk1 := getTrackFileTwoTracksWithThreeSegmentsWithTime()

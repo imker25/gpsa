@@ -69,7 +69,7 @@ func TestNewOutputFormater(t *testing.T) {
 		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", form[0], "MD")
 	}
 
-	if(sut.GetNumberOfOutputEntries() != -1) {
+	if sut.GetNumberOfOutputEntries() != -1 {
 		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetNumberOfOutputEntries(), -1)
 	}
 
@@ -409,6 +409,20 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 
 	if frt.GetNumberOfOutputEntries() != 3 {
 		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 3)
+	}
+}
+
+func TestWriteOutputNoTrack(t *testing.T) {
+	frt := NewMDOutputFormater()
+
+	errWrite := frt.WriteOutput(os.Stdout, "none")
+
+	if errWrite != nil {
+		t.Errorf("Error while writing the output: %s", errWrite.Error())
+	}
+
+	if frt.GetNumberOfOutputEntries() != 0 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 0)
 	}
 }
 
