@@ -49,4 +49,17 @@ jobs:
       with:
         name: Version-${{ matrix.os }}.txt
         path: logs/Version.txt
-        retention-days: 1                    
+        retention-days: 1      
+    - name: 'Upload Artifact linux_bin.zip'
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux_bin.zip
+        path: linux_bin.zip
+        retention-days: 1        
+    - name: 'Upload Artifact linux_Build.zip'
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux_Build.zip
+        path: linux_Build.zip
+        retention-days: 1           
+
