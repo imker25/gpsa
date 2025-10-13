@@ -3,7 +3,6 @@ package mdbl
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -68,6 +67,10 @@ func TestNewOutputFormater(t *testing.T) {
 
 	if form[0] != gpsabl.OutputFormaterType("MD") {
 		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", form[0], "MD")
+	}
+
+	if sut.GetNumberOfOutputEntries() != -1 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetNumberOfOutputEntries(), -1)
 	}
 
 }
@@ -403,25 +406,23 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 	if errWrite != nil {
 		t.Errorf("Error while writing the output: %s", errWrite.Error())
 	}
+
+	if frt.GetNumberOfOutputEntries() != 3 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 3)
+	}
 }
 
-func TestWriteOutputEmptyTrackList(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("Skip this test on windows")
-	}
-
+func TestWriteOutputNoTrack(t *testing.T) {
 	frt := NewMDOutputFormater()
-	fileName := "empty.md"
-	os.Create(fileName)
-	out, _ := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, 0600)
-	errWrite := frt.WriteOutput(out, gpsabl.ADDITIONAL)
+
+	errWrite := frt.WriteOutput(os.Stdout, "none")
 
 	if errWrite != nil {
 		t.Errorf("Error while writing the output: %s", errWrite.Error())
 	}
-	_, err := os.Stat(fileName)
-	if !os.IsNotExist(err) {
-		t.Errorf("File with empty content was written but should not")
+
+	if frt.GetNumberOfOutputEntries() != 0 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 0)
 	}
 }
 

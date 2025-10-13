@@ -26,13 +26,15 @@ type JSONOutput struct {
 
 // JSONOutputFormater - type that formats TrackSummary into json style
 type JSONOutputFormater struct {
-	lineBuffer []gpsabl.OutputLine
-	mux        sync.Mutex
+	writtenEntiresCount int
+	lineBuffer          []gpsabl.OutputLine
+	mux                 sync.Mutex
 }
 
 // NewJSONOutputFormater - Get a new instance of the JSONOutputFormater
 func NewJSONOutputFormater() *JSONOutputFormater {
 	ret := JSONOutputFormater{}
+	ret.writtenEntiresCount = -1
 	ret.lineBuffer = []gpsabl.OutputLine{}
 
 	return &ret
@@ -84,10 +86,14 @@ func (formater *JSONOutputFormater) WriteOutput(outFile *os.File, summary gpsabl
 		return errGet
 	}
 
-	errWrite := writeJSON(outFile, output)
-	if errWrite != nil {
-		return errWrite
+	if (len(output.Summary) > 0) || (len(output.Statistics) > 0) {
+		errWrite := writeJSON(outFile, output)
+		if errWrite != nil {
+			return errWrite
+		}
 	}
+
+	formater.writtenEntiresCount = len(output.Summary) + len(output.Statistics)
 
 	return nil
 }
@@ -143,6 +149,14 @@ func (formater *JSONOutputFormater) CheckFileExtension(filePath string) bool {
 // GetFileExtensions - Get the list of file extensions this formater can write
 func (formater *JSONOutputFormater) GetFileExtensions() []string {
 	return []string{FileExtension}
+}
+
+// Tells the number if output entries that are written to output.
+// * -1: When output was not written yet
+// * 0: Output was written but contains no entries, may because no entry passes the given filter
+// * >0: The number of entries written to the outputs
+func (formater *JSONOutputFormater) GetNumberOfOutputEntries() int {
+	return formater.writtenEntiresCount
 }
 
 func (formater *JSONOutputFormater) getSummaryEntires() []gpsabl.OutputLine {

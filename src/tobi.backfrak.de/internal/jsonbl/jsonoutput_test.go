@@ -52,6 +52,10 @@ func TestNewOutputFormater(t *testing.T) {
 		t.Errorf("The file type \"%s\" is not the expexted \"%s\"", ext[0], ".json")
 	}
 
+	if sut.GetNumberOfOutputEntries() != -1 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetNumberOfOutputEntries(), -1)
+	}
+
 	form := sut.GetOutputFormaterTypes()
 
 	if len(form) != 1 {
@@ -359,6 +363,23 @@ func TestWriteOutput1(t *testing.T) {
 	err3 := sut.WriteOutput(os.Stdout, gpsabl.ADDITIONAL)
 	if err3 != nil {
 		t.Errorf("Got an error but expected none")
+	}
+
+	if sut.GetNumberOfOutputEntries() != 8 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", sut.GetNumberOfOutputEntries(), 8)
+	}
+}
+
+func TestWriteOutputNoEntries(t *testing.T) {
+	sut := NewJSONOutputFormater()
+
+	err3 := sut.WriteOutput(os.Stdout, gpsabl.ADDITIONAL)
+	if err3 != nil {
+		t.Errorf("Got an error but expected none")
+	}
+
+	if sut.GetNumberOfOutputEntries() != 0 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", sut.GetNumberOfOutputEntries(), 0)
 	}
 }
 

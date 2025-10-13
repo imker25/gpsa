@@ -98,8 +98,17 @@ func main() {
 		}
 
 		if VerboseFlag == true {
-			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully", successCount, len(fileArgs)))
+			fmt.Fprintln(os.Stdout, fmt.Sprintf("%d of %d files processed successfully.", successCount, len(fileArgs)))
 		}
+
+		// In case there are no entries in the outfile we remove it from disk
+		if iFormater.GetNumberOfOutputEntries() <= 0 {
+			deleteOutFile(out)
+			if VerboseFlag == true {
+				fmt.Fprintln(os.Stdout, fmt.Sprintf("Output is empty. No output file created."))
+			}
+		}
+
 	} else {
 		// No files to process
 		if VerboseFlag == true {
@@ -385,6 +394,23 @@ func getOutPutStream() *os.File {
 		}
 	}
 	return out
+}
+
+func deleteOutFile(outFile *os.File) error {
+
+	// In case the output is Stdout there is no temp file that needs deletion
+	if outFile != os.Stdout {
+		errClose := outFile.Close()
+		if errClose != nil {
+			return errClose
+		}
+		errDelete := os.Remove(outFile.Name())
+		if errDelete != nil {
+			return errDelete
+		}
+	}
+
+	return nil
 }
 
 // Get the interface that can read a given input file

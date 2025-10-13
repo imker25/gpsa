@@ -96,6 +96,10 @@ func TestNewOutputFormater(t *testing.T) {
 		t.Errorf("The Interface is not from the expected type")
 	}
 
+	if sut.GetNumberOfOutputEntries() != -1 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetNumberOfOutputEntries(), -1)
+	}
+
 }
 
 func TestSetTimeFormat(t *testing.T) {
@@ -163,7 +167,7 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 	if err != nil {
 		t.Errorf("Got a error but did not expect one. The error is: %s", err.Error())
 	}
-	ret := formater.GetLines()
+	ret, _ := formater.GetOutputLines(gpsabl.NONE)
 	if len(ret) != 2 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -190,7 +194,7 @@ func TestFormatOutPutWithHeaderAndSetName(t *testing.T) {
 	if err != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-	ret := formater.GetLines()
+	ret, _ := formater.GetOutputLines(gpsabl.NONE)
 	if len(ret) != 2 {
 		t.Errorf("The output has not the expected number of files")
 	}
@@ -461,6 +465,24 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 
 	if errWrite != nil {
 		t.Errorf("Error while writing the output: %s", errWrite.Error())
+	}
+
+	if frt.GetNumberOfOutputEntries() != 3 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 3)
+	}
+}
+
+func TestWriteOutputNoTrack(t *testing.T) {
+	frt := NewCsvOutputFormater(";", true)
+
+	errWrite := frt.WriteOutput(os.Stdout, "none")
+
+	if errWrite != nil {
+		t.Errorf("Error while writing the output: %s", errWrite.Error())
+	}
+
+	if frt.GetNumberOfOutputEntries() != 0 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 0)
 	}
 }
 

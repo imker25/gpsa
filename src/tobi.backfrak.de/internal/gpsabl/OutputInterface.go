@@ -132,6 +132,12 @@ type OutputFormater interface {
 
 	// Get the TextOutputFormater version of this formater or nil if the formater is not a TextOutputFormater
 	GetTextOutputFormater() TextOutputFormater
+
+	// Tells the number if output entries already written to output.
+	// * -1: When output was not written yet
+	// * 0: Output was written but contains no entries, may because no entry passes the given filter
+	// * >0: The number of entries written to the outputs
+	GetNumberOfOutputEntries() int
 }
 
 // TextOutputFormater - Interface for classes that can format a track output into a text style file format like csv

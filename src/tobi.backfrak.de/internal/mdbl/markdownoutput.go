@@ -35,15 +35,19 @@ func CheckTimeFormatIsValid(format string) bool {
 
 // MDOutputFormater - type that formats TrackSummary into a markdown table
 type MDOutputFormater struct {
-	timeFormater gpsabl.TimeFormat
-	Separator    string
-	lineBuffer   []gpsabl.OutputLine
-	mux          sync.Mutex
+	timeFormater        gpsabl.TimeFormat
+	Separator           string
+	writtenEntiresCount int
+	entriesToWriteCount int
+	lineBuffer          []gpsabl.OutputLine
+	mux                 sync.Mutex
 }
 
 // NewMDOutputFormater - Get a new MDOutputFormater
 func NewMDOutputFormater() *MDOutputFormater {
 	ret := MDOutputFormater{}
+	ret.writtenEntiresCount = -1
+	ret.entriesToWriteCount = 0
 	ret.timeFormater = gpsabl.RFC3339
 	ret.lineBuffer = []gpsabl.OutputLine{}
 	ret.Separator = "|"
@@ -137,6 +141,14 @@ func (formater *MDOutputFormater) CheckFileExtension(filePath string) bool {
 	return false
 }
 
+// Tells the number if output entries already written to output.
+// * -1: When output was not written yet
+// * 0: Output was written but contains no entries, may because no entry passes the given filter
+// * >0: The number of entries written to the outputs
+func (formater *MDOutputFormater) GetNumberOfOutputEntries() int {
+	return formater.writtenEntiresCount
+}
+
 // GetStatisticSummaryLines - Get a summary of statistic data
 func (formater *MDOutputFormater) GetStatisticSummaryLines() []string {
 	ret := []string{}
@@ -174,21 +186,13 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 		return getErr
 	}
 
-	// Don't write an empty file, delete already existing temp file
-	if len(lines) == 0 {
-		if outFile != os.Stdout {
-			outFile.Close()
-			os.Remove(outFile.Name())
-		}
-		return nil
-	}
-
 	for _, line := range lines {
 		_, errWrite := outFile.WriteString(line)
 		if errWrite != nil {
 			return errWrite
 		}
 	}
+	formater.writtenEntiresCount = formater.entriesToWriteCount
 
 	return nil
 }
@@ -211,7 +215,8 @@ func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]s
 		return nil, gpsabl.NewSummaryParamaterNotKnown(summary)
 	}
 
-	if len(lines) > 0 {
+	formater.entriesToWriteCount = len(lines)
+	if formater.entriesToWriteCount > 0 {
 		return append(headerLines, lines...), nil
 	}
 
