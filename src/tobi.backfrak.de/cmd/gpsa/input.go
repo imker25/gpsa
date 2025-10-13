@@ -128,7 +128,10 @@ func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
 // resturn an array of input buffer arrays, where each array of input buffer array contain exactly one xml file content
 func getXMlFileBuffersFromInputStream(inputBytes []byte) [][]byte {
 	var startBytes []int
-	for i, _ := range inputBytes {
+	for i := range inputBytes {
+		if len(inputBytes) < i+5 {
+			break
+		}
 		section := inputBytes[i : i+5]
 		if string(section) == "<?xml" {
 			startBytes = append(startBytes, i)
