@@ -32,13 +32,13 @@ jobs:
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always() && runner.os == 'Linux'
       with:
-        junit_files: logs/TestsResult.xml    
+        files: logs/TestsResult.xml    
     - name: Publish Unit Test Results for Windows
       uses: EnricoMi/publish-unit-test-result-action/windows@v2
       if: always() && runner.os == 'Windows'
       with:
-        junit_files: logs/TestsResult.xml            
-    - name: "Integration Tests"
+        files: logs/TestsResult.xml            
+    - name: "Integration Tests on Linux"
       if: runner.os == 'Linux'
       run:  ./build/IntegrationTests.sh        
     - name: 'Upload Artifact logs'
@@ -48,12 +48,18 @@ jobs:
         name: Logs-${{ matrix.os }}.txt
         path: logs/*
         retention-days: 1                
-    - name: 'Upload Artifact gpsa binary'
+    - name: 'Upload Artifact gpsa linux binary'
       uses: actions/upload-artifact@v4
       with:
         name: gpsa-${{ matrix.os }}
         path: bin/gpsa
         retention-days: 1
+    - name: 'Upload Artifact gpsa windows binary'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gpsa-${{ matrix.os }}
+        path: bin/gpsa.exe
+        retention-days: 1        
     - name: 'Upload Artifact Version.txt'
       uses: actions/upload-artifact@v4
       with:
