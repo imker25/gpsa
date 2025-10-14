@@ -28,11 +28,16 @@ jobs:
     - name: "build and unit-test Windows"
       if: runner.os == 'Windows'
       run:  ./build.bat test createBuildZip      
-    - name: Publish Unit Test Results
+    - name: Publish Unit Test Results for Linux
       uses: EnricoMi/publish-unit-test-result-action@v2
-      if: always()
+      if: always() && runner.os == 'Linux'
       with:
         junit_files: logs/TestsResult.xml    
+    - name: Publish Unit Test Results for Windows
+      uses: EnricoMi/publish-unit-test-result-action/windows@v2
+      if: always() && runner.os == 'Windows'
+      with:
+        junit_files: logs/TestsResult.xml            
     - name: "Integration Tests"
       if: runner.os == 'Linux'
       run:  ./build/IntegrationTests.sh        
