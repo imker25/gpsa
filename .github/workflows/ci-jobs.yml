@@ -7,11 +7,11 @@ on:
       - '**'
   pull_request:
 jobs:
-  build-unit_test:
+  build-and-test:
     strategy:
       matrix:
         go-version: [1.23.x]
-        os: [ubuntu-24.04]
+        os: [ubuntu-24.04, windows-2025]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
@@ -22,18 +22,19 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
-    - name: "build and unit-test"
-      env:
-        GITHUB_RUNNER_OS:  ${{ matrix.os }}
+    - name: "build and unit-test Linux"
+      if: runner.os == 'Linux'
       run:  ./build.sh test createBuildZip
+    - name: "build and unit-test Windows"
+      if: runner.os == 'Windows'
+      run:  ./build.bat test createBuildZip      
     - name: Publish Unit Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
         junit_files: logs/TestsResult.xml    
     - name: "Integration Tests"
-      env:
-        GITHUB_RUNNER_OS:  ${{ matrix.os }}
+      if: runner.os == 'Linux'
       run:  ./build/IntegrationTests.sh        
     - name: 'Upload Artifact logs'
       uses: actions/upload-artifact@v4
@@ -55,15 +56,30 @@ jobs:
         path: logs/Version.txt
         retention-days: 1      
     - name: 'Upload Artifact linux_bin.zip'
+      if: runner.os == 'Linux'
       uses: actions/upload-artifact@v4
       with:
         name: linux_bin.zip
         path: linux_bin.zip
         retention-days: 1        
     - name: 'Upload Artifact linux_Build.zip'
+      if: runner.os == 'Linux'
       uses: actions/upload-artifact@v4
       with:
         name: linux_Build.zip
         path: linux_Build.zip
-        retention-days: 1           
-
+        retention-days: 1              
+    - name: 'Upload Artifact windows_bin.zip'
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows_bin.zip
+        path: windows_bin.zip
+        retention-days: 1        
+    - name: 'Upload Artifact windows_Build.zip'
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows_Build.zip
+        path: windows_Build.zip
+        retention-days: 1   
