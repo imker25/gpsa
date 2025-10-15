@@ -148,7 +148,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       with:
-        tag_name: ${{ env.GPSA_VERSION}}
+        tag_name: V${{ env.GPSA_VERSION}}
         release_name: ${{ env.GPSA_RELEASE_TITLE }} 
         draft: false
         prerelease: ${{ env.GPSA_PRE_RELEASE }}
