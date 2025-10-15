@@ -101,7 +101,7 @@ jobs:
   release-to-github:
     needs: [ build-and-test ]
     runs-on: "ubuntu-24.04"
-    # if: ((github.ref == 'refs/heads/main') || contains(github.ref, 'release'))
+    if: ((github.ref == 'refs/heads/main') || contains(github.ref, 'release') || contains(github.ref, 'feat/gihub-actions')
     timeout-minutes: 10
     steps: 
     - uses: actions/checkout@v3      
@@ -123,7 +123,8 @@ jobs:
     - name: 'Get needed environment from artifacts'
       run: |    
             version=$(cat logs/Version.txt)
-            if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+            # if [ "$GITHUB_REF" == 'refs/heads/main' ]; then 
+            if [ "$GITHUB_REF" == 'refs/heads/feat/gihub-actions' ]; then
                   echo "GPSA_PRE_RELEASE=true"
                   echo "GPSA_PRE_RELEASE=true" >> $GITHUB_ENV 
 
@@ -139,9 +140,37 @@ jobs:
                   echo "GPSA_VERSION=$version"
                   echo "GPSA_VERSION=$version" >> $GITHUB_ENV   
                   
-                  echo "GPSA_RELEASE_TITLE=Pre release of gpsa binaries"
+                  echo "GPSA_RELEASE_TITLE=Release of gpsa binaries"
                   echo "GPSA_RELEASE_TITLE=Release of gpsa binaries"  >> $GITHUB_ENV                      
-            fi
-            ls -lah bin/
-            ls -lah logs/
+            fi  
+    - name: 'Create Release'
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      with:
+        tag_name: ${{ env.GPSA_VERSION}}
+        release_name: ${{ env.GPSA_RELEASE_TITLE }} 
+        draft: false
+        prerelease: ${{ env.GPSA_PRE_RELEASE }}
+    - name: Upload Release Asset linux-executable
+      id: upload-release-asset-linux 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: bin/gpsa
+        asset_name: linux-executable 
+        asset_content_type: application/zip  
+    - name: Upload Release Asset windows-executable 
+      id: upload-release-asset-windows 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: bin/gpsa.exe
+        asset_name: windows-executable 
+        asset_content_type: application/zip                
           
