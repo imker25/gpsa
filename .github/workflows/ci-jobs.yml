@@ -97,3 +97,51 @@ jobs:
         name: windows_Build.zip
         path: windows_Build.zip
         retention-days: 1   
+
+  release-to-github:
+    needs: [ build-and-test ]
+    runs-on: "ubuntu-24.04"
+    # if: ((github.ref == 'refs/heads/main') || contains(github.ref, 'release'))
+    timeout-minutes: 10
+    steps: 
+    - uses: actions/checkout@v3      
+    - name: Download gpsa Linux binary
+      uses: actions/download-artifact@v4
+      with:
+        name: gpsa-ubuntu-24.04   
+        path: bin/ 
+    - name: Download gpsa Windows binary
+      uses: actions/download-artifact@v4
+      with:
+        name: gpsa-windows-2025  
+        path: bin/             
+    - name: Download Version.txt artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: Version-ubuntu-24.04.txt   
+        path: logs/  
+    - name: 'Get needed environment from artifacts'
+      run: |    
+            version=$(cat logs/Version.txt)
+            if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+                  echo "GPSA_PRE_RELEASE=true"
+                  echo "GPSA_PRE_RELEASE=true" >> $GITHUB_ENV 
+
+                  echo "GPSA_VERSION=$version-pre"
+                  echo "GPSA_VERSION=$version-pre" >> $GITHUB_ENV  
+
+                  echo "GPSA_RELEASE_TITLE=Pre release of gpsa binaries"
+                  echo "GPSA_RELEASE_TITLE=Pre release of gpsa binaries"  >> $GITHUB_ENV                 
+            else 
+                  echo "GPSA_PRE_RELEASE=false"
+                  echo "GPSA_PRE_RELEASE=false" >> $GITHUB_ENV 
+
+                  echo "GPSA_VERSION=$version"
+                  echo "GPSA_VERSION=$version" >> $GITHUB_ENV   
+                  
+                  echo "GPSA_RELEASE_TITLE=Pre release of gpsa binaries"
+                  echo "GPSA_RELEASE_TITLE=Release of gpsa binaries"  >> $GITHUB_ENV                      
+            fi
+            ls -lah bin/
+            ls -lah logs/
+          
