@@ -101,7 +101,7 @@ jobs:
   release-to-github:
     needs: [ build-and-test ]
     runs-on: "ubuntu-24.04"
-    if: ((github.ref == 'refs/heads/main') || contains(github.ref, 'release') || contains(github.ref, 'feat/gihub-actions')
+    if: ((github.ref == 'refs/heads/main') || contains(github.ref, 'release') || contains(github.ref, 'feat/gihub-actions'))
     timeout-minutes: 10
     steps: 
     - uses: actions/checkout@v3      
