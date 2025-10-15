@@ -1,0 +1,175 @@
+name: CI Jobs
+on: 
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  pull_request:
+jobs:
+  build-and-test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    strategy:
+      matrix:
+        go-version: [1.23.x]
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v3
+      with:
+       fetch-depth: 0
+    - name: Install Go 
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.go-version }}
+    - name: "build and unit-test Linux"
+      if: runner.os == 'Linux'
+      run:  ./build.sh test createBuildZip
+    - name: "build and unit-test Windows"
+      if: runner.os == 'Windows'
+      run:  ./build.bat test createBuildZip      
+    - name: Publish Unit Test Results for Linux
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always() && runner.os == 'Linux'
+      with:
+        files: logs/TestsResult.xml    
+    - name: Publish Unit Test Results for Windows
+      uses: EnricoMi/publish-unit-test-result-action/windows@v2
+      if: always() && runner.os == 'Windows'
+      with:
+        files: logs/TestsResult.xml            
+    - name: "Integration Tests on Linux"
+      if: runner.os == 'Linux'
+      run:  ./build/IntegrationTests.sh        
+    - name: 'Upload Artifact logs'
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: Logs-${{ matrix.os }}.txt
+        path: logs/*
+        retention-days: 1                
+    - name: 'Upload Artifact gpsa linux binary'
+      uses: actions/upload-artifact@v4
+      if: runner.os == 'Linux'
+      with:
+        name: gpsa-${{ matrix.os }}
+        path: bin/gpsa
+        retention-days: 1
+    - name: 'Upload Artifact gpsa windows binary'
+      uses: actions/upload-artifact@v4
+      if: runner.os == 'Windows'
+      with:
+        name: gpsa-${{ matrix.os }}
+        path: bin/gpsa.exe
+        retention-days: 1        
+    - name: 'Upload Artifact Version.txt'
+      uses: actions/upload-artifact@v4
+      with:
+        name: Version-${{ matrix.os }}.txt
+        path: logs/Version.txt
+        retention-days: 1      
+    - name: 'Upload Artifact linux_bin.zip'
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux_bin.zip
+        path: linux_bin.zip
+        retention-days: 1        
+    - name: 'Upload Artifact linux_Build.zip'
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux_Build.zip
+        path: linux_Build.zip
+        retention-days: 1              
+    - name: 'Upload Artifact windows_bin.zip'
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows_bin.zip
+        path: windows_bin.zip
+        retention-days: 1        
+    - name: 'Upload Artifact windows_Build.zip'
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows_Build.zip
+        path: windows_Build.zip
+        retention-days: 1   
+
+  release-to-github:
+    needs: [ build-and-test ]
+    runs-on: "ubuntu-24.04"
+    if: ((github.ref == 'refs/heads/main') || contains(github.ref, 'release'))
+    timeout-minutes: 10
+    steps: 
+    - uses: actions/checkout@v3      
+    - name: Download gpsa Linux binary
+      uses: actions/download-artifact@v4
+      with:
+        name: gpsa-ubuntu-24.04   
+        path: bin/ 
+    - name: Download gpsa Windows binary
+      uses: actions/download-artifact@v4
+      with:
+        name: gpsa-windows-2025  
+        path: bin/             
+    - name: Download Version.txt artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: Version-ubuntu-24.04.txt   
+        path: logs/  
+    - name: 'Get needed environment from artifacts'
+      run: |    
+            version=$(cat logs/Version.txt)
+            if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+                  echo "GPSA_PRE_RELEASE=true"
+                  echo "GPSA_PRE_RELEASE=true" >> $GITHUB_ENV 
+
+                  echo "GPSA_VERSION=$version-pre"
+                  echo "GPSA_VERSION=$version-pre" >> $GITHUB_ENV  
+
+                  echo "GPSA_RELEASE_TITLE=Pre release of gpsa binaries"
+                  echo "GPSA_RELEASE_TITLE=Pre release of gpsa binaries"  >> $GITHUB_ENV                 
+            else 
+                  echo "GPSA_PRE_RELEASE=false"
+                  echo "GPSA_PRE_RELEASE=false" >> $GITHUB_ENV 
+
+                  echo "GPSA_VERSION=$version"
+                  echo "GPSA_VERSION=$version" >> $GITHUB_ENV   
+                  
+                  echo "GPSA_RELEASE_TITLE=Release of gpsa binaries"
+                  echo "GPSA_RELEASE_TITLE=Release of gpsa binaries"  >> $GITHUB_ENV                      
+            fi  
+    - name: 'Create Release'
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      with:
+        tag_name: ${{ env.GPSA_VERSION}}
+        release_name: ${{ env.GPSA_RELEASE_TITLE }} 
+        draft: false
+        prerelease: ${{ env.GPSA_PRE_RELEASE }}
+    - name: Upload Release Asset linux-executable
+      id: upload-release-asset-linux 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: bin/gpsa
+        asset_name: linux-executable 
+        asset_content_type: application/zip  
+    - name: Upload Release Asset windows-executable 
+      id: upload-release-asset-windows 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: bin/gpsa.exe
+        asset_name: windows-executable 
+        asset_content_type: application/zip                
+          
