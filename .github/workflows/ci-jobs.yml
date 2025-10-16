@@ -148,35 +148,4 @@ jobs:
         prerelease: ${{ env.GPSA_PRE_RELEASE }}
         tag_name: V${{ env.GPSA_VERSION }}
         body: ${{ env.GPSA_RELEASE_TITLE }}
-        files: bin/*
-    # - name: 'Create Release'
-    #   uses: actions/create-release@v1
-    #   id: create_release
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-    #   with:
-    #     tag_name: V${{ env.GPSA_VERSION}}
-    #     release_name: ${{ env.GPSA_RELEASE_TITLE }} 
-    #     draft: false
-    #     prerelease: ${{ env.GPSA_PRE_RELEASE }}
-    # - name: Upload Release Asset linux-executable
-    #   id: upload-release-asset-linux 
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ steps.create_release.outputs.upload_url }} 
-    #     asset_path: bin/gpsa
-    #     asset_name: linux-executable 
-    #     asset_content_type: application/zip  
-    # - name: Upload Release Asset windows-executable 
-    #   id: upload-release-asset-windows 
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ steps.create_release.outputs.upload_url }} 
-    #     asset_path: bin/gpsa.exe
-    #     asset_name: windows-executable 
-    #     asset_content_type: application/zip                
-          
+        files: bin/*          
