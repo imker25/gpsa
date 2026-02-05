@@ -330,6 +330,9 @@ func getOutPutFormater(outFile os.File) gpsabl.OutputFormater {
 	switch iFormater.(type) {
 	case gpsabl.TextOutputFormater:
 		iFormater = setTextutputFormater(iFormater.GetTextOutputFormater())
+	case *mdbl.MDOutputFormater:
+		(iFormater.(*mdbl.MDOutputFormater)).SummaryText = MarkdownAdditionalSummaryText
+		(iFormater.(*mdbl.MDOutputFormater)).TrackListText = MarkdownAdditionalSummaryTrackListText
 	}
 	if iFormater == nil {
 		HandleError(newUnKnownFileTypeError(outFile.Name()), "", false, DontPanicFlag)

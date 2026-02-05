@@ -41,6 +41,8 @@ type MDOutputFormater struct {
 	entriesToWriteCount int
 	lineBuffer          []gpsabl.OutputLine
 	mux                 sync.Mutex
+	TrackListText       string
+	SummaryText         string
 }
 
 // NewMDOutputFormater - Get a new MDOutputFormater
@@ -51,6 +53,8 @@ func NewMDOutputFormater() *MDOutputFormater {
 	ret.timeFormater = gpsabl.RFC3339
 	ret.lineBuffer = []gpsabl.OutputLine{}
 	ret.Separator = "|"
+	ret.TrackListText = "List of Tracks:"
+	ret.SummaryText = "Summary table:"
 
 	return &ret
 }
@@ -203,7 +207,7 @@ func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]s
 	var outputLines []string
 	var headerLines []string
 	if summary == gpsabl.ADDITIONAL {
-		outputLines = append(outputLines, fmt.Sprintf("List of Tracks:%s", GetNewLine()))
+		outputLines = append(outputLines, fmt.Sprintf("%s%s", formater.TrackListText, GetNewLine()))
 		outputLines = append(outputLines, GetNewLine())
 	}
 	headerLines = append(headerLines, formater.GetHeader())
@@ -225,7 +229,7 @@ func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]s
 		outputLines = append(outputLines, contentLines...)
 		if summary == gpsabl.ADDITIONAL {
 			outputLines = append(outputLines, GetNewLine())
-			outputLines = append(outputLines, fmt.Sprintf("Summary table:%s", GetNewLine()))
+			outputLines = append(outputLines, fmt.Sprintf("%s%s", formater.SummaryText, GetNewLine()))
 			outputLines = append(outputLines, GetNewLine())
 			outputLines = append(outputLines, headerLines...)
 			outputLines = append(outputLines, formater.GetStatisticSummaryLines()...)

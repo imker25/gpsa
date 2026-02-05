@@ -1074,3 +1074,5 @@ func TestProcessValidFilesWithStartTimeFilters(t *testing.T) {
 	MinStartTime = oldMinStartTime
 	DefinedFilters = []gpsabl.TrackFilter{}
 }
+
+// ToDo: Add test for -markdown-track-list-text and -markdown-summary-text parameter
