@@ -199,28 +199,41 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 
 // GetOutputLines - Get all lines of the output
 func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]string, error) {
-	var lines []string
+	var contentLines []string
+	var outputLines []string
 	var headerLines []string
+	if summary == gpsabl.ADDITIONAL {
+		outputLines = append(outputLines, fmt.Sprintf("List of Tracks:%s", GetNewLine()))
+		outputLines = append(outputLines, GetNewLine())
+	}
 	headerLines = append(headerLines, formater.GetHeader())
 	headerLines = append(headerLines, formater.GetHeaderContentSeparator())
 	switch summary {
 	case gpsabl.NONE:
-		lines = append(lines, formater.GetLines()...)
+		contentLines = append(contentLines, formater.GetLines()...)
 	case gpsabl.ONLY:
-		lines = append(lines, formater.GetStatisticSummaryLines()...)
+		contentLines = append(contentLines, formater.GetStatisticSummaryLines()...)
 	case gpsabl.ADDITIONAL:
-		lines = append(lines, formater.GetLines()...)
-		lines = append(lines, formater.GetStatisticSummaryLines()...)
+		contentLines = append(contentLines, formater.GetLines()...)
 	default:
 		return nil, gpsabl.NewSummaryParamaterNotKnown(summary)
 	}
 
-	formater.entriesToWriteCount = len(lines)
+	formater.entriesToWriteCount = len(contentLines)
 	if formater.entriesToWriteCount > 0 {
-		return append(headerLines, lines...), nil
+		outputLines = append(outputLines, headerLines...)
+		outputLines = append(outputLines, contentLines...)
+		if summary == gpsabl.ADDITIONAL {
+			outputLines = append(outputLines, GetNewLine())
+			outputLines = append(outputLines, fmt.Sprintf("Summary table:%s", GetNewLine()))
+			outputLines = append(outputLines, GetNewLine())
+			outputLines = append(outputLines, headerLines...)
+			outputLines = append(outputLines, formater.GetStatisticSummaryLines()...)
+		}
+		return outputLines, nil
 	}
 
-	return lines, nil
+	return contentLines, nil
 }
 
 // getOutPutEntries - Add the output of a TrackFile

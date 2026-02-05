@@ -782,8 +782,36 @@ func TestGetOutputLinesSummaryAdditional(t *testing.T) {
 	if errOut != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-	if len(lines) != 8 {
+	if len(lines) != 15 {
 		t.Errorf("Got an unexpected number of lines")
+	}
+
+	if lines[0] != fmt.Sprintf("List of Tracks:%s", GetNewLine()) {
+		t.Errorf("The 1. line has not the expected content. It is '%s' but should be 'List of Tracks:'", lines[0])
+	}
+
+	if lines[1] != GetNewLine() {
+		t.Errorf("The 2. line has not the expected content. It is '%s' but should be ''", lines[1])
+	}
+
+	if lines[2] != frt.GetHeader() {
+		t.Errorf("The 3. line has not the expected content. It is '%s' but should be '%s'", lines[3], frt.GetHeader())
+	}
+
+	if lines[6] != GetNewLine() {
+		t.Errorf("The 7. line has not the expected content. It is '%s' but should be ''", lines[6])
+	}
+
+	if lines[7] != fmt.Sprintf("Summary table:%s", GetNewLine()) {
+		t.Errorf("The 8. line has not the expected content. It is '%s' but should be 'Summary table:'", lines[7])
+	}
+
+	if lines[8] != GetNewLine() {
+		t.Errorf("The 9. line has not the expected content. It is '%s' but should be ''", lines[8])
+	}
+
+	if lines[9] != frt.GetHeader() {
+		t.Errorf("The 10. line has not the expected content. It is '%s' but should be '%s'", lines[9], frt.GetHeader())
 	}
 }
 
