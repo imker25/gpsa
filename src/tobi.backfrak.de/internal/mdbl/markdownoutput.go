@@ -190,14 +190,19 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 		return getErr
 	}
 
+	if formater.entriesToWriteCount == 0 {
+		formater.writtenEntiresCount = formater.entriesToWriteCount
+		return nil
+	}
+
 	for _, line := range lines {
 		_, errWrite := outFile.WriteString(line)
 		if errWrite != nil {
 			return errWrite
 		}
 	}
-	formater.writtenEntiresCount = formater.entriesToWriteCount
 
+	formater.writtenEntiresCount = formater.entriesToWriteCount
 	return nil
 }
 
