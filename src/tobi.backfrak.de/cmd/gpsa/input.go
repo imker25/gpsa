@@ -73,6 +73,12 @@ var MinStartTime string
 // MaxStartTime - The maximum StartTime for a track to be added to the output. Formatted in "YYYY-MMM-dd HH:mm:ss", may without seconds or just a date
 var MaxStartTime string
 
+// MarkdownAdditionalSummaryTrackListText - The text written before the track list table in case markdown output and '-summary=additional' is used in combination
+var MarkdownAdditionalSummaryTrackListText string
+
+// MarkdownAdditionalSummaryText - The text written before the summary table in case markdown output and '-summary=additional' is used in combination
+var MarkdownAdditionalSummaryText string
+
 // ReadInputStreamBuffer - Read an input stream and figure out what kind of files are given
 func ReadInputStreamBuffer(reader *bufio.Reader) ([]gpsabl.InputFile, error) {
 	var fileArgs []gpsabl.InputFile
@@ -222,6 +228,10 @@ func handleComandlineOptions() {
 		"The minimum StartTime for a track to be added to the output. Formatted in \"YYYY-MMM-dd HH:mm:ss\", may without seconds or just a date")
 	flag.StringVar(&MaxStartTime, "maximum-start-time", "",
 		"The maximum StartTime for a track to be added to the output. Formatted in \"YYYY-MMM-dd HH:mm:ss\", may without seconds or just a date")
+	flag.StringVar(&MarkdownAdditionalSummaryTrackListText, "markdown-track-list-text", "List of Tracks:",
+		"The text written before the track list table in case markdown output and '-summary=additional' is used in combination")
+	flag.StringVar(&MarkdownAdditionalSummaryText, "markdown-summary-text", "Summary table:",
+		"The text written before the summary table in case markdown output and '-summary=additional' is used in combination")
 
 	// Overwrite the std Usage function with some custom stuff
 	flag.Usage = customHelpMessage

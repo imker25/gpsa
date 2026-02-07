@@ -426,6 +426,20 @@ func TestWriteOutputNoTrack(t *testing.T) {
 	}
 }
 
+func TestWriteOutputEmptyTrackListAdditionalSummary(t *testing.T) {
+	frt := NewMDOutputFormater()
+
+	errWrite := frt.WriteOutput(os.Stdout, "additional")
+
+	if errWrite != nil {
+		t.Errorf("Error while writing the output: %s", errWrite.Error())
+	}
+
+	if frt.GetNumberOfOutputEntries() != 0 {
+		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 0)
+	}
+}
+
 func TestWriteOutputSummaryUnknown(t *testing.T) {
 	frt := NewMDOutputFormater()
 	trackFile := getTrackFileTwoTracksWithThreeSegments()
@@ -722,6 +736,10 @@ func TestGetOutputLinesNoLinesInList(t *testing.T) {
 	if len(lines) != numberlinesExpected {
 		t.Errorf("Don't get an empty list when no entries are added")
 	}
+
+	if frt.entriesToWriteCount != numberlinesExpected {
+		t.Errorf("The entriesToWriteCount is '%d' but should be '%d'", frt.entriesToWriteCount, numberlinesExpected)
+	}
 }
 
 func TestGetOutputLinesSummaryNone(t *testing.T) {
@@ -782,8 +800,94 @@ func TestGetOutputLinesSummaryAdditional(t *testing.T) {
 	if errOut != nil {
 		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
 	}
-	if len(lines) != 8 {
+	if len(lines) != 15 {
 		t.Errorf("Got an unexpected number of lines")
+	}
+
+	if lines[0] != fmt.Sprintf("List of Tracks:%s", GetNewLine()) {
+		t.Errorf("The 1. line has not the expected content. It is '%s' but should be 'List of Tracks:'", lines[0])
+	}
+
+	if lines[1] != GetNewLine() {
+		t.Errorf("The 2. line has not the expected content. It is '%s' but should be ''", lines[1])
+	}
+
+	if lines[2] != frt.GetHeader() {
+		t.Errorf("The 3. line has not the expected content. It is '%s' but should be '%s'", lines[3], frt.GetHeader())
+	}
+
+	if lines[6] != GetNewLine() {
+		t.Errorf("The 7. line has not the expected content. It is '%s' but should be ''", lines[6])
+	}
+
+	if lines[7] != fmt.Sprintf("Summary table:%s", GetNewLine()) {
+		t.Errorf("The 8. line has not the expected content. It is '%s' but should be 'Summary table:'", lines[7])
+	}
+
+	if lines[8] != GetNewLine() {
+		t.Errorf("The 9. line has not the expected content. It is '%s' but should be ''", lines[8])
+	}
+
+	if lines[9] != frt.GetHeader() {
+		t.Errorf("The 10. line has not the expected content. It is '%s' but should be '%s'", lines[9], frt.GetHeader())
+	}
+
+	if frt.entriesToWriteCount != 2 {
+		t.Errorf("GetNumberOfOutputEntries does not return the expected value. It is '%d' but should be '%d'", frt.entriesToWriteCount, 2)
+	}
+}
+
+func TestGetOutputLinesSummaryAdditionalNoTrackPassFilter(t *testing.T) {
+	frt := NewMDOutputFormater()
+
+	trackFile1 := getTrackFileWithDifferentTime()
+	err := frt.AddOutPut(trackFile1, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	trackFile2 := getSimpleTrackFileWithTime()
+	err = frt.AddOutPut(trackFile2, "file", false)
+	if err != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	lines, errOut := frt.GetOutputLines("additional")
+	if errOut != nil {
+		t.Errorf("Got an error but did not expect one. The error is: %s", err.Error())
+	}
+	if len(lines) != 15 {
+		t.Errorf("Got an unexpected number of lines")
+	}
+
+	if lines[0] != fmt.Sprintf("List of Tracks:%s", GetNewLine()) {
+		t.Errorf("The 1. line has not the expected content. It is '%s' but should be 'List of Tracks:'", lines[0])
+	}
+
+	if lines[1] != GetNewLine() {
+		t.Errorf("The 2. line has not the expected content. It is '%s' but should be ''", lines[1])
+	}
+
+	if lines[2] != frt.GetHeader() {
+		t.Errorf("The 3. line has not the expected content. It is '%s' but should be '%s'", lines[3], frt.GetHeader())
+	}
+
+	if lines[6] != GetNewLine() {
+		t.Errorf("The 7. line has not the expected content. It is '%s' but should be ''", lines[6])
+	}
+
+	if lines[7] != fmt.Sprintf("Summary table:%s", GetNewLine()) {
+		t.Errorf("The 8. line has not the expected content. It is '%s' but should be 'Summary table:'", lines[7])
+	}
+
+	if lines[8] != GetNewLine() {
+		t.Errorf("The 9. line has not the expected content. It is '%s' but should be ''", lines[8])
+	}
+
+	if lines[9] != frt.GetHeader() {
+		t.Errorf("The 10. line has not the expected content. It is '%s' but should be '%s'", lines[9], frt.GetHeader())
+	}
+
+	if frt.entriesToWriteCount != 2 {
+		t.Errorf("GetNumberOfOutputEntries does not return the expected value. It is '%d' but should be '%d'", frt.entriesToWriteCount, 2)
 	}
 }
 

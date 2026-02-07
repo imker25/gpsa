@@ -96,6 +96,10 @@ assert_raises "$gpsa -verbose $valid_gpx | grep \"16 of 16 files processed succe
 assert_raises "$gpsa -verbose -skip-error-exit $valid_gpx $testdata/invalid-tcx/02.tcx | grep \"16 of 17 files processed successfully\" &> /dev/null" 0
 assert_raises "$gpsa -verbose -skip-error-exit $valid_gpx $testdata/invalid-tcx/02.tcx | grep \"At least one error occurred\" &> /dev/null" 1
 assert_raises "$gpsa -verbose -minimum-start-time=2012-01-02 -maximum-start-time=2015-03-04 $valid_gpx | grep \"does not contain any tracks after applying the given filters\" | wc -l | grep 13  &> /dev/null" 0
+assert_raises "$gpsa -verbose -std-out-format=MD -summary=additional -minimum-start-time=2026-01-01  $valid_gpx  | grep \"does not contain any tracks after applying the given filters\" | wc -l | grep 16  &> /dev/null" 0
+assert_raises "$gpsa -std-out-format=MD -summary=additional -markdown-track-list-text=\"my value:\" $valid_gpx  | grep \"my value:\" | wc -l | grep 1  &> /dev/null" 0
+assert_raises "$gpsa -std-out-format=MD -summary=additional -markdown-summary-text=\"my value:\" $valid_gpx  | grep \"my value:\" | wc -l | grep 1  &> /dev/null" 0
+assert_raises "$gpsa -std-out-format=MD -summary=additional -markdown-summary-text=\"my value:\" -markdown-track-list-text=\"my value:\"  $valid_gpx  | grep \"my value:\" | wc -l | grep 2  &> /dev/null" 0
 
 # Test stdin
 if [ -f "$csv_out" ]; then

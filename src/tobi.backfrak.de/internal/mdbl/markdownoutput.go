@@ -41,6 +41,8 @@ type MDOutputFormater struct {
 	entriesToWriteCount int
 	lineBuffer          []gpsabl.OutputLine
 	mux                 sync.Mutex
+	TrackListText       string
+	SummaryText         string
 }
 
 // NewMDOutputFormater - Get a new MDOutputFormater
@@ -51,6 +53,8 @@ func NewMDOutputFormater() *MDOutputFormater {
 	ret.timeFormater = gpsabl.RFC3339
 	ret.lineBuffer = []gpsabl.OutputLine{}
 	ret.Separator = "|"
+	ret.TrackListText = "List of Tracks:"
+	ret.SummaryText = "Summary table:"
 
 	return &ret
 }
@@ -186,41 +190,59 @@ func (formater *MDOutputFormater) WriteOutput(outFile *os.File, summary gpsabl.S
 		return getErr
 	}
 
+	if formater.entriesToWriteCount == 0 {
+		formater.writtenEntiresCount = formater.entriesToWriteCount
+		return nil
+	}
+
 	for _, line := range lines {
 		_, errWrite := outFile.WriteString(line)
 		if errWrite != nil {
 			return errWrite
 		}
 	}
-	formater.writtenEntiresCount = formater.entriesToWriteCount
 
+	formater.writtenEntiresCount = formater.entriesToWriteCount
 	return nil
 }
 
 // GetOutputLines - Get all lines of the output
 func (formater *MDOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]string, error) {
-	var lines []string
+	var contentLines []string
+	var outputLines []string
 	var headerLines []string
+	if summary == gpsabl.ADDITIONAL {
+		outputLines = append(outputLines, fmt.Sprintf("%s%s", formater.TrackListText, GetNewLine()))
+		outputLines = append(outputLines, GetNewLine())
+	}
 	headerLines = append(headerLines, formater.GetHeader())
 	headerLines = append(headerLines, formater.GetHeaderContentSeparator())
 	switch summary {
 	case gpsabl.NONE:
-		lines = append(lines, formater.GetLines()...)
+		contentLines = append(contentLines, formater.GetLines()...)
 	case gpsabl.ONLY:
-		lines = append(lines, formater.GetStatisticSummaryLines()...)
+		contentLines = append(contentLines, formater.GetStatisticSummaryLines()...)
 	case gpsabl.ADDITIONAL:
-		lines = append(lines, formater.GetLines()...)
-		lines = append(lines, formater.GetStatisticSummaryLines()...)
+		contentLines = append(contentLines, formater.GetLines()...)
 	default:
 		return nil, gpsabl.NewSummaryParamaterNotKnown(summary)
 	}
 
-	formater.entriesToWriteCount = len(lines)
+	formater.entriesToWriteCount = len(contentLines)
 	if formater.entriesToWriteCount > 0 {
-		return append(headerLines, lines...), nil
+		outputLines = append(outputLines, headerLines...)
+		outputLines = append(outputLines, contentLines...)
+		if summary == gpsabl.ADDITIONAL {
+			outputLines = append(outputLines, GetNewLine())
+			outputLines = append(outputLines, fmt.Sprintf("%s%s", formater.SummaryText, GetNewLine()))
+			outputLines = append(outputLines, GetNewLine())
+			outputLines = append(outputLines, headerLines...)
+			outputLines = append(outputLines, formater.GetStatisticSummaryLines()...)
+		}
+		return outputLines, nil
 	}
 
-	return lines, nil
+	return contentLines, nil
 }
 
 // getOutPutEntries - Add the output of a TrackFile
