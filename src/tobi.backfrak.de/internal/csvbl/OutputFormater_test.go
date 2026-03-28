@@ -46,6 +46,10 @@ func TestTextOutputFormater(t *testing.T) {
 	if sut.CheckTimeFormatIsValid("asd") == true {
 		t.Errorf("asd is a valid Time Format")
 	}
+
+	if sut.GetOutputTableLineCount() != 0 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetOutputTableLineCount(), 0)
+	}
 }
 
 func TestNewOutputFormater(t *testing.T) {
@@ -402,6 +406,10 @@ func TestAddOutPut(t *testing.T) {
 	if strings.Count(lines[0], "not valid;") != numberOfNotValideExpected {
 		t.Errorf("The output does not contain the Time values as expected. It is: %s", lines[0])
 	}
+
+	if frt.GetOutputTableLineCount() != 1 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", frt.GetOutputTableLineCount(), 1)
+	}
 }
 
 func TestAddOutPutWithTimeStamp(t *testing.T) {
@@ -469,6 +477,10 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 
 	if frt.GetNumberOfOutputEntries() != 3 {
 		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 3)
+	}
+
+	if frt.GetOutputTableLineCount() != 3 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", frt.GetOutputTableLineCount(), 3)
 	}
 }
 

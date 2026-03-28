@@ -73,6 +73,10 @@ func TestNewOutputFormater(t *testing.T) {
 		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetNumberOfOutputEntries(), -1)
 	}
 
+	if sut.GetOutputTableLineCount() != 0 {
+		t.Errorf("The initial value of GetOutputTableLineCount is %d but should be %d", sut.GetNumberOfOutputEntries(), 0)
+	}
+
 }
 
 func TestSetTimeFormat(t *testing.T) {
@@ -152,6 +156,10 @@ func TestFormatOutPutWithHeader(t *testing.T) {
 
 	if strings.Contains(ret[0], trackFile.FilePath) == false {
 		t.Errorf("The output does not contain the name as expected. It is: %s", ret[1])
+	}
+
+	if formater.GetOutputTableLineCount() != 1 {
+		t.Errorf("The initial value of GetOutputTableLineCount is %d but should be %d", formater.GetOutputTableLineCount(), 1)
 	}
 }
 
@@ -409,6 +417,10 @@ func TestWriteOutputSegmentDepth(t *testing.T) {
 
 	if frt.GetNumberOfOutputEntries() != 3 {
 		t.Errorf("Error: The number of output entries is %d but should be %d", frt.GetNumberOfOutputEntries(), 3)
+	}
+
+	if frt.GetOutputTableLineCount() != 3 {
+		t.Errorf("The initial value of GetOutputTableLineCount is %d but should be %d", frt.GetOutputTableLineCount(), 3)
 	}
 }
 

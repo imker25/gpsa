@@ -100,6 +100,8 @@ assert_raises "$gpsa -verbose -std-out-format=MD -summary=additional -minimum-st
 assert_raises "$gpsa -std-out-format=MD -summary=additional -markdown-track-list-text=\"my value:\" $valid_gpx  | grep \"my value:\" | wc -l | grep 1  &> /dev/null" 0
 assert_raises "$gpsa -std-out-format=MD -summary=additional -markdown-summary-text=\"my value:\" $valid_gpx  | grep \"my value:\" | wc -l | grep 1  &> /dev/null" 0
 assert_raises "$gpsa -std-out-format=MD -summary=additional -markdown-summary-text=\"my value:\" -markdown-track-list-text=\"my value:\"  $valid_gpx  | grep \"my value:\" | wc -l | grep 2  &> /dev/null" 0
+assert_raises "$gpsa -verbose -std-out-format=MD -summary=additional $testdata/valid-gpx/01.gpx | grep \"No Summary will be added to the output, because the output does only contain one line.\" | wc -l | grep 1  &> /dev/null" 0
+assert_raises "$gpsa -std-out-format=MD -summary=additional $testdata/valid-gpx/01.gpx  | wc -l | grep 3  &> /dev/null" 0
 
 # Test stdin
 if [ -f "$csv_out" ]; then
