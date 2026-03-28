@@ -168,6 +168,10 @@ func (formater *MDOutputFormater) GetStatisticSummaryLines() []string {
 	return ret
 }
 
+func (formater *MDOutputFormater) GetOutputTableLineCount() int {
+	return len(formater.lineBuffer)
+}
+
 // GetLines - Get the lines stored in the internal buffer
 func (formater *MDOutputFormater) GetLines() []string {
 	ret := []string{}

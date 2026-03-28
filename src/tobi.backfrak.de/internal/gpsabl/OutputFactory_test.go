@@ -145,3 +145,7 @@ func (formater *formaterMock) GetTextOutputFormater() TextOutputFormater {
 func (formater *formaterMock) GetNumberOfOutputEntries() int {
 	return formater.WrittenEntriesCount
 }
+
+func (formater *formaterMock) GetOutputTableLineCount() int {
+	return len(formater.lineBuffer)
+}

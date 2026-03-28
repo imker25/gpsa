@@ -92,6 +92,12 @@ func main() {
 		successCount := processFiles(fileArgs, iFormater)
 
 		// Write the output
+		if SummaryParameter == string(gpsabl.ADDITIONAL) && iFormater.GetOutputTableLineCount() == 1 {
+			if VerboseFlag == true {
+				fmt.Fprintln(os.Stdout, fmt.Sprintf("No Summary will be added to the output, because the output does only contain one line."))
+			}
+			SummaryParameter = string(gpsabl.NONE)
+		}
 		errWrite := iFormater.WriteOutput(out, gpsabl.SummaryArg(SummaryParameter))
 		if errWrite != nil {
 			HandleError(errWrite, OutFileParameter, false, DontPanicFlag)
@@ -256,7 +262,6 @@ func processFile(inFile gpsabl.InputFile, formater gpsabl.OutputFormater) bool {
 
 	// Filter the track
 	if len(DefinedFilters) > 0 {
-		// TODO Write Tests for this functionality
 		file = gpsabl.FilterTrackFile(file, DefinedFilters)
 	}
 

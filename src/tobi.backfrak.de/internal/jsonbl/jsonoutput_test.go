@@ -56,6 +56,10 @@ func TestNewOutputFormater(t *testing.T) {
 		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetNumberOfOutputEntries(), -1)
 	}
 
+	if sut.GetOutputTableLineCount() != 0 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetOutputTableLineCount(), 0)
+	}
+
 	form := sut.GetOutputFormaterTypes()
 
 	if len(form) != 1 {
@@ -172,6 +176,10 @@ func TestAddOutPutFileDepth(t *testing.T) {
 
 	if len(sut.lineBuffer) != 2 {
 		t.Errorf("Expected 2 lines, but got %d", len(sut.lineBuffer))
+	}
+
+	if sut.GetOutputTableLineCount() != 2 {
+		t.Errorf("The initial value of GetNumberOfOutputEntries is %d but should be %d", sut.GetOutputTableLineCount(), 2)
 	}
 }
 

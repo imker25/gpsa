@@ -133,6 +133,9 @@ type OutputFormater interface {
 	// Get the TextOutputFormater version of this formater or nil if the formater is not a TextOutputFormater
 	GetTextOutputFormater() TextOutputFormater
 
+	// Get the number of output lines in the normal output table
+	GetOutputTableLineCount() int
+
 	// Tells the number if output entries already written to output.
 	// * -1: When output was not written yet
 	// * 0: Output was written but contains no entries, may because no entry passes the given filter

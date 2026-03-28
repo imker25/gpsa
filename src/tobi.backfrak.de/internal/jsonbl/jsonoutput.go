@@ -123,6 +123,11 @@ func (formater *JSONOutputFormater) GetOutput(summary gpsabl.SummaryArg) (JSONOu
 	return ret, nil
 }
 
+// Get the number of output lines in the normal output table
+func (formater *JSONOutputFormater) GetOutputTableLineCount() int {
+	return len(formater.lineBuffer)
+}
+
 // CheckOutputFormaterType - Check if this OutputFormater is responsible for the given gpsabl.OutputFormaterType
 func (formater *JSONOutputFormater) CheckOutputFormaterType(formaterType gpsabl.OutputFormaterType) bool {
 	if formaterType == JSONOutputFormatertype {

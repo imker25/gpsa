@@ -254,6 +254,11 @@ func (formater *CsvOutputFormater) GetOutputLines(summary gpsabl.SummaryArg) ([]
 	return lines, nil
 }
 
+// Get the number of output lines in the normal output table
+func (formater *CsvOutputFormater) GetOutputTableLineCount() int {
+	return len(formater.lineBuffer)
+}
+
 // getOutPutEntries - Add the output of a TrackFile
 func (formater *CsvOutputFormater) getOutPutEntries(trackFile gpsabl.TrackFile, depth gpsabl.DepthArg) ([]gpsabl.OutputLine, error) {
 
